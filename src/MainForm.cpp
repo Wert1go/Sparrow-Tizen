@@ -12,6 +12,9 @@
 #include <FBase.h>
 #include "SceneRegister.h"
 
+#include <stdio.h>
+#include "dispatch/dispatch.h"
+
 using namespace Tizen::App;
 using namespace Tizen::Base;
 using namespace Tizen::Ui;
@@ -27,6 +30,20 @@ using namespace Tizen::Media;
 #define ID_SETTINGS 104
 
 MainForm::MainForm() {
+
+	void (^printDate)() = ^() {
+		AppLog("BLOOOOOOOOOOOOOOOOOK!!!!111");
+	};
+
+	printDate();
+
+	dispatch_async(dispatch_get_global_queue(0, 0), ^{
+
+	         dispatch_async(dispatch_get_main_queue(), ^{
+
+	         });
+	});
+
 	Form::Construct(FORM_STYLE_HEADER);
 	SetFormBackEventListener(this);
 

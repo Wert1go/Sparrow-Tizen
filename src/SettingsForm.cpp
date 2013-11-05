@@ -14,6 +14,8 @@
 #include <FWeb.h>
 #include "SceneRegister.h"
 
+#include "User.h"
+
 using namespace Tizen::App;
 using namespace Tizen::Base;
 using namespace Tizen::Ui;
@@ -101,8 +103,6 @@ SettingsForm::OnTransactionReadyToRead(HttpSession& httpSession, HttpTransaction
 			String* tempHeaderString = pHttpHeader->GetRawHeaderN();
 			ByteBuffer* pBuffer = pHttpResponse->ReadBodyN();
 
-			AppLog("OnTransactionReadyToRead::JSON START");
-
 			IJsonValue* pJson = JsonParser::ParseN(*pBuffer);
 			JsonObject* pObject = static_cast< JsonObject* >(pJson);
 
@@ -112,33 +112,22 @@ SettingsForm::OnTransactionReadyToRead(HttpSession& httpSession, HttpTransaction
 				pObject->GetValue(pKeyResponse, pValResponseArray);
 
 				JsonArray *pArray = static_cast< JsonArray* >(pValResponseArray);
-				AppLog("OnTransactionReadyToRead::JSON START ARRAY");
+
 				if (pArray->GetCount() > 0) {
 					IJsonValue* pUserObjectValue = null;
 					pArray->GetAt(0, pUserObjectValue);
 
 					JsonObject* pUserObject = static_cast< JsonObject* >(pUserObjectValue);
 
+					User *user = User::CreateFromJsonN(*pUserObject);
 
-					JsonString* pKeyFirstName = new JsonString(L"first_name");
-					JsonString* pKeyLastName = new JsonString(L"last_name");
-
-					IJsonValue* pValFirstName = null;
-					IJsonValue* pValLastName = null;
-
-					pUserObject->GetValue(pKeyFirstName, pValFirstName);
-					pUserObject->GetValue(pKeyLastName, pValLastName);
-
-					JsonString *firstName = static_cast< JsonString* >(pValFirstName);
-					JsonString *lastName = static_cast< JsonString* >(pValLastName);
-
-					if (firstName != null && lastName != null) {
+					if (user != null && user->GetFirstName() != null) {
 
 						String title(L"");
 
-						title.Append(firstName->GetPointer());
+						title.Append(user->GetFirstName()->GetPointer());
 						title.Append(L" ");
-						title.Append(lastName->GetPointer());
+						title.Append(user->GetLastName()->GetPointer());
 
 						this->GetHeader()->SetTitleText(title);
 
@@ -146,10 +135,10 @@ SettingsForm::OnTransactionReadyToRead(HttpSession& httpSession, HttpTransaction
 					}
 
 				}
+
+				delete pJson;
+				delete pKeyResponse;
 			}
-
-
-
 
 			Draw();
 
