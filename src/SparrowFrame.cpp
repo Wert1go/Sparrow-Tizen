@@ -9,6 +9,7 @@
 #include "SparrowFrame.h"
 #include "SceneRegister.h"
 #include "AuthManager.h"
+#include "RestClient.h"
 
 using namespace Tizen::Base;
 using namespace Tizen::Ui;
@@ -27,6 +28,8 @@ result
 SparrowFrame::OnInitializing(void)
 {
 	result r = E_SUCCESS;
+	String *baseUrl = new String(L"https://api.vk.com/");
+	RestClient::getInstance().SetBaseUrl(baseUrl);
 
 	SceneRegister::RegisterAllScenes();
 

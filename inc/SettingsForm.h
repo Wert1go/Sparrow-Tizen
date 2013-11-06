@@ -11,10 +11,12 @@
 #include <FUi.h>
 #include <FNet.h>
 
+#include "IUserRequestListener.h"
+
 class SettingsForm
  : public Tizen::Ui::Controls::Form
  , public Tizen::Ui::Controls::IFormBackEventListener
- , public Tizen::Net::Http::IHttpTransactionEventListener
+ , public IUserRequestListener
    {
 public:
 	SettingsForm();
@@ -23,17 +25,11 @@ public:
 	virtual void OnFormBackRequested(Tizen::Ui::Controls::Form& source);
 
 	void SendRequest(void);
+	virtual void OnSuccessN(RestResponse *user);
+	virtual void OnErrorN(void);
+	virtual void OnUserEventReceivedN(RequestId requestId, Tizen::Base::Collection::IList* pArgs);
+	User *__user;
 
-	// IHttpTransactionEventListener
-	virtual void OnTransactionReadyToRead(Tizen::Net::Http::HttpSession& httpSession, Tizen::Net::Http::HttpTransaction& httpTransaction, int availableBodyLen);
-	virtual void OnTransactionAborted(Tizen::Net::Http::HttpSession& httpSession, Tizen::Net::Http::HttpTransaction& httpTransaction, result r);
-	virtual void OnTransactionReadyToWrite(Tizen::Net::Http::HttpSession& httpSession, Tizen::Net::Http::HttpTransaction& httpTransaction, int recommendedChunkSize);
-	virtual void OnTransactionHeaderCompleted(Tizen::Net::Http::HttpSession& httpSession, Tizen::Net::Http::HttpTransaction& httpTransaction, int headerLen, bool authRequired);
-	virtual void OnTransactionCompleted(Tizen::Net::Http::HttpSession& httpSession, Tizen::Net::Http::HttpTransaction& httpTransaction);
-	virtual void OnTransactionCertVerificationRequiredN(Tizen::Net::Http::HttpSession& httpSession, Tizen::Net::Http::HttpTransaction& httpTransaction, Tizen::Base::String* pCert);
-
-private:
-	Tizen::Net::Http::HttpSession* __pHttpSession;
 };
 
 #endif /* SETTINGSFORM_H_ */

@@ -15,9 +15,15 @@
 #include "SceneRegister.h"
 
 #include "User.h"
+#include "RestRequestOperation.h"
+#include "UserDescriptor.h"
+#include "UserRestResponse.h"
+
+
 
 using namespace Tizen::App;
 using namespace Tizen::Base;
+using namespace Tizen::Base::Collection;
 using namespace Tizen::Ui;
 using namespace Tizen::Io;
 using namespace Tizen::Ui::Controls;
@@ -67,121 +73,53 @@ SettingsForm::OnFormBackRequested(Tizen::Ui::Controls::Form& source)
 
 void
 SettingsForm::SendRequest() {
-	String* pProxyAddr = null;
-	String hostAddr = L"https://api.vk.com/";
-	String uri = L"https://api.vk.com/method/users.get?user_ids=30143161";
 
-	HttpHeader* pHeader = null;
-	HttpTransaction* pHttpTransaction = null;
-	__pHttpSession = new HttpSession();
-	__pHttpSession->Construct(NET_HTTP_SESSION_MODE_NORMAL, pProxyAddr, hostAddr, null);
-
-	pHttpTransaction = __pHttpSession->OpenTransactionN();
-	pHttpTransaction->AddHttpTransactionListener(*this);
-
-	HttpRequest* pHttpRequest = pHttpTransaction->GetRequest();
-
-	pHttpRequest->SetMethod(NET_HTTP_METHOD_GET);
-	pHttpRequest->SetUri(uri);
-	pHeader = pHttpRequest->GetHeader();
-	pHeader->AddField(L"Accept", L"application/json");
-
-	pHttpTransaction->Submit();
+	RestRequestOperation *operation = new RestRequestOperation();
+	operation->AddEventListener(this);
+	operation->SetResponseDescriptor(new UserDescriptor());
+	operation->perform();
 }
 
-void
-SettingsForm::OnTransactionReadyToRead(HttpSession& httpSession, HttpTransaction& httpTransaction, int availableBodyLen)
-{
-	AppLog("OnTransactionReadyToRead");
+void SettingsForm::OnSuccessN(RestResponse *response) {
 
-	HttpResponse* pHttpResponse = httpTransaction.GetResponse();
-	if (pHttpResponse->GetHttpStatusCode() == HTTP_STATUS_OK)
-	{
-		HttpHeader* pHttpHeader = pHttpResponse->GetHeader();
-		if (pHttpHeader != null)
-		{
-			String* tempHeaderString = pHttpHeader->GetRawHeaderN();
-			ByteBuffer* pBuffer = pHttpResponse->ReadBodyN();
+	UserRestResponse *userResponse = static_cast<UserRestResponse *>(response);
 
-			IJsonValue* pJson = JsonParser::ParseN(*pBuffer);
-			JsonObject* pObject = static_cast< JsonObject* >(pJson);
+	User *user = userResponse->GetUser();
 
-			if (pJson != null) {
-				JsonString* pKeyResponse = new JsonString(L"response");
-				IJsonValue* pValResponseArray = null;
-				pObject->GetValue(pKeyResponse, pValResponseArray);
+	if (user != null && user->GetFirstName() != null) {
 
-				JsonArray *pArray = static_cast< JsonArray* >(pValResponseArray);
+		__user = user;
 
-				if (pArray->GetCount() > 0) {
-					IJsonValue* pUserObjectValue = null;
-					pArray->GetAt(0, pUserObjectValue);
-
-					JsonObject* pUserObject = static_cast< JsonObject* >(pUserObjectValue);
-
-					User *user = User::CreateFromJsonN(*pUserObject);
-
-					if (user != null && user->GetFirstName() != null) {
-
-						String title(L"");
-
-						title.Append(user->GetFirstName()->GetPointer());
-						title.Append(L" ");
-						title.Append(user->GetLastName()->GetPointer());
-
-						this->GetHeader()->SetTitleText(title);
-
-						Draw();
-					}
-
-				}
-
-				delete pJson;
-				delete pKeyResponse;
-			}
-
-			Draw();
-
-			delete tempHeaderString;
-			delete pBuffer;
-		}
+		this->SendUserEvent(0, 0);
+		Tizen::App::App::GetInstance()->SendUserEvent(0, 0);
 	}
 }
 
-void
-SettingsForm::OnTransactionAborted(HttpSession& httpSession, HttpTransaction& httpTransaction, result r)
-{
-	AppLog("OnTransactionAborted(%s)", GetErrorMessage(r));
+void SettingsForm::OnUserEventReceivedN	(RequestId requestId, Tizen::Base::Collection::IList *pArgs) {
 
-	delete &httpTransaction;
+	User *user = __user;
+
+	String title(L"");
+
+	//AppLog("OnTransactionReadyToRead2");
+
+	title.Append(user->GetFirstName()->GetPointer());
+	title.Append(L" ");
+	title.Append(user->GetLastName()->GetPointer());
+	this->GetHeader()->SetTitleText(title);
+	Draw();
+
+	//AppLog("OnTransactionReadyToRead3");
+
+	delete pArgs;
 }
 
-void
-SettingsForm::OnTransactionReadyToWrite(HttpSession& httpSession, HttpTransaction& httpTransaction, int recommendedChunkSize)
-{
-	AppLog("OnTransactionReadyToWrite");
+void SettingsForm::OnErrorN() {
+
 }
 
-void
-SettingsForm::OnTransactionHeaderCompleted(HttpSession& httpSession, HttpTransaction& httpTransaction, int headerLen, bool authRequired)
-{
-	AppLog("OnTransactionHeaderCompleted");
-}
 
-void
-SettingsForm::OnTransactionCompleted(HttpSession& httpSession, HttpTransaction& httpTransaction)
-{
-	AppLog("OnTransactionCompleted");
 
-	delete &httpTransaction;
-}
 
-void
-SettingsForm::OnTransactionCertVerificationRequiredN(HttpSession& httpSession, HttpTransaction& httpTransaction, Tizen::Base::String* pCert)
-{
-	AppLog("OnTransactionCertVerificationRequiredN");
 
-	httpTransaction.Resume();
 
-	delete pCert;
-}
