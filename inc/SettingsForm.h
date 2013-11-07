@@ -10,13 +10,17 @@
 
 #include <FUi.h>
 #include <FNet.h>
+#include "IRestRequestListener.h"
 
-#include "IUserRequestListener.h"
+#include "RestResponse.h"
+#include "Error.h"
+#include "User.h"
+#include "RestRequestOperation.h"
 
 class SettingsForm
  : public Tizen::Ui::Controls::Form
  , public Tizen::Ui::Controls::IFormBackEventListener
- , public IUserRequestListener
+ , public IRestRequestListener
    {
 public:
 	SettingsForm();
@@ -26,9 +30,13 @@ public:
 
 	void SendRequest(void);
 	virtual void OnSuccessN(RestResponse *user);
-	virtual void OnErrorN(void);
+	virtual void OnErrorN(Error *error);
+
 	virtual void OnUserEventReceivedN(RequestId requestId, Tizen::Base::Collection::IList* pArgs);
 	User *__user;
+
+private:
+	RestRequestOperation *__userRequestOperation;
 
 };
 

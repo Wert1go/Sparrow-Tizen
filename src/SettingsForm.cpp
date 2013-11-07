@@ -18,7 +18,8 @@
 #include "RestRequestOperation.h"
 #include "UserDescriptor.h"
 #include "UserRestResponse.h"
-
+#include "RestClient.h"
+#include "AuthManager.h"
 
 
 using namespace Tizen::App;
@@ -46,7 +47,6 @@ SettingsForm::SettingsForm() {
 
 	Header* pHeader = this->GetHeader();
 
-	pHeader->SetTabEditModeEnabled(false);
 	pHeader->SetStyle(HEADER_STYLE_TITLE);
 	pHeader->SetColor(*pHeaderBackgroundColor);
 	pHeader->SetTitleTextColor(*pHeaderTextColor);
@@ -55,12 +55,22 @@ SettingsForm::SettingsForm() {
 	delete pHeaderBackgroundColor;
 	delete pHeaderTextColor;
 	delete pFormBackgroundColor;
-
+	__user = null;
+	__userRequestOperation = null;
 	SendRequest();
 }
 
 SettingsForm::~SettingsForm() {
-	// TODO Auto-generated destructor stub
+	if (__user) {
+		delete __user;
+	}
+
+	if (__userRequestOperation) {
+		__userRequestOperation->AddEventListener(null);
+		AppLogDebug("11111111111~SettingsForm~SettingsForm~SettingsForm~SettingsForm");
+	}
+
+	AppLogDebug("~SettingsForm~SettingsForm~SettingsForm~SettingsForm");
 }
 
 void
@@ -74,48 +84,66 @@ SettingsForm::OnFormBackRequested(Tizen::Ui::Controls::Form& source)
 void
 SettingsForm::SendRequest() {
 
-	RestRequestOperation *operation = new RestRequestOperation();
-	operation->AddEventListener(this);
-	operation->SetResponseDescriptor(new UserDescriptor());
-	operation->perform();
+	HashMap *params = new HashMap();
+	params->Construct();
+	params->Add(new String(L"user_ids"), AuthManager::getInstance().UserId());
+	params->Add(new String(L"fields"), new String(L"photo_100"));
+
+	if (!__userRequestOperation) {
+		__userRequestOperation = new RestRequestOperation(GET_USER, new String(L"users.get"), params);
+		__userRequestOperation->AddEventListener(this);
+		__userRequestOperation->SetResponseDescriptor(new UserDescriptor());
+		RestClient::getInstance().PerformOperation(__userRequestOperation);
+	}
 }
 
 void SettingsForm::OnSuccessN(RestResponse *response) {
 
-	UserRestResponse *userResponse = static_cast<UserRestResponse *>(response);
+	if (response->GetOperationCode() == GET_USER) {
 
-	User *user = userResponse->GetUser();
+		__userRequestOperation->AddEventListener(null);
+		__userRequestOperation = null;
 
-	if (user != null && user->GetFirstName() != null) {
+		AppLogDebug("OnSuccessNOnSuccessNOnSuccessNOnSuccessNOnSuccessN");
 
-		__user = user;
+		UserRestResponse *userResponse = static_cast<UserRestResponse *>(response);
 
-		this->SendUserEvent(0, 0);
-		Tizen::App::App::GetInstance()->SendUserEvent(0, 0);
+		User *user = userResponse->GetUser();
+
+		if (user != null && user->GetFirstName() != null) {
+			__user = user;
+		}
 	}
+
+	this->SendUserEvent(response->GetOperationCode(), 0);
+	Tizen::App::App::GetInstance()->SendUserEvent(response->GetOperationCode(), 0);
 }
 
-void SettingsForm::OnUserEventReceivedN	(RequestId requestId, Tizen::Base::Collection::IList *pArgs) {
+void SettingsForm::OnUserEventReceivedN(RequestId requestId, Tizen::Base::Collection::IList *pArgs) {
 
-	User *user = __user;
+	if (requestId == GET_USER) {
+		User *user = __user;
 
-	String title(L"");
+		String title(L"");
 
-	//AppLog("OnTransactionReadyToRead2");
+		//AppLog("OnTransactionReadyToRead2");
 
-	title.Append(user->GetFirstName()->GetPointer());
-	title.Append(L" ");
-	title.Append(user->GetLastName()->GetPointer());
-	this->GetHeader()->SetTitleText(title);
-	Draw();
+		title.Append(user->GetFirstName()->GetPointer());
+		title.Append(L" ");
+		title.Append(user->GetLastName()->GetPointer());
+		this->GetHeader()->SetTitleText(title);
+		Draw();
 
-	//AppLog("OnTransactionReadyToRead3");
-
+		//AppLog("OnTransactionReadyToRead3");
+	}
 	delete pArgs;
 }
 
-void SettingsForm::OnErrorN() {
+void SettingsForm::OnErrorN(Error *error) {
+	__userRequestOperation->AddEventListener(null);
+	__userRequestOperation = null;
 
+	delete error;
 }
 
 
