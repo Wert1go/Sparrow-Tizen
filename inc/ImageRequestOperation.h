@@ -1,33 +1,25 @@
 /*
- * RestRequestOperation.h
+ * ImageRequestOperation.h
  *
- *  Created on: Nov 6, 2013
+ *  Created on: Nov 9, 2013
  *      Author: developer
  */
 
-#ifndef RESTREQUESTOPERATION_H_
-#define RESTREQUESTOPERATION_H_
-
-static const long GET_USER = 100999101;
+#ifndef IMAGEREQUESTOPERATION_H_
+#define IMAGEREQUESTOPERATION_H_
 
 #include <FNet.h>
-
-#include "IRestRequestListener.h"
-#include "ResponseDescriptor.h"
-#include "IRequestOperation.h"
+#import "IRequestOperation.h"
+#include "IImageRequestListener.h"
 #include "IRestRequestOwner.h"
 
-
-using namespace Tizen::Base;
-using namespace Tizen::Base::Collection;
-
-class RestRequestOperation
+class ImageRequestOperation
  : public Tizen::Net::Http::IHttpTransactionEventListener
  , IRequestOperation
 {
 public:
-	RestRequestOperation(long operationCode, String *method, HashMap *params);
-	virtual ~RestRequestOperation();
+	ImageRequestOperation(const Tizen::Base::String *url);
+	virtual ~ImageRequestOperation();
 
 private:
 	// IHttpTransactionEventListener
@@ -40,28 +32,20 @@ private:
 
 public:
 	void SetRequestOwner(IRestRequestOwner *owner);
-	void AddEventListener(IRestRequestListener *listener);
-	void SetResponseDescriptor(ResponseDescriptor *responseDescriptor);
-
+	void AddImageRequestListener(IImageRequestListener *pImageRequestListener);
 
 private:
 	Tizen::Net::Http::HttpTransaction* __pHttpTransaction;
-
-	IRestRequestListener *__restRequestListener;
-	ResponseDescriptor *__responseDescriptor;
-	IRestRequestOwner *__requestOwner;
+	Tizen::Base::String *__pUrl;
+	IRestRequestOwner *__pRequestOwner;
+	IImageRequestListener *__pImageRequestListener;
 	bool __isComplited;
-
-	String *__method;
-	long __operationCode;
 
 	void CheckCompletionAndCleanUp();
 
 public:
 	void perform();
-	long GetOperationCode();
 	bool GetIsComplited();
-
 };
 
-#endif /* RESTREQUESTOPERATION_H_ */
+#endif /* IMAGEREQUESTOPERATION_H_ */

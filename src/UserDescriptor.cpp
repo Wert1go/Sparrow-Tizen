@@ -8,6 +8,7 @@
 #include "UserDescriptor.h"
 
 #include "UserRestResponse.h"
+#include "MUserDao.h"
 
 UserDescriptor::UserDescriptor() {
 	// TODO Auto-generated constructor stub
@@ -34,12 +35,18 @@ RestResponse *UserDescriptor::performObjectMappingN(JsonObject* pObject) {
 
 		JsonObject* pUserObject = static_cast< JsonObject* >(pUserObjectValue);
 
-		User *user = User::CreateFromJsonN(*pUserObject);
+		AppLog("Begin mapping");
+		MUser *user = MUser::CreateFromJsonN(*pUserObject);
 
+		AppLog("Begin Cache");
+		MUserDao::getInstance().Save(user);
+		AppLog("End Cache");
 		response->SetUser(user);
 
 		AppLog("OnTransactionReadyToRead1");
 	}
+
+	delete pKeyResponse;
 
 	return response;
 }

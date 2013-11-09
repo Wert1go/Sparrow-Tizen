@@ -9,7 +9,7 @@
 #define USERRESTRESPONSE_H_
 
 #include "RestResponse.h"
-#include "User.h"
+#include "MUser.h"
 
 class UserRestResponse
  : public RestResponse
@@ -18,11 +18,11 @@ public:
 	UserRestResponse();
 	virtual ~UserRestResponse();
 
-	void SetUser(User *user);
-	User *GetUser();
+	void SetUser(MUser *user);
+	MUser *GetUser();
 
 private:
-	User *__user;
+	MUser *__user;
 };
 
 #endif /* USERRESTRESPONSE_H_ */

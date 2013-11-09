@@ -10,11 +10,14 @@
 
 #include <FWeb.h>
 
+using namespace Tizen::Base;
+
 class Bean {
 public:
 	Bean();
 	virtual ~Bean();
 	static Bean* CreateFromJsonN(const Tizen::Web::Json::JsonObject &jsonObject);
+	static String& TableDescription();
 };
 
 #endif /* BEAN_H_ */

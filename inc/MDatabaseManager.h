@@ -11,22 +11,22 @@
 #include <FIo.h>
 using namespace Tizen::Io;
 
-class DatabaseManager {
+class MDatabaseManager {
 public:
 
-	static DatabaseManager& getInstance()
+	static MDatabaseManager& getInstance()
     {
-    	static DatabaseManager	instance; // Guaranteed to be destroyed.
+    	static MDatabaseManager	instance; // Guaranteed to be destroyed.
                                   // Instantiated on first use.
     	return instance;
 	}
 
 
 private:
-	DatabaseManager();
-	virtual ~DatabaseManager();
-	DatabaseManager(DatabaseManager const&);              // Don't Implement
-	void operator = (DatabaseManager const&);
+	MDatabaseManager();
+	virtual ~MDatabaseManager();
+	MDatabaseManager(MDatabaseManager const&);              // Don't Implement
+	void operator = (MDatabaseManager const&);
 
 public:
 	Database *GetDatabase();

@@ -10,17 +10,23 @@
 
 #include <FUi.h>
 #include <FNet.h>
+#include <FMedia.h>
 #include "IRestRequestListener.h"
 
 #include "RestResponse.h"
 #include "Error.h"
-#include "User.h"
+#include "MUser.h"
 #include "RestRequestOperation.h"
+#include "IImageLoadingListener.h"
+
+using namespace Tizen::Media;
+using namespace Tizen::Graphics;
 
 class SettingsForm
  : public Tizen::Ui::Controls::Form
  , public Tizen::Ui::Controls::IFormBackEventListener
  , public IRestRequestListener
+ , public IImageLoadingListener
    {
 public:
 	SettingsForm();
@@ -33,10 +39,16 @@ public:
 	virtual void OnErrorN(Error *error);
 
 	virtual void OnUserEventReceivedN(RequestId requestId, Tizen::Base::Collection::IList* pArgs);
-	User *__user;
+	MUser *__user;
+	Tizen::Graphics::Bitmap *__bitmap;
+
+	virtual result OnDraw(void);
+	virtual void OnImageLoadedN(Bitmap *result);
 
 private:
 	RestRequestOperation *__userRequestOperation;
+
+	void UpdateInterfaceForCurrentUser();
 
 };
 

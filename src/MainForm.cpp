@@ -30,20 +30,6 @@ using namespace Tizen::Media;
 #define ID_SETTINGS 104
 
 MainForm::MainForm() {
-
-	void (^printDate)() = ^() {
-		AppLog("BLOOOOOOOOOOOOOOOOOK!!!!111");
-	};
-
-	printDate();
-
-	dispatch_async(dispatch_get_global_queue(0, 0), ^{
-
-	         dispatch_async(dispatch_get_main_queue(), ^{
-
-	         });
-	});
-
 	Form::Construct(FORM_STYLE_HEADER);
 	SetFormBackEventListener(this);
 
@@ -54,7 +40,6 @@ MainForm::MainForm() {
 	Color *pHeaderTextColor = new (std::nothrow) Color(255, 255, 255, 255);
 
 	Header* pHeader = this->GetHeader();
-	pHeader->SetTabEditModeEnabled(false);
 	pHeader->SetStyle(HEADER_STYLE_TAB_LARGE);
 	pHeader->SetItemTextColor(HEADER_ITEM_STATUS_NORMAL, *pHeaderTextColor);
 	pHeader->SetItemTextColor(HEADER_ITEM_STATUS_SELECTED, *pHeaderTextColor);

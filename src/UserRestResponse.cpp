@@ -16,10 +16,10 @@ UserRestResponse::~UserRestResponse() {
 	// TODO Auto-generated destructor stub
 }
 
-void UserRestResponse::SetUser(User *user) {
+void UserRestResponse::SetUser(MUser *user) {
 	__user = user;
 }
 
-User* UserRestResponse::GetUser() {
+MUser* UserRestResponse::GetUser() {
 	return __user;
 }

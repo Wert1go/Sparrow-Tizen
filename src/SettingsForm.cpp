@@ -13,17 +13,21 @@
 #include <FNet.h>
 #include <FWeb.h>
 #include "SceneRegister.h"
+#include "Util.h"
 
-#include "User.h"
+#include "MUser.h"
 #include "RestRequestOperation.h"
 #include "UserDescriptor.h"
 #include "UserRestResponse.h"
 #include "RestClient.h"
 #include "AuthManager.h"
 
+#include "MUserDao.h"
+#include "ImageCache.h"
 
 using namespace Tizen::App;
 using namespace Tizen::Base;
+using namespace Tizen::Base::Utility;
 using namespace Tizen::Base::Collection;
 using namespace Tizen::Ui;
 using namespace Tizen::Io;
@@ -57,7 +61,21 @@ SettingsForm::SettingsForm() {
 	delete pFormBackgroundColor;
 	__user = null;
 	__userRequestOperation = null;
-	SendRequest();
+
+	__bitmap = null;
+
+	String *uidString = AuthManager::getInstance().UserId();
+
+	int uid;
+	Integer::Parse(uidString->GetPointer(), uid);
+
+	MUser *user = MUserDao::getInstance().GetUserN(uid);
+	if (user) {
+		__user = user;
+		UpdateInterfaceForCurrentUser();
+	} else {
+		SendRequest();
+	}
 }
 
 SettingsForm::~SettingsForm() {
@@ -67,10 +85,11 @@ SettingsForm::~SettingsForm() {
 
 	if (__userRequestOperation) {
 		__userRequestOperation->AddEventListener(null);
-		AppLogDebug("11111111111~SettingsForm~SettingsForm~SettingsForm~SettingsForm");
 	}
 
-	AppLogDebug("~SettingsForm~SettingsForm~SettingsForm~SettingsForm");
+	ImageCache::getInstance().CancelLoadingForTarget(this);
+
+	delete __bitmap;
 }
 
 void
@@ -87,7 +106,7 @@ SettingsForm::SendRequest() {
 	HashMap *params = new HashMap();
 	params->Construct();
 	params->Add(new String(L"user_ids"), AuthManager::getInstance().UserId());
-	params->Add(new String(L"fields"), new String(L"photo_100"));
+	params->Add(new String(L"fields"), new String(L"photo_50,photo_100,last_seen,online"));
 
 	if (!__userRequestOperation) {
 		__userRequestOperation = new RestRequestOperation(GET_USER, new String(L"users.get"), params);
@@ -101,14 +120,16 @@ void SettingsForm::OnSuccessN(RestResponse *response) {
 
 	if (response->GetOperationCode() == GET_USER) {
 
-		__userRequestOperation->AddEventListener(null);
-		__userRequestOperation = null;
+		if(__userRequestOperation) {
+			__userRequestOperation->AddEventListener(null);
+			__userRequestOperation = null;
+		}
 
 		AppLogDebug("OnSuccessNOnSuccessNOnSuccessNOnSuccessNOnSuccessN");
 
 		UserRestResponse *userResponse = static_cast<UserRestResponse *>(response);
 
-		User *user = userResponse->GetUser();
+		MUser *user = userResponse->GetUser();
 
 		if (user != null && user->GetFirstName() != null) {
 			__user = user;
@@ -122,32 +143,64 @@ void SettingsForm::OnSuccessN(RestResponse *response) {
 void SettingsForm::OnUserEventReceivedN(RequestId requestId, Tizen::Base::Collection::IList *pArgs) {
 
 	if (requestId == GET_USER) {
-		User *user = __user;
+		MUser *user = MUserDao::getInstance().GetUserN(__user->GetUid());
+		__user = user;
 
-		String title(L"");
-
-		//AppLog("OnTransactionReadyToRead2");
-
-		title.Append(user->GetFirstName()->GetPointer());
-		title.Append(L" ");
-		title.Append(user->GetLastName()->GetPointer());
-		this->GetHeader()->SetTitleText(title);
-		Draw();
-
-		//AppLog("OnTransactionReadyToRead3");
+		UpdateInterfaceForCurrentUser();
 	}
 	delete pArgs;
 }
 
 void SettingsForm::OnErrorN(Error *error) {
-	__userRequestOperation->AddEventListener(null);
-	__userRequestOperation = null;
+	if (__userRequestOperation) {
+		__userRequestOperation->AddEventListener(null);
+		__userRequestOperation = null;
+	}
 
 	delete error;
 }
 
+void SettingsForm::UpdateInterfaceForCurrentUser() {
+	if (!__user) {
+		return;
+	}
+
+	String title(L"");
+	title.Append(__user->GetFirstName()->GetPointer());
+	title.Append(L" ");
+	title.Append(__user->GetLastName()->GetPointer());
 
 
+	ImageCache::getInstance().LoadImageForTarget(__user->GetPhoto(), this);
+
+	this->GetHeader()->SetTitleText(title);
+	Draw();
+}
+
+
+void SettingsForm::OnImageLoadedN(Bitmap *result) {
+	__bitmap = result;
+	OnDraw();
+}
+
+
+result SettingsForm::OnDraw() {
+	result r = E_SUCCESS;
+
+	Canvas* pCanvas = GetCanvasN();
+
+	if (pCanvas != null && __bitmap != null)
+	{
+		Rectangle bounds = GetBounds();
+
+		Rectangle rect = Rectangle(bounds.width/2 - 100/2, 300, 100, 100);
+		r = pCanvas->DrawBitmap(rect, *__bitmap);
+	}
+
+	delete pCanvas;
+
+	return r;
+}
 
 
 

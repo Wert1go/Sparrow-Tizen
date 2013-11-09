@@ -29,8 +29,6 @@ RestRequestOperation::RestRequestOperation(long operationCode, String *method, H
 	uri.Append(method->GetPointer());
 	uri.Append(L"?");
 
-	AppLogDebug("Begin!");
-
 	IMapEnumerator* pMapEnum = params->GetMapEnumeratorN();
 	String* pKey = null;
 	String* pValue = null;
@@ -57,8 +55,6 @@ RestRequestOperation::RestRequestOperation(long operationCode, String *method, H
 	delete pMapEnum;
 	delete params;
 
-	//users.get?user_ids=30143161
-
 	HttpHeader* pHeader = null;
 
 	__pHttpTransaction = RestClient::getInstance().GetActiveSession()->OpenTransactionN();
@@ -79,8 +75,11 @@ RestRequestOperation::RestRequestOperation(long operationCode, String *method, H
 }
 
 RestRequestOperation::~RestRequestOperation() {
+	AppLogDebug("RestRequestOperation::~RestRequestOperation");
 	delete __method;
 	__method = null;
+	delete __pHttpTransaction;
+	__pHttpTransaction = null;
 }
 
 void RestRequestOperation::perform() {
@@ -150,8 +149,6 @@ RestRequestOperation::OnTransactionReadyToRead(HttpSession& httpSession, HttpTra
 				} else {
 					__restRequestListener->OnErrorN(new Error());
 				}
-			} else {
-				CheckCompletionAndCleanUp();
 			}
 
 			delete pJson;
@@ -160,17 +157,15 @@ RestRequestOperation::OnTransactionReadyToRead(HttpSession& httpSession, HttpTra
 		} else {
 			if (__restRequestListener) {
 				__restRequestListener->OnErrorN(new Error());
-			} else {
-				CheckCompletionAndCleanUp();
 			}
 		}
 	} else {
 		if (__restRequestListener) {
 			__restRequestListener->OnErrorN(new Error(REST_BAD_RESPONSE));
-		} else {
-			CheckCompletionAndCleanUp();
 		}
 	}
+
+	CheckCompletionAndCleanUp();
 
 	});
 }
@@ -179,7 +174,6 @@ void
 RestRequestOperation::OnTransactionAborted(HttpSession& httpSession, HttpTransaction& httpTransaction, result r)
 {
 	AppLog("OnTransactionAborted(%s)", GetErrorMessage(r));
-	delete &httpTransaction;
 	CheckCompletionAndCleanUp();
 }
 
@@ -199,8 +193,6 @@ void
 RestRequestOperation::OnTransactionCompleted(HttpSession& httpSession, HttpTransaction& httpTransaction)
 {
 	AppLog("OnTransactionCompleted");
-
-	delete &httpTransaction;
 	CheckCompletionAndCleanUp();
 }
 
@@ -226,3 +218,6 @@ void RestRequestOperation::CheckCompletionAndCleanUp() {
 	}
 }
 
+bool RestRequestOperation::GetIsComplited() {
+	return __isComplited;
+}

@@ -10,9 +10,11 @@
 
 #include <FApp.h>
 #include <FBase.h>
-#include "dispatch/dispatch.h"
+
 #include "RestRequestOperation.h"
+#include "ImageRequestOperation.h"
 #include "IRestRequestOwner.h"
+#include "IRequestOperation.h"
 
 class RestClient
 : IRestRequestOwner{
@@ -27,10 +29,9 @@ public:
 public:
 	void SetBaseUrl(Tizen::Base::String *baseUrl);
 	Tizen::Base::String * GetBaseUrl();
-	void SetDefaultQueue(dispatch_queue_t queue);
-	//dispatch_queue_t GetDefaultQueue();
-	dispatch_queue_t __queue;
+
 	void PerformOperation(RestRequestOperation *operation);
+	void PerformOperation(ImageRequestOperation *operation);
 	Tizen::Net::Http::HttpSession* GetActiveSession();
 
 private:
@@ -38,7 +39,8 @@ private:
 	virtual ~RestClient();
 	RestClient(RestClient const&);              // Don't Implement
 	void operator = (RestClient const&);
-	virtual void OnCompliteN(void *operation);
+	virtual void OnCompliteN(IRequestOperation *operation);
+
 	Tizen::Net::Http::HttpSession* __pHttpSession;
 
 private:

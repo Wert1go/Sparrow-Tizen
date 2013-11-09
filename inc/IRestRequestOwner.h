@@ -9,13 +9,12 @@
 #define IRESTREQUESTOWNER_H_
 
 #include <FBase.h>
-#include "RestRequestOperation.h"
 
 class IRestRequestOwner {
 public:
 	virtual ~IRestRequestOwner(void){};
 
-	virtual void OnCompliteN(void *operation) = 0;
+	virtual void OnCompliteN(IRequestOperation *operation) = 0;
 };
 
 #endif /* IRESTREQUESTOWNER_H_ */

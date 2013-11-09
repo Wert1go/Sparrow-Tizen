@@ -12,26 +12,21 @@ using namespace Tizen::Net::Http;
 using namespace Tizen::Base;
 
 RestClient::RestClient() {
-	// TODO Auto-generated constructor stub
-	__queue = dispatch_get_current_queue();
 }
 
 RestClient::~RestClient() {
-	// TODO Auto-generated destructor stub
+	delete __baseUrl;
+	delete __pHttpSession;
 }
 
 void RestClient::SetBaseUrl(Tizen::Base::String *baseUrl) {
 	__baseUrl = baseUrl;
 	__pHttpSession = new HttpSession();
-	__pHttpSession->Construct(NET_HTTP_SESSION_MODE_NORMAL, null, GetBaseUrl()->GetPointer(), null);
+	__pHttpSession->Construct(NET_HTTP_SESSION_MODE_MULTIPLE_HOST, null, GetBaseUrl()->GetPointer(), null);
 }
 
 Tizen::Base::String * RestClient::GetBaseUrl() {
 	return __baseUrl;
-}
-
-void RestClient::SetDefaultQueue(dispatch_queue_t queue) {
-	__queue = queue;
 }
 
 void RestClient::PerformOperation(RestRequestOperation *operation) {
@@ -39,11 +34,17 @@ void RestClient::PerformOperation(RestRequestOperation *operation) {
 	operation->perform();
 }
 
-void RestClient::OnCompliteN(void *operation) {
+void RestClient::PerformOperation(ImageRequestOperation *operation) {
+	operation->SetRequestOwner(this);
+	operation->perform();
+}
+
+void RestClient::OnCompliteN(IRequestOperation *operation) {
+	AppLogDebug("RestClient::OnCompliteN");
 	delete operation;
 	operation = null;
-
 }
+
 
 Tizen::Net::Http::HttpSession* RestClient::GetActiveSession() {
 	return __pHttpSession;
