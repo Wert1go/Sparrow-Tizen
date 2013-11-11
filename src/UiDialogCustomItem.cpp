@@ -26,8 +26,16 @@ UiDialogCustomItem::UiDialogCustomItem() {
 	r = image.Construct();
 	String filepath = App::GetInstance()->GetAppResourcePath() + L"Images/thumbnail_list.png";
 	__pPlaceholder = image.DecodeN(filepath, BITMAP_PIXEL_FORMAT_ARGB8888);
+
+	Image imageActive;
+		r = imageActive.Construct();
+		filepath = App::GetInstance()->GetAppResourcePath() + L"Images/thumbnail_list_active.png";
+		PlaceholderActive = imageActive.DecodeN(filepath, BITMAP_PIXEL_FORMAT_ARGB8888);
+
 	__pRefreshListener = null;
 	__pDialogIcon = null;
+
+
 }
 
 
@@ -42,7 +50,16 @@ UiDialogCustomItem::~UiDialogCustomItem() {
 
 void
 UiDialogCustomItem::Init() {
-	this->AddElement(Rectangle(0,0,110,110), ID_USER_AVATAR_MASK, *__pPlaceholder, __pPlaceholder, __pPlaceholder);
+	this->AddElement(Rectangle(0,0,110,110), ID_USER_AVATAR_MASK, *__pPlaceholder, PlaceholderActive, PlaceholderActive);
+
+	Color *normalColor = new Color(0,0,0,0);
+	Color *selectedColor = new Color(33,63,99,255);
+	this->SetBackgroundColor(LIST_ITEM_DRAWING_STATUS_NORMAL, *normalColor);
+	this->SetBackgroundColor(LIST_ITEM_DRAWING_STATUS_PRESSED, *selectedColor);
+	this->SetBackgroundColor(LIST_ITEM_DRAWING_STATUS_HIGHLIGHTED, *selectedColor);
+
+	delete normalColor;
+	delete selectedColor;
 }
 
 void
@@ -72,9 +89,10 @@ UiDialogCustomItem::OnImageLoadedN(Bitmap *result) {
 
 	__pDialogIcon = result;
 
-	this->AddElement(Rectangle(0,0,110,110), ID_USER_AVATAR_MASK, *__pDialogIcon, __pDialogIcon, __pDialogIcon);
+	this->AddElement(Rectangle(0,0,110,110), ID_USER_AVATAR, *__pDialogIcon, __pDialogIcon, __pDialogIcon);
+	this->AddElement(Rectangle(0,0,110,110), ID_USER_AVATAR_MASK, *__pPlaceholder, PlaceholderActive, PlaceholderActive);
 
-	__pRefreshListener->RequestUpdateForIndex(__index, ID_USER_AVATAR_MASK);
+	__pRefreshListener->RequestUpdateForIndex(__index, ID_USER_AVATAR);
 }
 
 void

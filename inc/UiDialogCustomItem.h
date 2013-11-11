@@ -44,6 +44,7 @@ private:
 private:
 	String *__pUrl;
 	Bitmap *__pPlaceholder;
+	Bitmap *PlaceholderActive;
 	Bitmap *__pRounder;
 	Bitmap *__pDialogIcon;
 

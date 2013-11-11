@@ -55,6 +55,10 @@ UiMessagesPanel::OnInitializing(void)
 	__pListView->SetItemProvider(*this);
 	__pListView->AddListViewItemEventListener(*this);
 
+	Color *separatorColor = new (std::nothrow) Color(28, 28, 28, 255);
+	__pListView->SetItemDividerColor(*separatorColor);
+	delete separatorColor;
+
 	// Adds the list view to the form
 	AddControl(__pListView);
 
@@ -156,17 +160,11 @@ UiMessagesPanel::DeleteItem(int index, ListItemBase* pItem, int itemWidth)
 int
 UiMessagesPanel::GetItemCount(void)
 {
-    return 5000;
+    return 300;
 }
 
 void
 UiMessagesPanel::RequestUpdateForIndex(int index, int elementId) {
-
-//	AppLog("UiMessagesPanel::RequestUpdateForIndex");
-//	__pListView->RefreshList(index, elementId);
-//	AppLog("UiMessagesPanel::RequestUpdateForIndex COMPLITE");
-//	return;
-
 	ArrayList *list = new ArrayList();
 	list->Construct(1);
 
@@ -176,15 +174,12 @@ UiMessagesPanel::RequestUpdateForIndex(int index, int elementId) {
 	updateUnit->__requestId = elementId;
 
 	list->Add(updateUnit);
-	AppLog("=======UiMessagesPanel::RequestUpdateForIndex");
 	this->SendUserEvent(111111, list);
 	Tizen::App::App::GetInstance()->SendUserEvent(1, 0);
-	AppLog("UiMessagesPanel::RequestUpdateForIndex");
 }
 
 void
 UiMessagesPanel::OnUserEventReceivedN(RequestId requestId, Tizen::Base::Collection::IList* pArgs) {
-	//AppLog("UiMessagesPanel::OnUserEventReceivedN :: %d", pArgs->GetCount());
 
 	if (requestId == 111111 && pArgs->GetCount() > 0) {
 		UpdateUnit *unit = static_cast<UpdateUnit *> (pArgs->GetAt(0));
