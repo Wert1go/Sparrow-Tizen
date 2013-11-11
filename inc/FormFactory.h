@@ -13,6 +13,8 @@ extern const wchar_t* FORM_WEB_AUTH;
 extern const wchar_t* FORM_MAIN;
 extern const wchar_t* FORM_SETTINGS;
 
+extern const wchar_t* FORM_TAB_STYLE_BASE;
+
 #include <FUi.h>
 
 class FormFactory: public Tizen::Ui::Scenes::IFormFactory

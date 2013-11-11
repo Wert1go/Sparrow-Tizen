@@ -38,6 +38,7 @@ private:
 	String *__pUrl;
 	IImageOperationListener *__pImageOperationListener;
 	ImageRequestOperation *__pImageRequestOperation;
+	int __lolprotector;
 
 };
 

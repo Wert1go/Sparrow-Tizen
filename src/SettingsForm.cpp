@@ -76,6 +76,14 @@ SettingsForm::SettingsForm() {
 	} else {
 		SendRequest();
 	}
+
+	Rectangle rect = GetBounds();
+
+	__pSectionTableView = new SectionTableView();
+	__pSectionTableView->Construct(Rectangle(0, 250, rect.width, rect.height - 250), true, TABLE_VIEW_SCROLL_BAR_STYLE_NONE);
+	__pSectionTableView->SetItemProviderF(this);
+	__pSectionTableView->AddSectionTableViewItemEventListener(*this);
+	AddControl(__pSectionTableView);
 }
 
 SettingsForm::~SettingsForm() {
@@ -148,6 +156,8 @@ void SettingsForm::OnUserEventReceivedN(RequestId requestId, Tizen::Base::Collec
 
 		UpdateInterfaceForCurrentUser();
 	}
+
+	OnDraw();
 	delete pArgs;
 }
 
@@ -180,7 +190,8 @@ void SettingsForm::UpdateInterfaceForCurrentUser() {
 
 void SettingsForm::OnImageLoadedN(Bitmap *result) {
 	__bitmap = result;
-	OnDraw();
+	this->SendUserEvent(0, 0);
+	Tizen::App::App::GetInstance()->SendUserEvent(0, 0);
 }
 
 
@@ -202,5 +213,121 @@ result SettingsForm::OnDraw() {
 	return r;
 }
 
+// *********************** TABLE ***************************/
 
+int
+SettingsForm::GetSectionCount(void)
+{
+	return 3;
+}
 
+int
+SettingsForm::GetItemCount(int sectionIndex)
+{
+	int itemCount = 0;
+
+	switch (sectionIndex)
+	{
+	case 0:
+		itemCount =3;
+		break;
+	case 1:
+		itemCount = 1;
+		break;
+	case 2:
+		itemCount = 1;
+		break;
+	default :
+		break;
+	}
+
+	return itemCount;
+}
+
+TableViewItem*
+SettingsForm::CreateItem(int sectionIndex, int itemIndex, float itemWidth)
+{
+    TableViewAnnexStyle style = TABLE_VIEW_ANNEX_STYLE_NORMAL;
+    TableViewItem* pItem = new TableViewItem();
+    String text = L"";
+    Label* pLabel = new Label();
+    pLabel->Construct(FloatRectangle(0.0f, 0.0f, itemWidth, GetDefaultItemHeight()), text);
+    pItem->Construct(FloatDimension(itemWidth, GetDefaultItemHeight()), style);
+
+    pLabel->SetText(L"test");
+	pLabel->SetTextHorizontalAlignment(ALIGNMENT_LEFT);
+	pItem->AddControl(pLabel);
+
+    return pItem;
+}
+
+void
+SettingsForm::UpdateItem(int sectionIndex, int itemIndex, TableViewItem* pItem)
+{
+
+}
+
+float
+SettingsForm::GetDefaultItemHeight(void)
+{
+	return 110.0f;
+}
+
+bool
+SettingsForm::DeleteItem(int sectionIndex, int itemIndex, TableViewItem* pItem)
+{
+	delete pItem;
+
+	return true;
+}
+
+Tizen::Base::String
+SettingsForm::GetSectionHeader(int sectionIndex)
+{
+	String headerText;
+
+	switch (sectionIndex)
+	{
+	case 0:
+		headerText = L"Connectivity";
+		break;
+	case 1:
+		headerText = L"Share and transfer";
+		break;
+	case 2:
+		headerText = L"Mode";
+		break;
+	default :
+		break;
+	}
+
+	return headerText;
+}
+
+bool
+SettingsForm::HasSectionHeader(int sectionIndex)
+{
+	return true;
+}
+
+Tizen::Base::String
+SettingsForm::GetSectionFooter(int sectionIndex)
+{
+	return L"";
+}
+
+bool
+SettingsForm::HasSectionFooter(int sectionIndex)
+{
+	return false;
+}
+
+void
+SettingsForm::OnSectionTableViewItemStateChanged(Tizen::Ui::Controls::SectionTableView& tableView, int sectionIndex, int itemIndex, Tizen::Ui::Controls::TableViewItem* pItem, Tizen::Ui::Controls::TableViewItemStatus status)
+{
+}
+
+void
+SettingsForm::OnSectionTableViewContextItemActivationStateChanged(Tizen::Ui::Controls::SectionTableView& tableView, int sectionIndex, int itemIndex, Tizen::Ui::Controls::TableViewContextItem* pContextItem, bool activated)
+{
+}

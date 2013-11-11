@@ -18,6 +18,8 @@ const wchar_t* FORM_WEB_AUTH = L"FORM_WEB_AUTH";
 const wchar_t* FORM_MAIN = L"FORM_MAIN";
 const wchar_t* FORM_SETTINGS = L"FORM_SETTINGS";
 
+const wchar_t* FORM_TAB_STYLE_BASE = L"FromTabStyleBase";
+
 FormFactory::FormFactory() {
 	// TODO Auto-generated constructor stub
 

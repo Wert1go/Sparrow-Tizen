@@ -14,6 +14,8 @@
 #include <FMedia.h>
 #include "ImageCache.h"
 
+#include "dispatch/dispatch.h"
+
 using namespace Tizen::Base;
 using namespace Tizen::Net::Http;
 using namespace Tizen::Media;
@@ -34,7 +36,7 @@ ImageRequestOperation::ImageRequestOperation(const Tizen::Base::String *url) {
 	pHeader->AddField(L"Accept", L"image/*");
 
 	__pRequestOwner = null;
-
+	__pByteBuffer = null;
 	__isComplited = false;
 }
 
@@ -44,6 +46,7 @@ ImageRequestOperation::~ImageRequestOperation() {
 	__pHttpTransaction = null;
 	delete __pUrl;
 	__pUrl = null;
+	delete __pByteBuffer;
 }
 
 void ImageRequestOperation::perform() {
@@ -90,39 +93,20 @@ ImageRequestOperation::OnTransactionReadyToRead(HttpSession& httpSession, HttpTr
 			String* tempHeaderString = pHttpHeader->GetRawHeaderN();
 			ByteBuffer* pBuffer = pHttpResponse->ReadBodyN();
 
-			Image *pImage = new Image();
-			pImage->Construct();
-
-			BitmapPixelFormat pixelFormat = BITMAP_PIXEL_FORMAT_RGB565;
-			ImageFormat format = IMG_FORMAT_JPG;
-
-			if(__pUrl->EndsWith(L"jpg") or __pUrl->EndsWith(L"bmp") or __pUrl->EndsWith(L"gif"))
-			{
-				pixelFormat = BITMAP_PIXEL_FORMAT_RGB565;
-				format = IMG_FORMAT_JPG;
-			}
-			else if(__pUrl->EndsWith(L"png"))
-			{
-				pixelFormat = BITMAP_PIXEL_FORMAT_ARGB8888;
-				format = IMG_FORMAT_PNG;
-			}
-
-
-			Bitmap *pBitmap = pImage->DecodeN(*pBuffer, format, pixelFormat);
-
-			if (__pImageRequestListener) {
-				__pImageRequestListener->OnImageLoadedN(pBitmap);
-				if (pBitmap) {
-					ImageCache::StoreImageForKey(pBitmap, __pUrl);
-				}
-
-				CheckCompletionAndCleanUp();
+			AppLog("ImageRequestOperation::OnTransactionReadyToRead");
+			if (__pByteBuffer == null) {
+				AppLog("ImageRequestOperation::INIT");
+				__pByteBuffer = new ByteBuffer();
+				__pByteBuffer->Construct(availableBodyLen);
 			} else {
-				CheckCompletionAndCleanUp();
+				int newCapacity = __pByteBuffer->GetCapacity() + availableBodyLen;
+				__pByteBuffer->ExpandCapacity(newCapacity);
 			}
 
+			__pByteBuffer->CopyFrom(*pBuffer);
+
+			delete pBuffer;
 			delete tempHeaderString;
-			delete pImage;
 		}
 	}
 }
@@ -131,7 +115,7 @@ void
 ImageRequestOperation::OnTransactionAborted(HttpSession& httpSession, HttpTransaction& httpTransaction, result r)
 {
 	AppLog("ImageRequestOperation::OnTransactionAborted(%s)", GetErrorMessage(r));
-	CheckCompletionAndCleanUp();
+	__pRequestOwner->OnCompliteN(this);
 }
 
 void
@@ -150,7 +134,10 @@ void
 ImageRequestOperation::OnTransactionCompleted(HttpSession& httpSession, HttpTransaction& httpTransaction)
 {
 	AppLog("ImageRequestOperation::OnTransactionCompleted");
-	CheckCompletionAndCleanUp();
+//	dispatch_async(dispatch_get_global_queue( DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+		Execute();
+		__pRequestOwner->OnCompliteN(this);
+//	});
 }
 
 void
@@ -159,11 +146,61 @@ ImageRequestOperation::OnTransactionCertVerificationRequiredN(HttpSession& httpS
 	AppLog("ImageRequestOperation::OnTransactionCertVerificationRequiredN");
 
 	httpTransaction.Resume();
-
 	delete pCert;
 }
 
 bool
 ImageRequestOperation::GetIsComplited() {
 	return __isComplited;
+}
+
+void
+ImageRequestOperation::Execute() {
+	Image *pImage = new Image();
+	pImage->Construct();
+
+	BitmapPixelFormat pixelFormat = BITMAP_PIXEL_FORMAT_RGB565;
+	ImageFormat format = IMG_FORMAT_JPG;
+
+	if(__pUrl->EndsWith(L"jpg") or __pUrl->EndsWith(L"bmp") or __pUrl->EndsWith(L"gif"))
+	{
+		pixelFormat = BITMAP_PIXEL_FORMAT_RGB565;
+		format = IMG_FORMAT_JPG;
+	}
+	else if(__pUrl->EndsWith(L"png"))
+	{
+		pixelFormat = BITMAP_PIXEL_FORMAT_ARGB8888;
+		format = IMG_FORMAT_PNG;
+	}
+
+	AppLog("%d :: %d :: %d", format, pixelFormat, __pByteBuffer->GetCapacity());
+
+	Bitmap *pBitmap = pImage->DecodeN(*__pByteBuffer, format, pixelFormat);
+
+	result r = GetLastResult();
+
+	if (r == E_INVALID_ARG) {
+		AppLog("The specified pixel format is not supported.");
+	} else if (r == E_INVALID_DATA) {
+		AppLog("The specified input instance has invalid data.");
+	}  else if (r ==  E_OVERFLOW) {
+		AppLog("The specified input instance has overflowed.");
+	}  else if (r ==  E_UNSUPPORTED_FORMAT) {
+		AppLog("The specified format is not supported.");
+	}  else if (r ==  E_OUT_OF_MEMORY	) {
+		AppLog("The memory is insufficient.");
+	}  else if (r ==  E_OBJ_NOT_FOUND) {
+		AppLog("The specified image buffer cannot be found.");
+	}  else if (r ==  E_OUT_OF_RANGE	) {
+		AppLog("E_OUT_OF_RANGE");
+	}
+
+	if (__pImageRequestListener && r == E_SUCCESS) {
+		__pImageRequestListener->OnImageLoadedN(pBitmap);
+		if (pBitmap) {
+			ImageCache::StoreImageForKey(pBitmap, __pUrl);
+		}
+	}
+
+	delete pImage;
 }

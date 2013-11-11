@@ -11,6 +11,9 @@
 extern const wchar_t* SCENE_AUTH;
 extern const wchar_t* SCENE_WEB_AUTH;
 extern const wchar_t* SCENE_MAIN;
+
+extern const wchar_t* SCENE_MAIN_MESSAGES_TAB;
+
 extern const wchar_t* SCENE_SETTINGS;
 
 class SceneRegister {

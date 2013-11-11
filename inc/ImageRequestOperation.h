@@ -13,6 +13,8 @@
 #include "IImageRequestListener.h"
 #include "IRestRequestOwner.h"
 
+using namespace Tizen::Base;
+
 class ImageRequestOperation
  : public Tizen::Net::Http::IHttpTransactionEventListener
  , IRequestOperation
@@ -43,9 +45,12 @@ private:
 
 	void CheckCompletionAndCleanUp();
 
+	ByteBuffer *__pByteBuffer;
+
 public:
 	void perform();
 	bool GetIsComplited();
+	void Execute();
 };
 
 #endif /* IMAGEREQUESTOPERATION_H_ */

@@ -27,6 +27,8 @@ class SettingsForm
  , public Tizen::Ui::Controls::IFormBackEventListener
  , public IRestRequestListener
  , public IImageLoadingListener
+ , public Tizen::Ui::Controls::ISectionTableViewItemEventListener
+ , public Tizen::Ui::Controls::ISectionTableViewItemProviderF
    {
 public:
 	SettingsForm();
@@ -45,10 +47,30 @@ public:
 	virtual result OnDraw(void);
 	virtual void OnImageLoadedN(Bitmap *result);
 
+	//ISectionTableViewItemProviderF
+	virtual int GetSectionCount(void);
+	virtual int GetItemCount(int sectionIndex);
+	virtual Tizen::Ui::Controls::TableViewItem* CreateItem(int sectionIndex, int itemIndex, float itemWidth);
+	virtual bool DeleteItem(int sectionIndex, int itemIndex, Tizen::Ui::Controls::TableViewItem* pItem);
+	virtual void UpdateItem(int sectionIndex, int itemIndex, Tizen::Ui::Controls::TableViewItem* pItem);
+	virtual Tizen::Base::String GetSectionHeader(int sectionIndex);
+	virtual bool HasSectionHeader(int sectionIndex);
+	virtual Tizen::Base::String GetSectionFooter(int sectionIndex);
+	virtual bool HasSectionFooter(int sectionIndex);
+	virtual float GetDefaultItemHeight(void);
+
+	//ISectionTableViewItemEventListener
+
+	virtual void OnSectionTableViewItemStateChanged(Tizen::Ui::Controls::SectionTableView& tableView, int sectionIndex, int itemIndex, Tizen::Ui::Controls::TableViewItem* pItem, Tizen::Ui::Controls::TableViewItemStatus status);
+	virtual void OnSectionTableViewContextItemActivationStateChanged(Tizen::Ui::Controls::SectionTableView& tableView, int sectionIndex, int itemIndex, Tizen::Ui::Controls::TableViewContextItem* pContextItem, bool activated);
+
+
 private:
 	RestRequestOperation *__userRequestOperation;
 
 	void UpdateInterfaceForCurrentUser();
+
+	Tizen::Ui::Controls::SectionTableView* __pSectionTableView;
 
 };
 

@@ -54,6 +54,7 @@ private:
 	virtual void OnErrorN(String *url, Error *error);
 
 	bool CheckExistingOperationForUrl(String *url);
+	void CheckPendingOperationsAndRun();
 	void FinishOperationForUrl(String *url);
 	void DispatchImage(String *url, Bitmap *bitmap);
 
@@ -61,7 +62,9 @@ private:
 	HashMapT<String*, IImageLoadingListener*> *__pUrlAndTargetMap;
 	HashMapT<IImageLoadingListener*, String*> *__pTargetAndUrlMap;
 	HashMapT<String*, ImageLoadingOperation*> *__pUrlAndOperationMap;
+	HashMapT<String*, ImageLoadingOperation*> *__pPendingOperation;
 	Mutex __mutex;
+	int __runningOperations;
 
 };
 

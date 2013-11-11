@@ -20,15 +20,19 @@ using namespace Tizen::Base::Runtime;
 
 ImageCache::ImageCache() {
 	__mutex.Create();
-	AppLogDebug("test1");
+
 	__pUrlAndTargetMap = new HashMapT<String*, IImageLoadingListener*>();
 	__pTargetAndUrlMap = new HashMapT<IImageLoadingListener*, String*>();
 	__pUrlAndOperationMap = new HashMapT<String*, ImageLoadingOperation*>();
+	__pPendingOperation = new HashMapT<String*, ImageLoadingOperation*>();
 
 	__pUrlAndTargetMap->Construct(100, 0.75);
 	__pTargetAndUrlMap->Construct(100, 0.75);
 	__pUrlAndOperationMap->Construct(100, 0.75);
-	AppLogDebug("test2");
+	__pPendingOperation->Construct(100, 0.75);
+
+	__runningOperations = 0;
+
 }
 
 ImageCache::~ImageCache() {
@@ -37,7 +41,8 @@ ImageCache::~ImageCache() {
 
 void
 ImageCache::LoadImageForTarget(String *url, IImageLoadingListener *target) {
-	AppLogDebug("test");
+	AppLogDebug("ImageCache::LoadImageForTarget");
+
 	if (CheckExistingOperationForUrl(url)) {
 		//надо придумать, что делать при поптыке загрузить изображение до окончания 1-й попытки
 	} else {
@@ -48,9 +53,19 @@ ImageCache::LoadImageForTarget(String *url, IImageLoadingListener *target) {
 		__pUrlAndTargetMap->Add(url, target);
 		__pTargetAndUrlMap->Add(target, url);
 		__pUrlAndOperationMap->Add(url, operation);
-		__mutex.Release();
 
-		operation->Perform();
+		__mutex.Release();
+		AppLogDebug("LoadImageForTarget::LoadImageForTarget");
+		if (__runningOperations < 3) {
+
+			__mutex.Acquire();
+			__runningOperations++;
+			__mutex.Release();
+			operation->Perform();
+		} else {
+			AppLogDebug("__pPendingOperation->Add <<<<<<<<<<<<<<<<<<");
+			__pPendingOperation->Add(url, operation);
+		}
 	}
 }
 
@@ -89,6 +104,30 @@ ImageCache::CheckExistingOperationForUrl(String *url) {
 }
 
 void
+ImageCache::CheckPendingOperationsAndRun() {
+	return;
+	if (__pPendingOperation->GetCount() > 0) {
+		IListT<String *> *keysList = __pPendingOperation->GetKeysN();
+		AppLog("CheckPendingOperationsAndRun::0");
+		String *key;
+		keysList->GetAt(0, key);
+		AppLog("CheckPendingOperationsAndRun::1");
+		ImageLoadingOperation *operation;
+		__pPendingOperation->GetValue(key, operation);
+		AppLog("CheckPendingOperationsAndRun::2");
+		if (operation) {
+			AppLog("CheckPendingOperationsAndRun");
+			operation->Perform();
+		}
+		AppLog("CheckPendingOperationsAndRun::3");
+
+		__pPendingOperation->Remove(key);
+
+		delete keysList;
+	}
+}
+
+void
 ImageCache::FinishOperationForUrl(String *url) {
 	__mutex.Acquire();
 	bool result = false;
@@ -120,6 +159,9 @@ ImageCache::FinishOperationForUrl(String *url) {
 		delete url;
 	}
 
+	AppLog("FinishOperationForUrl");
+	__runningOperations--;
+	CheckPendingOperationsAndRun();
 	__mutex.Release();
 }
 
@@ -158,6 +200,8 @@ ImageCache::StoreImageForKey(Bitmap *pBitmap, String *url) {
 	BitmapPixelFormat pixelFormat = BITMAP_PIXEL_FORMAT_RGB565;
 	ImageFormat format = IMG_FORMAT_JPG;
 
+	AppLogDebug("ImageCache::StoreImageForKey Begin");
+
 	if(url->EndsWith(L"jpg") or url->EndsWith(L"bmp") or url->EndsWith(L"gif"))
 	{
 		pixelFormat = BITMAP_PIXEL_FORMAT_RGB565;
@@ -178,6 +222,7 @@ ImageCache::StoreImageForKey(Bitmap *pBitmap, String *url) {
 
 	image->EncodeToFile(*pBitmap, format, path, true);
 
+	AppLogDebug("ImageCache::StoreImageForKey End");
 	delete key;
 	delete image;
 
@@ -211,6 +256,23 @@ ImageCache::LoadFromCacheForKeyN(String *url) {
 	Bitmap *pBitmap = image->DecodeN(path.GetPointer(), pixelFormat);
 
 	result r = GetLastResult();
+
+
+	if (r == E_INVALID_ARG) {
+		AppLog("The specified pixel format is not supported.");
+	} else if (r == E_INVALID_DATA) {
+		AppLog("The specified input instance has invalid data.");
+	}  else if (r ==  E_OVERFLOW) {
+		AppLog("The specified input instance has overflowed.");
+	}  else if (r ==  E_UNSUPPORTED_FORMAT) {
+		AppLog("The specified format is not supported.");
+	}  else if (r ==  E_OUT_OF_MEMORY	) {
+		AppLog("The memory is insufficient.");
+	}  else if (r ==  E_OBJ_NOT_FOUND) {
+		AppLog("The specified image buffer cannot be found.");
+	}  else if (r ==  E_OUT_OF_RANGE	) {
+		AppLog("E_OUT_OF_RANGE");
+	}
 
 	if (r == E_FILE_NOT_FOUND) {
 		AppLogDebug("Loading image from path:: %S FAILED", path.GetPointer());

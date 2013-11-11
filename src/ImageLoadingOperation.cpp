@@ -21,42 +21,55 @@ ImageLoadingOperation::ImageLoadingOperation(String *url) {
 	__pUrl = url;
 	__pImageRequestOperation = null;
 	__pImageOperationListener = null;
+	__pImageRequestOperation = new ImageRequestOperation(__pUrl);
+	__lolprotector = 0;
 }
 
 ImageLoadingOperation::~ImageLoadingOperation() {
+	if (__pImageRequestOperation) {
+		delete __pImageRequestOperation;
+	}
+
 	__pUrl = null;
 	__pImageRequestOperation = null;
 	__pImageOperationListener = null;
 }
 
 void ImageLoadingOperation::Perform() {
-	if (__pImageRequestOperation) {
+	if (__lolprotector != 0) {
 		AppLogDebug("Operation already running!");
 		return;
 	}
+	__lolprotector++;
 
-	dispatch_async(dispatch_get_global_queue( DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
-		Execute();
-	});
+	//ОС требует, чтобы транзакция открывалась в главном потоке приложения
+
+//	dispatch_async(dispatch_get_global_queue( DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+		Bitmap *pBitmap = ImageCache::LoadFromCacheForKeyN(__pUrl);
+		if (pBitmap) {
+
+			AppLogDebug("ImageLoadingOperation::OnImageLoadedN!!!");
+			OnImageLoadedN(pBitmap);
+			AppLogDebug("ImageLoadingOperation::OnImageLoadedN333");
+
+		} else {
+			AppLogDebug("ImageLoadingOperation::Begin loading");
+			__pImageRequestOperation->AddImageRequestListener(this);
+			RestClient::getInstance().PerformOperation(__pImageRequestOperation);
+		}
+//	});
 }
 
 void ImageLoadingOperation::Execute() {
 
-	Bitmap *pBitmap = ImageCache::LoadFromCacheForKeyN(__pUrl);
-	if (pBitmap) {
-		__pImageOperationListener->OnImageLoadedN(__pUrl, pBitmap);
-	} else if (!pBitmap) {
 
-		__pImageRequestOperation = new ImageRequestOperation(__pUrl);
-		__pImageRequestOperation->AddImageRequestListener(this);
-
-		RestClient::getInstance().PerformOperation(__pImageRequestOperation);
-	}
 }
 
 void ImageLoadingOperation::OnImageLoadedN(Bitmap *pBitmap) {
 	__pImageRequestOperation->AddImageRequestListener(null);
 	__pImageRequestOperation = null;
+
+	AppLogDebug("ImageLoadingOperation::OnImageLoadedN");
 
 	if (pBitmap) {
 		__pImageOperationListener->OnImageLoadedN(__pUrl, pBitmap);

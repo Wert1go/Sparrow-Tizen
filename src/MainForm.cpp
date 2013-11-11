@@ -121,11 +121,14 @@ MainForm::OnFormBackRequested(Tizen::Ui::Controls::Form& source)
 void
 MainForm::OnActionPerformed(const Tizen::Ui::Control& source, int actionId)
 {
-
+	SceneManager* pSceneManager;
 	switch(actionId)
 	{
 	case ID_MESSAGES:
-
+		pSceneManager = SceneManager::GetInstance();
+		AppAssert(pSceneManager);
+		pSceneManager->GoForward(ForwardSceneTransition(SCENE_MAIN_MESSAGES_TAB, SCENE_TRANSITION_ANIMATION_TYPE_NONE,
+					SCENE_HISTORY_OPTION_NO_HISTORY));
 		break;
 	case ID_CONTACTS:
 
@@ -134,7 +137,7 @@ MainForm::OnActionPerformed(const Tizen::Ui::Control& source, int actionId)
 
 		break;
 	case ID_SETTINGS:
-		SceneManager* pSceneManager = SceneManager::GetInstance();
+		pSceneManager = SceneManager::GetInstance();
 		AppAssert(pSceneManager);
 		pSceneManager->GoForward(ForwardSceneTransition(SCENE_SETTINGS, SCENE_TRANSITION_ANIMATION_TYPE_LEFT));
 		break;

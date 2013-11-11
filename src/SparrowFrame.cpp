@@ -37,7 +37,7 @@ SparrowFrame::OnInitializing(void)
 	AppAssert(pSceneManager);
 
 	if (AuthManager::getInstance().IsAuthorized()) {
-		r = pSceneManager->GoForward(ForwardSceneTransition(SCENE_MAIN));
+		r = pSceneManager->GoForward(ForwardSceneTransition(SCENE_MAIN_MESSAGES_TAB));
 	} else {
 		r = pSceneManager->GoForward(ForwardSceneTransition(SCENE_AUTH));
 	}
