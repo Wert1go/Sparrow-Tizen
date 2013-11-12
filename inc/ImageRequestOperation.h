@@ -42,6 +42,7 @@ private:
 	IRestRequestOwner *__pRequestOwner;
 	IImageRequestListener *__pImageRequestListener;
 	bool __isComplited;
+	bool __isError;
 
 	void CheckCompletionAndCleanUp();
 

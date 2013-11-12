@@ -44,11 +44,11 @@ void ImageLoadingOperation::Perform() {
 
 	//ОС требует, чтобы транзакция открывалась в главном потоке приложения
 
-//	dispatch_async(dispatch_get_global_queue( DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+	dispatch_async(dispatch_get_global_queue( DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
 		Bitmap *pBitmap = ImageCache::LoadFromCacheForKeyN(__pUrl);
 		if (pBitmap) {
 
-			AppLogDebug("ImageLoadingOperation::OnImageLoadedN!!!");
+			AppLogDebug("ImageLoadingOperation::OnImageLoadedN <- %S", __pUrl->GetPointer());
 			OnImageLoadedN(pBitmap);
 			AppLogDebug("ImageLoadingOperation::OnImageLoadedN333");
 
@@ -57,7 +57,7 @@ void ImageLoadingOperation::Perform() {
 			__pImageRequestOperation->AddImageRequestListener(this);
 			RestClient::getInstance().PerformOperation(__pImageRequestOperation);
 		}
-//	});
+	});
 }
 
 void ImageLoadingOperation::Execute() {

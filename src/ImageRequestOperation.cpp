@@ -38,6 +38,7 @@ ImageRequestOperation::ImageRequestOperation(const Tizen::Base::String *url) {
 	__pRequestOwner = null;
 	__pByteBuffer = null;
 	__isComplited = false;
+	__isError = false;
 }
 
 ImageRequestOperation::~ImageRequestOperation() {
@@ -85,6 +86,8 @@ ImageRequestOperation::OnTransactionReadyToRead(HttpSession& httpSession, HttpTr
 	AppLog("ImageRequestOperation::OnTransactionReadyToRead");
 
 	HttpResponse* pHttpResponse = httpTransaction.GetResponse();
+	AppLog("ImageRequestOperation::OnTransactionReadyToRead :: HTTP_STATUS %d :: %S", pHttpResponse->GetHttpStatusCode(), __pUrl->GetPointer());
+
 	if (pHttpResponse->GetHttpStatusCode() == HTTP_STATUS_OK)
 	{
 		HttpHeader* pHttpHeader = pHttpResponse->GetHeader();
@@ -93,7 +96,7 @@ ImageRequestOperation::OnTransactionReadyToRead(HttpSession& httpSession, HttpTr
 			String* tempHeaderString = pHttpHeader->GetRawHeaderN();
 			ByteBuffer* pBuffer = pHttpResponse->ReadBodyN();
 
-			AppLog("ImageRequestOperation::OnTransactionReadyToRead");
+
 			if (__pByteBuffer == null) {
 				AppLog("ImageRequestOperation::INIT");
 				__pByteBuffer = new ByteBuffer();
@@ -108,6 +111,8 @@ ImageRequestOperation::OnTransactionReadyToRead(HttpSession& httpSession, HttpTr
 			delete pBuffer;
 			delete tempHeaderString;
 		}
+	} else {
+		__isError = true;
 	}
 }
 
@@ -134,10 +139,10 @@ void
 ImageRequestOperation::OnTransactionCompleted(HttpSession& httpSession, HttpTransaction& httpTransaction)
 {
 	AppLog("ImageRequestOperation::OnTransactionCompleted");
-//	dispatch_async(dispatch_get_global_queue( DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+	dispatch_async(dispatch_get_global_queue( DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
 		Execute();
 		__pRequestOwner->OnCompliteN(this);
-//	});
+	});
 }
 
 void
@@ -156,6 +161,13 @@ ImageRequestOperation::GetIsComplited() {
 
 void
 ImageRequestOperation::Execute() {
+
+	if (__isError) {
+		__pImageRequestListener->OnErrorN(null);
+		return;
+	}
+
+	AppLog("ImageRequestOperation::Execute");
 	Image *pImage = new Image();
 	pImage->Construct();
 
