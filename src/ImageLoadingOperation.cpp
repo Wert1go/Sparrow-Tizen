@@ -48,7 +48,7 @@ void ImageLoadingOperation::Perform() {
 		Bitmap *pBitmap = ImageCache::LoadFromCacheForKeyN(__pUrl);
 		if (pBitmap) {
 
-			AppLogDebug("ImageLoadingOperation::OnImageLoadedN!!!");
+			AppLogDebug("ImageLoadingOperation::OnImageLoadedN <- %S", __pUrl->GetPointer());
 			OnImageLoadedN(pBitmap);
 			AppLogDebug("ImageLoadingOperation::OnImageLoadedN333");
 

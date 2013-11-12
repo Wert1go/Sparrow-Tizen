@@ -105,21 +105,19 @@ ImageCache::CheckExistingOperationForUrl(String *url) {
 
 void
 ImageCache::CheckPendingOperationsAndRun() {
-	return;
+	//return;
 	if (__pPendingOperation->GetCount() > 0) {
 		IListT<String *> *keysList = __pPendingOperation->GetKeysN();
-		AppLog("CheckPendingOperationsAndRun::0");
+
 		String *key;
 		keysList->GetAt(0, key);
-		AppLog("CheckPendingOperationsAndRun::1");
+
 		ImageLoadingOperation *operation;
 		__pPendingOperation->GetValue(key, operation);
-		AppLog("CheckPendingOperationsAndRun::2");
+
 		if (operation) {
-			AppLog("CheckPendingOperationsAndRun");
 			operation->Perform();
 		}
-		AppLog("CheckPendingOperationsAndRun::3");
 
 		__pPendingOperation->Remove(key);
 
@@ -200,7 +198,7 @@ ImageCache::StoreImageForKey(Bitmap *pBitmap, String *url) {
 	BitmapPixelFormat pixelFormat = BITMAP_PIXEL_FORMAT_RGB565;
 	ImageFormat format = IMG_FORMAT_JPG;
 
-	AppLogDebug("ImageCache::StoreImageForKey Begin");
+	//AppLogDebug("ImageCache::StoreImageForKey Begin");
 
 	if(url->EndsWith(L"jpg") or url->EndsWith(L"bmp") or url->EndsWith(L"gif"))
 	{
@@ -222,7 +220,7 @@ ImageCache::StoreImageForKey(Bitmap *pBitmap, String *url) {
 
 	image->EncodeToFile(*pBitmap, format, path, true);
 
-	AppLogDebug("ImageCache::StoreImageForKey End");
+	//AppLogDebug("ImageCache::StoreImageForKey End");
 	delete key;
 	delete image;
 
@@ -251,7 +249,7 @@ ImageCache::LoadFromCacheForKeyN(String *url) {
 	String *key = ImageCache::CacheKeyForUrlN(url);
 	String path = Tizen::App::App::GetInstance()->GetAppDataPath() + key->GetPointer();
 
-	AppLogDebug("Load from path:: %S", path.GetPointer());
+	//AppLogDebug("Load from path:: %S", path.GetPointer());
 
 	Bitmap *pBitmap = image->DecodeN(path.GetPointer(), pixelFormat);
 

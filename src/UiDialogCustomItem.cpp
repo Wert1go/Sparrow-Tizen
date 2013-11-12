@@ -95,9 +95,6 @@ UiDialogCustomItem::OnImageLoadedN(Bitmap *result) {
 	__pDialogIcon = result;
 
 	this->__pImageView->__pBitmapImage = __pDialogIcon;
-//
-//	this->AddElement(Rectangle(0,0,110,110), ID_USER_AVATAR, *__pDialogIcon, __pDialogIcon, __pDialogIcon);
-//	this->AddElement(Rectangle(0,0,110,110), ID_USER_AVATAR_MASK, *__pPlaceholder, PlaceholderActive, PlaceholderActive);
 
 	__pRefreshListener->RequestUpdateForIndex(__index, ID_USER_AVATAR);
 }

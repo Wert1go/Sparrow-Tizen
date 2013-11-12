@@ -130,26 +130,26 @@ UiMessagesPanel::CreateItem(int index, int itemWidth)
     String *url = null;
     if (index == 1) {
     	url = new String(L"http://media.oboobs.ru/boobs_preview/07819.png");
-    } else if (index == 2) {
+    } else if (index%2 == 0) {
     	url = new String(L"http://media.oboobs.ru/boobs_preview/07818.jpg");
-    } else if (index == 3) {
+    } else if (index%3 == 0) {
     	url = new String(L"http://media.oboobs.ru/boobs_preview/07810.jpg");
     }
-    else if (index == 4) {
+    else if (index%4 == 0) {
     	url = new String(L"http://media.oboobs.ru/boobs_preview/07809.jpg");
-    } else if(index == 5) {
+    } else if(index%5 == 0) {
     	url = new String(L"http://media.oboobs.ru/boobs_preview/07803.jpg");
-    } else if(index == 6) {
+    } else if(index%6 == 0) {
     	url = new String(L"http://media.oboobs.ru/boobs_preview/07804.jpg");
-    } else if(index == 7) {
+    } else if(index%7 == 0) {
     	url = new String(L"http://media.oboobs.ru/boobs_preview/07805.jpg");
-    } else if(index == 8) {
+    } else if(index%8 == 0) {
     	url = new String(L"http://media.oboobs.ru/boobs_preview/07806.jpg");
-    } else if(index == 9) {
+    } else if(index%9 == 0) {
     	url = new String(L"http://media.oboobs.ru/boobs_preview/07807.jpg");
-    } else if(index == 10) {
+    } else if(index%10 == 0) {
     	url = new String(L"http://media.oboobs.ru/boobs_preview/07808.jpg");
-    } else if(index == 11) {
+    } else if(index%11 == 0) {
     	url = new String(L"http://media.oboobs.ru/boobs_preview/07813.jpg");
     }
     else if(index%13 == 0) {
@@ -182,7 +182,7 @@ UiMessagesPanel::DeleteItem(int index, ListItemBase* pItem, int itemWidth)
 int
 UiMessagesPanel::GetItemCount(void)
 {
-    return 300;
+    return 10000;
 }
 
 void
@@ -205,6 +205,7 @@ UiMessagesPanel::RequestUpdateForIndex(int index, int elementId) {
 void
 UiMessagesPanel::OnUserEventReceivedN(RequestId requestId, Tizen::Base::Collection::IList* pArgs) {
 
+	AppLog("pong %d", -1);
 	if (requestId == 111111 && pArgs->GetCount() > 0) {
 		UpdateUnit *unit = static_cast<UpdateUnit *> (pArgs->GetAt(0));
 		AppLog("pong %d", unit->__index);
