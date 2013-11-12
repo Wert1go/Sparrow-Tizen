@@ -12,6 +12,7 @@
 #include "IRefreshableListView.h"
 #include "IImageLoadingListener.h"
 #include "Error.h"
+#include "ImageView.h"
 
 using namespace Tizen::Base;
 using namespace Tizen::Graphics;
@@ -47,6 +48,8 @@ private:
 	Bitmap *PlaceholderActive;
 	Bitmap *__pRounder;
 	Bitmap *__pDialogIcon;
+
+	ImageView *__pImageView;
 
 	static const int ID_USER_AVATAR_MASK = 105;
 	static const int ID_USER_MESSAGE = 106;

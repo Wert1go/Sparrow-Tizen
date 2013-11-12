@@ -13,6 +13,7 @@
 #include <FGraphics.h>
 #include <FMedia.h>
 #include "ImageCache.h"
+#include "ImageView.h"
 
 using namespace Tizen::App;
 using namespace Tizen::Io;
@@ -50,6 +51,11 @@ UiDialogCustomItem::~UiDialogCustomItem() {
 
 void
 UiDialogCustomItem::Init() {
+
+	__pImageView = new (std::nothrow) ImageView();
+	__pImageView->__pBitmapImage = __pPlaceholder;
+	this->AddElement(Rectangle(0,0,110,110), ID_USER_AVATAR, *__pImageView);
+
 	this->AddElement(Rectangle(0,0,110,110), ID_USER_AVATAR_MASK, *__pPlaceholder, PlaceholderActive, PlaceholderActive);
 
 	Color *normalColor = new Color(0,0,0,0);
@@ -85,12 +91,13 @@ UiDialogCustomItem::AddRefreshListener(IRefreshableListView *pRefreshListener) {
 
 void
 UiDialogCustomItem::OnImageLoadedN(Bitmap *result) {
-	this->RemoveElement(ID_USER_AVATAR_MASK);
 
 	__pDialogIcon = result;
 
-	this->AddElement(Rectangle(0,0,110,110), ID_USER_AVATAR, *__pDialogIcon, __pDialogIcon, __pDialogIcon);
-	this->AddElement(Rectangle(0,0,110,110), ID_USER_AVATAR_MASK, *__pPlaceholder, PlaceholderActive, PlaceholderActive);
+	this->__pImageView->__pBitmapImage = __pDialogIcon;
+//
+//	this->AddElement(Rectangle(0,0,110,110), ID_USER_AVATAR, *__pDialogIcon, __pDialogIcon, __pDialogIcon);
+//	this->AddElement(Rectangle(0,0,110,110), ID_USER_AVATAR_MASK, *__pPlaceholder, PlaceholderActive, PlaceholderActive);
 
 	__pRefreshListener->RequestUpdateForIndex(__index, ID_USER_AVATAR);
 }

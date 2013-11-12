@@ -128,18 +128,40 @@ UiMessagesPanel::CreateItem(int index, int itemWidth)
     pItem->SetIndex(index);
     pItem->AddRefreshListener(this);
     String *url = null;
-    if (index%2 == 0) {
+    if (index == 1) {
     	url = new String(L"http://media.oboobs.ru/boobs_preview/07819.png");
-    } else if (index%3 == 0) {
+    } else if (index == 2) {
     	url = new String(L"http://media.oboobs.ru/boobs_preview/07818.jpg");
-    } else if (index%4 == 0) {
+    } else if (index == 3) {
     	url = new String(L"http://media.oboobs.ru/boobs_preview/07810.jpg");
-    } else if (index%5 ==0) {
+    }
+    else if (index == 4) {
     	url = new String(L"http://media.oboobs.ru/boobs_preview/07809.jpg");
-    } else if(index%6 == 0) {
+    } else if(index == 5) {
     	url = new String(L"http://media.oboobs.ru/boobs_preview/07803.jpg");
-    } else {
+    } else if(index == 6) {
+    	url = new String(L"http://media.oboobs.ru/boobs_preview/07804.jpg");
+    } else if(index == 7) {
+    	url = new String(L"http://media.oboobs.ru/boobs_preview/07805.jpg");
+    } else if(index == 8) {
+    	url = new String(L"http://media.oboobs.ru/boobs_preview/07806.jpg");
+    } else if(index == 9) {
+    	url = new String(L"http://media.oboobs.ru/boobs_preview/07807.jpg");
+    } else if(index == 10) {
+    	url = new String(L"http://media.oboobs.ru/boobs_preview/07808.jpg");
+    } else if(index == 11) {
+    	url = new String(L"http://media.oboobs.ru/boobs_preview/07813.jpg");
+    }
+    else if(index%13 == 0) {
     	url = new String(L"http://media.oboobs.ru/boobs_preview/07801.jpg");
+    }
+//    else if(index%14 == 0) {
+//    	url = new String(L"http://media.oboobs.ru/boobs_preview/07811.jpg");
+//    } else if(index%15 == 0) {
+//    	url = new String(L"http://media.oboobs.ru/boobs_preview/07812.jpg");
+//    }
+    else {
+    	url = new String(L"http://media.oboobs.ru/boobs_preview/07813.jpg");
     }
 
     pItem->SetImageUrl(url);
@@ -174,8 +196,10 @@ UiMessagesPanel::RequestUpdateForIndex(int index, int elementId) {
 	updateUnit->__requestId = elementId;
 
 	list->Add(updateUnit);
+
 	this->SendUserEvent(111111, list);
-	Tizen::App::App::GetInstance()->SendUserEvent(1, 0);
+	Tizen::App::App::GetInstance()->SendUserEvent(111111, 0);
+	AppLog("ping %d", index);
 }
 
 void
@@ -183,7 +207,7 @@ UiMessagesPanel::OnUserEventReceivedN(RequestId requestId, Tizen::Base::Collecti
 
 	if (requestId == 111111 && pArgs->GetCount() > 0) {
 		UpdateUnit *unit = static_cast<UpdateUnit *> (pArgs->GetAt(0));
-
+		AppLog("pong %d", unit->__index);
 		__pListView->RefreshList(unit->__index, unit->__requestId);
 	}
 
