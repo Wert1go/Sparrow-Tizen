@@ -18,8 +18,6 @@ using namespace Tizen::Base;
 #define MEMBER  25
 #define CONTACT 26
 
-
-
 class MUser
  : Bean
 {

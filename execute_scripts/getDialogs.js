@@ -13,5 +13,5 @@ while (i < c.length) {
 		l = l + j; 
 	}
 };
-var b = API.users.get({"user_ids": l, "fields": "photo_100"});
+var b = API.users.get({"user_ids": l, "fields": "photo_100,photo_50,online"});
 return {"chat_uids" : uids, "users": b, "messages": a};
