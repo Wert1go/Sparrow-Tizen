@@ -9,10 +9,12 @@
 #define MDIALOG_H_
 
 #include <FBase.h>
+#include "Bean.h"
 
 using namespace Tizen::Base;
 
-class MDialog {
+class MDialog
+ : public Bean {
 public:
 	MDialog();
 	virtual ~MDialog();
@@ -67,6 +69,8 @@ public:
 	void SetReadState(int state);
 	void SetTitle(String *title);
 	void SetText(String *text);
+
+	static MDialog * CreateFromJsonN(const Tizen::Web::Json::JsonObject &pUserObject, const Tizen::Web::Json::JsonObject &pMessageObject);
 
 };
 

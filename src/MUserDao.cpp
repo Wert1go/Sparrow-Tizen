@@ -113,7 +113,6 @@ MUserDao::GetUsersByTypeN(int type) {
 	return null;
 }
 
-
 DbStatement *
 MUserDao::BindUserToSQLStatement(MUser *user, DbStatement *statement) {
 	if (statement != null) {
@@ -121,15 +120,13 @@ MUserDao::BindUserToSQLStatement(MUser *user, DbStatement *statement) {
 	}
 
 	statement->BindInt(0, user->GetUid());
-	AppLogDebug("Begin Bind2");
 	statement->BindString(1, user->GetLastName()->GetPointer());
 	statement->BindString(2, user->GetFirstName()->GetPointer());
 	statement->BindString(3, user->GetPhoto()->GetPointer());
-	AppLogDebug("Begin Bind2");
 	statement->BindString(4, user->GetMiniPhoto()->GetPointer());
 	statement->BindInt(5, user->GetIsOnline());
 	statement->BindInt64(6, user->GetLastSeen());
-	AppLogDebug("Begin Bind3");
+
 	return statement;
 }
 

@@ -10,6 +10,14 @@
 #include "UiMessagesPanel.h"
 #include "UiDialogCustomItem.h"
 #include "UpdateUnit.h"
+#include "MDialogDao.h"
+
+#include "RDialogResponse.h"
+#include "MDialogsDescriptor.h"
+#include "Error.h"
+#include "RestRequestOperation.h"
+#include "RestClient.h"
+#include "AuthManager.h"
 
 using namespace Tizen::App;
 using namespace Tizen::Graphics;
@@ -20,11 +28,16 @@ using namespace Tizen::Base::Collection;
 
 UiMessagesPanel::UiMessagesPanel() {
 	// TODO Auto-generated constructor stub
-
+	__pDialogsList = null;
+	__pDialogRequestOperation = null;
 }
 
 UiMessagesPanel::~UiMessagesPanel() {
-	// TODO Auto-generated destructor stub
+	if (__pDialogRequestOperation) {
+		__pDialogRequestOperation->AddEventListener(null);
+	}
+
+	//ImageCache::getInstance().CancelLoadingForTarget(this);
 }
 
 bool
@@ -68,6 +81,8 @@ UiMessagesPanel::OnInitializing(void)
 	__pItemContext->AddElement(ID_CONTEXT_ITEM_1, L"Test1");
 	__pItemContext->AddElement(ID_CONTEXT_ITEM_2, L"Test2");
 
+	this->SetDialogsList(MDialogDao::getInstance().GetDialogsWithOffsetN(0));
+	//SendRequest();
 	return r;
 }
 
@@ -123,48 +138,14 @@ UiMessagesPanel::CreateItem(int index, int itemWidth)
 
     pItem->Construct(Dimension(itemWidth, height), style);
     pItem->SetContextItem(__pItemContext);
-    pItem->Init();
 
     pItem->SetIndex(index);
     pItem->AddRefreshListener(this);
-    String *url = null;
-    if (index == 1) {
-    	url = new String(L"http://media.oboobs.ru/boobs_preview/07819.png");
-    } else if (index%2 == 0) {
-    	url = new String(L"http://media.oboobs.ru/boobs_preview/07818.jpg");
-    } else if (index%3 == 0) {
-    	url = new String(L"http://media.oboobs.ru/boobs_preview/07810.jpg");
-    }
-    else if (index%4 == 0) {
-    	url = new String(L"http://media.oboobs.ru/boobs_preview/07809.jpg");
-    } else if(index%5 == 0) {
-    	url = new String(L"http://media.oboobs.ru/boobs_preview/07803.jpg");
-    } else if(index%6 == 0) {
-    	url = new String(L"http://media.oboobs.ru/boobs_preview/07804.jpg");
-    } else if(index%7 == 0) {
-    	url = new String(L"http://media.oboobs.ru/boobs_preview/07805.jpg");
-    } else if(index%8 == 0) {
-    	url = new String(L"http://media.oboobs.ru/boobs_preview/07806.jpg");
-    } else if(index%9 == 0) {
-    	url = new String(L"http://media.oboobs.ru/boobs_preview/07807.jpg");
-    } else if(index%10 == 0) {
-    	url = new String(L"http://media.oboobs.ru/boobs_preview/07808.jpg");
-    } else if(index%11 == 0) {
-    	url = new String(L"http://media.oboobs.ru/boobs_preview/07813.jpg");
-    }
-    else if(index%13 == 0) {
-    	url = new String(L"http://media.oboobs.ru/boobs_preview/07801.jpg");
-    }
-//    else if(index%14 == 0) {
-//    	url = new String(L"http://media.oboobs.ru/boobs_preview/07811.jpg");
-//    } else if(index%15 == 0) {
-//    	url = new String(L"http://media.oboobs.ru/boobs_preview/07812.jpg");
-//    }
-    else {
-    	url = new String(L"http://media.oboobs.ru/boobs_preview/07813.jpg");
-    }
 
-    pItem->SetImageUrl(url);
+    MDialog *dialog = static_cast<MDialog *>(this->GetDialogsList()->GetAt(index));
+    pItem->SetDialog(dialog);
+
+    pItem->Init();
 
     return pItem;
 }
@@ -182,7 +163,11 @@ UiMessagesPanel::DeleteItem(int index, ListItemBase* pItem, int itemWidth)
 int
 UiMessagesPanel::GetItemCount(void)
 {
-    return 10000;
+	if (this->GetDialogsList()) {
+		return this->GetDialogsList()->GetCount();
+	} else {
+		return 0;
+	}
 }
 
 void
@@ -210,7 +195,84 @@ UiMessagesPanel::OnUserEventReceivedN(RequestId requestId, Tizen::Base::Collecti
 		UpdateUnit *unit = static_cast<UpdateUnit *> (pArgs->GetAt(0));
 		AppLog("pong %d", unit->__index);
 		__pListView->RefreshList(unit->__index, unit->__requestId);
+	} else if (requestId == 222222) {
+		__pListView->UpdateList();
 	}
 
 	delete pArgs;
+}
+
+// ************************** DATA ***************************//
+
+void
+UiMessagesPanel::SetDialogsList(LinkedList *list) {
+
+	if (this->__pDialogsList) {
+		delete this->__pDialogsList;
+	}
+	AppLog("SetDialogs");
+	__pDialogsList = list;
+}
+
+LinkedList *
+UiMessagesPanel::GetDialogsList() {
+	return __pDialogsList;
+}
+
+void
+UiMessagesPanel::OnSuccessN(RestResponse *result) {
+	if(__pDialogRequestOperation) {
+		__pDialogRequestOperation->AddEventListener(null);
+		__pDialogRequestOperation = null;
+	}
+
+	RDialogResponse *response = static_cast<RDialogResponse *>(result);
+
+	this->SetDialogsList(response->GetDialogs());
+	this->SendUserEvent(222222, 0);
+	Tizen::App::App::GetInstance()->SendUserEvent(222222, 0);
+}
+
+void
+UiMessagesPanel::OnErrorN(Error *error) {
+	if(__pDialogRequestOperation) {
+		__pDialogRequestOperation->AddEventListener(null);
+		__pDialogRequestOperation = null;
+	}
+}
+
+void
+UiMessagesPanel::SendRequest() {
+
+	HashMap *params = new HashMap();
+	params->Construct();
+
+	params->Add(new String(L"code"), new String(L""
+		"var a = API.messages.getDialogs({\"offset\" : 0, \"count\":20});"
+		"var l = a.items@.user_id;"
+		"var c = a.items@.chat_id;"
+		"var i = 0;"
+		"var uids = [];"
+		"var j;"
+		"while (i < c.length) {"
+		"	i=i+1;"
+		"	j = API.messages.getChatUsers({\"chat_id\" : c[i]});"
+		"	if (j != false) {"
+		"		uids = uids + [j];"
+		"		if (parseInt(c[i]) != 0)"
+		"		l = l + j;"
+		"	}"
+		"};"
+		"var b = API.users.get({\"user_ids\": l, \"fields\": \"photo_100,photo_50,online\"});"
+		"return {\"chat_uids\" : uids, \"users\": b, \"messages\": a};"
+	));
+
+	params->Add(new String(L"access_token"), AuthManager::getInstance().AccessToken());
+
+	if (!__pDialogRequestOperation) {
+		__pDialogRequestOperation = new RestRequestOperation(GET_DIALOGS_EXECUTE, new String(L"execute"), params);
+		__pDialogRequestOperation->AddEventListener(this);
+		__pDialogRequestOperation->SetResponseDescriptor(new MDialogsDescriptor());
+		RestClient::getInstance().PerformOperation(__pDialogRequestOperation);
+	}
 }

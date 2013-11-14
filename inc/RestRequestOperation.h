@@ -9,6 +9,7 @@
 #define RESTREQUESTOPERATION_H_
 
 static const long GET_USER = 100999101;
+static const long GET_DIALOGS_EXECUTE = 100999102;
 
 #include <FNet.h>
 

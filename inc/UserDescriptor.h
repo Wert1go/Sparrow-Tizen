@@ -10,7 +10,9 @@
 
 #include "ResponseDescriptor.h"
 
-class UserDescriptor: public ResponseDescriptor {
+class UserDescriptor
+: public ResponseDescriptor
+  {
 public:
 	UserDescriptor();
 	virtual ~UserDescriptor();

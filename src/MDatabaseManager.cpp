@@ -23,13 +23,16 @@ MDatabaseManager::MDatabaseManager() {
 	result r = E_SUCCESS;
 	__database = new Database();
 	r = __database->Construct(dbPath, "a+");
-	String *sqlUser = MDialog::TableDescription();
+
+	AppLog("USER");
+	String *sqlUser = MUser::TableDescription();
 	r = __database->ExecuteSql(sqlUser->GetPointer(), true);
 	delete sqlUser;
-
-	String *sqlDialog = MUser::TableDescription();
+	AppLog("DIALOG");
+	String *sqlDialog = MDialog::TableDescription();
 	r = __database->ExecuteSql(sqlDialog->GetPointer(), true);
 	delete sqlDialog;
+	AppLog("FINISH");
 }
 
 MDatabaseManager::~MDatabaseManager() {

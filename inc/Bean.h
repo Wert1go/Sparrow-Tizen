@@ -12,7 +12,9 @@
 
 using namespace Tizen::Base;
 
-class Bean {
+class Bean
+ : public Object
+{
 public:
 	Bean();
 	virtual ~Bean();

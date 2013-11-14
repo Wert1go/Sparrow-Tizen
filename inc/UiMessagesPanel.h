@@ -10,15 +10,18 @@
 
 #include <FUi.h>
 #include "IRefreshableListView.h"
-
+#include "IRestRequestListener.h"
+#include "RestRequestOperation.h"
 
 using namespace Tizen::Ui::Controls;
+using namespace Tizen::Base::Collection;
 
 class UiMessagesPanel
  : public Panel
  , public Tizen::Ui::Controls::IListViewItemEventListener
  , public Tizen::Ui::Controls::IListViewItemProvider
  , public IRefreshableListView
+ , public IRestRequestListener
 {
 public:
 	UiMessagesPanel();
@@ -41,12 +44,24 @@ public:
 	virtual void RequestUpdateForIndex(int index, int elementId);
 
 	virtual void OnUserEventReceivedN(RequestId requestId, Tizen::Base::Collection::IList* pArgs);
+
+private:
+	void SetDialogsList(LinkedList *list);
+	LinkedList * GetDialogsList();
+
+	virtual void OnSuccessN(RestResponse *result);
+	virtual void OnErrorN(Error *error);
+
 private:
 	static const int ID_CONTEXT_ITEM_1 = 103;
 	static const int ID_CONTEXT_ITEM_2 = 104;
 
 	Tizen::Ui::Controls::ListView* __pListView;
 	Tizen::Ui::Controls::ListContextItem* __pItemContext;
+
+	LinkedList *__pDialogsList;
+	RestRequestOperation *__pDialogRequestOperation;
+	void SendRequest();
 };
 
 #endif /* UIMESSAGESPANEL_H_ */

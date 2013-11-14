@@ -12,7 +12,9 @@
 
 using namespace Tizen::Base;
 
-class Util {
+class Util
+ : public Object
+{
 private:
 	Util();
 	virtual ~Util();
@@ -20,6 +22,8 @@ private:
 public:
 	//НЕ работает с русскими символами
 	static String* MD5N(String *string);
+	static String* formatDateN(long date);
+	static void LogE();
 
 private:
 	static String LeftPadZero(String s, int wantedLen);

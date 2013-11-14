@@ -16,6 +16,7 @@
 #include <FWeb.h>
 
 using namespace Tizen::Base;
+using namespace Tizen::Base::Utility;
 using namespace Tizen::Net::Http;
 using namespace Tizen::Web::Json;
 
@@ -44,13 +45,15 @@ RestRequestOperation::RestRequestOperation(long operationCode, String *method, H
 
 		uri.Append(pKey->GetPointer());
 		uri.Append(L"=");
-		uri.Append(pValue->GetPointer());
+		String encodedValue;
+		UrlEncoder::Encode(pValue->GetPointer(), L"UTF-8", encodedValue);
+		uri.Append(encodedValue.GetPointer());
 		index++;
 	}
 
 	uri.Append(L"&v=5.3");
 
-	AppLogDebug("%S", uri.GetPointer());
+	AppLogDebug("uri = %S", uri.GetPointer());
 
 	delete pMapEnum;
 	delete params;
@@ -63,6 +66,7 @@ RestRequestOperation::RestRequestOperation(long operationCode, String *method, H
 	HttpRequest* pHttpRequest = __pHttpTransaction->GetRequest();
 
 	pHttpRequest->SetMethod(NET_HTTP_METHOD_GET);
+
 	pHttpRequest->SetUri(uri);
 	pHeader = pHttpRequest->GetHeader();
 	pHeader->AddField(L"Accept", L"application/json");
@@ -155,11 +159,13 @@ RestRequestOperation::OnTransactionReadyToRead(HttpSession& httpSession, HttpTra
 			delete tempHeaderString;
 			delete pBuffer;
 		} else {
+
 			if (__restRequestListener) {
 				__restRequestListener->OnErrorN(new Error());
 			}
 		}
 	} else {
+		AppLog("BAD RESPONSE :: %d", pHttpResponse->GetHttpStatusCode());
 		if (__restRequestListener) {
 			__restRequestListener->OnErrorN(new Error(REST_BAD_RESPONSE));
 		}

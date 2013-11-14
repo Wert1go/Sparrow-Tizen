@@ -30,8 +30,8 @@ using namespace Tizen::System;
 
 #define VK_LOGIN_AFTER_REG L"act=login"
 
-#define VK_APP_ID	L"3965892"
-#define VK_SCOPE	L"friends"
+#define VK_APP_ID	L"3995016"
+#define VK_SCOPE	L"messages,friends,photos,audio,video,notifications"
 
 AuthWebForm::AuthWebForm() {
 	result r = E_SUCCESS;
@@ -67,11 +67,11 @@ AuthWebForm::RequestAuthUrl() {
 	String query = L"";
 	query.Append(L"client_id=");
 	query.Append(VK_APP_ID);
-	query.Append(L"scope=");
+	query.Append(L"&scope=");
 	query.Append(VK_SCOPE);
 	query.Append(L"&redirect_uri=");
 	query.Append(VK_CALLBACK);
-	query.Append(L"&display=mobile&v=5.2&response_type=token");
+	query.Append(L"&display=mobile&v=5.2&response_type=token&revoke=1");
 
 	Uri uri;
 	uri.SetUri(VK_AUTH_URL);

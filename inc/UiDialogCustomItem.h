@@ -13,6 +13,7 @@
 #include "IImageLoadingListener.h"
 #include "Error.h"
 #include "ImageView.h"
+#include "MDialog.h"
 
 using namespace Tizen::Base;
 using namespace Tizen::Graphics;
@@ -35,6 +36,10 @@ public:
 	int GetIndex();
 	void AddRefreshListener(IRefreshableListView *pRefreshListener);
 
+
+	void SetDialog(MDialog *dialog);
+	MDialog *GetDialog();
+
 	static const int ID_USER_AVATAR = 104;
 	static const int ID_SECOND_USER_AVATAR = 109;
 
@@ -50,6 +55,7 @@ private:
 	Bitmap *__pDialogIcon;
 
 	ImageView *__pImageView;
+	MDialog *__pDialog;
 
 	static const int ID_USER_AVATAR_MASK = 105;
 	static const int ID_USER_MESSAGE = 106;
