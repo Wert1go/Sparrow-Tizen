@@ -39,6 +39,7 @@ ImageRequestOperation::ImageRequestOperation(const Tizen::Base::String *url) {
 	__pByteBuffer = null;
 	__isComplited = false;
 	__isError = false;
+	__pByteBuffer = null;
 }
 
 ImageRequestOperation::~ImageRequestOperation() {
@@ -86,7 +87,6 @@ ImageRequestOperation::OnTransactionReadyToRead(HttpSession& httpSession, HttpTr
 	AppLog("ImageRequestOperation::OnTransactionReadyToRead");
 
 	HttpResponse* pHttpResponse = httpTransaction.GetResponse();
-	AppLog("ImageRequestOperation::OnTransactionReadyToRead :: HTTP_STATUS %d :: %S", pHttpResponse->GetHttpStatusCode(), __pUrl->GetPointer());
 
 	if (pHttpResponse->GetHttpStatusCode() == HTTP_STATUS_OK)
 	{
@@ -98,7 +98,6 @@ ImageRequestOperation::OnTransactionReadyToRead(HttpSession& httpSession, HttpTr
 
 
 			if (__pByteBuffer == null) {
-				AppLog("ImageRequestOperation::INIT");
 				__pByteBuffer = new ByteBuffer();
 				__pByteBuffer->Construct(availableBodyLen);
 			} else {

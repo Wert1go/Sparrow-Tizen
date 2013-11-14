@@ -73,8 +73,8 @@ RestRequestOperation::RestRequestOperation(long operationCode, String *method, H
 
 	__restRequestListener = null;
 	__responseDescriptor = null;
-	__requestOwner = null;
-
+	__pRequestOwner = null;
+	this->__pByteBuffer = null;
 	__isComplited = false;
 }
 
@@ -84,6 +84,7 @@ RestRequestOperation::~RestRequestOperation() {
 	__method = null;
 	delete __pHttpTransaction;
 	__pHttpTransaction = null;
+	delete __pByteBuffer;
 }
 
 void RestRequestOperation::perform() {
@@ -105,7 +106,7 @@ void RestRequestOperation::AddEventListener(IRestRequestListener *listener) {
 }
 
 void RestRequestOperation::SetRequestOwner(IRestRequestOwner *owner) {
-	__requestOwner = owner;
+	__pRequestOwner = owner;
 }
 
 //=========================================================
@@ -113,10 +114,10 @@ void RestRequestOperation::SetRequestOwner(IRestRequestOwner *owner) {
 void
 RestRequestOperation::OnTransactionReadyToRead(HttpSession& httpSession, HttpTransaction& httpTransaction, int availableBodyLen)
 {
-	AppLog("OnTransactionReadyToRead");
-	dispatch_async(dispatch_get_global_queue( DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+	AppLog("RestRequestOperation::OnTransactionReadyToRead");
 
 	HttpResponse* pHttpResponse = httpTransaction.GetResponse();
+
 	if (pHttpResponse->GetHttpStatusCode() == HTTP_STATUS_OK)
 	{
 		HttpHeader* pHttpHeader = pHttpResponse->GetHeader();
@@ -125,90 +126,62 @@ RestRequestOperation::OnTransactionReadyToRead(HttpSession& httpSession, HttpTra
 			String* tempHeaderString = pHttpHeader->GetRawHeaderN();
 			ByteBuffer* pBuffer = pHttpResponse->ReadBodyN();
 
-			String *text = new String ((const char*)(pBuffer->GetPointer()));
-
-			AppLogDebug("text %S", text->GetPointer());
-
-			delete text;
-
-			IJsonValue* pJson = JsonParser::ParseN(*pBuffer);
-			JsonObject* pObject = static_cast< JsonObject* >(pJson);
-
-			RestResponse *response = null;
-
-			if (__responseDescriptor) {
-				response = __responseDescriptor->performObjectMappingN(pObject);
-				response->SetOperationCode(__operationCode);
+			if (__pByteBuffer == null) {
+				__pByteBuffer = new ByteBuffer();
+				__pByteBuffer->Construct(availableBodyLen);
 			} else {
-				AppLogDebug("Вы не предоставили дескриптор для запроса!");
+				int newCapacity = __pByteBuffer->GetCapacity() + availableBodyLen;
+				__pByteBuffer->ExpandCapacity(newCapacity);
 			}
 
-			if (__restRequestListener) {
-				if (response) {
-					if (response->GetError()) {
-						__restRequestListener->OnErrorN(response->GetError());
-					} else {
-						__restRequestListener->OnSuccessN(response);
-					}
-				} else {
-					__restRequestListener->OnErrorN(new Error());
-				}
-			}
+			__pByteBuffer->CopyFrom(*pBuffer);
 
-			delete pJson;
-			delete tempHeaderString;
 			delete pBuffer;
-		} else {
-
-			if (__restRequestListener) {
-				__restRequestListener->OnErrorN(new Error());
-			}
+			delete tempHeaderString;
 		}
 	} else {
-		AppLog("BAD RESPONSE :: %d", pHttpResponse->GetHttpStatusCode());
-		if (__restRequestListener) {
-			__restRequestListener->OnErrorN(new Error(REST_BAD_RESPONSE));
-		}
+		__isError = true;
 	}
 
-	CheckCompletionAndCleanUp();
-
-	});
 }
 
 void
 RestRequestOperation::OnTransactionAborted(HttpSession& httpSession, HttpTransaction& httpTransaction, result r)
 {
-	AppLog("OnTransactionAborted(%s)", GetErrorMessage(r));
-	CheckCompletionAndCleanUp();
+	AppLog("RestRequestOperation::OnTransactionAborted(%s)", GetErrorMessage(r));
+	__pRequestOwner->OnCompliteN(this);
 }
 
 void
 RestRequestOperation::OnTransactionReadyToWrite(HttpSession& httpSession, HttpTransaction& httpTransaction, int recommendedChunkSize)
 {
-	AppLog("OnTransactionReadyToWrite");
+	AppLog("RestRequestOperation::OnTransactionReadyToWrite");
 }
 
 void
 RestRequestOperation::OnTransactionHeaderCompleted(HttpSession& httpSession, HttpTransaction& httpTransaction, int headerLen, bool authRequired)
 {
-	AppLog("OnTransactionHeaderCompleted");
+	AppLog("RestRequestOperation::OnTransactionHeaderCompleted");
 }
 
 void
 RestRequestOperation::OnTransactionCompleted(HttpSession& httpSession, HttpTransaction& httpTransaction)
 {
-	AppLog("OnTransactionCompleted");
-	CheckCompletionAndCleanUp();
+	AppLog("RestRequestOperation::OnTransactionCompleted");
+
+	dispatch_async(dispatch_get_global_queue( DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+		Execute();
+		__pRequestOwner->OnCompliteN(this);
+	});
+
 }
 
 void
 RestRequestOperation::OnTransactionCertVerificationRequiredN(HttpSession& httpSession, HttpTransaction& httpTransaction, Tizen::Base::String* pCert)
 {
-	AppLog("OnTransactionCertVerificationRequiredN");
+	AppLog("RestRequestOperation::OnTransactionCertVerificationRequiredN");
 
 	httpTransaction.Resume();
-
 	delete pCert;
 }
 
@@ -216,14 +189,46 @@ void RestRequestOperation::SetResponseDescriptor(ResponseDescriptor *responseDes
 	__responseDescriptor = responseDescriptor;
 }
 
-void RestRequestOperation::CheckCompletionAndCleanUp() {
-	if (__isComplited) {
-		__requestOwner->OnCompliteN(this);
-	} else {
-		__isComplited = true;
-	}
-}
-
 bool RestRequestOperation::GetIsComplited() {
 	return __isComplited;
+}
+
+void
+RestRequestOperation::Execute() {
+	if (this->__isError || !this->__pByteBuffer) {
+		__restRequestListener->OnErrorN(new Error(REST_BAD_RESPONSE));
+		return;
+	}
+
+	String *text = new String ((const char*)(this->__pByteBuffer->GetPointer()));
+
+	AppLogDebug("body: %S", text->GetPointer());
+
+	delete text;
+
+	IJsonValue* pJson = JsonParser::ParseN(*this->__pByteBuffer);
+	JsonObject* pObject = static_cast< JsonObject* >(pJson);
+
+	RestResponse *response = null;
+
+	if (__responseDescriptor) {
+		response = __responseDescriptor->performObjectMappingN(pObject);
+		response->SetOperationCode(__operationCode);
+	} else {
+		AppLogDebug("Вы не предоставили дескриптор для запроса!");
+	}
+
+	if (__restRequestListener) {
+		if (response) {
+			if (response->GetError()) {
+				__restRequestListener->OnErrorN(response->GetError());
+			} else {
+				__restRequestListener->OnSuccessN(response);
+			}
+		} else {
+			__restRequestListener->OnErrorN(new Error());
+		}
+	}
+
+	delete pJson;
 }

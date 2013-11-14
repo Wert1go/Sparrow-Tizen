@@ -50,18 +50,20 @@ private:
 
 	IRestRequestListener *__restRequestListener;
 	ResponseDescriptor *__responseDescriptor;
-	IRestRequestOwner *__requestOwner;
+	IRestRequestOwner *__pRequestOwner;
 	bool __isComplited;
+	bool __isError;
 
 	String *__method;
 	long __operationCode;
 
-	void CheckCompletionAndCleanUp();
+	ByteBuffer *__pByteBuffer;
 
 public:
 	void perform();
 	long GetOperationCode();
 	bool GetIsComplited();
+	void Execute();
 
 };
 
