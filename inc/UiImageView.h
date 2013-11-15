@@ -5,8 +5,8 @@
  *      Author: developer
  */
 
-#ifndef IMAGEVIEW_H_
-#define IMAGEVIEW_H_
+#ifndef UIIMAGEVIEW_H_
+#define UIIMAGEVIEW_H_
 
 #include <FUi.h>
 #include <FGraphics.h>
@@ -14,11 +14,11 @@
 using namespace Tizen::Ui::Controls;
 using namespace Tizen::Graphics;
 
-class ImageView
+class UiImageView
 : public ICustomElement {
 public:
-	ImageView();
-	virtual ~ImageView();
+	UiImageView();
+	virtual ~UiImageView();
 
 	virtual bool OnDraw (Tizen::Graphics::Canvas &canvas, const Tizen::Graphics::Rectangle &rect, Tizen::Ui::Controls::ListItemDrawingStatus status);
 
@@ -27,4 +27,4 @@ public:
 
 };
 
-#endif /* IMAGEVIEW_H_ */
+#endif /* UIIMAGEVIEW_H_ */

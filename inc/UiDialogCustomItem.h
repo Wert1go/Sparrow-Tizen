@@ -12,8 +12,9 @@
 #include "IRefreshableListView.h"
 #include "IImageLoadingListener.h"
 #include "Error.h"
-#include "ImageView.h"
+#include "UiImageView.h"
 #include "MDialog.h"
+#include "UiDialogListItem.h"
 
 using namespace Tizen::Base;
 using namespace Tizen::Graphics;
@@ -36,7 +37,7 @@ public:
 	int GetIndex();
 	void AddRefreshListener(IRefreshableListView *pRefreshListener);
 
-
+	void SetDimension(Dimension *pDimension);
 	void SetDialog(MDialog *dialog);
 	MDialog *GetDialog();
 
@@ -54,7 +55,9 @@ private:
 	Bitmap *__pRounder;
 	Bitmap *__pDialogIcon;
 
-	ImageView *__pImageView;
+	Dimension *__pDimension;
+
+	UiImageView *__pImageView;
 	MDialog *__pDialog;
 
 	static const int ID_USER_AVATAR_MASK = 105;
@@ -64,6 +67,7 @@ private:
 
 	int __index;
 	IRefreshableListView *__pRefreshListener;
+	UiDialogListItem *__pDialogListItem;
 };
 
 #endif /* UIDIALOGCUSTOMITEM_H_ */

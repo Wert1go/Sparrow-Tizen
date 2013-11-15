@@ -82,7 +82,7 @@ UiMessagesPanel::OnInitializing(void)
 	__pItemContext->AddElement(ID_CONTEXT_ITEM_2, L"Test2");
 
 	this->SetDialogsList(MDialogDao::getInstance().GetDialogsWithOffsetN(0));
-	//SendRequest();
+	SendRequest();
 	return r;
 }
 
@@ -134,11 +134,11 @@ UiMessagesPanel::CreateItem(int index, int itemWidth)
 	UiDialogCustomItem *pItem = new UiDialogCustomItem();
     ListAnnexStyle style = LIST_ANNEX_STYLE_NORMAL;
 
-    int height = 110;
+    int height = 136;
 
     pItem->Construct(Dimension(itemWidth, height), style);
     pItem->SetContextItem(__pItemContext);
-
+    pItem->SetDimension(new Dimension(itemWidth, height));
     pItem->SetIndex(index);
     pItem->AddRefreshListener(this);
 
