@@ -34,6 +34,7 @@ public:
 	void Save(MUser *user);
 	void Save(IList *users);
 
+	MUser *GetCurrentUserN();
 	MUser *GetUserN(int uid);
 	LinkedList *GetUsersByTypeN(int type);
 

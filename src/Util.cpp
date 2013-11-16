@@ -11,6 +11,9 @@
 #include <FLocales.h>
 #include <FSystem.h>
 
+#include <iostream>
+#include <sys/time.h>
+
 using namespace Tizen::Base;
 using namespace Tizen::Base::Utility;
 using namespace Tizen::Security::Crypto;
@@ -83,39 +86,36 @@ Util::formatDateN(long date) {
 	 DateTime today;
 	 Locale locale(LANGUAGE_RUS, COUNTRY_RU);
 	 SystemTime::GetCurrentTime(TIME_MODE_UTC, today);
-	 AppLogDebug("%d", today.GetSecond());
-	 	 AppLogDebug("%d", date);
-	 double delta = (today.GetSecond() - date)/(24 * 60 * 60);
 
-	 today.AddSeconds(-(today.GetSecond() - date));
+	 unsigned long int timestamp = time(NULL);
+	 long int delta = (timestamp - date)/(24 * 60 * 60);
+	 AppLogDebug("%ld", delta);
+
 	 LocaleManager localeManager;
 	 localeManager.Construct();
 
+	 DateTime after;
+	 after.AddSeconds(date);
+
 	 TimeZone timeZone = localeManager.GetSystemTimeZone();
-	 today = timeZone.UtcTimeToStandardTime(today);
+	 after = timeZone.UtcTimeToStandardTime(after);
 
 	 String timeZoneId = timeZone.GetId();
 
-	 AppLogDebug("timeZoneId: %S", timeZoneId.GetPointer());
-
 	 if (delta < 1) {
-		 AppLogDebug("111!!pre");
 		 DateTimeFormatter* pTimeFormatter = DateTimeFormatter::CreateTimeFormatterN(locale, DATE_TIME_STYLE_DEFAULT);
 		 String cutomizedPattern = L"HH:mm";
 		 pTimeFormatter->ApplyPattern(cutomizedPattern);
-
-		 pTimeFormatter->Format(today, *stringDate);
+		 pTimeFormatter->Format(after, *stringDate);
 	 } else if (delta > 0 && delta < 2) {
-		 AppLogDebug("222!!pre");
 		 stringDate = new String (L"вчера");
 	 } else {
 		 AppLogDebug("33!!pre");
 		 DateTimeFormatter* pTimeFormatter = DateTimeFormatter::CreateTimeFormatterN(locale, DATE_TIME_STYLE_DEFAULT);
 		 String cutomizedPattern = L"dd.MM";
 		 pTimeFormatter->ApplyPattern(cutomizedPattern);
-		 pTimeFormatter->Format(today, *stringDate);
+		 pTimeFormatter->Format(after, *stringDate);
 	 }
-	 AppLogDebug("11!!pre");
 
 	return stringDate;
 }

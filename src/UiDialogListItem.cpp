@@ -39,100 +39,25 @@ UiDialogListItem::OnDraw (Tizen::Graphics::Canvas &canvas, const Tizen::Graphics
 	int height = rect.height;
 	int halfHeight = height/2;
 
-	EnrichedText* pUserName = null;
-	TextElement* pUsetNameText = null;
+	int rightOffset = 25;
 
-	pUserName = new EnrichedText();
-	r = pUserName->Construct(Dimension(500, 60));
-
-	pUserName->SetHorizontalAlignment(TEXT_ALIGNMENT_LEFT);
-	pUserName->SetVerticalAlignment(TEXT_ALIGNMENT_BOTTOM);
-	pUserName->SetTextWrapStyle(TEXT_WRAP_WORD_WRAP);
-	pUserName->SetTextAbbreviationEnabled(true);
-
-	pUsetNameText = new TextElement();
-	String *fullName = new String();
-	fullName->Append(this->GetDialog()->GetFirstName()->GetPointer());
-	fullName->Append(L" ");
-	fullName->Append(this->GetDialog()->GetLastName()->GetPointer());
-
-	r = pUsetNameText->Construct(fullName->GetPointer());
-	//delete fullName;
-
-	pUsetNameText->SetTextColor(Color::GetColor(COLOR_ID_WHITE));
-	{
-		Font font;
-		font.Construct(FONT_STYLE_BOLD, 36);
-		pUsetNameText->SetFont(font);
-	}
-	pUserName->Add(*pUsetNameText);
-
-	FloatDimension size;
-	int actualLength;
-	pUserName->GetTextExtent(0, fullName->GetLength(), size, actualLength);
-
-	pUserName->SetSize(size);
-
-	float textPosition =  (float)halfHeight/2 -  (float)size.height/2;
-
-	canvas.DrawText(FloatPoint(baseListItemOffset, textPosition + shift), *pUserName);
-
-	if (this->GetDialog()->GetIsOnline() == 1) {
-		float offlinePosition = (float)(textPosition + (float)size.height/2) - 44/2;
-		canvas.DrawBitmap(Rectangle(baseListItemOffset + size.width, offlinePosition, 44, 44), *Resources::getInstance().GetOnlineIndicator());
-	}
-
-/*********************** DIALOG TEXT ************************/
-
-	EnrichedText* pDialogLabel = null;
-	TextElement* pDialogText = null;
-
-	pDialogLabel = new EnrichedText();
-	r = pDialogLabel->Construct(Dimension(width - baseListItemOffset * 2, 44));
-
-	pDialogLabel->SetHorizontalAlignment(TEXT_ALIGNMENT_LEFT);
-	pDialogLabel->SetVerticalAlignment(TEXT_ALIGNMENT_BOTTOM);
-	pDialogLabel->SetTextWrapStyle(TEXT_WRAP_WORD_WRAP);
-	pDialogLabel->SetTextAbbreviationEnabled(true);
-
-	pDialogText = new TextElement();
-
-	String *text = this->__pDialog->GetText();
-
-	if (text->GetLength() == 0) {
-		text = new String(L" ");
-	}
-
-	r = pDialogText->Construct(text->GetPointer());
-	GetErrorMessage(r);
-	pDialogText->SetTextColor(Color::GetColor(COLOR_ID_GREY));
-	{
-		Font font;
-		font.Construct(FONT_STYLE_BOLD, 34);
-		pDialogText->SetFont(font);
-	}
-	pDialogLabel->Add(*pDialogText);
-
-	int xOffset = baseListItemOffset;
-
-	FloatDimension textSize = pDialogLabel->GetTextExtentF();
-
-	if (this->GetDialog()->GetOut() == 1) {
-		xOffset = baseListItemOffset + 50;
-	}
-
-	AppLogDebug("%f :: %f :: %d", textSize.width, textSize.height, pDialogLabel->GetDisplayLineCount());
-
-	if (textSize.height > 68) {
-		textSize.height = 41;
-	}
-
-	pDialogLabel->SetSize(textSize);
-	float yTextPosition = (float)halfHeight + (float)halfHeight/2 - (float)textSize.height/2;
-
-	canvas.DrawText(FloatPoint(xOffset, yTextPosition - 5), *pDialogLabel);
+	int onlineStatusSize = 44;
 
 /******************** TIME LABEL ************************/
+
+	Bitmap *pRounder = null;
+
+	if (status == LIST_ITEM_DRAWING_STATUS_NORMAL) {
+		if (this->GetDialog()->GetReadState() == 0 && this->GetDialog()->GetOut() == 0) {
+			pRounder = Resources::getInstance().GetNormalUnreadRoundImageForm();
+		} else {
+			pRounder = Resources::getInstance().GetNormalRoundImageForm();
+		}
+	} else {
+		pRounder = Resources::getInstance().GetSelectedRoundImageForm();
+	}
+
+	canvas.DrawBitmap(Rectangle(80 - 108/2, rect.height/2 - 108/2, 108, 108), *pRounder);
 
 	EnrichedText* pTimeLabel = null;
 	TextElement* pTImeText = null;
@@ -147,25 +72,184 @@ UiDialogListItem::OnDraw (Tizen::Graphics::Canvas &canvas, const Tizen::Graphics
 
 	pTImeText = new TextElement();
 
-	text = Util::formatDateN(this->__pDialog->GetDate());
+	String *text = Util::formatDateN(this->__pDialog->GetDate());
 
 	if (text->GetLength() == 0) {
 		text = new String(L" ");
 	}
 
-	AppLogDebug("!!pre text %S", this->__pDialog->GetTitle()->GetPointer());
 	r = pTImeText->Construct(text->GetPointer());
-	AppLogDebug("!!pre text %S", this->__pDialog->GetTitle()->GetPointer());
+
 	GetErrorMessage(r);
-	pTImeText->SetTextColor(Color::GetColor(COLOR_ID_GREY));
+	Color *timeColor = new Color(109, 110, 117, 255);
+	pTImeText->SetTextColor(*timeColor);
 	{
 		Font font;
-		font.Construct(FONT_STYLE_BOLD, 18);
+		font.Construct(FONT_STYLE_BOLD, 28);
 		pTImeText->SetFont(font);
 	}
 	pTimeLabel->Add(*pTImeText);
+	delete timeColor;
 
-	canvas.DrawText(FloatPoint(400, 10), *pTimeLabel);
+	FloatDimension timeSize = pTimeLabel->GetTextExtentF();
+	pTimeLabel->SetSize(timeSize);
+
+	float xTimePosition = rect.width - rightOffset - timeSize.width;
+	float yTimePosition = (float)halfHeight - halfHeight/2  - (float)timeSize.height/2;
+
+	canvas.DrawText(FloatPoint(xTimePosition, yTimePosition), *pTimeLabel);
+
+/************************* TITLE **********************/
+
+	EnrichedText* pUserName = null;
+	TextElement* pUsetNameText = null;
+
+	pUserName = new EnrichedText();
+	r = pUserName->Construct(Dimension(rect.width - baseListItemOffset - rightOffset - timeSize.width, 60));
+
+	pUserName->SetHorizontalAlignment(TEXT_ALIGNMENT_LEFT);
+	pUserName->SetVerticalAlignment(TEXT_ALIGNMENT_BOTTOM);
+	pUserName->SetTextWrapStyle(TEXT_WRAP_WORD_WRAP);
+	pUserName->SetTextAbbreviationEnabled(true);
+
+	pUsetNameText = new TextElement();
+	String *fullName = new String();
+	fullName->Append(this->GetDialog()->GetFirstName()->GetPointer());
+	fullName->Append(L" ");
+	fullName->Append(this->GetDialog()->GetLastName()->GetPointer());
+
+	r = pUsetNameText->Construct(fullName->GetPointer());
+
+	Color *userNameColor = new Color(250, 250, 250, 255);
+	pUsetNameText->SetTextColor(*userNameColor);
+	{
+		Font font;
+		font.Construct(FONT_STYLE_BOLD, 36);
+		pUsetNameText->SetFont(font);
+	}
+	pUserName->Add(*pUsetNameText);
+	delete userNameColor;
+
+	FloatDimension size;
+	int actualLength;
+	pUserName->GetTextExtent(0, fullName->GetLength(), size, actualLength);
+
+	if (size.height > 68) {
+		size.height = 41;
+	}
+
+	pUserName->SetSize(size);
+
+	float textPosition =  (float)halfHeight/2 -  (float)size.height/2;
+
+	canvas.DrawText(FloatPoint(baseListItemOffset, textPosition + shift), *pUserName);
+
+/*********************** CHAT ICON ****************************/
+
+
+/*********************** USER ICON ****************************/
+
+
+
+/*********************** ONLINE STATUS ***********************/
+
+	if (this->GetDialog()->GetIsOnline() == 1) {
+		float offlinePosition = (float)(textPosition + (float)size.height/2) - onlineStatusSize/2;
+		canvas.DrawBitmap(Rectangle(baseListItemOffset + size.width, offlinePosition, onlineStatusSize, onlineStatusSize), *Resources::getInstance().GetOnlineIndicator());
+	}
+
+/*********************** DIALOG TEXT ************************/
+
+	EnrichedText* pDialogLabel = null;
+	TextElement* pDialogText = null;
+
+	int xOffset = baseListItemOffset;
+
+	int textRightOffset = rightOffset;
+
+	if (this->GetDialog()->GetOut() == 1) {
+		xOffset = baseListItemOffset + 68;
+
+		if (this->GetDialog()->GetReadState() == 0) {
+			xOffset += 20;
+			textRightOffset += 10;
+		} else {
+			xOffset += 20;
+		}
+	}
+
+	pDialogLabel = new EnrichedText();
+	r = pDialogLabel->Construct(Dimension(width - xOffset - textRightOffset, 44));
+
+	pDialogLabel->SetHorizontalAlignment(TEXT_ALIGNMENT_LEFT);
+	pDialogLabel->SetVerticalAlignment(TEXT_ALIGNMENT_BOTTOM);
+	pDialogLabel->SetTextWrapStyle(TEXT_WRAP_WORD_WRAP);
+	pDialogLabel->SetTextAbbreviationEnabled(true);
+
+	pDialogText = new TextElement();
+
+	String *dialogText = this->__pDialog->GetText();
+
+	if (dialogText->GetLength() == 0) {
+		dialogText = new String(L" ");
+	}
+
+	r = pDialogText->Construct(dialogText->GetPointer());
+	GetErrorMessage(r);
+	Color *textColor = new Color(86, 87, 93, 255);
+	pDialogText->SetTextColor(*textColor);
+	{
+		Font font;
+		font.Construct(FONT_STYLE_BOLD, 34);
+		pDialogText->SetFont(font);
+	}
+	pDialogLabel->Add(*pDialogText);
+	delete textColor;
+
+	FloatDimension textSize = pDialogLabel->GetTextExtentF();
+
+	//AppLogDebug("%f :: %f :: %d", textSize.width, textSize.height, pDialogLabel->GetDisplayLineCount());
+
+	if (textSize.height > 68) {
+		textSize.height = 41;
+	}
+
+	pDialogLabel->SetSize(textSize);
+	float yTextPosition = (float)halfHeight + (float)halfHeight/2 - (float)textSize.height/2;
+
+	if (this->GetDialog()->GetOut() == 1) {
+		Color *color = new Color(25, 31, 37, 255);
+
+		Bitmap *userAvatar = Resources::getInstance().GetUserAvatar();
+
+		if (userAvatar) {
+			canvas.DrawBitmap(Rectangle(baseListItemOffset, halfHeight - 5, halfHeight, halfHeight), *userAvatar);
+		}
+
+		Bitmap *pRounder = null;
+
+		if (status == LIST_ITEM_DRAWING_STATUS_NORMAL) {
+			pRounder = Resources::getInstance().GetNormalRoundImageForm();
+		} else {
+			pRounder = Resources::getInstance().GetSelectedRoundImageForm();
+		}
+
+		canvas.DrawBitmap(Rectangle(baseListItemOffset, halfHeight - 5, halfHeight, halfHeight), *pRounder);
+
+		if (this->GetDialog()->GetReadState() == 0) {
+			canvas.FillRectangle(*color,
+				Rectangle(
+						xOffset - 10,
+						yTextPosition - 10,
+						width - xOffset - rightOffset + 10,
+						textSize.height + 10));
+		}
+
+		delete color;
+	}
+
+	//5 для красоты :/
+	canvas.DrawText(FloatPoint(xOffset, yTextPosition - 5), *pDialogLabel);
 
 	return true;
 }

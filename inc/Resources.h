@@ -29,9 +29,19 @@ private:
 
 public:
 	Bitmap *GetOnlineIndicator();
+	Bitmap *GetNormalRoundImageForm();
+	Bitmap *GetNormalUnreadRoundImageForm();
+	Bitmap *GetSelectedRoundImageForm();
+
+	Bitmap *GetUserAvatar();
 
 private:
 	Bitmap *__pOnlineIndicator;
+	Bitmap *__pNormalRoundImageForm;
+	Bitmap *__pNormalUnreadRoundImageForm;
+	Bitmap *__pSelectedRoundImageForm;
+
+	Bitmap *__pUserAvatar;
 
 };
 

@@ -17,6 +17,8 @@
 #include "Util.h"
 #include "UiDialogListItem.h"
 
+#include "Resources.h"
+
 using namespace Tizen::App;
 using namespace Tizen::Io;
 using namespace Tizen::Media;
@@ -25,15 +27,9 @@ using namespace Tizen::Ui::Controls;
 
 UiDialogCustomItem::UiDialogCustomItem() {
 	result r;
-	Image image;
-	r = image.Construct();
-	String filepath = App::GetInstance()->GetAppResourcePath() + L"Images/thumbnail_list.png";
-	__pPlaceholder = image.DecodeN(filepath, BITMAP_PIXEL_FORMAT_ARGB8888);
 
-	Image imageActive;
-		r = imageActive.Construct();
-		filepath = App::GetInstance()->GetAppResourcePath() + L"Images/thumbnail_list_active.png";
-		PlaceholderActive = imageActive.DecodeN(filepath, BITMAP_PIXEL_FORMAT_ARGB8888);
+	__pPlaceholder = Resources::getInstance().GetNormalRoundImageForm();
+	PlaceholderActive = Resources::getInstance().GetSelectedRoundImageForm();
 
 	__pRefreshListener = null;
 	__pDialogIcon = null;
@@ -44,7 +40,8 @@ UiDialogCustomItem::UiDialogCustomItem() {
 UiDialogCustomItem::~UiDialogCustomItem() {
 	AppLog("UiDialogCustomItem::~UiDialogCustomItem");
 	ImageCache::getInstance().CancelLoadingForTarget(this);
-	delete __pPlaceholder;
+	__pPlaceholder = null;
+	PlaceholderActive = null;
 	delete __pDialogIcon;
 	delete __pDialogListItem;
 //	delete __pUrl;
@@ -69,14 +66,20 @@ UiDialogCustomItem::GetDialog() {
 void
 UiDialogCustomItem::Init() {
 
-
 	Color *normalColor = new Color(0,0,0,0);
+	Color *normalUnreadColor = new Color(25,31,37,255);
 	Color *selectedColor = new Color(33,63,99,255);
-	this->SetBackgroundColor(LIST_ITEM_DRAWING_STATUS_NORMAL, *normalColor);
+
+	if (this->__pDialog->GetReadState() == 0 && this->__pDialog->GetOut() == 0) {
+		this->SetBackgroundColor(LIST_ITEM_DRAWING_STATUS_NORMAL, *normalUnreadColor);
+	} else {
+		this->SetBackgroundColor(LIST_ITEM_DRAWING_STATUS_NORMAL, *normalColor);
+	}
+
 	this->SetBackgroundColor(LIST_ITEM_DRAWING_STATUS_PRESSED, *selectedColor);
 	this->SetBackgroundColor(LIST_ITEM_DRAWING_STATUS_HIGHLIGHTED, *selectedColor);
-
 	delete normalColor;
+	delete normalUnreadColor;
 	delete selectedColor;
 
 	Rectangle rect = Rectangle(0,0,__pDimension->width, __pDimension->height);
@@ -86,7 +89,6 @@ UiDialogCustomItem::Init() {
 
 	this->AddElement(rect, ID_USER_AVATAR, *__pImageView);
 
-	this->AddElement(Rectangle(80 - 108/2, rect.height/2 - 108/2, 108, 108), ID_USER_AVATAR_MASK, *__pPlaceholder, PlaceholderActive, PlaceholderActive);
 
 	__pDialogListItem = new UiDialogListItem();
 	__pDialogListItem->SetDialog(this->__pDialog);

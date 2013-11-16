@@ -6,6 +6,7 @@
  */
 
 #include "MUserDao.h"
+#include "AuthManager.h"
 #include "MDatabaseManager.h"
 
 using namespace Tizen::Io;
@@ -69,6 +70,17 @@ void MUserDao::Save(IList *users) {
 	MDatabaseManager::getInstance().GetDatabase()->CommitTransaction();
 
 	delete pUserEnum;
+}
+
+MUser *
+MUserDao::GetCurrentUserN() {
+	String *uidString = AuthManager::getInstance().UserId();
+
+	int uid;
+	Integer::Parse(uidString->GetPointer(), uid);
+	MUser *user = this->GetUserN(uid);
+
+	return user;
 }
 
 MUser *

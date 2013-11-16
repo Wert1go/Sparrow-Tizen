@@ -81,7 +81,7 @@ UiMessagesPanel::OnInitializing(void)
 	__pItemContext->AddElement(ID_CONTEXT_ITEM_1, L"Test1");
 	__pItemContext->AddElement(ID_CONTEXT_ITEM_2, L"Test2");
 
-	this->SetDialogsList(MDialogDao::getInstance().GetDialogsWithOffsetN(0));
+	//this->SetDialogsList(MDialogDao::getInstance().GetDialogsWithOffsetN(0));
 	SendRequest();
 	return r;
 }
@@ -210,7 +210,7 @@ UiMessagesPanel::SetDialogsList(LinkedList *list) {
 	if (this->__pDialogsList) {
 		delete this->__pDialogsList;
 	}
-	AppLog("SetDialogs");
+
 	__pDialogsList = list;
 }
 

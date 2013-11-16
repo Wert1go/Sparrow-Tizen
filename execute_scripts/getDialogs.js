@@ -1,4 +1,4 @@
-var a = API.messages.getDialogs({"offset" : 0, "count":2});
+var a = API.messages.getDialogs({"offset" : 0, "count":20});
 var l = a.items@.user_id;
 var c = a.items@.chat_id; 
 var i = 0; 
