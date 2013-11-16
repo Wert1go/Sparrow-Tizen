@@ -49,7 +49,7 @@ public:
 	void SetReadState(int state);
 	void SetText(String *text);
 
-	static MMessage * CreateFromJsonN(const Tizen::Web::Json::JsonObject &pUserObject, const Tizen::Web::Json::JsonObject &pMessageObject);
+	static MMessage * CreateFromJsonN(const Tizen::Web::Json::JsonObject &pObject);
 };
 
 #endif /* MMESSAGE_H_ */

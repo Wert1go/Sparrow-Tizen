@@ -27,6 +27,7 @@ MDialog::TableDescription() {
 }
 
 /***************** GETTERS ******************/
+
 String *
 MDialog::GetFirstName() {
 	return __firstName;

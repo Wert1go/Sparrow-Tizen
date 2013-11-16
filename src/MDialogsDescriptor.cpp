@@ -93,14 +93,7 @@ MDialogsDescriptor::performObjectMappingN(JsonObject* pObject) {
 		}
 
 		MDialog *dialog = MDialog::CreateFromJsonN(*pUserObject, *pMessageObject);
-
-		if (!dialog->GetText()) {
-			AppLogDebug("ALLLAAAAAAARRMMMM");
-		}
-
-		AppLogDebug("text: %S", dialog->GetText()->GetPointer());
 		pDialogs->Add(dialog);
-
 	}
 
 	response->SetDialogs(pDialogs);

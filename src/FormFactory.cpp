@@ -10,6 +10,7 @@
 #include "AuthWebForm.h"
 #include "MainForm.h"
 #include "SettingsForm.h"
+#include "UiChatForm.h"
 
 using namespace Tizen::Ui::Scenes;
 
@@ -17,6 +18,8 @@ const wchar_t* FORM_AUTH = L"FORM_AUTH";
 const wchar_t* FORM_WEB_AUTH = L"FORM_WEB_AUTH";
 const wchar_t* FORM_MAIN = L"FORM_MAIN";
 const wchar_t* FORM_SETTINGS = L"FORM_SETTINGS";
+const wchar_t* FORM_CHAT = L"FORM_CHAT";
+
 
 const wchar_t* FORM_TAB_STYLE_BASE = L"FromTabStyleBase";
 
@@ -55,6 +58,12 @@ FormFactory::CreateFormN(const Tizen::Base::String& formId, const Tizen::Ui::Sce
 	else if (formId == FORM_SETTINGS)
 	{
 		SettingsForm *pForm = new (std::nothrow) SettingsForm();
+		pNewForm = pForm;
+	}
+	else if (formId == FORM_CHAT)
+	{
+		UiChatForm *pForm = new (std::nothrow) UiChatForm();
+		pSceneManager->AddSceneEventListener(sceneId, *pForm);
 		pNewForm = pForm;
 	}
 

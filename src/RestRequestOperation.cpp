@@ -64,7 +64,7 @@ RestRequestOperation::Init(String *_uri, long operationCode, String *method, Has
 
 	uri.Append(L"&v=5.3");
 
-	//AppLogDebug("uri = %S", uri.GetPointer());
+	AppLogDebug("uri = %S", uri.GetPointer());
 
 	delete pMapEnum;
 	delete params;
@@ -131,7 +131,7 @@ RestRequestOperation::OnTransactionReadyToRead(HttpSession& httpSession, HttpTra
 
 	HttpResponse* pHttpResponse = httpTransaction.GetResponse();
 
-	//AppLog("RestRequestOperation::OnTransactionReadyToRead %d", pHttpResponse->GetHttpStatusCode());
+	AppLog("RestRequestOperation::OnTransactionReadyToRead %d", pHttpResponse->GetHttpStatusCode());
 
 	if (pHttpResponse->GetHttpStatusCode() == HTTP_STATUS_OK)
 	{
@@ -182,7 +182,7 @@ RestRequestOperation::OnTransactionHeaderCompleted(HttpSession& httpSession, Htt
 void
 RestRequestOperation::OnTransactionCompleted(HttpSession& httpSession, HttpTransaction& httpTransaction)
 {
-	//AppLog("RestRequestOperation::OnTransactionCompleted");
+	AppLog("RestRequestOperation::OnTransactionCompleted");
 
 	dispatch_async(dispatch_get_global_queue( DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
 		Execute();

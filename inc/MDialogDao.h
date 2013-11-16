@@ -18,15 +18,14 @@ class MDialogDao {
 public:
 	static MDialogDao& getInstance()
     {
-    	static MDialogDao	instance; // Guaranteed to be destroyed.
-                                  // Instantiated on first use.
+    	static MDialogDao	instance;
     	return instance;
 	}
 
 private:
 	MDialogDao();
 	virtual ~MDialogDao();
-	MDialogDao(MDialogDao const&);              // Don't Implement
+	MDialogDao(MDialogDao const&);
 	void operator = (MDialogDao const&);
 
 public:
@@ -42,8 +41,7 @@ public:
 
 	MDialog * LoadDialogFromDBN(DbEnumerator* pEnum);
 
-	void
-	UpdateDialogOnlineStatusById(int value, int userId);
+	void UpdateDialogOnlineStatusById(int value, int userId);
 
 };
 

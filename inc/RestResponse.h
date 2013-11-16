@@ -8,9 +8,15 @@
 #ifndef RESTRESPONSE_H_
 #define RESTRESPONSE_H_
 
+#include <FBase.h>
+
+using namespace Tizen::Base;
+
 #include "Error.h"
 
-class RestResponse {
+class RestResponse
+ : public Object
+{
 public:
 	RestResponse();
 	virtual ~RestResponse();

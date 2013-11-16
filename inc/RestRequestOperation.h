@@ -14,6 +14,8 @@ static const long GET_DIALOGS_EXECUTE = 100999102;
 static const long LONGPOLL_GET_SERVER = 100999103;
 static const long LONGPOLL_CONNECTION = 100999104;
 
+static const long GET_MESSAGES_HISTORY = 100999105;
+
 #include <FNet.h>
 
 #include "IRestRequestListener.h"

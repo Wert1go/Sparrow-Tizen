@@ -12,6 +12,7 @@
 
 #include "MUser.h"
 #include "MDialog.h"
+#include "MMessage.h"
 
 using namespace Tizen::App;
 using namespace Tizen::Base;
@@ -24,15 +25,18 @@ MDatabaseManager::MDatabaseManager() {
 	__database = new Database();
 	r = __database->Construct(dbPath, "a+");
 
-	AppLog("USER");
 	String *sqlUser = MUser::TableDescription();
 	r = __database->ExecuteSql(sqlUser->GetPointer(), true);
 	delete sqlUser;
-	AppLog("DIALOG");
+
 	String *sqlDialog = MDialog::TableDescription();
 	r = __database->ExecuteSql(sqlDialog->GetPointer(), true);
 	delete sqlDialog;
-	AppLog("FINISH");
+
+	String *sqlMessage = MMessage::TableDescription();
+	r = __database->ExecuteSql(sqlMessage->GetPointer(), true);
+	delete sqlMessage;
+
 }
 
 MDatabaseManager::~MDatabaseManager() {
@@ -43,4 +47,3 @@ MDatabaseManager::~MDatabaseManager() {
 Database *MDatabaseManager::GetDatabase() {
 	return __database;
 }
-

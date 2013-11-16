@@ -22,6 +22,7 @@
 #include "LongPollConnection.h"
 
 #include "UiUpdateConstants.h"
+#include "SceneRegister.h"
 
 using namespace Tizen::App;
 using namespace Tizen::Graphics;
@@ -101,7 +102,22 @@ UiMessagesPanel::OnTerminating() {
 void
 UiMessagesPanel::OnListViewItemStateChanged(ListView &listView, int index, int elementId, ListItemStatus status)
 {
+	if (status != LIST_ITEM_STATUS_SELECTED) {
+		return;
+	}
 
+	AppLogDebug("OnListViewItemStateChanged");
+
+	SceneManager* pSceneManager = SceneManager::GetInstance();
+	AppAssert(pSceneManager);
+
+	ArrayList *paramsList = new (std::nothrow) ArrayList();
+	paramsList->Construct();
+
+	MDialog *dialog = static_cast<MDialog *>(this->GetDialogsList()->GetAt(index));
+
+	paramsList->Add(new Integer(dialog->GetUid()));
+	pSceneManager->GoForward(ForwardSceneTransition(SCENE_CHAT, SCENE_TRANSITION_ANIMATION_TYPE_LEFT), paramsList);
 }
 
 void
