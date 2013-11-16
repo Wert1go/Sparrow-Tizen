@@ -22,7 +22,7 @@ MDialog::~MDialog() {
 String*
 MDialog::TableDescription() {
 	String *sql = new String();
-	sql->Append(L"CREATE TABLE IF NOT EXISTS dialogs (_id INTEGER PRIMARY KEY, identifier INTEGER UNIQUE, uid INTEGER, last_name TEXT, first_name TEXT, photo TEXT, mini_photo TEXT, is_online INTEGER, date INTEGER, out INTEGER, read_state INTEGER, title TEXT, text TEXT)");
+	sql->Append(L"CREATE TABLE IF NOT EXISTS dialogs (_id INTEGER PRIMARY KEY, identifier INTEGER, uid INTEGER UNIQUE, last_name TEXT, first_name TEXT, photo TEXT, mini_photo TEXT, is_online INTEGER, date INTEGER, out INTEGER, read_state INTEGER, title TEXT, text TEXT)");
 	return sql;
 }
 
@@ -234,7 +234,7 @@ MDialog::CreateFromJsonN(const Tizen::Web::Json::JsonObject &pUserObject, const 
 	String *pTitle = new String(title->GetPointer());
 	String *pText = new String(text->GetPointer());
 
-	dialog->SetIdentifier(mid->ToInt());
+	dialog->SetIdentifier(muid->ToInt());
 	dialog->SetUid(muid->ToInt());
 
 	dialog->SetFirstName(pFirstName);

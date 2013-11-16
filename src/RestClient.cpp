@@ -30,6 +30,7 @@ Tizen::Base::String * RestClient::GetBaseUrl() {
 }
 
 void RestClient::PerformOperation(RestRequestOperation *operation) {
+	//AppLogDebug("RestClient::PerformOperation");
 	operation->SetRequestOwner(this);
 	operation->perform();
 }
@@ -40,7 +41,7 @@ void RestClient::PerformOperation(ImageRequestOperation *operation) {
 }
 
 void RestClient::OnCompliteN(IRequestOperation *operation) {
-	AppLogDebug("RestClient::OnCompliteN");
+	//AppLogDebug("RestClient::OnCompliteN");
 	delete operation;
 	operation = null;
 }

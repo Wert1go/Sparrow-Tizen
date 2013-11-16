@@ -172,3 +172,29 @@ MUserDao::LoadUserFromDBN(DbEnumerator* pEnum) {
 
 	return user;
 }
+
+void
+MUserDao::UpdateUserOnlineStatusById(int value, int userId) {
+	String statement;
+
+	statement.Append(L"UPDATE users SET is_online = ? WHERE uid = ?");
+
+	DbEnumerator* pEnum = null;
+	DbStatement* pStmt = null;
+
+	MDatabaseManager::getInstance().GetDatabase()->BeginTransaction();
+
+	pStmt = MDatabaseManager::getInstance().GetDatabase()->CreateStatementN(statement);
+
+	pStmt->BindInt(0, value);
+	pStmt->BindInt(1, userId);
+
+	pEnum = MDatabaseManager::getInstance().GetDatabase()->ExecuteStatementN(*pStmt);
+
+	AppAssert(!pEnum);
+
+	MDatabaseManager::getInstance().GetDatabase()->CommitTransaction();
+
+	delete pEnum;
+	delete pStmt;
+}

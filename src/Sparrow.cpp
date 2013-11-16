@@ -9,6 +9,9 @@
 #include "Sparrow.h"
 #include "SparrowFrame.h"
 
+#include "RestRequestOperation.h"
+#include "LongPollConnection.h"
+
 using namespace Tizen::App;
 using namespace Tizen::Base;
 using namespace Tizen::System;
@@ -123,4 +126,17 @@ SparrowApp::OnScreenOff(void)
 	// Invoking a lengthy asynchronous method within this listener method can be risky, because it is not guaranteed to invoke a
 	// callback before the device enters the sleep mode.
 	// Similarly, do not perform lengthy operations in this listener method. Any operation must be a quick one.
+}
+
+//******************************* DISPATCHER ***************************/
+
+void
+SparrowApp::OnUserEventReceivedN(RequestId requestId, Tizen::Base::Collection::IList* pArgs) {
+	if (requestId == LONGPOLL_GET_SERVER) {
+		LongPollConnection::getInstance().SendRequestToLongPollServer(pArgs);
+	} else if (requestId == LONGPOLL_CONNECTION) {
+		LongPollConnection::getInstance().GetLongPollServerData();
+	}
+
+	delete pArgs;
 }

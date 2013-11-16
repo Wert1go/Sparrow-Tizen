@@ -11,6 +11,7 @@
 #include "UiDialogCustomItem.h"
 #include "UpdateUnit.h"
 #include "MDialogDao.h"
+#include "MUserDao.h"
 
 #include "RDialogResponse.h"
 #include "MDialogsDescriptor.h"
@@ -18,6 +19,9 @@
 #include "RestRequestOperation.h"
 #include "RestClient.h"
 #include "AuthManager.h"
+#include "LongPollConnection.h"
+
+#include "UiUpdateConstants.h"
 
 using namespace Tizen::App;
 using namespace Tizen::Graphics;
@@ -30,14 +34,14 @@ UiMessagesPanel::UiMessagesPanel() {
 	// TODO Auto-generated constructor stub
 	__pDialogsList = null;
 	__pDialogRequestOperation = null;
+
+	LongPollConnection::getInstance().Run();
 }
 
 UiMessagesPanel::~UiMessagesPanel() {
 	if (__pDialogRequestOperation) {
 		__pDialogRequestOperation->AddEventListener(null);
 	}
-
-	//ImageCache::getInstance().CancelLoadingForTarget(this);
 }
 
 bool
@@ -55,7 +59,7 @@ UiMessagesPanel::OnInitializing(void)
 
 	result r = E_SUCCESS;
 	Rectangle clientRect;
-
+	this->SetName(L"UiMessagesPanel");
 	// Resize
 	const Form* pForm = dynamic_cast<Form*>(GetParent());
 	AppAssert(pForm);
@@ -81,8 +85,9 @@ UiMessagesPanel::OnInitializing(void)
 	__pItemContext->AddElement(ID_CONTEXT_ITEM_1, L"Test1");
 	__pItemContext->AddElement(ID_CONTEXT_ITEM_2, L"Test2");
 
-	//this->SetDialogsList(MDialogDao::getInstance().GetDialogsWithOffsetN(0));
+	this->SetDialogsList(MDialogDao::getInstance().GetDialogsWithOffsetN(0));
 	SendRequest();
+
 	return r;
 }
 
@@ -184,22 +189,53 @@ UiMessagesPanel::RequestUpdateForIndex(int index, int elementId) {
 
 	this->SendUserEvent(111111, list);
 	Tizen::App::App::GetInstance()->SendUserEvent(111111, 0);
-	AppLog("ping %d", index);
 }
 
 void
 UiMessagesPanel::OnUserEventReceivedN(RequestId requestId, Tizen::Base::Collection::IList* pArgs) {
 
-	AppLog("pong %d", -1);
 	if (requestId == 111111 && pArgs->GetCount() > 0) {
 		UpdateUnit *unit = static_cast<UpdateUnit *> (pArgs->GetAt(0));
-		AppLog("pong %d", unit->__index);
+
 		__pListView->RefreshList(unit->__index, unit->__requestId);
 	} else if (requestId == 222222) {
 		__pListView->UpdateList();
+	} else if (requestId == UPDATE_USER_ONLINE) {
+
+		AppAssert(pArgs->GetCount() > 0);
+		Integer *userId = static_cast<Integer*>(pArgs->GetAt(0));
+		this->UpdateItemListWithUserId(userId->ToInt(), 1);
+
+		delete userId;
+
+	} else if (requestId == UPDATE_USER_OFFLINE) {
+
+		AppAssert(pArgs->GetCount() > 0);
+		Integer *userId = static_cast<Integer*>(pArgs->GetAt(0));
+		this->UpdateItemListWithUserId(userId->ToInt(), 0);
+
+		delete userId;
+	}
+	delete pArgs;
+}
+
+void
+UiMessagesPanel::UpdateItemListWithUserId(int userId, int value) {
+	int indexToUpdate = -1;
+
+	for (int index = 0; index < this->GetDialogsList()->GetCount(); index++) {
+		MDialog *dialog = static_cast<MDialog*>(this->GetDialogsList()->GetAt(index));
+
+		if (dialog->GetUid() == userId) {
+			dialog->SetIsOnline(value);
+			indexToUpdate = index;
+			break;
+		}
 	}
 
-	delete pArgs;
+	if (indexToUpdate > 0) {
+		this->__pListView->RefreshList(indexToUpdate, 23);
+	}
 }
 
 // ************************** DATA ***************************//

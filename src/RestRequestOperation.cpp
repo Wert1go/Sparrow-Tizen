@@ -20,14 +20,25 @@ using namespace Tizen::Base::Utility;
 using namespace Tizen::Net::Http;
 using namespace Tizen::Web::Json;
 
+RestRequestOperation::RestRequestOperation(String *_uri, long operationCode, String *method, HashMap *params) {
+	Init(_uri, operationCode, method, params);
+}
+
 RestRequestOperation::RestRequestOperation(long operationCode, String *method, HashMap *params) {
+	Init(new String(L"https://api.vk.com/method/"), operationCode, method, params);
+}
 
-	__operationCode = operationCode;
+void
+RestRequestOperation::Init(String *_uri, long operationCode, String *method, HashMap *params) {
 	__method = method;
+	__operationCode = operationCode;
 
-	String uri = L"https://api.vk.com/method/";
+	String uri = _uri->GetPointer();
 
-	uri.Append(method->GetPointer());
+	if (method) {
+		uri.Append(method->GetPointer());
+	}
+
 	uri.Append(L"?");
 
 	IMapEnumerator* pMapEnum = params->GetMapEnumeratorN();
@@ -53,7 +64,7 @@ RestRequestOperation::RestRequestOperation(long operationCode, String *method, H
 
 	uri.Append(L"&v=5.3");
 
-	AppLogDebug("uri = %S", uri.GetPointer());
+	//AppLogDebug("uri = %S", uri.GetPointer());
 
 	delete pMapEnum;
 	delete params;
@@ -61,6 +72,7 @@ RestRequestOperation::RestRequestOperation(long operationCode, String *method, H
 	HttpHeader* pHeader = null;
 
 	__pHttpTransaction = RestClient::getInstance().GetActiveSession()->OpenTransactionN();
+
 	__pHttpTransaction->AddHttpTransactionListener(*this);
 
 	HttpRequest* pHttpRequest = __pHttpTransaction->GetRequest();
@@ -76,10 +88,11 @@ RestRequestOperation::RestRequestOperation(long operationCode, String *method, H
 	__pRequestOwner = null;
 	this->__pByteBuffer = null;
 	__isComplited = false;
+	__isError = false;
 }
 
 RestRequestOperation::~RestRequestOperation() {
-	AppLogDebug("RestRequestOperation::~RestRequestOperation");
+//	AppLogDebug("RestRequestOperation::~RestRequestOperation");
 	delete __method;
 	__method = null;
 	delete __pHttpTransaction;
@@ -114,9 +127,11 @@ void RestRequestOperation::SetRequestOwner(IRestRequestOwner *owner) {
 void
 RestRequestOperation::OnTransactionReadyToRead(HttpSession& httpSession, HttpTransaction& httpTransaction, int availableBodyLen)
 {
-	AppLog("RestRequestOperation::OnTransactionReadyToRead");
+
 
 	HttpResponse* pHttpResponse = httpTransaction.GetResponse();
+
+	//AppLog("RestRequestOperation::OnTransactionReadyToRead %d", pHttpResponse->GetHttpStatusCode());
 
 	if (pHttpResponse->GetHttpStatusCode() == HTTP_STATUS_OK)
 	{
@@ -155,19 +170,19 @@ RestRequestOperation::OnTransactionAborted(HttpSession& httpSession, HttpTransac
 void
 RestRequestOperation::OnTransactionReadyToWrite(HttpSession& httpSession, HttpTransaction& httpTransaction, int recommendedChunkSize)
 {
-	AppLog("RestRequestOperation::OnTransactionReadyToWrite");
+	//AppLog("RestRequestOperation::OnTransactionReadyToWrite");
 }
 
 void
 RestRequestOperation::OnTransactionHeaderCompleted(HttpSession& httpSession, HttpTransaction& httpTransaction, int headerLen, bool authRequired)
 {
-	AppLog("RestRequestOperation::OnTransactionHeaderCompleted");
+	//AppLog("RestRequestOperation::OnTransactionHeaderCompleted");
 }
 
 void
 RestRequestOperation::OnTransactionCompleted(HttpSession& httpSession, HttpTransaction& httpTransaction)
 {
-	AppLog("RestRequestOperation::OnTransactionCompleted");
+	//AppLog("RestRequestOperation::OnTransactionCompleted");
 
 	dispatch_async(dispatch_get_global_queue( DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
 		Execute();
@@ -196,6 +211,16 @@ bool RestRequestOperation::GetIsComplited() {
 void
 RestRequestOperation::Execute() {
 	if (this->__isError || !this->__pByteBuffer) {
+		AppLogDebug("ERROR");
+
+		if (__pByteBuffer) {
+			String *text = new String ((const char*)(this->__pByteBuffer->GetPointer()));
+
+			AppLogDebug("body: %S", text->GetPointer());
+
+			delete text;
+		}
+
 		__restRequestListener->OnErrorN(new Error(REST_BAD_RESPONSE));
 		return;
 	}

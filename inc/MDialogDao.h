@@ -42,6 +42,9 @@ public:
 
 	MDialog * LoadDialogFromDBN(DbEnumerator* pEnum);
 
+	void
+	UpdateDialogOnlineStatusById(int value, int userId);
+
 };
 
 #endif /* MDIALOGDAO_H_ */

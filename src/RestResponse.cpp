@@ -14,11 +14,21 @@ RestResponse::RestResponse() {
 }
 
 RestResponse::~RestResponse() {
-	// TODO Auto-generated destructor stub
+
 }
 
-Error *RestResponse::GetError() {
+Error *
+RestResponse::GetError() {
 	return __error;
+}
+
+void
+RestResponse::SetError(Error *error) {
+	if (__error) {
+		delete __error;
+	}
+
+	__error = error;
 }
 
 void RestResponse::SetOperationCode(long opCode) {

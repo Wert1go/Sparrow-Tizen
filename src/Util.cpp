@@ -89,7 +89,6 @@ Util::formatDateN(long date) {
 
 	 unsigned long int timestamp = time(NULL);
 	 long int delta = (timestamp - date)/(24 * 60 * 60);
-	 AppLogDebug("%ld", delta);
 
 	 LocaleManager localeManager;
 	 localeManager.Construct();
@@ -110,7 +109,6 @@ Util::formatDateN(long date) {
 	 } else if (delta > 0 && delta < 2) {
 		 stringDate = new String (L"вчера");
 	 } else {
-		 AppLogDebug("33!!pre");
 		 DateTimeFormatter* pTimeFormatter = DateTimeFormatter::CreateTimeFormatterN(locale, DATE_TIME_STYLE_DEFAULT);
 		 String cutomizedPattern = L"dd.MM";
 		 pTimeFormatter->ApplyPattern(cutomizedPattern);

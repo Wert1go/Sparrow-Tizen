@@ -8,8 +8,11 @@
 #ifndef RESTREQUESTOPERATION_H_
 #define RESTREQUESTOPERATION_H_
 
-static const long GET_USER = 100999101;
+static const long GET_USER = 			100999101;
 static const long GET_DIALOGS_EXECUTE = 100999102;
+
+static const long LONGPOLL_GET_SERVER = 100999103;
+static const long LONGPOLL_CONNECTION = 100999104;
 
 #include <FNet.h>
 
@@ -27,6 +30,7 @@ class RestRequestOperation
  , IRequestOperation
 {
 public:
+	RestRequestOperation(String *uri, long operationCode, String *method, HashMap *params);
 	RestRequestOperation(long operationCode, String *method, HashMap *params);
 	virtual ~RestRequestOperation();
 
@@ -38,6 +42,8 @@ private:
 	virtual void OnTransactionHeaderCompleted(Tizen::Net::Http::HttpSession& httpSession, Tizen::Net::Http::HttpTransaction& httpTransaction, int headerLen, bool authRequired);
 	virtual void OnTransactionCompleted(Tizen::Net::Http::HttpSession& httpSession, Tizen::Net::Http::HttpTransaction& httpTransaction);
 	virtual void OnTransactionCertVerificationRequiredN(Tizen::Net::Http::HttpSession& httpSession, Tizen::Net::Http::HttpTransaction& httpTransaction, Tizen::Base::String* pCert);
+
+	void Init(String *_uri, long operationCode, String *method, HashMap *params);
 
 public:
 	void SetRequestOwner(IRestRequestOwner *owner);

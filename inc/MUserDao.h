@@ -43,6 +43,7 @@ public:
 
 	MUser * LoadUserFromDBN(DbEnumerator* pEnum);
 
+	void UpdateUserOnlineStatusById(int value, int userId);
 
 };
 

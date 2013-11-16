@@ -10,7 +10,8 @@
 
 typedef enum {
 	UNKNOW,
-	REST_BAD_RESPONSE
+	REST_BAD_RESPONSE,
+	LONG_POLL_REQUEST_RECONNECT
 } ErrorCode;
 
 class Error {

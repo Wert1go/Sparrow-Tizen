@@ -54,6 +54,8 @@ public:
 
 	// Called when the screen turns off.
 	virtual void OnScreenOff(void);
+
+	virtual void OnUserEventReceivedN(RequestId requestId, Tizen::Base::Collection::IList* pArgs);
 };
 
 #endif // _SPARROW_H_

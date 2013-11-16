@@ -17,8 +17,12 @@ public:
 
 public:
 	Error *GetError();
+	void SetError(Error *error);
+
 	void SetOperationCode(long opCode);
 	long GetOperationCode();
+
+
 
 private:
 	Error *__error;

@@ -32,7 +32,7 @@ using namespace Tizen::Media;
 MainForm::MainForm() {
 	Form::Construct(FORM_STYLE_HEADER);
 	SetFormBackEventListener(this);
-
+	this->SetName(L"MainForm");
 	Color *pFormBackgroundColor = new (std::nothrow) Color(0, 0, 0, 255);
 	this->SetBackgroundColor(*pFormBackgroundColor);
 

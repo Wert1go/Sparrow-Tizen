@@ -217,3 +217,29 @@ MDialogDao::LoadDialogFromDBN(DbEnumerator* pEnum) {
 
 	return dialog;
 }
+
+void
+MDialogDao::UpdateDialogOnlineStatusById(int value, int userId) {
+	String statement;
+
+	statement.Append(L"UPDATE dialogs SET is_online = ? WHERE uid = ?");
+
+	DbEnumerator* pEnum = null;
+	DbStatement* pStmt = null;
+
+	MDatabaseManager::getInstance().GetDatabase()->BeginTransaction();
+
+	pStmt = MDatabaseManager::getInstance().GetDatabase()->CreateStatementN(statement);
+
+	pStmt->BindInt(0, value);
+	pStmt->BindInt(1, userId);
+
+	pEnum = MDatabaseManager::getInstance().GetDatabase()->ExecuteStatementN(*pStmt);
+
+	AppAssert(!pEnum);
+
+	MDatabaseManager::getInstance().GetDatabase()->CommitTransaction();
+
+	delete pEnum;
+	delete pStmt;
+}
