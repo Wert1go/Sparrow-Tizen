@@ -6,11 +6,10 @@ var uids = [];
 var j;
 while (i < c.length) { 
 	i=i+1; 
-	j = API.messages.getChatUsers({"chat_id" : c[i]}); 
-	if (j != false) {
+	if (parseInt(c[i]) != 0) {
+		j = API.messages.getChatUsers({"chat_id" : c[i]}); 
 		uids = uids + [j]; 
-		if (parseInt(c[i]) != 0) 
-		l = l + j; 
+		l = l + j;
 	}
 };
 var b = API.users.get({"user_ids": l, "fields": "photo_100,photo_50,online"});

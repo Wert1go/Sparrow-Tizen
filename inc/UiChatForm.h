@@ -16,9 +16,13 @@
 
 #include "IRestRequestListener.h"
 #include "RestRequestOperation.h"
+#include "UiMessengerPanel.h"
+#include "IMessageDeliveryListener.h"
 
 using namespace Tizen::Ui::Controls;
 using namespace Tizen::Base::Collection;
+
+class MMessage;
 
 class UiChatForm
  : public Tizen::Ui::Controls::Form
@@ -30,6 +34,9 @@ class UiChatForm
  , public Tizen::Ui::ITextEventListener
  , public Tizen::Ui::Controls::IExpandableEditAreaEventListener
  , public Tizen::Ui::IKeypadEventListener
+ , public Tizen::Ui::IActionEventListener
+ , public IScrollEventListener
+ , public IMessageDeliveryListener
 
 {
 public:
@@ -50,6 +57,10 @@ public:
 	virtual Tizen::Ui::Controls::ListItemBase* CreateItem(int index, int itemWidth);
 	virtual bool DeleteItem(int index, Tizen::Ui::Controls::ListItemBase* pItem, int itemWidth);
 	virtual int GetItemCount(void);
+
+	//scroll
+
+	virtual void OnScrollEndReached(Tizen::Ui::Control& source, Tizen::Ui::Controls::ScrollEndEvent type);
 
 	// ITextEventListener
 	virtual void OnTextValueChanged(const Tizen::Ui::Control& source);
@@ -79,7 +90,14 @@ public:
 	virtual void OnSuccessN(RestResponse *result);
 	virtual void OnErrorN(Error *error);
 
+	virtual void OnMessageDelivered(int userId, MMessage *message);
+
 	virtual void OnUserEventReceivedN(RequestId requestId, Tizen::Base::Collection::IList* pArgs);
+
+	//
+	bool IsAlreadyAdded(MMessage *message) ;
+	void SendMessage();
+
 	//
 
 	void RequestMessagesForUser(int userId);
@@ -87,15 +105,28 @@ public:
 	void SetMessages(LinkedList *messages);
 	LinkedList * GetMessages();
 
+	void ScrollToFirstMessage();
+	void ScrollToLastMessage();
+
 private:
 	static const int ID_CONTEXT_ITEM_1 = 103;
 	static const int ID_CONTEXT_ITEM_2 = 104;
 
 	RestRequestOperation *__pMessagesRequestOperation;
+
 	LinkedList *__pMessages;
 	ListView *__pListView;
 	ListContextItem *__pItemContext;
 	Tizen::Ui::Controls::ExpandableEditArea* __pEditArea;
+
+	UiMessengerPanel *__pPosterPanel;
+
+	void RequestMoreMessagesFromMid(int mid);
+
+	int __userId;
+	int __chatId;
+
+	int __lastMessageId;
 
 };
 

@@ -10,6 +10,9 @@
 #include "Util.h"
 #include "MDatabaseManager.h"
 
+#include "MMessage.h"
+#include "MUser.h"
+
 using namespace Tizen::Io;
 using namespace Tizen::Base::Collection;
 
@@ -20,6 +23,26 @@ MDialogDao::MDialogDao() {
 
 MDialogDao::~MDialogDao() {
 	// TODO Auto-generated destructor stub
+}
+
+void
+MDialogDao::Save(MMessage *message, MUser *user) {
+	MDialog *tempDialog = new MDialog();
+	tempDialog->SetUid(message->GetUid());
+	tempDialog->SetIsOnline(user->GetIsOnline());
+	tempDialog->SetText(message->GetText());
+	tempDialog->SetReadState(message->GetReadState());
+	tempDialog->SetFirstName(user->GetFirstName());
+	tempDialog->SetLastName(user->GetLastName());
+	tempDialog->SetPhoto(user->GetPhoto());
+	tempDialog->SetMiniPhoto(user->GetMiniPhoto());
+	tempDialog->SetIdentifier(message->GetUid());
+	tempDialog->SetOut(message->GetOut());
+	tempDialog->SetDate(message->GetDate());
+	tempDialog->SetTitle(new String(L""));
+	this->Save(tempDialog);
+
+	delete tempDialog;
 }
 
 void

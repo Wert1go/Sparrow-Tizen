@@ -19,13 +19,14 @@ using namespace Tizen::Base;
 #define CONTACT 26
 
 class MUser
- : Bean
+ : public Bean
 {
 public:
 	MUser();
 	virtual ~MUser();
 
 	static MUser* CreateFromJsonN(const Tizen::Web::Json::JsonObject &jsonObject);
+	static MUser* CreateFromJsonLPN(const Tizen::Web::Json::JsonObject &jsonObject);
 	static String* TableDescription();
 
 private:

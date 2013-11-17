@@ -25,10 +25,14 @@
 #include "RestClient.h"
 
 #include "UiMessagesPanel.h"
+#include "UiChatForm.h"
 #include "UiUpdateConstants.h"
 
 #include "MUserDao.h"
 #include "MDialogDao.h"
+#include "MMessageDao.h"
+
+#include "PostMan.h"
 
 using namespace Tizen::App;
 using namespace Tizen::Base;
@@ -171,8 +175,34 @@ LongPollConnection::OnSuccessN(RestResponse *result) {
 				case LP_FLAG_RESET:
 
 						break;
-				case LP_MESSAGE_ADD:
+				case LP_MESSAGE_ADD_FULL: {
 
+
+
+					UiChatForm* pChatForm = static_cast< UiChatForm* >(pFrame->GetControl("UiChatForm", true));
+					if (pChatForm && PostMan::getInstance().ValidateIncomingMessage(pObject->GetMessage())) {
+						pArgs = new LinkedList();
+						pArgs->Add(new Integer(pObject->GetMessage()->GetUid()));
+						pArgs->Add(pObject->GetMessage());
+						pChatForm->SendUserEvent(UPDATE_MESSAGE_ARRIVED, pArgs);
+						Tizen::App::UiApp::GetInstance()->SendUserEvent(UPDATE_MESSAGE_ARRIVED, 0);
+						pArgs = null;
+					}
+					//уведомить экран сообщений
+					//уведомить экран со списком диалогов
+					MMessageDao::getInstance().Save(pObject->GetMessage());
+					MUserDao::getInstance().Save(pObject->GetUsers());
+
+					MDialogDao::getInstance().Save(pObject->GetMessage(), static_cast<MUser *>(pObject->GetUsers()->GetAt(0)));
+
+					UiMessagesPanel* pMessagePanel = static_cast< UiMessagesPanel* >(pFrame->GetControl("UiMessagesPanel", true));
+					if (pMessagePanel)
+					{
+						pMessagePanel->SendUserEvent(UPDATE_MESSAGE_ARRIVED, 0);
+						Tizen::App::UiApp::GetInstance()->SendUserEvent(UPDATE_MESSAGE_ARRIVED, 0);
+						pArgs = null;
+					}
+				}
 						break;
 				case LP_USER_ONLINE: {
 					AppLogDebug("USER %d ONLINE", pObject->GetUserId());

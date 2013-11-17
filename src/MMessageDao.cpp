@@ -7,7 +7,7 @@
 
 #include "MMessageDao.h"
 #include "MMessage.h"
-
+#include "MessageComparer.h"
 #include "MDatabaseManager.h"
 
 using namespace Tizen::Io;
@@ -67,7 +67,7 @@ MMessageDao::GetMessageN(int mid) {
 	MMessage *pMessage = null;
 
 	sql.Append(L"SELECT "
-			"mid, uid, from_id, date, out, read_state, text "
+			"_id, mid, uid, from_id, date, out, read_state, text "
 			"FROM messages "
 			"WHERE mid = ?");
 
@@ -92,37 +92,48 @@ MMessageDao::GetMessageN(int mid) {
 }
 
 LinkedList *
-MMessageDao::GetMessagesForUser(int userId) {
+MMessageDao::GetMessagesForUser(int userId, int lastMessageId) {
 	DbEnumerator* pEnum = null;
 	String sql;
-	LinkedList *pMessages = null;
+	LinkedList *pMessages = new LinkedList();
 
-//	"messages ("
-//				"_id INTEGER PRIMARY KEY,"
-//				" mid INTEGER UNIQUE,"
-//				" uid INTEGER,"
-//				" from_id INTEGER,"
-//				" date INTEGER,"
-//				" out INTEGER,"
-//				" read_state INTEGER,"
-//				" text TEXT"
-
-	sql.Append(L"SELECT mid, uid, from_id, date, out, read_state, text FROM messages WHERE uid = ? ORDER BY date ASC LIMIT 20");
-
-	AppLog("34");
 	result r;
-	DbStatement *compiledSaveStatment = MDatabaseManager::getInstance().GetDatabase()->CreateStatementN(sql);
-	r = GetLastResult();
+	DbStatement *compiledSaveStatment;
 
-	if (IsFailed(r))
-	{
-	   AppLog(GetErrorMessage(r));
+	if (lastMessageId != -1) {
+		AppLogDebug("test");
+		sql.Append(L"SELECT "
+					"_id, mid, uid, from_id, date, out, read_state, text "
+					"FROM messages "
+					"WHERE uid = ? AND mid < ?"
+					"ORDER BY date DESC LIMIT 20");
+		compiledSaveStatment = MDatabaseManager::getInstance().GetDatabase()->CreateStatementN(sql);
+		r = GetLastResult();
+		if (IsFailed(r)) {
+		   AppLog(GetErrorMessage(r));
+		}
+
+		compiledSaveStatment->BindInt(0, userId);
+		compiledSaveStatment->BindInt(1, lastMessageId);
+
+	} else {
+		sql.Append(L"SELECT "
+							"_id, mid, uid, from_id, date, out, read_state, text "
+							"FROM messages "
+							"WHERE uid = ?"
+							"ORDER BY date DESC LIMIT 20");
+
+		compiledSaveStatment = MDatabaseManager::getInstance().GetDatabase()->CreateStatementN(sql);
+		r = GetLastResult();
+		if (IsFailed(r)) {
+		   AppLog(GetErrorMessage(r));
+		}
+
+		compiledSaveStatment->BindInt(0, userId);
 	}
 
-	compiledSaveStatment->BindInt(0, userId);
-	AppLog("343");
 	pEnum = MDatabaseManager::getInstance().GetDatabase()->ExecuteStatementN(*compiledSaveStatment);
-	AppLog("234");
+
 	if (!pEnum) {
 		return pMessages;
 	}
@@ -137,6 +148,10 @@ MMessageDao::GetMessagesForUser(int userId) {
 			pMessages->Add(pMessage);
 		}
 	}
+
+
+	MessageComparer *comparer = new MessageComparer();
+	pMessages->Sort(*comparer);
 
 	delete compiledSaveStatment;
 	delete pEnum;
@@ -180,7 +195,7 @@ MMessageDao::BindMessageToSQLStatement(MMessage *message, DbStatement *statement
 MMessage *
 MMessageDao::LoadMessageFromDBN(DbEnumerator* pEnum) {
 	MMessage *message = new MMessage();
-
+	int _id;
 	int mid;
 	int uid;
 	int fromId;
@@ -189,14 +204,16 @@ MMessageDao::LoadMessageFromDBN(DbEnumerator* pEnum) {
 	int readState;
 	String *text = new String();
 
-	pEnum->GetIntAt(0, mid);
-	pEnum->GetIntAt(1, uid);
-	pEnum->GetIntAt(2, fromId);
-	pEnum->GetIntAt(3, date);
-	pEnum->GetIntAt(4, out);
-	pEnum->GetIntAt(5, readState);
-	pEnum->GetStringAt(6, *text);
+	pEnum->GetIntAt(0, _id);
+	pEnum->GetIntAt(1, mid);
+	pEnum->GetIntAt(2, uid);
+	pEnum->GetIntAt(3, fromId);
+	pEnum->GetIntAt(4, date);
+	pEnum->GetIntAt(5, out);
+	pEnum->GetIntAt(6, readState);
+	pEnum->GetStringAt(7, *text);
 
+	message->__id = _id;
 	message->SetMid(mid);
 	message->SetUid(uid);
 	message->SetFromUid(fromId);

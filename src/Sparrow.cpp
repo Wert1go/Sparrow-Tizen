@@ -12,8 +12,11 @@
 #include "RestRequestOperation.h"
 #include "LongPollConnection.h"
 
+#include <FBase.h>
+
 using namespace Tizen::App;
 using namespace Tizen::Base;
+using namespace Tizen::Base::Collection;
 using namespace Tizen::System;
 using namespace Tizen::Ui;
 using namespace Tizen::Ui::Controls;

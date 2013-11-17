@@ -11,7 +11,6 @@
 #include <FBase.h>
 #include <FGraphics.h>
 #include <FMedia.h>
-#include <FGraphics.h>
 
 #include "MUserDao.h"
 #include "ImageCache.h"

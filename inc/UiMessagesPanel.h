@@ -22,6 +22,7 @@ class UiMessagesPanel
  , public Tizen::Ui::Controls::IListViewItemProvider
  , public IRefreshableListView
  , public IRestRequestListener
+ , public Tizen::Ui::Scenes::ISceneEventListener
 {
 public:
 	UiMessagesPanel();
@@ -44,6 +45,12 @@ public:
 	virtual void RequestUpdateForIndex(int index, int elementId);
 
 	virtual void OnUserEventReceivedN(RequestId requestId, Tizen::Base::Collection::IList* pArgs);
+
+	//Scenes
+	virtual void OnSceneActivatedN(const Tizen::Ui::Scenes::SceneId& previousSceneId,
+									   const Tizen::Ui::Scenes::SceneId& currentSceneId, Tizen::Base::Collection::IList* pArgs);
+	virtual void OnSceneDeactivated(const Tizen::Ui::Scenes::SceneId& currentSceneId,
+										const Tizen::Ui::Scenes::SceneId& nextSceneId);
 
 private:
 	void SetDialogsList(LinkedList *list);

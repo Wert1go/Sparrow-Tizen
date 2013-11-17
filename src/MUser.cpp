@@ -163,6 +163,74 @@ MUser::CreateFromJsonN(const Tizen::Web::Json::JsonObject &pUserObject) {
 	return user;
 }
 
+//ужс :)
+MUser *
+MUser::CreateFromJsonLPN(const Tizen::Web::Json::JsonObject &pUserObject) {
+
+	MUser *user = new (std::nothrow) MUser();
+
+	JsonString* pKeyFirstName = new JsonString(L"first_name");
+	JsonString* pKeyLastName = new JsonString(L"last_name");
+	JsonString* pKeyId = new JsonString(L"uid");
+	JsonString* pKeyMiniPhoto = new JsonString(L"photo");
+	JsonString* pKeyPhoto = new JsonString(L"photo_medium_rec");
+	JsonString* pKeyOnline = new JsonString(L"online");
+	JsonString* pKeyLastSeen = new JsonString(L"last_seen");
+	JsonString* pKeyTime = new JsonString(L"time");
+
+	IJsonValue* pValFirstName = null;
+	IJsonValue* pValLastName = null;
+	IJsonValue* pValId = null;
+	IJsonValue* pValMiniPhoto = null;
+	IJsonValue* pValPhoto = null;
+	IJsonValue* pValOnline = null;
+	IJsonValue* pValLastSeen = null;
+	IJsonValue* pValTime = null;
+
+	pUserObject.GetValue(pKeyFirstName, pValFirstName);
+	pUserObject.GetValue(pKeyLastName, pValLastName);
+	pUserObject.GetValue(pKeyId, pValId);
+	pUserObject.GetValue(pKeyMiniPhoto, pValMiniPhoto);
+	pUserObject.GetValue(pKeyPhoto, pValPhoto);
+	pUserObject.GetValue(pKeyOnline, pValOnline);
+	pUserObject.GetValue(pKeyLastSeen, pValLastSeen);
+
+	JsonString *firstName = static_cast< JsonString* >(pValFirstName);
+	JsonString *lastName = static_cast< JsonString* >(pValLastName);
+	JsonNumber *uid = static_cast< JsonNumber* >(pValId);
+	JsonString *miniPhoto = static_cast< JsonString* >(pValMiniPhoto);
+	JsonString *photo = static_cast< JsonString* >(pValPhoto);
+	JsonNumber *isOnline = static_cast< JsonNumber* >(pValOnline);
+
+	JsonObject *lastSeen = static_cast< JsonObject* >(pValLastSeen);
+	lastSeen->GetValue(pKeyTime, pValTime);
+	JsonNumber *time = static_cast< JsonNumber* >(pValTime);
+
+	String *pFirstName = new String(firstName->GetPointer());
+	String *pLastName = new String(lastName->GetPointer());
+	String *pMiniPhoto = new String(miniPhoto->GetPointer());
+	String *pPhoto = new String(photo->GetPointer());
+
+	user->SetFirstName(pFirstName);
+	user->SetLastName(pLastName);
+	user->SetMiniPhoto(pMiniPhoto);
+	user->SetPhoto(pPhoto);
+	user->SetUid(uid->ToInt());
+	user->SetIsOnline(isOnline->ToInt());
+	user->SetLastSeen(time->ToLong());
+
+	delete pKeyFirstName;
+	delete pKeyLastName;
+	delete pKeyId;
+	delete pKeyMiniPhoto;
+	delete pKeyPhoto;
+	delete pKeyOnline;
+	delete pKeyLastSeen;
+	delete pKeyTime;
+
+	return user;
+}
+
 String*
 MUser::TableDescription() {
 

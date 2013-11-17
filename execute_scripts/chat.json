@@ -1,0 +1,45 @@
+{
+	"ts":1709550248,
+	"updates":
+	[
+		[4,11131,8227,2000000090,1384708286,"Test","Test","\u0002pname Test\t\u0001from 30143161\t"],
+		[101,
+			{
+				"message":
+					{
+						"mid":11131,
+						"date":1384708286,
+						"out":1,
+						"uid":30143161,
+						"read_state":0,
+						"title":"Test",
+						"body":"Test",
+						"chat_id":90,
+						"chat_active":"183384680,48415053",
+						"users_count":3,
+						"admin_id":30143161
+					},
+				"profiles":
+					[
+						{
+							"uid":30143161,
+							"first_name":"Юрий",
+							"last_name":"Агеев",
+							"photo":"http:\/\/cs421329.vk.me\/v421329161\/a473\/GpWavPfAU8U.jpg",
+							"photo_medium":"http:\/\/cs421329.vk.me\/v421329161\/a472\/CAEJgvREtxc.jpg",
+							"photo_medium_rec":"http:\/\/cs421329.vk.me\/v421329161\/a472\/CAEJgvREtxc.jpg",
+							"is_friend":0,
+							"can_call":0,"online":1,
+							"can_write_private_message":1,
+							"last_seen":
+								{
+									"time":1384707953
+								}
+
+						}
+
+					]
+			}
+		]
+	]
+}

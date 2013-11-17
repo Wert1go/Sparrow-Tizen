@@ -36,7 +36,7 @@ PanelFactory::CreatePanelN(const Tizen::Base::String& panelId, const Tizen::Ui::
 	{
 		UiMessagesPanel* pPanel = new (std::nothrow) UiMessagesPanel();
 		pPanel->Initialize();
-		//pSceneManager->AddSceneEventListener(sceneId, *pPanel);
+		pSceneManager->AddSceneEventListener(sceneId, *pPanel);
 		pNewPanel = pPanel;
 	}
 

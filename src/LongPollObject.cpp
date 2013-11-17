@@ -7,6 +7,9 @@
 
 #include "LongPollObject.h"
 
+#include "MMessage.h"
+#include "MUser.h"
+
 using namespace Tizen::Web::Json;
 
 LongPollObject::LongPollObject() {
@@ -67,8 +70,41 @@ LongPollObject::CreateFromJsonN(const Tizen::Web::Json::JsonArray &jsonArray) {
 	case LP_FLAG_RESET:
 
 			break;
-	case LP_MESSAGE_ADD:
+	case LP_MESSAGE_ADD_FULL: {
+		resultObject->SetUsers(new LinkedList());
 
+		IJsonValue *pValDataObject;
+		jsonArray.GetAt(1, pValDataObject);
+
+		JsonObject *pDataObject = static_cast<JsonObject *>(pValDataObject);
+
+		JsonString *pKeyMessage = new JsonString(L"message");
+		IJsonValue *pValMessage;
+		pDataObject->GetValue(pKeyMessage, pValMessage);
+		JsonObject *pMessageJson = static_cast<JsonObject *>(pValMessage);
+
+		MMessage *pMessage = MMessage::CreateFromJsonLPN(*pMessageJson);
+		AppAssert(pMessage);
+		resultObject->SetMessage(pMessage);
+
+		JsonString *pKeyUsers = new JsonString(L"profiles");
+		IJsonValue *pValUsers;
+
+		pDataObject->GetValue(pKeyUsers, pValUsers);
+		JsonArray *pUsersArray = static_cast<JsonArray *>(pValUsers);
+
+		for (int index = 0; index < pUsersArray->GetCount(); index++) {
+			IJsonValue *pValUser;
+			pUsersArray->GetAt(index, pValUser);
+			JsonObject *pUserJson = static_cast<JsonObject *>(pValUser);
+			MUser *user = MUser::CreateFromJsonLPN(*pUserJson);
+			AppAssert(user);
+			resultObject->GetUsers()->Add(user);
+		}
+
+		delete pKeyMessage;
+		delete pKeyUsers;
+	}
 			break;
 	case LP_USER_ONLINE:
 
@@ -94,4 +130,24 @@ LongPollObject::CreateFromJsonN(const Tizen::Web::Json::JsonArray &jsonArray) {
 	}
 
 	return resultObject;
+}
+
+void
+LongPollObject::SetUsers(LinkedList * users) {
+	__pUsers = users;
+}
+
+LinkedList *
+LongPollObject::GetUsers() {
+	return __pUsers;
+}
+
+void
+LongPollObject::SetMessage(MMessage * message) {
+	__pMessage = message;
+}
+
+MMessage *
+LongPollObject::GetMessage() {
+	return __pMessage;
 }

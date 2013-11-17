@@ -50,7 +50,6 @@ UiMessagesPanel::Initialize(void)
 {
 	result r = Construct(Rectangle(0, 0, 10, 10));	// Should be set proper area at OnInitializing().
 	TryReturn(!IsFailed(r), false, "%s", GetErrorMessage(r));
-
 	return true;
 }
 
@@ -86,8 +85,7 @@ UiMessagesPanel::OnInitializing(void)
 	__pItemContext->AddElement(ID_CONTEXT_ITEM_1, L"Test1");
 	__pItemContext->AddElement(ID_CONTEXT_ITEM_2, L"Test2");
 
-	this->SetDialogsList(MDialogDao::getInstance().GetDialogsWithOffsetN(0));
-	SendRequest();
+
 
 	return r;
 }
@@ -95,7 +93,24 @@ UiMessagesPanel::OnInitializing(void)
 result
 UiMessagesPanel::OnTerminating() {
 	result r = E_SUCCESS;
+	if (__pDialogRequestOperation) {
+			__pDialogRequestOperation->AddEventListener(null);
+		}
 	return r;
+}
+
+void
+UiMessagesPanel::OnSceneActivatedN(const Tizen::Ui::Scenes::SceneId& previousSceneId,
+									   const Tizen::Ui::Scenes::SceneId& currentSceneId, Tizen::Base::Collection::IList* pArgs) {
+
+	this->SetDialogsList(MDialogDao::getInstance().GetDialogsWithOffsetN(0));
+	SendRequest();
+}
+
+void
+UiMessagesPanel::OnSceneDeactivated(const Tizen::Ui::Scenes::SceneId& currentSceneId,
+									const Tizen::Ui::Scenes::SceneId& nextSceneId) {
+
 }
 
 // IListViewItemEventListener implementation
@@ -228,10 +243,16 @@ UiMessagesPanel::OnUserEventReceivedN(RequestId requestId, Tizen::Base::Collecti
 
 		AppAssert(pArgs->GetCount() > 0);
 		Integer *userId = static_cast<Integer*>(pArgs->GetAt(0));
+
 		this->UpdateItemListWithUserId(userId->ToInt(), 0);
 
 		delete userId;
+	} else if (requestId == UPDATE_MESSAGE_ARRIVED) {
+		this->SetDialogsList(MDialogDao::getInstance().GetDialogsWithOffsetN(0));
+		this->__pListView->UpdateList();
 	}
+
+
 	delete pArgs;
 }
 
@@ -241,7 +262,6 @@ UiMessagesPanel::UpdateItemListWithUserId(int userId, int value) {
 
 	for (int index = 0; index < this->GetDialogsList()->GetCount(); index++) {
 		MDialog *dialog = static_cast<MDialog*>(this->GetDialogsList()->GetAt(index));
-
 		if (dialog->GetUid() == userId) {
 			dialog->SetIsOnline(value);
 			indexToUpdate = index;
@@ -250,6 +270,7 @@ UiMessagesPanel::UpdateItemListWithUserId(int userId, int value) {
 	}
 
 	if (indexToUpdate > 0) {
+
 		this->__pListView->RefreshList(indexToUpdate, 23);
 	}
 }
@@ -308,12 +329,11 @@ UiMessagesPanel::SendRequest() {
 		"var j;"
 		"while (i < c.length) {"
 		"	i=i+1;"
-		"	j = API.messages.getChatUsers({\"chat_id\" : c[i]});"
-		"	if (j != false) {"
+		" 	if (parseInt(c[i]) != 0) {"
+		"		j = API.messages.getChatUsers({\"chat_id\" : c[i]});"
 		"		uids = uids + [j];"
-		"		if (parseInt(c[i]) != 0)"
 		"		l = l + j;"
-		"	}"
+		" 	}"
 		"};"
 		"var b = API.users.get({\"user_ids\": l, \"fields\": \"photo_100,photo_50,online\"});"
 		"return {\"chat_uids\" : uids, \"users\": b, \"messages\": a};"

@@ -33,7 +33,7 @@ public:
 	void Save(IList *messages);
 
 	MMessage *GetMessageN(int mid);
-	LinkedList *GetMessagesForUser(int userId);
+	LinkedList *GetMessagesForUser(int userId, int lastMessageId = -1);
 
 	DbStatement * CreateSaveStatement();
 	DbStatement * BindMessageToSQLStatement(MMessage *dialog, DbStatement *statement);

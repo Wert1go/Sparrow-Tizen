@@ -14,6 +14,9 @@
 using namespace Tizen::Base::Collection;
 using namespace Tizen::Io;
 
+class MMessage;
+class MUser;
+
 class MDialogDao {
 public:
 	static MDialogDao& getInstance()
@@ -30,6 +33,7 @@ private:
 
 public:
 
+	void Save(MMessage *message, MUser *user);
 	void Save(MDialog *dialog);
 	void Save(IList *dialogs);
 

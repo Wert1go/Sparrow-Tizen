@@ -168,3 +168,54 @@ MMessage::CreateFromJsonN(const Tizen::Web::Json::JsonObject &pObject) {
 
 	return message;
 }
+
+MMessage *
+MMessage::CreateFromJsonLPN(const Tizen::Web::Json::JsonObject &pObject) {
+	MMessage *message = new (std::nothrow) MMessage();
+
+	JsonString* pKeyId = new JsonString(L"mid");
+	JsonString* pKeyUserId = new JsonString(L"uid");
+	JsonString* pKeyDate = new JsonString(L"date");
+	JsonString* pKeyOut = new JsonString(L"out");
+	JsonString* pKeyReadState = new JsonString(L"read_state");
+	JsonString* pKeyText = new JsonString(L"body");
+
+	IJsonValue* pValMessageId = null;
+	IJsonValue* pValUserId = null;
+	IJsonValue* pValDate = null;
+	IJsonValue* pValOut = null;
+	IJsonValue* pValReadState = null;
+	IJsonValue* pValText = null;
+
+	pObject.GetValue(pKeyId, pValMessageId);
+	pObject.GetValue(pKeyUserId, pValUserId);
+	pObject.GetValue(pKeyDate, pValDate);
+	pObject.GetValue(pKeyOut, pValOut);
+	pObject.GetValue(pKeyReadState, pValReadState);
+	pObject.GetValue(pKeyText, pValText);
+
+	JsonNumber *mid = static_cast< JsonNumber* >(pValMessageId);
+	JsonNumber *uid = static_cast< JsonNumber* >(pValUserId);
+	JsonNumber *date = static_cast< JsonNumber* >(pValDate);
+	JsonNumber *out = static_cast< JsonNumber* >(pValOut);
+	JsonNumber *readState = static_cast< JsonNumber* >(pValReadState);
+	JsonString *text = static_cast< JsonString* >(pValText);
+
+	String *pText = new String(text->GetPointer());
+
+	message->SetMid(mid->ToInt());
+	message->SetUid(uid->ToInt());
+	message->SetDate(date->ToLong());
+	message->SetOut(out->ToInt());
+	message->SetReadState(readState->ToInt());
+	message->SetText(pText);
+
+	delete pKeyId;
+	delete pKeyUserId;
+	delete pKeyDate;
+	delete pKeyOut;
+	delete pKeyReadState;
+	delete pKeyText;
+
+	return message;
+}

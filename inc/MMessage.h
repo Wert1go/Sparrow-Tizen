@@ -20,15 +20,19 @@ public:
 	MMessage();
 	virtual ~MMessage();
 
+	int __id;
 private:
 	//message info part
+
 	int __mid;
 	int __uid;
 	int __fromUid;
-	long __date;
 	int __out;
 	int __readState;
 	String *__text;
+
+public:
+	long __date;
 
 public:
 	static String* TableDescription();
@@ -50,6 +54,7 @@ public:
 	void SetText(String *text);
 
 	static MMessage * CreateFromJsonN(const Tizen::Web::Json::JsonObject &pObject);
+	static MMessage * CreateFromJsonLPN(const Tizen::Web::Json::JsonObject &pObject);
 };
 
 #endif /* MMESSAGE_H_ */
