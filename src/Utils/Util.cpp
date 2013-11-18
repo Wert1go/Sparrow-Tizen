@@ -10,9 +10,10 @@
 #include <FSecurity.h>
 #include <FLocales.h>
 #include <FSystem.h>
-
+#include <FGraphics.h>
 #include <iostream>
 #include <sys/time.h>
+#include "MMessage.h"
 
 using namespace Tizen::Base;
 using namespace Tizen::Base::Utility;
@@ -20,6 +21,10 @@ using namespace Tizen::Security::Crypto;
 
 using namespace Tizen::Locales;
 using namespace Tizen::System;
+
+using namespace Tizen::Graphics;
+
+const int limitSize = 400;//720 - 190 - 130
 
 Util::Util() {
 	// TODO Auto-generated constructor stub
@@ -116,4 +121,51 @@ Util::formatDateN(long date) {
 	 }
 
 	return stringDate;
+}
+
+Dimension
+Util::CalculateDimensionForMessage(MMessage *message) {
+	EnrichedText* pTimeLabel = null;
+	TextElement* pTImeText = null;
+
+	pTimeLabel = new EnrichedText();
+	pTimeLabel->Construct(Dimension(limitSize, 480));
+
+	pTimeLabel->SetHorizontalAlignment(TEXT_ALIGNMENT_LEFT);
+	pTimeLabel->SetVerticalAlignment(TEXT_ALIGNMENT_MIDDLE);
+	pTimeLabel->SetTextWrapStyle(TEXT_WRAP_WORD_WRAP);
+
+	pTImeText = new TextElement();
+
+	String *text = message->GetText();
+
+	if (text->GetLength() == 0) {
+		text = new String(L" ");
+	}
+
+	pTImeText->Construct(*text);
+		pTImeText->SetTextColor(Color(109, 110, 117, 255));
+		{
+			Font font;
+			font.Construct(FONT_STYLE_BOLD, 36);
+			pTImeText->SetFont(font);
+		}
+
+	pTimeLabel->Add(*pTImeText);
+
+	Dimension resultSize;
+
+	FloatDimension size;
+	int actualLength;
+	pTimeLabel->GetTextExtent(0, text->GetLength(), size, actualLength);
+
+	if (size.width <= limitSize) {
+		resultSize.width = size.width;
+		resultSize.height = size.height;
+	} else {
+		Dimension normalSize = pTimeLabel->GetTextExtent();
+		resultSize = normalSize;
+	}
+
+	return resultSize;
 }

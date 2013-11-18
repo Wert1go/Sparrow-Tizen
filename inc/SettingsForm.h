@@ -34,6 +34,9 @@ public:
 	SettingsForm();
 	virtual ~SettingsForm();
 
+	virtual result OnInitializing(void);
+	virtual result OnTerminating(void);
+
 	virtual void OnFormBackRequested(Tizen::Ui::Controls::Form& source);
 
 	void SendRequest(void);

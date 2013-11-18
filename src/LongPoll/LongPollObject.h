@@ -42,6 +42,7 @@ public:
 
 	void SetUserId(int userId);
 	int GetUserId();
+	int GetMessageId();
 
 	void SetUsers(LinkedList * users);
 	LinkedList * GetUsers();
@@ -50,6 +51,7 @@ public:
 	MMessage * GetMessage();
 
 	static LongPollObject* CreateFromJsonN(const Tizen::Web::Json::JsonArray &jsonArray);
+	int __messageId;
 
 private:
 	int __type;
@@ -57,7 +59,6 @@ private:
 
 	MMessage *__pMessage;
 	LinkedList *__pUsers;
-
 
 
 };

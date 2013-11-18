@@ -19,8 +19,11 @@
 
 #include <FGraphics.h>
 #include <FMedia.h>
-
+#include "UiChatCustomItem.h"
 #include "PostMan.h"
+#include "UiChapPanel.h"
+#include "MUserDao.h"
+#include "Util.h"
 
 using namespace Tizen::App;
 using namespace Tizen::Base;
@@ -54,6 +57,7 @@ UiChatForm::~UiChatForm() {
 }
 
 
+
 result
 UiChatForm::OnInitializing(void)
 {
@@ -80,8 +84,13 @@ UiChatForm::OnInitializing(void)
 
 	AddControl(__pPosterPanel);
 
+	__pChatPanel = new UiChapPanel();
+	__pChatPanel->Initialize();
+	__pChatPanel->SetBounds(Rectangle(0, 0, clientRect.width, 100));
+	AddControl(__pChatPanel);
+
 	__pListView = new ListView();
-	__pListView->Construct(Rectangle(0, 0, clientRect.width, clientRect.height - editAreaHeight), true, false);
+	__pListView->Construct(Rectangle(0, 100, clientRect.width, clientRect.height - editAreaHeight *2), true, false);
 	__pListView->SetItemProvider(*this);
 	__pListView->AddListViewItemEventListener(*this);
 	__pListView->AddScrollEventListener(*this);
@@ -140,6 +149,9 @@ UiChatForm::OnSceneActivatedN(const Tizen::Ui::Scenes::SceneId& previousSceneId,
 		this->SetMessages(MMessageDao::getInstance().GetMessagesForUser(param->ToInt()));
 		this->ScrollToFirstMessage();
 		RequestMessagesForUser(param->ToInt());
+		if (this->__pChatPanel) {
+			this->__pChatPanel->SetUser(MUserDao::getInstance().GetUserN(__userId));
+		}
 	}
 
 }
@@ -147,7 +159,10 @@ UiChatForm::OnSceneActivatedN(const Tizen::Ui::Scenes::SceneId& previousSceneId,
 void
 UiChatForm::OnSceneDeactivated(const Tizen::Ui::Scenes::SceneId& currentSceneId,
 									const Tizen::Ui::Scenes::SceneId& nextSceneId) {
-
+	if (__pMessagesRequestOperation) {
+		__pMessagesRequestOperation->AddEventListener(null);
+		__pMessagesRequestOperation = null;
+	}
 }
 
 /*
@@ -228,38 +243,35 @@ UiChatForm::OnListViewItemSwept(Tizen::Ui::Controls::ListView &listView, int ind
 
 Tizen::Ui::Controls::ListItemBase*
 UiChatForm::CreateItem(int index, int itemWidth) {
-	AppLog("CreateItem %d", index);
-	CustomItem *pItem = new CustomItem();
-    ListAnnexStyle style = LIST_ANNEX_STYLE_NORMAL;
 
-    int height = 136;
+	UiChatCustomItem *pItem = new UiChatCustomItem();
+    ListAnnexStyle style = LIST_ANNEX_STYLE_NORMAL;
+    MMessage *message = static_cast<MMessage *>(this->GetMessages()->GetAt(index));
+    Dimension dmns = Util::CalculateDimensionForMessage(message);
+    dmns.height = dmns.height +  20*4;
+    dmns.width = dmns.width +  20*4;
+
+    int height = dmns.height;
+    if (height < 136) {
+    	height = 136;
+    	dmns.height = height;
+    }
+
+
 
     pItem->Construct(Dimension(itemWidth, height), style);
     pItem->SetContextItem(__pItemContext);
-    MMessage *message = static_cast<MMessage *>(this->GetMessages()->GetAt(index));
 
+    pItem->SetBubbleDimension(dmns);
+    pItem->SetMessage(message);
 
-    Color color;
-
-    if (message->GetOut() == 1) {
-    	color = Color(0, 255, 0, 255);
-    } else {
-    	color = Color(255, 0, 0, 255);
-    }
-
-    pItem->AddElement(FloatRectangle(0, 0, (float)itemWidth, height), 24, message->GetText()->GetPointer(),  30, color, color, color);
-
-//    pItem->SetDimension(new Dimension(itemWidth, height));
+    pItem->SetDimension(new Dimension(itemWidth, height));
 //    pItem->SetIndex(index);
 //    pItem->AddRefreshListener(this);
 
-//    MDialog *dialog = static_cast<MDialog *>(this->GetDialogsList()->GetAt(index));
-//    pItem->SetDialog(dialog);
-
-//    pItem->Init();
+    pItem->Init();
 
     return pItem;
-
 }
 
 bool
@@ -348,9 +360,34 @@ UiChatForm::OnUserEventReceivedN(RequestId requestId, Tizen::Base::Collection::I
 			}
 		}
 		delete pUserId;
+	} else if (requestId == UPDATE_USER_ONLINE) {
+
+		AppAssert(pArgs->GetCount() > 0);
+		Integer *userId = static_cast<Integer*>(pArgs->GetAt(0));
+		if (this->__userId == userId->ToInt()) {
+			this->UpdateCurrentUserOnlineWithValue(1);
+		}
+
+		delete userId;
+
+	} else if (requestId == UPDATE_USER_OFFLINE) {
+
+		AppAssert(pArgs->GetCount() > 0);
+		Integer *userId = static_cast<Integer*>(pArgs->GetAt(0));
+		if (this->__userId == userId->ToInt()) {
+			this->UpdateCurrentUserOnlineWithValue(0);
+		}
+		delete userId;
 	}
 
 	delete pArgs;
+}
+
+void
+UiChatForm::UpdateCurrentUserOnlineWithValue(int value) {
+	if (this->__pChatPanel) {
+		this->__pChatPanel->SetIsOnline(value == 1);
+	}
 }
 
 bool
@@ -400,7 +437,7 @@ UiChatForm::OnExpandableEditAreaLineAdded(Tizen::Ui::Controls::ExpandableEditAre
 
 	this->__pListView->SetBounds(FloatRectangle(
 			0,
-			0,
+			100,
 			clientArea.width,
 			this->__pListView->GetBounds().height - deltaHeight)
 			);
@@ -428,7 +465,7 @@ UiChatForm::OnExpandableEditAreaLineRemoved(Tizen::Ui::Controls::ExpandableEditA
 
 	this->__pListView->SetBounds(FloatRectangle(
 			0,
-			0,
+			100,
 			clientArea.width,
 			this->__pListView->GetBounds().height + deltaHeight)
 			);
@@ -458,7 +495,7 @@ UiChatForm::OnKeypadClosed(Control& source)
 	FloatRectangle panelBounds = __pPosterPanel->GetBoundsF();
 
 	this->__pPosterPanel->SetBounds(Rectangle(0, clientRect.height - panelBounds.height, clientRect.width, panelBounds.height));
-	this->__pListView->SetBounds(Rectangle(0, 0, clientRect.width, clientRect.height - panelBounds.height));
+	this->__pListView->SetBounds(Rectangle(0, 100, clientRect.width, clientRect.height - panelBounds.height));
 	this->Invalidate(true);
 
 	this->SetFocus();
@@ -480,7 +517,7 @@ UiChatForm::OnKeypadWillOpen(Control& source)
 
 	float yOffset = 836;
 
-	this->__pListView->SetBounds(FloatRectangle(0, 0, prevBounds.width, yOffset - panelBounds.height));
+	this->__pListView->SetBounds(FloatRectangle(0, 100, prevBounds.width, yOffset - panelBounds.height));
 	__pPosterPanel->SetBounds(FloatRectangle(panelBounds.x, yOffset - panelBounds.height, panelBounds.width, panelBounds.height));
 
 	this->Invalidate(true);

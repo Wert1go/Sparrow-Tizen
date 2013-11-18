@@ -35,6 +35,11 @@ LongPollDescriptor::performObjectMappingN(JsonObject* pObject) {
 	pObject->GetValue(pKeyTS, pValKey);
 	pObject->GetValue(pKeyUpdates, pValUpdates);
 
+	if (!pValKey) {
+		response->SetError(new Error());
+		return response;
+	}
+
 	JsonNumber *pKey = static_cast<JsonNumber *>(pValKey);
 	JsonArray *pUpdates = static_cast<JsonArray *>(pValUpdates);
 

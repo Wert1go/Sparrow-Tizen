@@ -37,7 +37,7 @@ ImageLoadingOperation::~ImageLoadingOperation() {
 
 void ImageLoadingOperation::Perform() {
 	if (__lolprotector != 0) {
-		AppLogDebug("Operation already running!");
+//		AppLogDebug("Operation already running!");
 		return;
 	}
 	__lolprotector++;
@@ -48,12 +48,12 @@ void ImageLoadingOperation::Perform() {
 		Bitmap *pBitmap = ImageCache::LoadFromCacheForKeyN(__pUrl);
 		if (pBitmap) {
 
-			AppLogDebug("ImageLoadingOperation::OnImageLoadedN <- %S", __pUrl->GetPointer());
+//			AppLogDebug("ImageLoadingOperation::OnImageLoadedN <- %S", __pUrl->GetPointer());
 			OnImageLoadedN(pBitmap);
-			AppLogDebug("ImageLoadingOperation::OnImageLoadedN333");
+//			AppLogDebug("ImageLoadingOperation::OnImageLoadedN333");
 
 		} else {
-			AppLogDebug("ImageLoadingOperation::Begin loading");
+//			AppLogDebug("ImageLoadingOperation::Begin loading");
 			__pImageRequestOperation->AddImageRequestListener(this);
 			RestClient::getInstance().PerformOperation(__pImageRequestOperation);
 		}
@@ -69,12 +69,12 @@ void ImageLoadingOperation::OnImageLoadedN(Bitmap *pBitmap) {
 	__pImageRequestOperation->AddImageRequestListener(null);
 	__pImageRequestOperation = null;
 
-	AppLogDebug("ImageLoadingOperation::OnImageLoadedN");
+//	AppLogDebug("ImageLoadingOperation::OnImageLoadedN");
 
 	if (pBitmap) {
 		__pImageOperationListener->OnImageLoadedN(__pUrl, pBitmap);
 	} else {
-		AppLogDebug("Failed to load image: %S", __pUrl->GetPointer());
+//		AppLogDebug("Failed to load image: %S", __pUrl->GetPointer());
 		__pImageOperationListener->OnErrorN(__pUrl, null);
 	}
 }

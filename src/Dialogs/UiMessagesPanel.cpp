@@ -32,10 +32,11 @@ using namespace Tizen::Base;
 using namespace Tizen::Base::Collection;
 
 UiMessagesPanel::UiMessagesPanel() {
-	// TODO Auto-generated constructor stub
+	AppLogDebug("UiMessagesPanel");
+
 	__pDialogsList = null;
 	__pDialogRequestOperation = null;
-
+	this->__pListView = null;
 	LongPollConnection::getInstance().Run();
 }
 
@@ -57,6 +58,7 @@ result
 UiMessagesPanel::OnInitializing(void)
 {
 
+	AppLogDebug("OnInitializing");
 	result r = E_SUCCESS;
 	Rectangle clientRect;
 	this->SetName(L"UiMessagesPanel");
@@ -85,8 +87,6 @@ UiMessagesPanel::OnInitializing(void)
 	__pItemContext->AddElement(ID_CONTEXT_ITEM_1, L"Test1");
 	__pItemContext->AddElement(ID_CONTEXT_ITEM_2, L"Test2");
 
-
-
 	return r;
 }
 
@@ -95,7 +95,7 @@ UiMessagesPanel::OnTerminating() {
 	result r = E_SUCCESS;
 	if (__pDialogRequestOperation) {
 			__pDialogRequestOperation->AddEventListener(null);
-		}
+	}
 	return r;
 }
 
@@ -103,14 +103,25 @@ void
 UiMessagesPanel::OnSceneActivatedN(const Tizen::Ui::Scenes::SceneId& previousSceneId,
 									   const Tizen::Ui::Scenes::SceneId& currentSceneId, Tizen::Base::Collection::IList* pArgs) {
 
+	AppLogDebug("OnSceneActivatedN");
 	this->SetDialogsList(MDialogDao::getInstance().GetDialogsWithOffsetN(0));
+	if (this->__pListView) {
+		this->__pListView->UpdateList();
+	}
 	SendRequest();
+
+	AppLogDebug("OnSceneActivatedN11");
 }
 
 void
 UiMessagesPanel::OnSceneDeactivated(const Tizen::Ui::Scenes::SceneId& currentSceneId,
 									const Tizen::Ui::Scenes::SceneId& nextSceneId) {
+	if (__pDialogRequestOperation) {
+		__pDialogRequestOperation->AddEventListener(null);
+		__pDialogRequestOperation = null;
 
+	}
+	AppLogDebug("OnSceneDeactivated");
 }
 
 // IListViewItemEventListener implementation
@@ -189,8 +200,6 @@ UiMessagesPanel::CreateItem(int index, int itemWidth)
 bool
 UiMessagesPanel::DeleteItem(int index, ListItemBase* pItem, int itemWidth)
 {
-	AppLog("DeleteItem");
-
     delete pItem;
     pItem = null;
     return true;
@@ -227,7 +236,6 @@ UiMessagesPanel::OnUserEventReceivedN(RequestId requestId, Tizen::Base::Collecti
 
 	if (requestId == 111111 && pArgs->GetCount() > 0) {
 		UpdateUnit *unit = static_cast<UpdateUnit *> (pArgs->GetAt(0));
-
 		__pListView->RefreshList(unit->__index, unit->__requestId);
 	} else if (requestId == 222222) {
 		__pListView->UpdateList();
@@ -269,7 +277,7 @@ UiMessagesPanel::UpdateItemListWithUserId(int userId, int value) {
 		}
 	}
 
-	if (indexToUpdate > 0) {
+	if (indexToUpdate >= 0) {
 
 		this->__pListView->RefreshList(indexToUpdate, 23);
 	}

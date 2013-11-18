@@ -31,6 +31,11 @@ MMessageDescriptor::performObjectMappingN(JsonObject* pObject) {
 
 	pObject->GetValue(pKeyResponse, pValResponseObject);
 
+	if (!pValResponseObject) {
+		response->SetError(new Error());
+		return response;
+	}
+
 	JsonObject *pResponseObject = static_cast<JsonObject *>(pValResponseObject);
 
 	JsonString* pKeyMessagesArray = new JsonString(L"items");

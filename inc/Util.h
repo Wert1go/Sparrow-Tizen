@@ -9,8 +9,14 @@
 #define UTIL_H_
 
 #include <FBase.h>
+#include <FGraphics.h>
 
 using namespace Tizen::Base;
+using namespace Tizen::Graphics;
+
+class MMessage;
+
+extern const int limitSize;
 
 class Util
  : public Object
@@ -24,6 +30,8 @@ public:
 	static String* MD5N(String *string);
 	static String* formatDateN(long date);
 	static void LogE();
+
+	static Dimension CalculateDimensionForMessage(MMessage *message);
 
 private:
 	static String LeftPadZero(String s, int wantedLen);

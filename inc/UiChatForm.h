@@ -23,6 +23,7 @@ using namespace Tizen::Ui::Controls;
 using namespace Tizen::Base::Collection;
 
 class MMessage;
+class UiChapPanel;
 
 class UiChatForm
  : public Tizen::Ui::Controls::Form
@@ -108,6 +109,8 @@ public:
 	void ScrollToFirstMessage();
 	void ScrollToLastMessage();
 
+	void UpdateCurrentUserOnlineWithValue(int value);
+
 private:
 	static const int ID_CONTEXT_ITEM_1 = 103;
 	static const int ID_CONTEXT_ITEM_2 = 104;
@@ -119,6 +122,7 @@ private:
 	ListContextItem *__pItemContext;
 	Tizen::Ui::Controls::ExpandableEditArea* __pEditArea;
 
+	UiChapPanel *__pChatPanel;
 	UiMessengerPanel *__pPosterPanel;
 
 	void RequestMoreMessagesFromMid(int mid);

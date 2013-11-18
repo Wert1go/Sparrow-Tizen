@@ -175,9 +175,6 @@ MDialogDao::CreateSaveStatement() {
 
 DbStatement *
 MDialogDao::BindDialogToSQLStatement(MDialog *dialog, DbStatement *statement) {
-	if (statement != null) {
-		AppLogDebug("BindDialogToSQLStatement::EX");
-	}
 
 	statement->BindInt(0, dialog->GetIdentifier());
 	statement->BindInt(1, dialog->GetUid());

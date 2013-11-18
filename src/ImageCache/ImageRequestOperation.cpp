@@ -43,7 +43,7 @@ ImageRequestOperation::ImageRequestOperation(const Tizen::Base::String *url) {
 }
 
 ImageRequestOperation::~ImageRequestOperation() {
-	AppLogDebug("ImageRequestOperation::~ImageRequestOperatio");
+//	AppLogDebug("ImageRequestOperation::~ImageRequestOperatio");
 	delete __pHttpTransaction;
 	__pHttpTransaction = null;
 	delete __pUrl;
@@ -55,7 +55,7 @@ void ImageRequestOperation::perform() {
 	if (__pHttpTransaction != null) {
 		__pHttpTransaction->Submit();
 	} else {
-		AppLogDebug("ImageRequestOperation::Ошибка при попытке выполнить HTTP запрос");
+//		AppLogDebug("ImageRequestOperation::Ошибка при попытке выполнить HTTP запрос");
 	}
 }
 
@@ -84,7 +84,7 @@ void ImageRequestOperation::CheckCompletionAndCleanUp() {
 void
 ImageRequestOperation::OnTransactionReadyToRead(HttpSession& httpSession, HttpTransaction& httpTransaction, int availableBodyLen)
 {
-	AppLog("ImageRequestOperation::OnTransactionReadyToRead");
+//	AppLog("ImageRequestOperation::OnTransactionReadyToRead");
 
 	HttpResponse* pHttpResponse = httpTransaction.GetResponse();
 
@@ -118,26 +118,26 @@ ImageRequestOperation::OnTransactionReadyToRead(HttpSession& httpSession, HttpTr
 void
 ImageRequestOperation::OnTransactionAborted(HttpSession& httpSession, HttpTransaction& httpTransaction, result r)
 {
-	AppLog("ImageRequestOperation::OnTransactionAborted(%s)", GetErrorMessage(r));
+//	AppLog("ImageRequestOperation::OnTransactionAborted(%s)", GetErrorMessage(r));
 	__pRequestOwner->OnCompliteN(this);
 }
 
 void
 ImageRequestOperation::OnTransactionReadyToWrite(HttpSession& httpSession, HttpTransaction& httpTransaction, int recommendedChunkSize)
 {
-	AppLog("ImageRequestOperation::OnTransactionReadyToWrite");
+//	AppLog("ImageRequestOperation::OnTransactionReadyToWrite");
 }
 
 void
 ImageRequestOperation::OnTransactionHeaderCompleted(HttpSession& httpSession, HttpTransaction& httpTransaction, int headerLen, bool authRequired)
 {
-	AppLog("ImageRequestOperation::OnTransactionHeaderCompleted");
+//	AppLog("ImageRequestOperation::OnTransactionHeaderCompleted");
 }
 
 void
 ImageRequestOperation::OnTransactionCompleted(HttpSession& httpSession, HttpTransaction& httpTransaction)
 {
-	AppLog("ImageRequestOperation::OnTransactionCompleted");
+//	AppLog("ImageRequestOperation::OnTransactionCompleted");
 	dispatch_async(dispatch_get_global_queue( DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
 		Execute();
 		__pRequestOwner->OnCompliteN(this);
@@ -147,7 +147,7 @@ ImageRequestOperation::OnTransactionCompleted(HttpSession& httpSession, HttpTran
 void
 ImageRequestOperation::OnTransactionCertVerificationRequiredN(HttpSession& httpSession, HttpTransaction& httpTransaction, Tizen::Base::String* pCert)
 {
-	AppLog("ImageRequestOperation::OnTransactionCertVerificationRequiredN");
+//	AppLog("ImageRequestOperation::OnTransactionCertVerificationRequiredN");
 
 	httpTransaction.Resume();
 	delete pCert;
@@ -166,7 +166,7 @@ ImageRequestOperation::Execute() {
 		return;
 	}
 
-	AppLog("ImageRequestOperation::Execute");
+//	AppLog("ImageRequestOperation::Execute");
 	Image *pImage = new Image();
 	pImage->Construct();
 
@@ -184,7 +184,7 @@ ImageRequestOperation::Execute() {
 		format = IMG_FORMAT_PNG;
 	}
 
-	AppLog("%d :: %d :: %d", format, pixelFormat, __pByteBuffer->GetCapacity());
+//	AppLog("%d :: %d :: %d", format, pixelFormat, __pByteBuffer->GetCapacity());
 
 	Bitmap *pBitmap = pImage->DecodeN(*__pByteBuffer, format, pixelFormat);
 

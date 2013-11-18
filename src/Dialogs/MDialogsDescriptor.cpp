@@ -26,7 +26,13 @@ MDialogsDescriptor::performObjectMappingN(JsonObject* pObject) {
 	JsonString* pKeyResponse = new JsonString(L"response");
 
 	IJsonValue* pValResponseObject = null;
+
 	pObject->GetValue(pKeyResponse, pValResponseObject);
+
+	if (!pValResponseObject) {
+		response->SetError(new Error());
+		return response;
+	}
 
 	JsonObject *pResponseObject = static_cast< JsonObject* >(pValResponseObject);
 

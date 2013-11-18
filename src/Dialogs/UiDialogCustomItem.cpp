@@ -38,14 +38,14 @@ UiDialogCustomItem::UiDialogCustomItem() {
 
 
 UiDialogCustomItem::~UiDialogCustomItem() {
-	AppLog("UiDialogCustomItem::~UiDialogCustomItem");
+//	AppLog("UiDialogCustomItem::~UiDialogCustomItem");
 	ImageCache::getInstance().CancelLoadingForTarget(this);
 	__pPlaceholder = null;
 	PlaceholderActive = null;
 	delete __pDialogIcon;
 	delete __pDialogListItem;
 //	delete __pUrl;
-	AppLog("UiDialogCustomItem::~UiDialogCustomItem::Complite");
+//	AppLog("UiDialogCustomItem::~UiDialogCustomItem::Complite");
 }
 
 void

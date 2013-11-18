@@ -192,7 +192,7 @@ MDialog::CreateFromJsonN(const Tizen::Web::Json::JsonObject &pUserObject, const 
 	IJsonValue* pValReadState = null;
 	IJsonValue* pValTitle = null;
 	IJsonValue* pValText = null;
-	AppLogDebug("10");
+
 	//user
 	pUserObject.GetValue(pKeyId, pValUserId);
 	pUserObject.GetValue(pKeyFirstName, pValFirstName);
@@ -201,14 +201,13 @@ MDialog::CreateFromJsonN(const Tizen::Web::Json::JsonObject &pUserObject, const 
 	pUserObject.GetValue(pKeyPhoto, pValPhoto);
 	pUserObject.GetValue(pKeyOnline, pValOnline);
 
-	AppLogDebug("11");
 	JsonString *firstName = static_cast< JsonString* >(pValFirstName);
 	JsonString *lastName = static_cast< JsonString* >(pValLastName);
 	JsonNumber *uid = static_cast< JsonNumber* >(pValUserId);
 	JsonString *miniPhoto = static_cast< JsonString* >(pValMiniPhoto);
 	JsonString *photo = static_cast< JsonString* >(pValPhoto);
 	JsonNumber *isOnline = static_cast< JsonNumber* >(pValOnline);
-	AppLogDebug("5");
+
 	//message
 	pMessageObject.GetValue(pKeyId, pValMessageId);
 	pMessageObject.GetValue(pKeyUserId, pValMessageUserId);
@@ -225,7 +224,7 @@ MDialog::CreateFromJsonN(const Tizen::Web::Json::JsonObject &pUserObject, const 
 	JsonNumber *readState = static_cast< JsonNumber* >(pValReadState);
 	JsonString *title = static_cast< JsonString* >(pValTitle);
 	JsonString *text = static_cast< JsonString* >(pValText);
-	AppLogDebug("6");
+
 	//values
 	String *pFirstName = new String(firstName->GetPointer());
 	String *pLastName = new String(lastName->GetPointer());
@@ -243,7 +242,7 @@ MDialog::CreateFromJsonN(const Tizen::Web::Json::JsonObject &pUserObject, const 
 	dialog->SetMiniPhoto(pMiniPhoto);
 	dialog->SetPhoto(pPhoto);
 	dialog->SetIsOnline(isOnline->ToInt());
-	AppLogDebug("7");
+
 	dialog->SetDate(date->ToLong());
 	dialog->SetOut(out->ToInt());
 	dialog->SetReadState(readState->ToInt());

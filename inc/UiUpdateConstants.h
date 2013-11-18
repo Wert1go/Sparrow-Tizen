@@ -15,4 +15,6 @@ static const int UPDATE_USER_OFFLINE = 10000002;
 static const int UPDATE_MESSAGE_ARRIVED = 10000003;
 static const int UPDATE_MESSAGE_DELIVERED = 10000004;
 
+static const int UPDATE_READ_STATE = 10000005;
+
 #endif /* UIUPDATECONSTANTS_H_ */

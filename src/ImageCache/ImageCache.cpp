@@ -41,7 +41,7 @@ ImageCache::~ImageCache() {
 
 void
 ImageCache::LoadImageForTarget(String *url, IImageLoadingListener *target) {
-	AppLogDebug("ImageCache::LoadImageForTarget");
+	//AppLogDebug("ImageCache::LoadImageForTarget");
 
 	if (CheckExistingOperationForUrl(url)) {
 		//надо придумать, что делать при поптыке загрузить изображение до окончания 1-й попытки
@@ -55,7 +55,7 @@ ImageCache::LoadImageForTarget(String *url, IImageLoadingListener *target) {
 		__pUrlAndOperationMap->Add(url, operation);
 
 		__mutex.Release();
-		AppLogDebug("LoadImageForTarget::LoadImageForTarget");
+//		AppLogDebug("LoadImageForTarget::LoadImageForTarget");
 		if (__runningOperations < 3) {
 
 			__mutex.Acquire();
@@ -63,7 +63,7 @@ ImageCache::LoadImageForTarget(String *url, IImageLoadingListener *target) {
 			__mutex.Release();
 			operation->Perform();
 		} else {
-			AppLogDebug("__pPendingOperation->Add <<<<<<<<<<<<<<<<<<");
+			//AppLogDebug("__pPendingOperation->Add <<<<<<<<<<<<<<<<<<");
 			__pPendingOperation->Add(url, operation);
 		}
 	}
@@ -157,7 +157,7 @@ ImageCache::FinishOperationForUrl(String *url) {
 		delete url;
 	}
 
-	AppLog("FinishOperationForUrl");
+	//AppLog("FinishOperationForUrl");
 	__runningOperations--;
 	CheckPendingOperationsAndRun();
 	__mutex.Release();
@@ -249,7 +249,7 @@ ImageCache::LoadFromCacheForKeyN(String *url) {
 	String *key = ImageCache::CacheKeyForUrlN(url);
 	String path = Tizen::App::App::GetInstance()->GetAppDataPath() + key->GetPointer();
 
-	//AppLogDebug("Load from path:: %S", path.GetPointer());
+	AppLogDebug("Load from path:: %S", path.GetPointer());
 
 	Bitmap *pBitmap = image->DecodeN(path.GetPointer(), pixelFormat);
 
@@ -272,7 +272,7 @@ ImageCache::LoadFromCacheForKeyN(String *url) {
 		AppLog("E_OUT_OF_RANGE");
 	}
 
-	if (r == E_FILE_NOT_FOUND) {
+	if (r != E_SUCCESS) {
 		AppLogDebug("Loading image from path:: %S FAILED", path.GetPointer());
 		pBitmap = null;
 	}

@@ -174,10 +174,10 @@ LongPollConnection::OnSuccessN(RestResponse *result) {
 						break;
 				case LP_FLAG_RESET:
 
+//					UPDATE_READ_STATE
+
 						break;
 				case LP_MESSAGE_ADD_FULL: {
-
-
 
 					UiChatForm* pChatForm = static_cast< UiChatForm* >(pFrame->GetControl("UiChatForm", true));
 					if (pChatForm && PostMan::getInstance().ValidateIncomingMessage(pObject->GetMessage())) {
@@ -216,6 +216,7 @@ LongPollConnection::OnSuccessN(RestResponse *result) {
 						Tizen::App::UiApp::GetInstance()->SendUserEvent(UPDATE_USER_ONLINE, 0);
 						pArgs = null;
 					}
+
 					MUserDao::getInstance().UpdateUserOnlineStatusById(1, pObject->GetUserId());
 					MDialogDao::getInstance().UpdateDialogOnlineStatusById(1, pObject->GetUserId());
 				}

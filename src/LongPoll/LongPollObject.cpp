@@ -67,8 +67,14 @@ LongPollObject::CreateFromJsonN(const Tizen::Web::Json::JsonArray &jsonArray) {
 	case LP_FLAG_ADD:
 
 			break;
-	case LP_FLAG_RESET:
+	case LP_FLAG_RESET: {
+		IJsonValue *pValMsgId;
+		jsonArray.GetAt(1, pValMsgId);
 
+		JsonNumber *pMsgId = static_cast<JsonNumber *>(pValMsgId);
+
+		resultObject->__messageId = pMsgId->ToInt();
+	}
 			break;
 	case LP_MESSAGE_ADD_FULL: {
 		resultObject->SetUsers(new LinkedList());
@@ -150,4 +156,9 @@ LongPollObject::SetMessage(MMessage * message) {
 MMessage *
 LongPollObject::GetMessage() {
 	return __pMessage;
+}
+
+int
+LongPollObject::GetMessageId() {
+	return __messageId;
 }

@@ -90,19 +90,33 @@ SettingsForm::~SettingsForm() {
 	if (__user) {
 		delete __user;
 	}
+	AppLogDebug("SettingsForm::~SettingsForm");
+
+	this->RemoveAllControls();
 
 	if (__userRequestOperation) {
 		__userRequestOperation->AddEventListener(null);
 	}
 
-	ImageCache::getInstance().CancelLoadingForTarget(this);
-
+	AppLogDebug("SettingsForm::~SettingsForm");
 	delete __bitmap;
+}
+
+result
+SettingsForm::OnInitializing(void) {
+	return E_SUCCESS;
+}
+result
+SettingsForm::OnTerminating(void) {
+	AppLogDebug("SettingsForm::~OnTerminating");
+	ImageCache::getInstance().CancelLoadingForTarget(this);
+	return E_SUCCESS;
 }
 
 void
 SettingsForm::OnFormBackRequested(Tizen::Ui::Controls::Form& source)
 {
+
 	SceneManager* pSceneManager = SceneManager::GetInstance();
 	AppAssert(pSceneManager);
 	pSceneManager->GoBackward(BackwardSceneTransition(SCENE_TRANSITION_ANIMATION_TYPE_RIGHT));
@@ -157,7 +171,7 @@ void SettingsForm::OnUserEventReceivedN(RequestId requestId, Tizen::Base::Collec
 		UpdateInterfaceForCurrentUser();
 	}
 
-	OnDraw();
+	this->RequestRedraw();
 	delete pArgs;
 }
 
