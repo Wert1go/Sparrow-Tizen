@@ -65,8 +65,8 @@ UiChatForm::OnInitializing(void)
 	AppLog("OnInitializing");
 	this->SetName(L"UiChatForm");
 	result r = E_SUCCESS;
-	Rectangle clientRect;
-	clientRect = this->GetClientAreaBounds();
+	FloatRectangle clientRect;
+	clientRect = this->GetClientAreaBoundsF();
 
 	__pPosterPanel = new UiMessengerPanel();
 	__pPosterPanel->Initialize();
@@ -77,10 +77,10 @@ UiChatForm::OnInitializing(void)
 	__pPosterPanel->GetEditArea()->AddExpandableEditAreaEventListener(*this);
 
 	__pPosterPanel->GetSendButton()->AddActionEventListener(*this);
-
+	AppLog("0");
 	float editAreaHeight = 100;
-
-	__pPosterPanel->SetRectangle(FloatRectangle(0, clientRect.height - editAreaHeight, clientRect.width, editAreaHeight));
+	//__pPosterPanel->SetBounds(FloatRectangle(0, clientRect.height - editAreaHeight,  clientRect.width, editAreaHeight));
+	__pPosterPanel->SetRectangle(FloatRectangle(0, clientRect.height - editAreaHeight,  clientRect.width, editAreaHeight));
 
 	AddControl(__pPosterPanel);
 
@@ -256,8 +256,6 @@ UiChatForm::CreateItem(int index, int itemWidth) {
     	height = 136;
     	dmns.height = height;
     }
-
-
 
     pItem->Construct(Dimension(itemWidth, height), style);
     pItem->SetContextItem(__pItemContext);
@@ -441,10 +439,10 @@ UiChatForm::OnExpandableEditAreaLineAdded(Tizen::Ui::Controls::ExpandableEditAre
 			clientArea.width,
 			this->__pListView->GetBounds().height - deltaHeight)
 			);
-
+AppLog("1");
 	__pPosterPanel->SetRectangle(FloatRectangle(
 			panelBounds.x,
-			this->__pListView->GetBounds().height,
+			100 + this->__pListView->GetBounds().height,
 			panelBounds.width,
 			panelBounds.height + deltaHeight)
 			);
@@ -462,17 +460,22 @@ UiChatForm::OnExpandableEditAreaLineRemoved(Tizen::Ui::Controls::ExpandableEditA
 	float prevEditHeight = panelBounds.height - 32;
 
 	float deltaHeight = prevEditHeight - editBounds.height;
+	AppLog("2 %f", deltaHeight);
+
+	if (deltaHeight < 1) {
+		return;
+	}
 
 	this->__pListView->SetBounds(FloatRectangle(
 			0,
 			100,
 			clientArea.width,
-			this->__pListView->GetBounds().height + deltaHeight)
+			this->__pListView->GetBoundsF().height + deltaHeight)
 			);
 
 	__pPosterPanel->SetRectangle(FloatRectangle(
 			panelBounds.x,
-			this->__pListView->GetBounds().height,
+			100 + this->__pListView->GetBoundsF().height,
 			panelBounds.width,
 			panelBounds.height - deltaHeight)
 			);
@@ -489,13 +492,13 @@ void
 UiChatForm::OnKeypadClosed(Control& source)
 {
 
-	Rectangle clientRect;
-	clientRect = this->GetClientAreaBounds();
+	FloatRectangle clientRect;
+	clientRect = this->GetClientAreaBoundsF();
 	FloatRectangle editBounds = source.GetBoundsF();
 	FloatRectangle panelBounds = __pPosterPanel->GetBoundsF();
 
-	this->__pPosterPanel->SetBounds(Rectangle(0, clientRect.height - panelBounds.height, clientRect.width, panelBounds.height));
-	this->__pListView->SetBounds(Rectangle(0, 100, clientRect.width, clientRect.height - panelBounds.height));
+	this->__pPosterPanel->SetRectangle(FloatRectangle(0, clientRect.height - panelBounds.height, clientRect.width, panelBounds.height));
+	this->__pListView->SetBounds(FloatRectangle(0, 100, clientRect.width, clientRect.height - panelBounds.height - 100));
 	this->Invalidate(true);
 
 	this->SetFocus();
@@ -515,10 +518,13 @@ UiChatForm::OnKeypadWillOpen(Control& source)
 
 	FloatRectangle panelBounds = __pPosterPanel->GetBoundsF();
 
-	float yOffset = 836;
+	float size = 34.6875;
+	float yOffset = this->GetBoundsF().height - (this->GetBoundsF().height * size)/100;
 
-	this->__pListView->SetBounds(FloatRectangle(0, 100, prevBounds.width, yOffset - panelBounds.height));
-	__pPosterPanel->SetBounds(FloatRectangle(panelBounds.x, yOffset - panelBounds.height, panelBounds.width, panelBounds.height));
+	AppLogDebug("yOffset %f %f", yOffset - panelBounds.height, yOffset);
+
+	this->__pListView->SetBounds(FloatRectangle(0, 100, prevBounds.width, yOffset - panelBounds.height - 100));
+	__pPosterPanel->SetRectangle(FloatRectangle(panelBounds.x, yOffset - panelBounds.height, panelBounds.width, panelBounds.height));
 
 	this->Invalidate(true);
 }

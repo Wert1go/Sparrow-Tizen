@@ -67,7 +67,7 @@ UiMessengerPanel::Initialize(void)
 	__pSendButton->SetColor(BUTTON_STATUS_PRESSED,  Color(255, 255, 255, 255));
 
 	__pSendButton->SetNormalBitmap(FloatPoint(90/2 - 63/2, 66/2 - 63/2), *imageN);
-
+	this->SetBackgroundColor(Color(0,0,0,255));
 	delete imageN;
 
 	AddControl(__pSendButton);
@@ -124,6 +124,6 @@ UiMessengerPanel::SetRectangle(FloatRectangle rect) {
 
 	this->__pEditArea->SetBounds(editBounds);
 
-	__pSendButton->SetBounds(Rectangle(editBounds.x + editBounds.width + offset, rect.height/2 - 66/2, 90, 66));
+	this->__pSendButton->SetBounds(FloatRectangle(editBounds.x + editBounds.width + offset, rect.height/2 - 66/2, 90, 66));
 	this->Invalidate(true);
 }
