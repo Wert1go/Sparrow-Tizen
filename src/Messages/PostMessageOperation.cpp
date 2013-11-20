@@ -56,6 +56,7 @@ PostMessageOperation::OnSuccessN(RestResponse *result) {
 			AppLogDebug("FAILED TO SEND MESSAGE");
 		} else {
 			this->__pMessage->SetMid(response->__mid);
+			this->__pMessage->SetDelivered(1);
 			MMessageDao::getInstance().Save(__pMessage);
 
 			if (__pDeliveryListener) {

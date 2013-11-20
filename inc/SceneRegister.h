@@ -15,6 +15,7 @@ extern const wchar_t* SCENE_MAIN;
 extern const wchar_t* SCENE_CHAT;
 
 extern const wchar_t* SCENE_MAIN_MESSAGES_TAB;
+extern const wchar_t* SCENE_MAIN_USERS_TAB;
 
 extern const wchar_t* SCENE_SETTINGS;
 

@@ -67,7 +67,7 @@ MMessageDao::GetMessageN(int mid) {
 	MMessage *pMessage = null;
 
 	sql.Append(L"SELECT "
-			"_id, mid, uid, from_id, date, out, read_state, text "
+			"_id, mid, uid, from_id, date, out, read_state, text, delivered "
 			"FROM messages "
 			"WHERE mid = ?");
 
@@ -103,7 +103,7 @@ MMessageDao::GetMessagesForUser(int userId, int lastMessageId) {
 	if (lastMessageId != -1) {
 		AppLogDebug("test");
 		sql.Append(L"SELECT "
-					"_id, mid, uid, from_id, date, out, read_state, text "
+					"_id, mid, uid, from_id, date, out, read_state, text, delivered "
 					"FROM messages "
 					"WHERE uid = ? AND mid < ?"
 					"ORDER BY date DESC LIMIT 20");
@@ -118,7 +118,7 @@ MMessageDao::GetMessagesForUser(int userId, int lastMessageId) {
 
 	} else {
 		sql.Append(L"SELECT "
-							"_id, mid, uid, from_id, date, out, read_state, text "
+							"_id, mid, uid, from_id, date, out, read_state, text, delivered "
 							"FROM messages "
 							"WHERE uid = ?"
 							"ORDER BY date DESC LIMIT 20");
@@ -165,7 +165,7 @@ MMessageDao::CreateSaveStatement() {
 
 	String statement;
 
-	statement.Append(L"INSERT OR REPLACE INTO messages (mid, uid, from_id, date, out, read_state, text) VALUES ( ?, ?, ?, ?, ?, ?, ?)");
+	statement.Append(L"INSERT OR REPLACE INTO messages (mid, uid, from_id, date, out, read_state, text, delivered) VALUES ( ?, ?, ?, ?, ?, ?, ?, ?)");
 	result r = E_SUCCESS;
 	compiledSaveStatment = MDatabaseManager::getInstance().GetDatabase()->CreateStatementN(statement);
 
@@ -188,7 +188,7 @@ MMessageDao::BindMessageToSQLStatement(MMessage *message, DbStatement *statement
 	statement->BindInt(4, message->GetOut());
 	statement->BindInt(5, message->GetReadState());
 	statement->BindString(6, message->GetText()->GetPointer());
-
+	statement->BindInt(7, message->GetDelivered());
 	return statement;
 }
 
@@ -203,6 +203,7 @@ MMessageDao::LoadMessageFromDBN(DbEnumerator* pEnum) {
 	int out;
 	int readState;
 	String *text = new String();
+	int delivered;
 
 	pEnum->GetIntAt(0, _id);
 	pEnum->GetIntAt(1, mid);
@@ -212,6 +213,7 @@ MMessageDao::LoadMessageFromDBN(DbEnumerator* pEnum) {
 	pEnum->GetIntAt(5, out);
 	pEnum->GetIntAt(6, readState);
 	pEnum->GetStringAt(7, *text);
+	pEnum->GetIntAt(8, delivered);
 
 	message->__id = _id;
 	message->SetMid(mid);
@@ -221,7 +223,136 @@ MMessageDao::LoadMessageFromDBN(DbEnumerator* pEnum) {
 	message->SetOut(out);
 	message->SetReadState(readState);
 	message->SetText(text);
+	message->SetDelivered(delivered);
 
 	return message;
 }
 
+void
+MMessageDao::SaveReaded(int messageId) {
+	String statement;
+
+	statement.Append(L"UPDATE messages SET read_state = ? WHERE mid = ?");
+
+	DbEnumerator* pEnum = null;
+	DbStatement* pStmt = null;
+
+	MDatabaseManager::getInstance().GetDatabase()->BeginTransaction();
+
+	pStmt = MDatabaseManager::getInstance().GetDatabase()->CreateStatementN(statement);
+
+	pStmt->BindInt(0, 1);
+	pStmt->BindInt(1, messageId);
+
+	pEnum = MDatabaseManager::getInstance().GetDatabase()->ExecuteStatementN(*pStmt);
+
+	AppAssert(!pEnum);
+
+	MDatabaseManager::getInstance().GetDatabase()->CommitTransaction();
+
+	delete pEnum;
+	delete pStmt;
+}
+
+void
+MMessageDao::markAsReaded(int userId, int chatId) {
+	String statement;
+
+	statement.Append(L"UPDATE messages SET read_state = ? WHERE uid = ? AND out = ?");
+
+	DbEnumerator* pEnum = null;
+	DbStatement* pStmt = null;
+
+	MDatabaseManager::getInstance().GetDatabase()->BeginTransaction();
+
+	pStmt = MDatabaseManager::getInstance().GetDatabase()->CreateStatementN(statement);
+
+	pStmt->BindInt(0, 1);
+	pStmt->BindInt(1, userId);
+	pStmt->BindInt(2, 0);
+
+	pEnum = MDatabaseManager::getInstance().GetDatabase()->ExecuteStatementN(*pStmt);
+
+	AppAssert(!pEnum);
+
+	MDatabaseManager::getInstance().GetDatabase()->CommitTransaction();
+
+	delete pEnum;
+	delete pStmt;
+}
+
+int
+MMessageDao::firstUnreadMessage(int userId, int chatId) {
+	DbEnumerator* pEnum = null;
+	String sql;
+	int id = -1;
+
+	result r;
+	DbStatement *compiledSaveStatment;
+
+	sql.Append(L"SELECT mid FROM messages "
+				"WHERE uid = ? AND read_state = ? AND out = ? "
+				"ORDER BY mid ASC LIMIT 1");
+
+	compiledSaveStatment = MDatabaseManager::getInstance().GetDatabase()->CreateStatementN(sql);
+	r = GetLastResult();
+	if (IsFailed(r)) {
+	   AppLog(GetErrorMessage(r));
+	}
+
+	compiledSaveStatment->BindInt(0, userId);
+	compiledSaveStatment->BindInt(1, 0);
+	compiledSaveStatment->BindInt(2, 0);
+
+	pEnum = MDatabaseManager::getInstance().GetDatabase()->ExecuteStatementN(*compiledSaveStatment);
+
+	if (!pEnum) {
+		return id;
+	}
+
+	while (pEnum->MoveNext() == E_SUCCESS)
+	{
+		pEnum->GetIntAt(0, id);
+	}
+
+	delete pEnum;
+
+	return id;
+}
+
+int
+MMessageDao::GetUnreadCount() {
+	DbEnumerator* pEnum = null;
+	String sql;
+	int count = 0;
+
+	result r;
+	DbStatement *compiledSaveStatment;
+
+	sql.Append(L"SELECT mid FROM messages "
+				"WHERE read_state = ? AND out = ? ");
+
+	compiledSaveStatment = MDatabaseManager::getInstance().GetDatabase()->CreateStatementN(sql);
+	r = GetLastResult();
+	if (IsFailed(r)) {
+	   AppLog(GetErrorMessage(r));
+	}
+
+	compiledSaveStatment->BindInt(0, 0);
+	compiledSaveStatment->BindInt(1, 0);
+
+	pEnum = MDatabaseManager::getInstance().GetDatabase()->ExecuteStatementN(*compiledSaveStatment);
+
+	if (!pEnum) {
+		return count;
+	}
+
+	while (pEnum->MoveNext() == E_SUCCESS)
+	{
+		count++;
+	}
+
+	delete pEnum;
+
+	return count;
+}

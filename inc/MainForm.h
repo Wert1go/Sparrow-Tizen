@@ -10,6 +10,9 @@
 
 #include <FUi.h>
 
+using namespace Tizen::Ui::Controls;
+using namespace Tizen::Base::Collection;
+
 class MainForm
  : public Tizen::Ui::Controls::Form
  , public Tizen::Ui::Controls::IFormBackEventListener
@@ -22,6 +25,11 @@ public:
 
 	virtual void OnFormBackRequested(Tizen::Ui::Controls::Form& source);
 	virtual void OnActionPerformed(const Tizen::Ui::Control& source, int actionId);
+	void UpdateUnreadCount();
+	virtual void OnUserEventReceivedN(RequestId requestId, Tizen::Base::Collection::IList* pArgs);
+
+private:
+	Header* __pHeader;
 };
 
 #endif /* MAINFORM_H_ */

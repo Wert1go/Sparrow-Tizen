@@ -24,29 +24,44 @@ RestResponse *UserDescriptor::performObjectMappingN(JsonObject* pObject) {
 	UserRestResponse *response = new UserRestResponse();
 
 	JsonString* pKeyResponse = new JsonString(L"response");
-	IJsonValue* pValResponseArray = null;
-	pObject->GetValue(pKeyResponse, pValResponseArray);
+	IJsonValue* pValResponseObject = null;
+	pObject->GetValue(pKeyResponse, pValResponseObject);
 
-	JsonArray *pArray = static_cast< JsonArray* >(pValResponseArray);
+	JsonObject *pResponseObject = static_cast< JsonObject* >(pValResponseObject);
 
-	if (pArray->GetCount() > 0) {
+	JsonString* pKeyUsers = new JsonString(L"items");
+	IJsonValue* pValUsersArray = null;
+
+	pResponseObject->GetValue(pKeyUsers, pValUsersArray);
+
+	JsonArray *pArray = static_cast< JsonArray* >(pValUsersArray);
+
+	LinkedList *users = new LinkedList();
+	AppLog("Begin mapping");
+
+	for (int index = 0; index < pArray->GetCount(); index++) {
 		IJsonValue* pUserObjectValue = null;
-		pArray->GetAt(0, pUserObjectValue);
+		pArray->GetAt(index, pUserObjectValue);
 
 		JsonObject* pUserObject = static_cast< JsonObject* >(pUserObjectValue);
 
-		AppLog("Begin mapping");
 		MUser *user = MUser::CreateFromJsonN(*pUserObject);
+//
+//		if (index == 0) {
+//			response->SetUser(user);
+//		}
 
-		AppLog("Begin Cache");
-		MUserDao::getInstance().Save(user);
-		AppLog("End Cache");
-		response->SetUser(user);
+		users->Add(user);
 
-		AppLog("OnTransactionReadyToRead1");
+		AppLogDebug("%S", user->GetMiniPhoto()->GetPointer());
 	}
+	response->SetUsers(users);
 
+	AppLog("Complite mapping %d", users->GetCount());
+//	MUserDao::getInstance().Save(users);
+	AppLog("Complite saving");
 	delete pKeyResponse;
+	delete pKeyUsers;
 
 	return response;
 }

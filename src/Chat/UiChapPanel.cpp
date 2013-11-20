@@ -12,7 +12,7 @@
 #include "UiChapPanel.h"
 #include "Resources.h"
 #include "ImageCache.h"
-#include "MUser.h"
+#include "MDialog.h"
 
 using namespace Tizen::App;
 using namespace Tizen::Base;
@@ -25,8 +25,9 @@ UiChapPanel::UiChapPanel() {
 	String filepath = App::GetInstance()->GetAppResourcePath() + L"Images/thumbnail_header.png";
 	this->__pRounder = image.DecodeN(filepath, BITMAP_PIXEL_FORMAT_ARGB8888);
 	__pOnlineIcon = Resources::getInstance().GetOnlineIndicator();
-	__pUser = null;
+	__pDialog = null;
 	__IsOinline = false;
+	__ChatIcon = null;
 }
 
 UiChapPanel::~UiChapPanel() {
@@ -49,7 +50,7 @@ UiChapPanel::OnImageLoadedN(Bitmap *result) {
 
 void
 UiChapPanel::OnErrorN(Error *error) {
-
+	__ChatIcon = null;
 }
 
 void
@@ -64,11 +65,11 @@ UiChapPanel::SetIsOnline(bool online) {
 }
 
 void
-UiChapPanel::SetUser(MUser *user) {
-	__pUser = user;
-	if (__pUser) {
-		__IsOinline = __pUser->GetIsOnline() == 1;
-		ImageCache::getInstance().LoadImageForTarget(__pUser->GetPhoto(), this);
+UiChapPanel::SetDialog(MDialog *dialog) {
+	__pDialog = dialog;
+	if (__pDialog) {
+		__IsOinline = __pDialog->GetIsOnline() == 1;
+		ImageCache::getInstance().LoadImageForTarget(__pDialog->GetPhoto(), this);
 	}
 	this->RequestRedraw();
 }
@@ -88,7 +89,7 @@ UiChapPanel::OnDraw() {
 
 		pCanvas->FillRectangle(Color(65, 97, 137, 255), rect);
 
-		if (__pUser) {
+		if (__pDialog) {
 
 			AppLogDebug("lolololo");
 			Bitmap *userAvatar = this->__ChatIcon;
@@ -114,9 +115,9 @@ UiChapPanel::OnDraw() {
 
 			pUsetNameText = new TextElement();
 			String *fullName = new String();
-			fullName->Append(this->__pUser->GetFirstName()->GetPointer());
+			fullName->Append(this->__pDialog->GetFirstName()->GetPointer());
 			fullName->Append(L" ");
-			fullName->Append(this->__pUser->GetLastName()->GetPointer());
+			fullName->Append(this->__pDialog->GetLastName()->GetPointer());
 
 			r = pUsetNameText->Construct(fullName->GetPointer());
 

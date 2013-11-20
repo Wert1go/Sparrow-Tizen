@@ -42,6 +42,12 @@ ImageCache::~ImageCache() {
 void
 ImageCache::LoadImageForTarget(String *url, IImageLoadingListener *target) {
 	//AppLogDebug("ImageCache::LoadImageForTarget");
+//	return;
+	if (url == null || url->GetPointer() == 0 || url->GetLength() < 10) {
+		return;
+	}
+
+	AppLogDebug("%S :: %d", url->GetPointer(), url->GetLength());
 
 	if (CheckExistingOperationForUrl(url)) {
 		//надо придумать, что делать при поптыке загрузить изображение до окончания 1-й попытки

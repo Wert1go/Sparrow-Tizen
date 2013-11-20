@@ -55,7 +55,7 @@ void ImageRequestOperation::perform() {
 	if (__pHttpTransaction != null) {
 		__pHttpTransaction->Submit();
 	} else {
-//		AppLogDebug("ImageRequestOperation::Ошибка при попытке выполнить HTTP запрос");
+		AppLogDebug("ImageRequestOperation::Ошибка при попытке выполнить HTTP запрос");
 	}
 }
 

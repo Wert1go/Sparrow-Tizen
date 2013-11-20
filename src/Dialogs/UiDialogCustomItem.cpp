@@ -16,6 +16,9 @@
 #include "UiImageView.h"
 #include "Util.h"
 #include "UiDialogListItem.h"
+#include "UiCustomItemBackground.h"
+#include "UiUserListItem.h"
+#include "MUser.h"
 
 #include "Resources.h"
 
@@ -28,17 +31,24 @@ using namespace Tizen::Ui::Controls;
 UiDialogCustomItem::UiDialogCustomItem() {
 	result r;
 
+	__index = 0;
+	__section = 0;
+
 	__pPlaceholder = Resources::getInstance().GetNormalRoundImageForm();
 	PlaceholderActive = Resources::getInstance().GetSelectedRoundImageForm();
-
+	__pDialog = null;
+	__pUser = null;
 	__pRefreshListener = null;
 	__pDialogIcon = null;
 	__pDialogListItem = null;
+	__pUserListItem = null;
+	__pDialogBG = null;
+	__pRefreshListener = null;
 }
 
 
 UiDialogCustomItem::~UiDialogCustomItem() {
-//	AppLog("UiDialogCustomItem::~UiDialogCustomItem");
+	AppLog("UiDialogCustomItem::~UiDialogCustomItem");
 	ImageCache::getInstance().CancelLoadingForTarget(this);
 	__pPlaceholder = null;
 	PlaceholderActive = null;
@@ -66,37 +76,36 @@ UiDialogCustomItem::GetDialog() {
 void
 UiDialogCustomItem::Init() {
 
-	Color *normalColor = new Color(0,0,0,0);
-	Color *normalUnreadColor = new Color(25,31,37,255);
-	Color *selectedColor = new Color(33,63,99,255);
-
-	if (this->__pDialog->GetReadState() == 0 && this->__pDialog->GetOut() == 0) {
-		this->SetBackgroundColor(LIST_ITEM_DRAWING_STATUS_NORMAL, *normalUnreadColor);
-	} else {
-		this->SetBackgroundColor(LIST_ITEM_DRAWING_STATUS_NORMAL, *normalColor);
-	}
-
-	this->SetBackgroundColor(LIST_ITEM_DRAWING_STATUS_PRESSED, *selectedColor);
-	this->SetBackgroundColor(LIST_ITEM_DRAWING_STATUS_HIGHLIGHTED, *selectedColor);
-	delete normalColor;
-	delete normalUnreadColor;
-	delete selectedColor;
-
 	Rectangle rect = Rectangle(0,0,__pDimension->width, __pDimension->height);
+
+	this->__pDialogBG = new UiCustomItemBackground();
+	this->__pDialogBG->SetDialog(this->__pDialog);
+
+	this->AddElement(rect, 45, *__pDialogBG);
 
 	__pImageView = new (std::nothrow) UiImageView();
 	__pImageView->__pBitmapImage = __pPlaceholder;
 
 	this->AddElement(rect, ID_USER_AVATAR, *__pImageView);
 
+	if (this->__pDialog) {
+		__pDialogListItem = new UiDialogListItem();
+		__pDialogListItem->SetDialog(this->__pDialog);
 
-	__pDialogListItem = new UiDialogListItem();
-	__pDialogListItem->SetDialog(this->__pDialog);
+		this->AddElement(rect, 23, *__pDialogListItem);
+		this->SetImageUrl(this->__pDialog->GetPhoto());
+	} else {
 
-	this->AddElement(rect, 23, *__pDialogListItem);
-	//
+		__pUserListItem = new UiUserListItem();
+		__pUserListItem->SetUser(this->__pUser);
 
-	this->SetImageUrl(this->__pDialog->GetPhoto());
+		this->AddElement(rect, 23, *__pUserListItem);
+
+		if (this->__pUser->GetPhoto()) {
+			AppLogDebug("test!!! %S", this->__pUser->GetPhoto()->GetPointer());
+			this->SetImageUrl(this->__pUser->GetPhoto());
+		}
+	}
 }
 
 void
@@ -116,21 +125,41 @@ UiDialogCustomItem::GetIndex() {
 }
 
 void
+UiDialogCustomItem::SetSection(int section) {
+	__section = section;
+}
+int
+UiDialogCustomItem::GetSection() {
+	return __section;
+}
+
+void
 UiDialogCustomItem::AddRefreshListener(IRefreshableListView *pRefreshListener) {
 	__pRefreshListener = pRefreshListener;
 }
 
 void
 UiDialogCustomItem::OnImageLoadedN(Bitmap *result) {
-
+	AppLogDebug("OnImageLoadedN!!!");
 	__pDialogIcon = result;
 
 	this->__pImageView->__pBitmapImage = __pDialogIcon;
-
-	__pRefreshListener->RequestUpdateForIndex(__index, ID_USER_AVATAR);
+	if (__pRefreshListener) {
+		__pRefreshListener->RequestUpdateForIndex(__index, ID_USER_AVATAR);
+	}
 }
 
 void
 UiDialogCustomItem::OnErrorN(Error *error) {
 
+}
+
+void
+UiDialogCustomItem::SetUser(MUser *pUser) {
+	__pUser = pUser;
+}
+
+MUser *
+UiDialogCustomItem::GetUser() {
+	return __pUser;
 }

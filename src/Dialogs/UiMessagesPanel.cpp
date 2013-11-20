@@ -23,6 +23,7 @@
 
 #include "UiUpdateConstants.h"
 #include "SceneRegister.h"
+#include "MainForm.h"
 
 using namespace Tizen::App;
 using namespace Tizen::Graphics;
@@ -111,6 +112,9 @@ UiMessagesPanel::OnSceneActivatedN(const Tizen::Ui::Scenes::SceneId& previousSce
 	SendRequest();
 
 	AppLogDebug("OnSceneActivatedN11");
+
+	Tizen::Ui::Controls::Frame* pFrame = Tizen::App::UiApp::GetInstance()->GetAppFrame()->GetFrame();
+	UpdateUnreadCount();
 }
 
 void
@@ -234,8 +238,11 @@ UiMessagesPanel::RequestUpdateForIndex(int index, int elementId) {
 void
 UiMessagesPanel::OnUserEventReceivedN(RequestId requestId, Tizen::Base::Collection::IList* pArgs) {
 
-	if (requestId == 111111 && pArgs->GetCount() > 0) {
+	if (requestId == 111111) {
+		AppAssert(pArgs->GetCount() > 0);
 		UpdateUnit *unit = static_cast<UpdateUnit *> (pArgs->GetAt(0));
+
+		AppLogDebug("%d :: %d", unit->__index, unit->__requestId);
 		__pListView->RefreshList(unit->__index, unit->__requestId);
 	} else if (requestId == 222222) {
 		__pListView->UpdateList();
@@ -258,8 +265,16 @@ UiMessagesPanel::OnUserEventReceivedN(RequestId requestId, Tizen::Base::Collecti
 	} else if (requestId == UPDATE_MESSAGE_ARRIVED) {
 		this->SetDialogsList(MDialogDao::getInstance().GetDialogsWithOffsetN(0));
 		this->__pListView->UpdateList();
-	}
+		UpdateUnreadCount();
+	} else if (requestId == UPDATE_READ_STATE) {
+		AppLogDebug("SOMEONE READ A MESSAGE!");
+		AppAssert(pArgs->GetCount() > 0);
+		Integer *msgId = static_cast<Integer*>(pArgs->GetAt(0));
 
+		this->SetReadStateWithMessageId(msgId->ToInt());
+		UpdateUnreadCount();
+		delete msgId;
+	}
 
 	delete pArgs;
 }
@@ -278,7 +293,28 @@ UiMessagesPanel::UpdateItemListWithUserId(int userId, int value) {
 	}
 
 	if (indexToUpdate >= 0) {
+		this->__pListView->RefreshList(indexToUpdate, 23);
+	}
+}
 
+void
+UiMessagesPanel::SetReadStateWithMessageId(int msgId) {
+	int indexToUpdate = -1;
+
+	for (int index = 0; index < this->GetDialogsList()->GetCount(); index++) {
+		MDialog *dialog = static_cast<MDialog*>(this->GetDialogsList()->GetAt(index));
+
+		AppLog("%d %d", dialog->GetIdentifier(), msgId);
+
+		if (dialog->GetIdentifier() == msgId) {
+			dialog->SetReadState(1);
+			indexToUpdate = index;
+			break;
+		}
+	}
+
+	if (indexToUpdate >= 0) {
+		this->__pListView->RefreshList(indexToUpdate, 45);
 		this->__pListView->RefreshList(indexToUpdate, 23);
 	}
 }
@@ -355,4 +391,10 @@ UiMessagesPanel::SendRequest() {
 		__pDialogRequestOperation->SetResponseDescriptor(new MDialogsDescriptor());
 		RestClient::getInstance().PerformOperation(__pDialogRequestOperation);
 	}
+}
+
+void
+UiMessagesPanel::UpdateUnreadCount() {
+	MainForm *form = static_cast<MainForm *>(this->GetParent());
+	form->UpdateUnreadCount();
 }

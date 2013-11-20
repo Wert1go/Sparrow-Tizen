@@ -203,7 +203,7 @@ MDialog::CreateFromJsonN(const Tizen::Web::Json::JsonObject &pUserObject, const 
 
 	JsonString *firstName = static_cast< JsonString* >(pValFirstName);
 	JsonString *lastName = static_cast< JsonString* >(pValLastName);
-	JsonNumber *uid = static_cast< JsonNumber* >(pValUserId);
+//	JsonNumber *uid = static_cast< JsonNumber* >(pValUserId);
 	JsonString *miniPhoto = static_cast< JsonString* >(pValMiniPhoto);
 	JsonString *photo = static_cast< JsonString* >(pValPhoto);
 	JsonNumber *isOnline = static_cast< JsonNumber* >(pValOnline);
@@ -234,7 +234,7 @@ MDialog::CreateFromJsonN(const Tizen::Web::Json::JsonObject &pUserObject, const 
 	String *pTitle = new String(title->GetPointer());
 	String *pText = new String(text->GetPointer());
 
-	dialog->SetIdentifier(muid->ToInt());
+	dialog->SetIdentifier(mid->ToInt());
 	dialog->SetUid(muid->ToInt());
 
 	dialog->SetFirstName(pFirstName);

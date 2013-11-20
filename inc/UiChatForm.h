@@ -110,12 +110,15 @@ public:
 	void ScrollToLastMessage();
 
 	void UpdateCurrentUserOnlineWithValue(int value);
+	void SetReadStateWithMessageId(int msgId);
+	void MarkUnread();
 
 private:
 	static const int ID_CONTEXT_ITEM_1 = 103;
 	static const int ID_CONTEXT_ITEM_2 = 104;
 
 	RestRequestOperation *__pMessagesRequestOperation;
+	RestRequestOperation *__pMarkAsReadRequestOperation;
 
 	LinkedList *__pMessages;
 	ListView *__pListView;

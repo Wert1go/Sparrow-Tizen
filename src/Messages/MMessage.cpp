@@ -31,7 +31,8 @@ MMessage::TableDescription() {
 			" date INTEGER,"
 			" out INTEGER,"
 			" read_state INTEGER,"
-			" text TEXT"
+			" text TEXT,"
+			" delivered INTEGER"
 			")");
 	return sql;
 }
@@ -61,6 +62,10 @@ MMessage::GetDate() {
 int
 MMessage::GetOut() {
 	return __out;
+}
+int
+MMessage::GetDelivered() {
+	return __delivered;
 }
 
 int
@@ -98,6 +103,11 @@ MMessage::SetDate(long date) {
 void
 MMessage::SetOut(int out) {
 	__out = out;
+}
+
+void
+MMessage::SetDelivered(int delivered) {
+	__delivered = delivered;
 }
 
 void
@@ -155,6 +165,11 @@ MMessage::CreateFromJsonN(const Tizen::Web::Json::JsonObject &pObject) {
 	message->SetUid(uid->ToInt());
 	message->SetDate(date->ToLong());
 	message->SetOut(out->ToInt());
+	if (out->ToInt() == 1) {
+		message->SetDelivered(1);
+	} else {
+		message->SetDelivered(0);
+	}
 	message->SetReadState(readState->ToInt());
 	message->SetText(pText);
 
@@ -207,6 +222,11 @@ MMessage::CreateFromJsonLPN(const Tizen::Web::Json::JsonObject &pObject) {
 	message->SetUid(uid->ToInt());
 	message->SetDate(date->ToLong());
 	message->SetOut(out->ToInt());
+	if (out->ToInt() == 1) {
+		message->SetDelivered(1);
+	} else {
+		message->SetDelivered(0);
+	}
 	message->SetReadState(readState->ToInt());
 	message->SetText(pText);
 
@@ -219,3 +239,5 @@ MMessage::CreateFromJsonLPN(const Tizen::Web::Json::JsonObject &pObject) {
 
 	return message;
 }
+
+

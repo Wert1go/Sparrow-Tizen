@@ -9,6 +9,8 @@
 
 #include "SceneRegister.h"
 #include "MMessageDescriptor.h"
+#include "RMessageSendDescriptor.h"
+#include "RMessageSendResponse.h"
 #include "RestClient.h"
 #include "AuthManager.h"
 #include "RMessagesResponse.h"
@@ -23,6 +25,7 @@
 #include "PostMan.h"
 #include "UiChapPanel.h"
 #include "MUserDao.h"
+#include "MDialogDao.h"
 #include "Util.h"
 
 using namespace Tizen::App;
@@ -45,6 +48,7 @@ UiChatForm::UiChatForm() {
 
 	SetFormBackEventListener(this);
 	__pMessagesRequestOperation = null;
+	__pMarkAsReadRequestOperation = null;
 	__pMessages = null;
 	__pListView = null;
 }
@@ -53,6 +57,11 @@ UiChatForm::~UiChatForm() {
 	if (__pMessagesRequestOperation) {
 		__pMessagesRequestOperation->AddEventListener(null);
 		__pMessagesRequestOperation = null;
+	}
+
+	if (__pMarkAsReadRequestOperation) {
+		__pMarkAsReadRequestOperation->AddEventListener(null);
+		__pMarkAsReadRequestOperation = null;
 	}
 }
 
@@ -150,8 +159,9 @@ UiChatForm::OnSceneActivatedN(const Tizen::Ui::Scenes::SceneId& previousSceneId,
 		this->ScrollToFirstMessage();
 		RequestMessagesForUser(param->ToInt());
 		if (this->__pChatPanel) {
-			this->__pChatPanel->SetUser(MUserDao::getInstance().GetUserN(__userId));
+			this->__pChatPanel->SetDialog(MDialogDao::getInstance().GetDialogN(__userId));
 		}
+		MarkUnread();
 	}
 
 }
@@ -291,14 +301,16 @@ UiChatForm::GetItemCount(void) {
 
 void
 UiChatForm::OnSuccessN(RestResponse *result) {
-	if(__pMessagesRequestOperation) {
-		__pMessagesRequestOperation->AddEventListener(null);
-		__pMessagesRequestOperation = null;
-	}
+
 
 	RMessagesResponse *response = static_cast<RMessagesResponse *>(result);
 
 	if (result->GetOperationCode() == GET_MESSAGES_HISTORY_BACKWARD) {
+		if(__pMessagesRequestOperation) {
+			__pMessagesRequestOperation->AddEventListener(null);
+			__pMessagesRequestOperation = null;
+		}
+
 		LinkedList *messages = new LinkedList();
 		if (response->GetMessages()->GetCount() > 0) {
 			//ВК возвращает 1 повторяющееся сообщение
@@ -308,6 +320,21 @@ UiChatForm::OnSuccessN(RestResponse *result) {
 		messages->AddItems(*this->GetMessages());
 
 		this->SetMessages(messages);
+	} else if (MARK_AS_READ == result->GetOperationCode()) {
+		if(this->__pMarkAsReadRequestOperation) {
+			__pMarkAsReadRequestOperation->AddEventListener(null);
+			__pMarkAsReadRequestOperation = null;
+		}
+
+		RMessageSendResponse *response = static_cast<RMessageSendResponse *>(result);
+		if (response->GetError()) {
+			AppLogDebug("FAILED MARK AS UNREAD");
+		} else {
+			if (response->__mid == 1) {
+				MMessageDao::getInstance().markAsReaded(__userId, 0);
+			}
+		}
+
 	} else {
 		this->SetMessages(MMessageDao::getInstance().GetMessagesForUser(this->__userId));
 	}
@@ -342,7 +369,7 @@ UiChatForm::OnUserEventReceivedN(RequestId requestId, Tizen::Base::Collection::I
 	} else if (requestId == GET_MESSAGES_HISTORY) {
 		this->__pListView->UpdateList();
 		this->ScrollToFirstMessage();
-	} else if (requestId == UPDATE_MESSAGE_ARRIVED || UPDATE_MESSAGE_DELIVERED) {
+	} else if (requestId == UPDATE_MESSAGE_ARRIVED || requestId == UPDATE_MESSAGE_DELIVERED) {
 		AppAssert(pArgs && pArgs->GetCount() == 2);
 		Integer *pUserId = static_cast<Integer *>(pArgs->GetAt(0));
 
@@ -357,6 +384,8 @@ UiChatForm::OnUserEventReceivedN(RequestId requestId, Tizen::Base::Collection::I
 				this->ScrollToFirstMessage();
 			}
 		}
+
+		this->MarkUnread();
 		delete pUserId;
 	} else if (requestId == UPDATE_USER_ONLINE) {
 
@@ -376,6 +405,12 @@ UiChatForm::OnUserEventReceivedN(RequestId requestId, Tizen::Base::Collection::I
 			this->UpdateCurrentUserOnlineWithValue(0);
 		}
 		delete userId;
+	} else if (requestId == UPDATE_READ_STATE) {
+		AppAssert(pArgs->GetCount() > 0);
+		Integer *msgId = static_cast<Integer*>(pArgs->GetAt(0));
+
+		this->SetReadStateWithMessageId(msgId->ToInt());
+		delete msgId;
 	}
 
 	delete pArgs;
@@ -385,6 +420,24 @@ void
 UiChatForm::UpdateCurrentUserOnlineWithValue(int value) {
 	if (this->__pChatPanel) {
 		this->__pChatPanel->SetIsOnline(value == 1);
+	}
+}
+
+void
+UiChatForm::SetReadStateWithMessageId(int msgId) {
+	int indexToUpdate = -1;
+	AppLogDebug("MMessage %d", msgId);
+	for (int index = 0; index < this->GetMessages()->GetCount(); index++) {
+		MMessage *message = static_cast<MMessage*>(this->GetMessages()->GetAt(index));
+		if (message->GetMid() == msgId) {
+			message->SetReadState(1);
+			indexToUpdate = index;
+			break;
+		}
+	}
+
+	if (indexToUpdate >= 0) {
+		this->__pListView->RefreshList(indexToUpdate, 23);
 	}
 }
 
@@ -564,6 +617,7 @@ UiChatForm::SendMessage() {
 	pMessage->SetText(messageText);
 	pMessage->SetOut(1);
 	pMessage->SetReadState(0);
+	pMessage->SetDelivered(0);
 
 	PostMan::getInstance().SendMessageFromUserWithListener(pMessage, __userId, this);
 
@@ -614,5 +668,32 @@ void
 UiChatForm::ScrollToFirstMessage() {
 	if (this->GetMessages() && this->GetMessages()->GetCount() > 0) {
 		this->__pListView->ScrollToItem(this->GetMessages()->GetCount() - 1);
+	}
+}
+
+void
+UiChatForm::MarkUnread() {
+	int id = MMessageDao::getInstance().firstUnreadMessage(__userId, 0);
+
+	if (id > 0) {
+		AppLogDebug("MarkUnread %d", id);
+
+		HashMap *params = new HashMap();
+		String uidString;
+		uidString.Format(25, L"%d", __userId);
+		String midString;
+		midString.Format(25, L"%d", id);
+
+		params->Construct();
+		params->Add(new String(L"user_id"), new String(uidString));
+		params->Add(new String(L"start_message_id"), new String(midString));
+		params->Add(new String(L"access_token"), AuthManager::getInstance().AccessToken());
+
+		if (!__pMarkAsReadRequestOperation) {
+			__pMarkAsReadRequestOperation = new RestRequestOperation(MARK_AS_READ, new String(L"messages.markAsRead"), params);
+			__pMarkAsReadRequestOperation->AddEventListener(this);
+			__pMarkAsReadRequestOperation->SetResponseDescriptor(new RMessageSendDescriptor());
+			RestClient::getInstance().PerformOperation(__pMarkAsReadRequestOperation);
+		}
 	}
 }

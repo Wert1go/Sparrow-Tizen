@@ -32,6 +32,7 @@ public:
 	Bitmap *GetNormalRoundImageForm();
 	Bitmap *GetNormalUnreadRoundImageForm();
 	Bitmap *GetSelectedRoundImageForm();
+	Bitmap *GetDeliveredIcon();
 
 	Bitmap *GetUserAvatar();
 
@@ -40,6 +41,7 @@ private:
 	Bitmap *__pNormalRoundImageForm;
 	Bitmap *__pNormalUnreadRoundImageForm;
 	Bitmap *__pSelectedRoundImageForm;
+	Bitmap *__pDeliveredIcon;
 
 	Bitmap *__pUserAvatar;
 

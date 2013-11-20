@@ -42,6 +42,8 @@ public:
 	void SendRequestToLongPollServer(IList *pArgs);
 	void SendRequestToLongPollServer(String *key, String *server, String *ts);
 
+	void Reconnect();
+
 	//сохранение TS
 	//получение TS
 
@@ -53,6 +55,10 @@ private:
 	RestRequestOperation *__pLongPollServerDataOperation;
 	RestRequestOperation *__pLongPollConnectionOperation;
 	bool __IsRunning;
+
+	String *__pKey;
+	String *__pTS;
+	String *__pServer;
 
 };
 

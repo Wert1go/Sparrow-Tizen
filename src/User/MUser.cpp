@@ -1,4 +1,4 @@
-/*
+	/*
  * User.cpp
  *
  *  Created on: Nov 5, 2013
@@ -134,14 +134,19 @@ MUser::CreateFromJsonN(const Tizen::Web::Json::JsonObject &pUserObject) {
 	JsonString *photo = static_cast< JsonString* >(pValPhoto);
 	JsonNumber *isOnline = static_cast< JsonNumber* >(pValOnline);
 
-	JsonObject *lastSeen = static_cast< JsonObject* >(pValLastSeen);
-	lastSeen->GetValue(pKeyTime, pValTime);
-	JsonNumber *time = static_cast< JsonNumber* >(pValTime);
+	JsonNumber *time = null;
+	if (pValLastSeen) {
+		JsonObject *lastSeen = static_cast< JsonObject* >(pValLastSeen);
+		lastSeen->GetValue(pKeyTime, pValTime);
+		time = static_cast< JsonNumber* >(pValTime);
+	}
 
 	String *pFirstName = new String(firstName->GetPointer());
 	String *pLastName = new String(lastName->GetPointer());
 	String *pMiniPhoto = new String(miniPhoto->GetPointer());
 	String *pPhoto = new String(photo->GetPointer());
+
+	AppLog("%d %S %S", uid, pMiniPhoto->GetPointer(), pPhoto->GetPointer());
 
 	user->SetFirstName(pFirstName);
 	user->SetLastName(pLastName);
@@ -149,7 +154,12 @@ MUser::CreateFromJsonN(const Tizen::Web::Json::JsonObject &pUserObject) {
 	user->SetPhoto(pPhoto);
 	user->SetUid(uid->ToInt());
 	user->SetIsOnline(isOnline->ToInt());
-	user->SetLastSeen(time->ToLong());
+
+	if (time) {
+		user->SetLastSeen(time->ToLong());
+	}
+
+	AppLog("+++ %d %S %S", uid, user->GetMiniPhoto()->GetPointer(), user->GetPhoto()->GetPointer());
 
 	delete pKeyFirstName;
 	delete pKeyLastName;

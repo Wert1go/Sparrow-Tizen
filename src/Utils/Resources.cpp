@@ -23,6 +23,11 @@ using namespace Tizen::Base;
 Resources::Resources() {
 	// TODO Auto-generated constructor stub
 	__pUserAvatar = null;
+	__pDeliveredIcon = null;
+	__pOnlineIndicator = null;
+	__pNormalRoundImageForm = null;
+	__pNormalUnreadRoundImageForm = null;
+	__pSelectedRoundImageForm = null;
 }
 
 Resources::~Resources() {
@@ -75,6 +80,18 @@ Resources::GetSelectedRoundImageForm() {
 	}
 
 	return __pSelectedRoundImageForm;
+}
+
+Bitmap *
+Resources::GetDeliveredIcon() {
+	if (!__pDeliveredIcon) {
+		Image image;
+		image.Construct();
+		String filepath = App::GetInstance()->GetAppResourcePath() + L"Images/check_on.png";
+		this->__pDeliveredIcon = image.DecodeN(filepath, BITMAP_PIXEL_FORMAT_ARGB8888);
+	}
+
+	return __pDeliveredIcon;
 }
 
 Bitmap *

@@ -26,6 +26,7 @@
 
 #include "UiMessagesPanel.h"
 #include "UiChatForm.h"
+#include "MainForm.h"
 #include "UiUpdateConstants.h"
 
 #include "MUserDao.h"
@@ -42,6 +43,9 @@ using namespace Tizen::Ui::Controls;
 LongPollConnection::LongPollConnection() {
 	__pLongPollServerDataOperation = null;
 	__pLongPollConnectionOperation = null;
+	this->__pKey = null;
+	this->__pServer = null;
+	this->__pTS = null;
 	__IsRunning = false;
 }
 
@@ -78,12 +82,25 @@ LongPollConnection::GetLongPollServerData() {
 }
 
 void
+LongPollConnection::Reconnect() {
+	if (this->__pKey && this->__pServer  && this->__pTS) {
+		this->SendRequestToLongPollServer(__pKey, __pServer, __pTS);
+	} else {
+		this->GetLongPollServerData();
+	}
+}
+
+void
 LongPollConnection::SendRequestToLongPollServer(IList *pArgs) {
 
 	AppAssert(pArgs->GetCount() == 3);
 	String *key = static_cast<String *>(pArgs->GetAt(0));
 	String *server = static_cast<String *>(pArgs->GetAt(1));
 	String *ts = static_cast<String *>(pArgs->GetAt(2));
+
+	this->__pKey = key;
+	this->__pServer = server;
+	this->__pTS = ts;
 
 	this->SendRequestToLongPollServer(key, server, ts);
 }
@@ -134,6 +151,16 @@ LongPollConnection::OnSuccessN(RestResponse *result) {
 
 		//*** test ***//
 
+		if (longPollResponse->GetError()) {
+			this->__pKey = null;
+			this->__pServer = null;
+			this->__pTS = null;
+			this->GetLongPollServerData();
+			return;
+		}
+
+		this->__pTS = longPollResponse->GetTS();
+
 		//{"ts":1709548768,"updates":[[9,-26033241,1],[8,-183384680,0]]}
 
 		LinkedList *testData = new LinkedList();
@@ -172,12 +199,43 @@ LongPollConnection::OnSuccessN(RestResponse *result) {
 				case LP_FLAG_ADD:
 
 						break;
-				case LP_FLAG_RESET:
+				case LP_FLAG_RESET: {
+					MMessageDao::getInstance().SaveReaded(pObject->__messageId);
+					MDialogDao::getInstance().SaveReaded(pObject->__messageId);
 
-//					UPDATE_READ_STATE
+					AppLogDebug("SOMEONE READ A MESSAGE! %d", pObject->__messageId);
+					UiChatForm* pChatForm = static_cast< UiChatForm* >(pFrame->GetControl("UiChatForm", true));
+					if (pChatForm) {
+						pArgs = new LinkedList();
+						pArgs->Add(new Integer(pObject->__messageId));
+						pChatForm->SendUserEvent(UPDATE_READ_STATE, pArgs);
+						Tizen::App::UiApp::GetInstance()->SendUserEvent(UPDATE_READ_STATE, 0);
+						pArgs = null;
+					}
+
+					UiMessagesPanel* pMessagePanel = static_cast< UiMessagesPanel* >(pFrame->GetControl("UiMessagesPanel", true));
+					if (pMessagePanel) {
+						pArgs = new LinkedList();
+						pArgs->Add(new Integer(pObject->__messageId));
+
+						pMessagePanel->SendUserEvent(UPDATE_READ_STATE, pArgs);
+						Tizen::App::UiApp::GetInstance()->SendUserEvent(UPDATE_READ_STATE, 0);
+						pArgs = null;
+					}
+
+					MainForm* pMainForm = static_cast< MainForm* >(pFrame->GetControl("MainForm", true));
+					if (pMainForm) {
+						pMainForm->SendUserEvent(UPDATE_READ_STATE, 0);
+						Tizen::App::UiApp::GetInstance()->SendUserEvent(UPDATE_READ_STATE, 0);
+					}
+
+
+				}
 
 						break;
 				case LP_MESSAGE_ADD_FULL: {
+					MUserDao::getInstance().UpdateUserOnlineStatusById(1, pObject->GetUserId());
+					MDialogDao::getInstance().UpdateDialogOnlineStatusById(1, pObject->GetUserId());
 
 					UiChatForm* pChatForm = static_cast< UiChatForm* >(pFrame->GetControl("UiChatForm", true));
 					if (pChatForm && PostMan::getInstance().ValidateIncomingMessage(pObject->GetMessage())) {
@@ -188,8 +246,7 @@ LongPollConnection::OnSuccessN(RestResponse *result) {
 						Tizen::App::UiApp::GetInstance()->SendUserEvent(UPDATE_MESSAGE_ARRIVED, 0);
 						pArgs = null;
 					}
-					//уведомить экран сообщений
-					//уведомить экран со списком диалогов
+
 					MMessageDao::getInstance().Save(pObject->GetMessage());
 					MUserDao::getInstance().Save(pObject->GetUsers());
 
@@ -201,6 +258,12 @@ LongPollConnection::OnSuccessN(RestResponse *result) {
 						pMessagePanel->SendUserEvent(UPDATE_MESSAGE_ARRIVED, 0);
 						Tizen::App::UiApp::GetInstance()->SendUserEvent(UPDATE_MESSAGE_ARRIVED, 0);
 						pArgs = null;
+					}
+
+					MainForm* pMainForm = static_cast< MainForm* >(pFrame->GetControl("MainForm", true));
+					if (pMainForm) {
+						pMainForm->SendUserEvent(UPDATE_READ_STATE, 0);
+						Tizen::App::UiApp::GetInstance()->SendUserEvent(UPDATE_READ_STATE, 0);
 					}
 				}
 						break;
@@ -217,8 +280,7 @@ LongPollConnection::OnSuccessN(RestResponse *result) {
 						pArgs = null;
 					}
 
-					MUserDao::getInstance().UpdateUserOnlineStatusById(1, pObject->GetUserId());
-					MDialogDao::getInstance().UpdateDialogOnlineStatusById(1, pObject->GetUserId());
+
 				}
 						break;
 				case LP_USER_OFFLINE: {

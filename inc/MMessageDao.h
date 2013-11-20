@@ -39,6 +39,11 @@ public:
 	DbStatement * BindMessageToSQLStatement(MMessage *dialog, DbStatement *statement);
 
 	MMessage * LoadMessageFromDBN(DbEnumerator* pEnum);
+
+	void SaveReaded(int messageId);
+	void markAsReaded(int userId, int chatId);
+	int firstUnreadMessage(int userId, int chatId);
+	int GetUnreadCount();
 };
 
 #endif /* MMESSAGEDAO_H_ */

@@ -19,6 +19,9 @@ static const long GET_MESSAGES_HISTORY_BACKWARD = 100999106;
 
 static const long SEND_MESSAGE = 100999107;
 
+static const long MARK_AS_READ = 100999108;
+static const long GET_FRIENDS = 100999109;
+
 #include <FNet.h>
 
 #include "IRestRequestListener.h"

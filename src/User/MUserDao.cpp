@@ -127,9 +127,6 @@ MUserDao::GetUsersByTypeN(int type) {
 
 DbStatement *
 MUserDao::BindUserToSQLStatement(MUser *user, DbStatement *statement) {
-	if (statement != null) {
-		AppLogDebug("Begin Bind1");
-	}
 
 	statement->BindInt(0, user->GetUid());
 	statement->BindString(1, user->GetLastName()->GetPointer());

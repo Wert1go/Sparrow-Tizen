@@ -134,11 +134,12 @@ SettingsForm::SendRequest() {
 		__userRequestOperation = new RestRequestOperation(GET_USER, new String(L"users.get"), params);
 		__userRequestOperation->AddEventListener(this);
 		__userRequestOperation->SetResponseDescriptor(new UserDescriptor());
-		RestClient::getInstance().PerformOperation(__userRequestOperation);
+		//RestClient::getInstance().PerformOperation(__userRequestOperation);
 	}
 }
 
-void SettingsForm::OnSuccessN(RestResponse *response) {
+void
+SettingsForm::OnSuccessN(RestResponse *response) {
 
 	if (response->GetOperationCode() == GET_USER) {
 

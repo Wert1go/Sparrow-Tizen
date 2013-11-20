@@ -11,9 +11,9 @@
 #include <FApp.h>
 #include <FBase.h>
 #include "SceneRegister.h"
+#include "MMessageDao.h"
 
-#include <stdio.h>
-#include "dispatch/dispatch.h"
+#include "UiUpdateConstants.h"
 
 using namespace Tizen::App;
 using namespace Tizen::Base;
@@ -32,6 +32,7 @@ using namespace Tizen::Media;
 MainForm::MainForm() {
 	Form::Construct(FORM_STYLE_HEADER);
 	SetFormBackEventListener(this);
+
 	this->SetName(L"MainForm");
 	Color *pFormBackgroundColor = new (std::nothrow) Color(0, 0, 0, 255);
 	this->SetBackgroundColor(*pFormBackgroundColor);
@@ -40,6 +41,7 @@ MainForm::MainForm() {
 	Color *pHeaderTextColor = new (std::nothrow) Color(255, 255, 255, 255);
 
 	Header* pHeader = this->GetHeader();
+	__pHeader = pHeader;
 	pHeader->SetStyle(HEADER_STYLE_TAB_LARGE);
 	pHeader->SetItemTextColor(HEADER_ITEM_STATUS_NORMAL, *pHeaderTextColor);
 	pHeader->SetItemTextColor(HEADER_ITEM_STATUS_SELECTED, *pHeaderTextColor);
@@ -65,6 +67,9 @@ MainForm::MainForm() {
 	headerMessageItem.Construct(ID_MESSAGES);
 	headerMessageItem.SetText("Сообщения");
 	headerMessageItem.SetIcon(HEADER_ITEM_STATUS_NORMAL, pMessagesIconBitmap);
+
+
+
 	pHeader->AddItem(headerMessageItem);
 
 	Image contactsIcon;
@@ -100,6 +105,14 @@ MainForm::MainForm() {
 	headerSettingsItem.SetIcon(HEADER_ITEM_STATUS_NORMAL, pSettingsIconBitmap);
 	pHeader->AddItem(headerSettingsItem);
 
+//	Image image;
+//	image.Construct();
+//	filepath = App::GetInstance()->GetAppResourcePath() + L"Images/tab_marker.png";
+//	Bitmap *badgeIcon = image.DecodeN(filepath, BITMAP_PIXEL_FORMAT_ARGB8888);
+//	pHeader->SetItemBadgeIcon(0, badgeIcon);
+
+
+
 	delete pMessagesIconBitmap;
 	delete pContactsIconBitmap;
 	delete pSearchIconBitmap;
@@ -131,7 +144,10 @@ MainForm::OnActionPerformed(const Tizen::Ui::Control& source, int actionId)
 					SCENE_HISTORY_OPTION_NO_HISTORY));
 		break;
 	case ID_CONTACTS:
-
+		pSceneManager = SceneManager::GetInstance();
+		AppAssert(pSceneManager);
+		pSceneManager->GoForward(ForwardSceneTransition(SCENE_MAIN_USERS_TAB, SCENE_TRANSITION_ANIMATION_TYPE_NONE,
+					SCENE_HISTORY_OPTION_NO_HISTORY));
 		break;
 	case ID_SEARCH:
 
@@ -142,4 +158,26 @@ MainForm::OnActionPerformed(const Tizen::Ui::Control& source, int actionId)
 		pSceneManager->GoForward(ForwardSceneTransition(SCENE_SETTINGS, SCENE_TRANSITION_ANIMATION_TYPE_LEFT));
 		break;
 	}
+}
+
+void
+MainForm::OnUserEventReceivedN(RequestId requestId, Tizen::Base::Collection::IList* pArgs) {
+	if (requestId == UPDATE_MESSAGE_ARRIVED || requestId == UPDATE_READ_STATE) {
+		AppLogDebug("!OnUserEventReceivedN");
+		UpdateUnreadCount();
+	}
+}
+
+void
+MainForm::UpdateUnreadCount() {
+
+	int count = MMessageDao::getInstance().GetUnreadCount();
+	AppLogDebug("!UpdateUnreadCount %d", count);
+	if (count > 0) {
+		__pHeader->SetItemNumberedBadgeIcon(0, 0);
+		__pHeader->SetItemNumberedBadgeIcon(0, count);
+	} else {
+		__pHeader->SetItemNumberedBadgeIcon(0, 0);
+	}
+
 }

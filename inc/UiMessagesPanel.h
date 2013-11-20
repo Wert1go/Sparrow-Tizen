@@ -59,6 +59,8 @@ private:
 	virtual void OnSuccessN(RestResponse *result);
 	virtual void OnErrorN(Error *error);
 	void UpdateItemListWithUserId(int userId, int value);
+	void SetReadStateWithMessageId(int msgId);
+	void UpdateUnreadCount();
 
 private:
 	static const int ID_CONTEXT_ITEM_1 = 103;

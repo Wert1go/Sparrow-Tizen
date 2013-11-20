@@ -36,7 +36,7 @@ MDialogDao::Save(MMessage *message, MUser *user) {
 	tempDialog->SetLastName(user->GetLastName());
 	tempDialog->SetPhoto(user->GetPhoto());
 	tempDialog->SetMiniPhoto(user->GetMiniPhoto());
-	tempDialog->SetIdentifier(message->GetUid());
+	tempDialog->SetIdentifier(message->GetMid());
 	tempDialog->SetOut(message->GetOut());
 	tempDialog->SetDate(message->GetDate());
 	tempDialog->SetTitle(new String(L""));
@@ -80,6 +80,32 @@ MDialogDao::Save(IList *dialogs) {
 	delete pDialogEnum;
 }
 
+void
+MDialogDao::SaveReaded(int messageId) {
+	String statement;
+
+	statement.Append(L"UPDATE dialogs SET read_state = ? WHERE identifier = ?");
+
+	DbEnumerator* pEnum = null;
+	DbStatement* pStmt = null;
+
+	MDatabaseManager::getInstance().GetDatabase()->BeginTransaction();
+
+	pStmt = MDatabaseManager::getInstance().GetDatabase()->CreateStatementN(statement);
+
+	pStmt->BindInt(0, 1);
+	pStmt->BindInt(1, messageId);
+
+	pEnum = MDatabaseManager::getInstance().GetDatabase()->ExecuteStatementN(*pStmt);
+
+	AppAssert(!pEnum);
+
+	MDatabaseManager::getInstance().GetDatabase()->CommitTransaction();
+
+	delete pEnum;
+	delete pStmt;
+}
+
 MDialog *
 MDialogDao::GetDialogN(int did) {
 	DbEnumerator* pEnum = null;
@@ -89,7 +115,7 @@ MDialogDao::GetDialogN(int did) {
 	sql.Append(L"SELECT "
 			"identifier, uid, last_name, first_name, photo, mini_photo, is_online, date, out, read_state, title, text "
 			"FROM dialogs "
-			"WHERE identifier = ?");
+			"WHERE uid = ?");
 
 	DbStatement *compiledSaveStatment = MDatabaseManager::getInstance().GetDatabase()->CreateStatementN(sql);
 	compiledSaveStatment->BindInt(0, did);

@@ -7,6 +7,10 @@
 
 #include "UserRestResponse.h"
 
+#include "MUser.h"
+
+using namespace Tizen::Base::Collection;
+
 UserRestResponse::UserRestResponse() {
 	// TODO Auto-generated constructor stub
 	__user = null;
@@ -22,4 +26,14 @@ void UserRestResponse::SetUser(MUser *user) {
 
 MUser* UserRestResponse::GetUser() {
 	return __user;
+}
+
+void
+UserRestResponse::SetUsers(LinkedList *users) {
+	__pUsers = users;
+}
+
+LinkedList *
+UserRestResponse::GetUsers() {
+	return __pUsers;
 }

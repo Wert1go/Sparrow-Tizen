@@ -11,6 +11,7 @@
 #include <FUi.h>
 
 extern const wchar_t* PANEL_DIALOGS;
+extern const wchar_t* PANEL_USERS;
 
 class PanelFactory
 	: public Tizen::Ui::Scenes::IPanelFactory

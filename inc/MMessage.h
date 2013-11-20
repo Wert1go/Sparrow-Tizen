@@ -31,6 +31,8 @@ private:
 	int __readState;
 	String *__text;
 
+	int __delivered;
+
 public:
 	long __date;
 
@@ -42,6 +44,7 @@ public:
 	int GetFromUid();
 	long GetDate();
 	int GetOut();
+	int GetDelivered();
 	int GetReadState();
 	String *GetText();
 
@@ -50,6 +53,7 @@ public:
 	void SetFromUid(int id);
 	void SetDate(long date);
 	void SetOut(int out);
+	void SetDelivered(int delivered);
 	void SetReadState(int state);
 	void SetText(String *text);
 

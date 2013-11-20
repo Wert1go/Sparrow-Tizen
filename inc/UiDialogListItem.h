@@ -10,10 +10,11 @@
 
 #include <FUi.h>
 #include <FGraphics.h>
-#include "MDialog.h"
 
 using namespace Tizen::Ui::Controls;
 using namespace Tizen::Graphics;
+
+class MDialog;
 
 class UiDialogListItem
 : public ICustomElement
@@ -26,8 +27,10 @@ public:
 
 	void SetDialog(MDialog *pDialog);
 	MDialog *GetDialog();
+
 private:
 	MDialog *__pDialog;
+
 };
 
 #endif /* UIDIALOGLISTITEM_H_ */

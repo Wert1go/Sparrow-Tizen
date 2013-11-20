@@ -8,6 +8,7 @@
 #include "UiChatListItem.h"
 #include "Util.h"
 #include "MMessage.h"
+#include "Resources.h"
 
 using namespace Tizen::Media;
 using namespace Tizen::Graphics;
@@ -28,6 +29,15 @@ UiChatListItem::~UiChatListItem() {
 bool
 UiChatListItem::OnDraw(Tizen::Graphics::Canvas& canvas, const Tizen::Graphics::Rectangle& rect, Tizen::Ui::Controls::ListItemDrawingStatus status) {
 
+	if (LIST_ITEM_DRAWING_STATUS_NORMAL == status) {
+		if (this->GetMessage()->GetReadState() == 0) {
+			canvas.FillRectangle(Color(26, 31, 37, 255), rect);
+		} else {
+			canvas.FillRectangle(Color(8, 8, 8, 255), rect);
+		}
+	} else {
+		canvas.FillRectangle(Color(20, 20, 20, 255), rect);
+	}
 
 	this->DrawBubble(canvas, rect, status);
 	this->DrawMessage(canvas, rect, status);
@@ -189,8 +199,10 @@ UiChatListItem::DrawMessage(Tizen::Graphics::Canvas& canvas, const Tizen::Graphi
 	}
 	pTimeLabel->Add(*pTImeText);
 
+	int actualLen;
 
-	FloatDimension timeSize = pTimeLabel->GetTextExtentF();
+	FloatDimension timeSize;
+	pTimeLabel->GetTextExtent(0, text->GetLength(), timeSize, actualLen);
 	pTimeLabel->SetSize(timeSize);
 
 	Point datePoint;
@@ -201,8 +213,19 @@ UiChatListItem::DrawMessage(Tizen::Graphics::Canvas& canvas, const Tizen::Graphi
 				height - 136/2 - timeSize.height/2);
 	} else {
 		datePoint = Point(
-				__sideOffset + resultSize.width,
+				__sideOffset + width + __offset,
 				height - 136/2 - timeSize.height/2);
+	}
+
+	if (this->GetMessage()->GetOut() == 1 && this->GetMessage()->GetDelivered() == 1 && this->GetMessage()->GetReadState() == 0) {
+		FloatRectangle delivered = FloatRectangle(
+				datePoint.x - timeSize.height - 5,
+				datePoint.y,
+				timeSize.height,
+				timeSize.height
+		);
+
+		canvas.DrawBitmap(delivered, *Resources::getInstance().GetDeliveredIcon());
 	}
 
 	//AppLogDebug("%d :: %d", datePoint.x, datePoint.y);

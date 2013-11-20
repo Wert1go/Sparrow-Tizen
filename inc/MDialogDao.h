@@ -37,6 +37,8 @@ public:
 	void Save(MDialog *dialog);
 	void Save(IList *dialogs);
 
+	void SaveReaded(int messageId);
+
 	MDialog *GetDialogN(int did);
 	LinkedList *GetDialogsWithOffsetN(int offset);
 

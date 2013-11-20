@@ -138,7 +138,7 @@ SparrowApp::OnUserEventReceivedN(RequestId requestId, Tizen::Base::Collection::I
 	if (requestId == LONGPOLL_GET_SERVER) {
 		LongPollConnection::getInstance().SendRequestToLongPollServer(pArgs);
 	} else if (requestId == LONGPOLL_CONNECTION) {
-		LongPollConnection::getInstance().GetLongPollServerData();
+		LongPollConnection::getInstance().Reconnect();
 	}
 
 	delete pArgs;

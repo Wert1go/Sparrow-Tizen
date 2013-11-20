@@ -16,6 +16,10 @@
 #include "MDialog.h"
 #include "UiDialogListItem.h"
 
+class UiCustomItemBackground;
+class MUser;
+class UiUserListItem;
+
 using namespace Tizen::Base;
 using namespace Tizen::Graphics;
 using namespace Tizen::Ui::Controls;
@@ -35,11 +39,17 @@ public:
 
 	void SetIndex(int index);
 	int GetIndex();
+	void SetSection(int section);
+	int GetSection();
+
 	void AddRefreshListener(IRefreshableListView *pRefreshListener);
 
 	void SetDimension(Dimension *pDimension);
 	void SetDialog(MDialog *dialog);
 	MDialog *GetDialog();
+
+	void SetUser(MUser *pUser);
+	MUser *GetUser();
 
 	static const int ID_USER_AVATAR = 104;
 	static const int ID_SECOND_USER_AVATAR = 109;
@@ -59,6 +69,7 @@ private:
 
 	UiImageView *__pImageView;
 	MDialog *__pDialog;
+	MUser *__pUser;
 
 	static const int ID_USER_AVATAR_MASK = 105;
 	static const int ID_USER_MESSAGE = 106;
@@ -66,8 +77,12 @@ private:
 	static const int ID_SECOND_USER_MESSAGE = 108;
 
 	int __index;
+	int __section;
+
 	IRefreshableListView *__pRefreshListener;
 	UiDialogListItem *__pDialogListItem;
+	UiUserListItem *__pUserListItem;
+	UiCustomItemBackground *__pDialogBG;
 };
 
 #endif /* UIDIALOGCUSTOMITEM_H_ */

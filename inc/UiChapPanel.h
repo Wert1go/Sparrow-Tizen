@@ -15,7 +15,7 @@ using namespace Tizen::Base;
 using namespace Tizen::Media;
 using namespace Tizen::Graphics;
 
-class MUser;
+class MDialog;
 class Error;
 
 class UiChapPanel
@@ -27,7 +27,7 @@ public:
 	virtual ~UiChapPanel();
 
 	void SetIsOnline(bool online);
-	void SetUser(MUser *user);
+	void SetDialog(MDialog *dialog);
 	bool Initialize(void);
 	//void SetChat();
 private:
@@ -39,7 +39,7 @@ private:
 private:
 	bool __IsOinline;
 
-	MUser *__pUser;
+	MDialog *__pDialog;
 
 	Bitmap *__pRounder;
 	Bitmap *__pOnlineIcon;
