@@ -28,10 +28,16 @@ public:
 	static MUser* CreateFromJsonN(const Tizen::Web::Json::JsonObject &jsonObject);
 	static MUser* CreateFromJsonLPN(const Tizen::Web::Json::JsonObject &jsonObject);
 	static String* TableDescription();
-
-private:
 	String *__firstName;
 	String *__lastName;
+
+	int __isFriend;
+	int __isContact;
+	int __isPending;
+
+private:
+
+
 	String *__phoneNumber;
 	String *__photo;
 	String *__miniPhoto;
@@ -40,6 +46,8 @@ private:
 	int __type;
 
 	int __isOnline;
+
+
 
 	int __sex;
 

@@ -8,12 +8,12 @@
 #ifndef IREFRESHABLELISTVIEW_H_
 #define IREFRESHABLELISTVIEW_H_
 
-
 class IRefreshableListView {
 public:
 	virtual ~IRefreshableListView(void){};
 
 	virtual void RequestUpdateForIndex(int index, int elementId) = 0;
+	virtual void RequestImageUpdateForIndex(int index, int section, int elementId) = 0;
 };
 
 

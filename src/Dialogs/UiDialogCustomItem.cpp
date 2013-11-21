@@ -32,7 +32,7 @@ UiDialogCustomItem::UiDialogCustomItem() {
 	result r;
 
 	__index = 0;
-	__section = 0;
+	__section = -1;
 
 	__pPlaceholder = Resources::getInstance().GetNormalRoundImageForm();
 	PlaceholderActive = Resources::getInstance().GetSelectedRoundImageForm();
@@ -145,7 +145,13 @@ UiDialogCustomItem::OnImageLoadedN(Bitmap *result) {
 
 	this->__pImageView->__pBitmapImage = __pDialogIcon;
 	if (__pRefreshListener) {
-		__pRefreshListener->RequestUpdateForIndex(__index, ID_USER_AVATAR);
+		if (__section != -1) {
+			__pRefreshListener->RequestImageUpdateForIndex(__index, __section, ID_USER_AVATAR);
+		} else {
+			__pRefreshListener->RequestUpdateForIndex(__index, ID_USER_AVATAR);
+		}
+
+
 	}
 }
 

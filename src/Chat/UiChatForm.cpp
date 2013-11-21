@@ -25,6 +25,7 @@
 #include "PostMan.h"
 #include "UiChapPanel.h"
 #include "MUserDao.h"
+#include "MUser.h"
 #include "MDialogDao.h"
 #include "Util.h"
 
@@ -142,9 +143,13 @@ UiChatForm::GetMessages() {
 
 void
 UiChatForm::OnFormBackRequested(Tizen::Ui::Controls::Form& source) {
+
+	AppLogDebug("+++++++++++++++++++++++++++++++++++++++++++");
+
 	SceneManager* pSceneManager = SceneManager::GetInstance();
 		AppAssert(pSceneManager);
 		pSceneManager->GoBackward(BackwardSceneTransition(SCENE_TRANSITION_ANIMATION_TYPE_RIGHT));
+		AppLogDebug("1111+++++++++++++++++++++++++++++++++++++++++++");
 }
 
 
@@ -159,6 +164,13 @@ UiChatForm::OnSceneActivatedN(const Tizen::Ui::Scenes::SceneId& previousSceneId,
 		this->ScrollToFirstMessage();
 		RequestMessagesForUser(param->ToInt());
 		if (this->__pChatPanel) {
+			MDialog *dialog = MDialogDao::getInstance().GetDialogN(__userId);
+
+			if (!dialog) {
+				MUser *user = MUserDao::getInstance().GetUserN(__userId);
+				dialog = MDialog::CreateFromUserN(user);
+			}
+
 			this->__pChatPanel->SetDialog(MDialogDao::getInstance().GetDialogN(__userId));
 		}
 		MarkUnread();

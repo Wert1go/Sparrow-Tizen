@@ -6,6 +6,7 @@
  */
 
 #include "MDialog.h"
+#include "MUser.h"
 
 using namespace Tizen::Base;
 using namespace Tizen::Web::Json;
@@ -267,3 +268,16 @@ MDialog::CreateFromJsonN(const Tizen::Web::Json::JsonObject &pUserObject, const 
 	return dialog;
 }
 
+
+MDialog *
+MDialog::CreateFromUserN(MUser *pUser) {
+	MDialog *dialog = new MDialog();
+	dialog->SetFirstName(pUser->GetFirstName());
+	dialog->SetLastName(pUser->GetLastName());
+	dialog->SetIsOnline(pUser->GetIsOnline());
+	dialog->SetMiniPhoto(pUser->GetMiniPhoto());
+	dialog->SetPhoto(pUser->GetPhoto());
+	dialog->SetUid(pUser->GetUid());
+
+	return dialog;
+}

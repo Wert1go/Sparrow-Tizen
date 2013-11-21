@@ -246,7 +246,7 @@ MUser::TableDescription() {
 
 	String *sql = new String();
 
-	sql->Append(L"CREATE TABLE IF NOT EXISTS users (_id INTEGER PRIMARY KEY, uid INTEGER UNIQUE, last_name TEXT, first_name TEXT, photo TEXT, mini_photo TEXT, is_online INTEGER, last_seen INTEGER )");
+	sql->Append(L"CREATE TABLE IF NOT EXISTS users (_id INTEGER PRIMARY KEY, uid INTEGER UNIQUE, last_name TEXT, first_name TEXT, photo TEXT, mini_photo TEXT, is_online INTEGER, last_seen INTEGER, is_friend  INTEGER, is_contact INTEGER, is_pending INTEGER)");
 
 	return sql;
 }

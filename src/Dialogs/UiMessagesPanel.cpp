@@ -75,7 +75,7 @@ UiMessagesPanel::OnInitializing(void)
 	__pListView->SetItemProvider(*this);
 	__pListView->AddListViewItemEventListener(*this);
 
-	Color *separatorColor = new (std::nothrow) Color(28, 28, 28, 255);
+	Color *separatorColor = new (std::nothrow) Color(48, 48, 48, 255);
 	__pListView->SetItemDividerColor(*separatorColor);
 	delete separatorColor;
 
@@ -107,7 +107,9 @@ UiMessagesPanel::OnSceneActivatedN(const Tizen::Ui::Scenes::SceneId& previousSce
 	AppLogDebug("OnSceneActivatedN");
 	this->SetDialogsList(MDialogDao::getInstance().GetDialogsWithOffsetN(0));
 	if (this->__pListView) {
+		AppLogDebug("OnSceneActivatedN++++++++");
 		this->__pListView->UpdateList();
+		AppLogDebug("OnSceneActivatedN!!!!!!!!!!!!!");
 	}
 	SendRequest();
 
@@ -120,12 +122,14 @@ UiMessagesPanel::OnSceneActivatedN(const Tizen::Ui::Scenes::SceneId& previousSce
 void
 UiMessagesPanel::OnSceneDeactivated(const Tizen::Ui::Scenes::SceneId& currentSceneId,
 									const Tizen::Ui::Scenes::SceneId& nextSceneId) {
+	AppLogDebug("------------------------------ OnSceneDeactivated");
+
 	if (__pDialogRequestOperation) {
 		__pDialogRequestOperation->AddEventListener(null);
 		__pDialogRequestOperation = null;
 
 	}
-	AppLogDebug("OnSceneDeactivated");
+
 }
 
 // IListViewItemEventListener implementation
@@ -135,8 +139,6 @@ UiMessagesPanel::OnListViewItemStateChanged(ListView &listView, int index, int e
 	if (status != LIST_ITEM_STATUS_SELECTED) {
 		return;
 	}
-
-	AppLogDebug("OnListViewItemStateChanged");
 
 	SceneManager* pSceneManager = SceneManager::GetInstance();
 	AppAssert(pSceneManager);
@@ -238,6 +240,7 @@ UiMessagesPanel::RequestUpdateForIndex(int index, int elementId) {
 void
 UiMessagesPanel::OnUserEventReceivedN(RequestId requestId, Tizen::Base::Collection::IList* pArgs) {
 
+	AppLogDebug("OnUserEventReceivedN");
 	if (requestId == 111111) {
 		AppAssert(pArgs->GetCount() > 0);
 		UpdateUnit *unit = static_cast<UpdateUnit *> (pArgs->GetAt(0));
@@ -397,4 +400,9 @@ void
 UiMessagesPanel::UpdateUnreadCount() {
 	MainForm *form = static_cast<MainForm *>(this->GetParent());
 	form->UpdateUnreadCount();
+}
+
+void
+UiMessagesPanel::RequestImageUpdateForIndex(int index, int section, int elementId) {
+
 }

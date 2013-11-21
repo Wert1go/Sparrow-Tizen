@@ -11,9 +11,14 @@
 #include "AuthManager.h"
 #include "RestRequestOperation.h"
 #include "RestClient.h"
-#include "UserDescriptor.h"
+#include "RFriendsDescriptor.h"
 #include "UserRestResponse.h"
 #include "UpdateUnit.h"
+#include "MUser.h"
+#include "MUserDao.h"
+#include "UsersComparer.h"
+#include "CustomGroupItem.h"
+#include "SceneRegister.h"
 
 #include "UiDialogCustomItem.h"
 
@@ -58,13 +63,49 @@ UiUsersPanel::OnInitializing(void) {
 	clientRect = pForm->GetClientAreaBounds();
 	SetBounds(Rectangle(0, 0, clientRect.width, clientRect.height));
 
+	__pSectionItemsList = new LinkedList();
+	__pSectionTitlesList = new LinkedList();
+
+	__pSearchBar = new SearchBar();
+	__pSearchBar->Construct(Rectangle(0, 0, clientRect.width, 100));
+	__pSearchBar->SetText(L"Поиск");
+	__pSearchBar->AddSearchBarEventListener(*this);
+	__pSearchBar->AddTextEventListener(*this);
+	__pSearchBar->SetSearchFieldColor(SEARCH_FIELD_STATUS_NORMAL, Color(0, 0, 0, 255));
+	__pSearchBar->SetSearchFieldColor(SEARCH_FIELD_STATUS_HIGHLIGHTED, Color(0, 0, 0, 255));
+	__pSearchBar->SetSearchFieldColor(SEARCH_FIELD_STATUS_DISABLED, Color(0, 0, 0, 255));
+	__pSearchBar->SetChromaKeyColor(Color(115, 120, 145, 255));
+	__pSearchBar->SetSearchFieldTextColor(SEARCH_FIELD_STATUS_NORMAL, Color(115, 120, 145, 255));
+	__pSearchBar->SetSearchFieldTextColor(SEARCH_FIELD_STATUS_HIGHLIGHTED, Color(115, 120, 145, 255));
+	__pSearchBar->SetSearchFieldTextColor(SEARCH_FIELD_STATUS_DISABLED, Color(115, 120, 145, 255));
+	__pSearchBar->SetColor(Color(23, 30, 38, 255));
+
+	__pSearchBar->SetButtonTextColor(SEARCH_BAR_BUTTON_STATUS_NORMAL, Color(115, 120, 145, 255));
+	__pSearchBar->SetButtonTextColor(SEARCH_BAR_BUTTON_STATUS_PRESSED, Color(115, 120, 145, 255));
+	__pSearchBar->SetButtonTextColor(SEARCH_BAR_BUTTON_STATUS_HIGHLIGHTED, Color(115, 120, 145, 255));
+	__pSearchBar->SetButtonTextColor(SEARCH_BAR_BUTTON_STATUS_DISABLED, Color(115, 120, 145, 255));
+
+	__pSearchBar->SetButtonColor(SEARCH_BAR_BUTTON_STATUS_NORMAL, Color(0, 0, 0, 255));
+	__pSearchBar->SetButtonColor(SEARCH_BAR_BUTTON_STATUS_PRESSED, Color(0, 0, 0, 255));
+	__pSearchBar->SetButtonColor(SEARCH_BAR_BUTTON_STATUS_HIGHLIGHTED, Color(0, 0, 0, 255));
+	__pSearchBar->SetButtonColor(SEARCH_BAR_BUTTON_STATUS_PRESSED, Color(0, 0, 0, 255));
+
+//	__pSearchBar->SetMode(SEARCH_BAR_MODE_NORMAL);
+//	__pSearchBar->SetModeLocked(true);
+
+	AddControl(__pSearchBar);
+
 	// Creates an instance of ListView
 	__pListView = new GroupedListView();
-	__pListView->Construct(Rectangle(0, 0, clientRect.width, clientRect.height), GROUPED_LIST_VIEW_STYLE_INDEXED, true, false);
+	__pListView->Construct(Rectangle(0, 110, clientRect.width, clientRect.height - 100 - 110), GROUPED_LIST_VIEW_STYLE_INDEXED, true, false);
 	__pListView->SetItemProvider(*this);
 	__pListView->AddGroupedListViewItemEventListener(*this);
 
-	Color *separatorColor = new (std::nothrow) Color(28, 28, 28, 255);
+	//__pSearchBar->SetContent(__pListView);
+
+	__pListView->SetFastScrollIndex(L"#0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZАБВГДЕЖЗИЙКЛМНОПРСТУФХЦЧШЩЭЮЯ", true);
+	__pListView->AddFastScrollListener(*this);
+	Color *separatorColor = new (std::nothrow) Color(48, 48, 48, 255);
 	__pListView->SetItemDividerColor(*separatorColor);
 	delete separatorColor;
 
@@ -88,6 +129,11 @@ UiUsersPanel::OnTerminating(void) {
 void
 UiUsersPanel::OnSceneActivatedN(const Tizen::Ui::Scenes::SceneId& previousSceneId,
 									   const Tizen::Ui::Scenes::SceneId& currentSceneId, Tizen::Base::Collection::IList* pArgs) {
+	this->__pUsersList = MUserDao::getInstance().GetFriendsN();
+	if (this->__pListView) {
+		this->__pListView->UpdateList();
+	}
+
 	RequestUsers();
 }
 
@@ -103,33 +149,28 @@ UiUsersPanel::OnSceneDeactivated(const Tizen::Ui::Scenes::SceneId& currentSceneI
 void
 UiUsersPanel::OnGroupedListViewItemStateChanged(GroupedListView &listView, int groupIndex, int itemIndex, int elementId, ListItemStatus state)
 {
-    switch (elementId)
-    {
-    case 1:
-        {
-            // ....
-        }
-        break;
+	if (state != LIST_ITEM_STATUS_SELECTED) {
+		return;
+	}
 
-        break;
-    default:
-        break;
-    }
+	SceneManager* pSceneManager = SceneManager::GetInstance();
+	AppAssert(pSceneManager);
+
+	ArrayList *paramsList = new (std::nothrow) ArrayList();
+	paramsList->Construct();
+
+	LinkedList *sectionItems = static_cast<LinkedList*>(__pSectionItemsList->GetAt(groupIndex));
+
+	MUser *user = static_cast<MUser *>(sectionItems->GetAt(itemIndex));
+
+	paramsList->Add(new Integer(user->GetUid()));
+	pSceneManager->GoForward(ForwardSceneTransition(SCENE_CHAT, SCENE_TRANSITION_ANIMATION_TYPE_LEFT), paramsList);
 }
 
 void
 UiUsersPanel::OnGroupedListViewContextItemStateChanged(GroupedListView &listView, int groupIndex, int itemIndex, int elementId, ListContextItemStatus state)
 {
-    switch (elementId)
-    {
-    case 1:
-        {
-            // ....
-        }
-        break;
-    default:
-        break;
-    }
+
 }
 
 // IGroupedListViewItemEventListener
@@ -142,50 +183,30 @@ UiUsersPanel::OnGroupedListViewItemSwept(GroupedListView &listView, int groupInd
 int
 UiUsersPanel::GetGroupCount(void)
 {
-    return 1;
+    return __pSectionItemsList->GetCount();
 }
 
 int
 UiUsersPanel::GetItemCount(int groupIndex)
 {
-    int itemCount = 0;
-//    switch (groupIndex)
-//    {
-//    case 0:
-//        {
-//            itemCount = 7;
-//        }
-//        break;
-//    case 1:
-//        {
-//            itemCount = 5;
-//        }
-//        break;
-//    case 2:
-//        {
-//            itemCount = 3;
-//        }
-//        break;
-//    default:
-//        break;
-//    }
-
-	if (this->__pUsersList) {
-		return __pUsersList->GetCount();
-	}
-
-    return itemCount;
+    LinkedList *sectionItems = static_cast<LinkedList*>(__pSectionItemsList->GetAt(groupIndex));
+    return sectionItems->GetCount();
 }
 
 // IGroupedListViewItemProvider
 GroupItem*
 UiUsersPanel::CreateGroupItem(int groupIndex, int itemWidth)
 {
-    String text("Group ");
-    text.Append(groupIndex+1);
-    GroupItem* pItem = new GroupItem();
+    String text("");
+
+    String *title = static_cast<String *>(this->__pSectionTitlesList->GetAt(groupIndex));
+    text.Append(title->GetPointer());
+    text.ToUpperCase();
+    CustomGroupItem* pItem = new CustomGroupItem();
     pItem->Construct(Dimension(itemWidth, 40));
     pItem->SetElement(text, null);
+    pItem->SetTextColor(Color(60, 110, 156, 255));
+    pItem->SetTextSize(32);
 
     return pItem;
 }
@@ -193,12 +214,10 @@ UiUsersPanel::CreateGroupItem(int groupIndex, int itemWidth)
 ListItemBase*
 UiUsersPanel::CreateItem(int groupIndex, int itemIndex, int itemWidth)
 {
-
 	AppLogDebug("%d :: %d", itemIndex, groupIndex);
     // Creates an instance of CustomItem
 	UiDialogCustomItem* pItem = new UiDialogCustomItem();
     ListAnnexStyle style = LIST_ANNEX_STYLE_NORMAL;
-
 
     int height = 136;
 
@@ -207,12 +226,10 @@ UiUsersPanel::CreateItem(int groupIndex, int itemIndex, int itemWidth)
 	pItem->SetDimension(new Dimension(itemWidth, height));
 	pItem->SetIndex(itemIndex);
 	pItem->SetSection(groupIndex);
-	AppLogDebug("111%d :: %d", itemIndex, groupIndex);
-	pItem->AddRefreshListener(this);
-	AppLogDebug("2222%d :: %d", itemIndex, groupIndex);
-	MUser *dialog = static_cast<MUser *>(this->__pUsersList->GetAt(itemIndex));
 
-	AppLog("%S", dialog->GetMiniPhoto()->GetPointer());
+	pItem->AddRefreshListener(this);
+	LinkedList *sectionItems = static_cast<LinkedList*>(__pSectionItemsList->GetAt(groupIndex));
+	MUser *dialog = static_cast<MUser *>(sectionItems->GetAt(itemIndex));
 
 	pItem->SetUser(dialog);
 
@@ -238,13 +255,14 @@ UiUsersPanel::DeleteGroupItem(int groupIndex, GroupItem* pItem, int itemWidth)
 }
 
 void
-UiUsersPanel::RequestUpdateForIndex(int index, int elementId) {
+UiUsersPanel::RequestImageUpdateForIndex(int index, int section, int elementId) {
 	ArrayList *list = new ArrayList();
 	list->Construct(1);
 
 	UpdateUnit *updateUnit = new UpdateUnit();
 
 	updateUnit->__index = index;
+	updateUnit->__section = section;
 	updateUnit->__requestId = elementId;
 
 	list->Add(updateUnit);
@@ -260,13 +278,12 @@ UiUsersPanel::RequestUsers() {
 
 	params->Add(new String(L"access_token"), AuthManager::getInstance().AccessToken());
 	params->Add(new String(L"fields"), new String(L"photo_50,photo_100,last_seen,online"));
-	params->Add(new String(L"hints"), new String(L"1"));
-	//params->Add(new String(L"count"), new String(L"100"));
-	AppLogDebug("test");
+	params->Add(new String(L"order"), new String(L"hints"));
+
 	if (!__pUserRequestOperation) {
 		__pUserRequestOperation = new RestRequestOperation(GET_FRIENDS, new String(L"friends.get"), params);
 		__pUserRequestOperation->AddEventListener(this);
-		__pUserRequestOperation->SetResponseDescriptor(new UserDescriptor());
+		__pUserRequestOperation->SetResponseDescriptor(new RFriendsDescriptor());
 		RestClient::getInstance().PerformOperation(__pUserRequestOperation);
 	}
 }
@@ -292,20 +309,16 @@ UiUsersPanel::OnSuccessN(RestResponse *response) {
 void
 UiUsersPanel::OnUserEventReceivedN(RequestId requestId, Tizen::Base::Collection::IList *pArgs) {
 
-
-
 	if (requestId == 111111) {
-		AppLog("OnUserEventReceivedN!!!!!11");
+
 		AppAssert(pArgs->GetCount() > 0);
 		UpdateUnit *unit = static_cast<UpdateUnit *> (pArgs->GetAt(0));
 
-		AppLogDebug("%d :: %d", unit->__index, unit->__requestId);
-
-
-		__pListView->RefreshList(0, unit->__index, unit->__requestId);
+		__pListView->RefreshList(unit->__section, unit->__index, unit->__requestId);
 	} else {
-
+		SplitUsersToSections();
 		try {
+
 			this->__pListView->UpdateList();
 		} catch (...) {
 
@@ -325,3 +338,147 @@ UiUsersPanel::OnErrorN(Error *error) {
 	delete error;
 }
 
+void
+UiUsersPanel::OnFastScrollIndexSelected(Tizen::Ui::Control& source, Tizen::Base::String& index) {
+	AppLog("OnFastScrollIndexSelected: %S", index.GetPointer());
+
+	for (int i = 0; i < this->__pSectionTitlesList->GetCount(); i ++) {
+		String *scrollIndex = static_cast<String *>(__pSectionTitlesList->GetAt(i));
+
+		if (scrollIndex->Equals(index.GetPointer(), false)) {
+			this->__pListView->ScrollToItem(i, 0);
+			break;
+		}
+	}
+}
+
+void
+UiUsersPanel::SplitUsersToSections() {
+	AppAssert(__pUsersList);
+	__pSectionItemsList->RemoveAll();
+	__pSectionTitlesList->RemoveAll();
+
+	__pSectionTitlesList->Add(new String(L"Важные"));
+
+	int importantCount = 5;
+
+	if (__pUsersList->GetCount() >= importantCount) {
+		LinkedList *users = new LinkedList();
+
+		for (int index = 0; index < importantCount; index ++) {
+			users->Add(__pUsersList->GetAt(index));
+		}
+		__pSectionItemsList->Add(users);
+
+		__pUsersList->RemoveItems(0, 5);
+	}
+	AppLog("SORT");
+	UsersComparer *comparer = new UsersComparer();
+	__pUsersList->Sort(*comparer);
+
+	String letters = L"#0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZАБВГДЕЖЗИЙКЛМНОПРСТУФХЦЧШЩЭЮЯ";
+	String fastScrollIndex("");
+
+	AppLog("BEGIN");
+
+	for (int index = 0; index < letters.GetLength(); index ++) {
+		wchar_t ltr;
+		letters.GetCharAt(index, ltr);
+		String letter = String(ltr);
+
+		bool begin = false;
+		int startIndex = -1;
+		int endIndex = -1;
+
+		LinkedList *listToAdd;
+
+		for(int userIndex = 0; userIndex < __pUsersList->GetCount(); userIndex++) {
+
+			MUser *user = static_cast<MUser *>(__pUsersList->GetAt(userIndex));
+			//AppLog("userIndex %d %S", userIndex, user->GetFirstName()->GetPointer());
+			wchar_t ltr;
+			user->GetFirstName()->GetCharAt(0, ltr);
+			String firstLetter(ltr);
+
+			if (letter.Equals(firstLetter, false)) {
+				//AppLog("compare:: %S == %S", firstLetter.GetPointer(), user->GetFirstName()->GetPointer());
+
+				if (begin) {
+					AppAssert(listToAdd);
+					listToAdd->Add(user);
+				} else {
+					begin = true;
+					LinkedList *users = new LinkedList();
+					users->Add(user);
+					listToAdd = users;
+					__pSectionItemsList->Add(users);
+					__pSectionTitlesList->Add(new String(letter));
+					startIndex = userIndex;
+					fastScrollIndex.Append(letter);
+				}
+			} else {
+				if (begin) {
+					listToAdd = null;
+					endIndex = userIndex;
+					break;
+				}
+			}
+
+		}
+
+		if (startIndex != -1 && endIndex != -1) {
+			//AppLog("%d :: %d", startIndex, endIndex);
+			__pUsersList->RemoveItems(startIndex, endIndex - startIndex + 1);
+		}
+	}
+
+	AppLog("END");
+
+	__pListView->SetFastScrollIndex(fastScrollIndex, true);
+
+	delete comparer;
+}
+
+void
+UiUsersPanel::OnTextValueChanged(const Tizen::Ui::Control& source) {
+
+	String string = this->__pSearchBar->GetText();
+
+	if (string.GetLength() == 0) {
+		AppLog("OnTextValueChanged!!!!!");
+		this->__pUsersList = MUserDao::getInstance().GetFriendsN();
+	} else {
+		AppLog("OnTextValueChanged %S", string.GetPointer());
+
+		this->__pUsersList = MUserDao::getInstance().SearchUsers(new String(string.GetPointer()));
+
+		AppLog("RESULTS %d", this->__pUsersList->GetCount());
+	}
+
+	SplitUsersToSections();
+	this->__pListView->UpdateList();
+}
+
+void
+UiUsersPanel::RequestUpdateForIndex(int index, int elementId) {
+
+}
+
+void
+UiUsersPanel::OnActionPerformed(const Tizen::Ui::Control& source, int actionId) {
+
+}
+
+void
+UiUsersPanel::SetCurrentDisplayMode(int mode) {
+	if (mode == 2) {
+		//do nothing
+	} else if (mode == 1) {
+		this->__pUsersList = MUserDao::getInstance().GetFriendsN(true);
+	} else {
+		this->__pUsersList = MUserDao::getInstance().GetFriendsN();
+	}
+
+	SplitUsersToSections();
+	this->__pListView->UpdateList();
+}

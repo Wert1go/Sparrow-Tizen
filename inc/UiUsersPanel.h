@@ -26,6 +26,11 @@ class UiUsersPanel
  , public IRefreshableListView
  , public IRestRequestListener
  , public Tizen::Ui::Scenes::ISceneEventListener
+ , public IFastScrollListener
+ , public Tizen::Ui::Controls::ISearchBarEventListener
+ , public Tizen::Ui::ITextEventListener
+ , public Tizen::Ui::IActionEventListener
+
 {
 public:
 	UiUsersPanel();
@@ -34,7 +39,7 @@ public:
 	bool Initialize(void);
 	virtual result OnInitializing(void);
 	virtual result OnTerminating(void);
-
+	void SetCurrentDisplayMode(int mode);
 private:
    // IGroupedListViewItemEventListener
 	virtual void OnGroupedListViewContextItemStateChanged(Tizen::Ui::Controls::GroupedListView &listView, int groupIndex, int itemIndex, int elementId, Tizen::Ui::Controls::ListContextItemStatus state);
@@ -58,17 +63,36 @@ private:
 	virtual void OnSuccessN(RestResponse *result);
 	virtual void OnErrorN(Error *error);
 
+	virtual void OnFastScrollIndexSelected(Tizen::Ui::Control& source, Tizen::Base::String& index);
+
 	virtual void OnUserEventReceivedN(RequestId requestId, Tizen::Base::Collection::IList* pArgs);
-	void RequestUpdateForIndex(int index, int elementId);
+	virtual void RequestImageUpdateForIndex(int index, int section, int elementId);
+	virtual void RequestUpdateForIndex(int index, int elementId);
+
+    // ISearchBarEventListener
+    virtual void OnSearchBarModeChanged(Tizen::Ui::Controls::SearchBar& source, Tizen::Ui::Controls::SearchBarMode mode){};
+    virtual void OnSearchBarContentAreaResized(Tizen::Ui::Controls::SearchBar& source, Tizen::Graphics::Dimension& size) {};
+    virtual void OnTextValueChanged(const Tizen::Ui::Control& source);
+    virtual void OnTextValueChangeCanceled(const Tizen::Ui::Control& source){};
+
+    virtual void OnActionPerformed(const Tizen::Ui::Control& source, int actionId);
+
+
 
 private:
 	Tizen::Ui::Controls::GroupedListView* __pListView;
 	Tizen::Ui::Controls::ListContextItem* __pItemContext;
 
 	LinkedList *__pUsersList;
+
+	LinkedList *__pSectionItemsList;
+	LinkedList *__pSectionTitlesList;
+
 	RestRequestOperation *__pUserRequestOperation;
+	SearchBar *__pSearchBar;
 
 	void RequestUsers();
+	void SplitUsersToSections();
 
 };
 

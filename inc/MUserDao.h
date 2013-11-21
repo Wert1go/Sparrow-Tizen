@@ -31,15 +31,23 @@ private:
 	void operator = (MUserDao const&);
 
 public:
-	void Save(MUser *user);
-	void Save(IList *users);
+	void Save(MUser *user, bool isFriend = false);
+	void Save(IList *users, bool isFriends = false);
 
 	MUser *GetCurrentUserN();
 	MUser *GetUserN(int uid);
 	LinkedList *GetUsersByTypeN(int type);
 
+	LinkedList *GetFriendsN(bool onlineOnly = false);
+	LinkedList *GetContactsN();
+	LinkedList *GetPendingUsersN();
+
+	LinkedList *SearchUsers(String *searchText);
+
 	DbStatement * CreateSaveStatment();
+	DbStatement * CreateSaveFriendsStatment();
 	DbStatement * BindUserToSQLStatement(MUser *user, DbStatement *statement);
+	DbStatement * BindFriendToSQLStatement(MUser *user, DbStatement *statement);
 
 	MUser * LoadUserFromDBN(DbEnumerator* pEnum);
 

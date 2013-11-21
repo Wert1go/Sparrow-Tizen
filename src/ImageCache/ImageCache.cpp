@@ -160,7 +160,7 @@ ImageCache::FinishOperationForUrl(String *url) {
 			delete operation;
 		}
 
-		delete url;
+		//delete url;
 	}
 
 	//AppLog("FinishOperationForUrl");

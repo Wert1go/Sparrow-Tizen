@@ -18,6 +18,7 @@ public:
 	virtual ~UpdateUnit();
 
 	int __index;
+	int __section;
 	int __requestId;
 };
 

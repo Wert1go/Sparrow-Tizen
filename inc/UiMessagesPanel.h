@@ -43,7 +43,7 @@ public:
 	virtual int GetItemCount(void);
 
 	virtual void RequestUpdateForIndex(int index, int elementId);
-
+	virtual void RequestImageUpdateForIndex(int index, int section, int elementId);
 	virtual void OnUserEventReceivedN(RequestId requestId, Tizen::Base::Collection::IList* pArgs);
 
 	//Scenes

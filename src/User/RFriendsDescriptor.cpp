@@ -1,25 +1,26 @@
 /*
- * UserDescriptor.cpp
+ * RFriendsDescriptor.cpp
  *
- *  Created on: Nov 7, 2013
+ *  Created on: Nov 21, 2013
  *      Author: developer
  */
 
-#include "UserDescriptor.h"
+#include "RFriendsDescriptor.h"
 
 #include "UserRestResponse.h"
 #include "MUserDao.h"
 
-UserDescriptor::UserDescriptor() {
+RFriendsDescriptor::RFriendsDescriptor() {
 	// TODO Auto-generated constructor stub
 
 }
 
-UserDescriptor::~UserDescriptor() {
+RFriendsDescriptor::~RFriendsDescriptor() {
 	// TODO Auto-generated destructor stub
 }
 
-RestResponse *UserDescriptor::performObjectMappingN(JsonObject* pObject) {
+RestResponse *
+RFriendsDescriptor::performObjectMappingN(JsonObject* pObject) {
 
 	UserRestResponse *response = new UserRestResponse();
 
@@ -46,16 +47,12 @@ RestResponse *UserDescriptor::performObjectMappingN(JsonObject* pObject) {
 		JsonObject* pUserObject = static_cast< JsonObject* >(pUserObjectValue);
 
 		MUser *user = MUser::CreateFromJsonN(*pUserObject);
-//
-		if (index == 0) {
-			response->SetUser(user);
-		}
-
+		user->__isFriend = 1;
 		users->Add(user);
 	}
 	response->SetUsers(users);
 
-	MUserDao::getInstance().Save(users);
+	MUserDao::getInstance().Save(users, true);
 
 	delete pKeyResponse;
 	delete pKeyUsers;

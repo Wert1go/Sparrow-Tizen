@@ -11,6 +11,8 @@
 #include <FBase.h>
 #include "Bean.h"
 
+class MUser;
+
 using namespace Tizen::Base;
 
 class MDialog
@@ -71,6 +73,7 @@ public:
 	void SetText(String *text);
 
 	static MDialog * CreateFromJsonN(const Tizen::Web::Json::JsonObject &pUserObject, const Tizen::Web::Json::JsonObject &pMessageObject);
+	static MDialog * CreateFromUserN(MUser *pUser);
 
 };
 
