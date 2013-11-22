@@ -17,6 +17,7 @@ using namespace Tizen::Ui::Controls;
 
 class UiChatListItem;
 class MMessage;
+class MDialog;
 
 class UiChatCustomItem
  : public CustomItem
@@ -31,6 +32,9 @@ public:
 	void SetMessage(MMessage *pMessage);
 	MMessage *GetMessage();
 
+	void SetDialog(MDialog *pDialog);
+	MDialog *GetDialog();
+
 private:
 	Dimension *__pDimension;
 	Dimension __pBubbleDimension;
@@ -39,6 +43,7 @@ private:
 
 	UiChatListItem* __pChatListItem;
 	MMessage *__pMessage;
+	MDialog *__pDialog;
 };
 
 #endif /* UICHATCUSTOMITEM_H_ */

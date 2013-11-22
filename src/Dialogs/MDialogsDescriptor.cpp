@@ -9,6 +9,8 @@
 #include "RDialogResponse.h"
 #include "MDialog.h"
 #include "MDialogDao.h"
+#include "MUser.h"
+#include "MUserDao.h"
 
 MDialogsDescriptor::MDialogsDescriptor() {
 	// TODO Auto-generated constructor stub
@@ -36,7 +38,7 @@ MDialogsDescriptor::performObjectMappingN(JsonObject* pObject) {
 
 	JsonObject *pResponseObject = static_cast< JsonObject* >(pValResponseObject);
 
-	JsonString* pKeyChatIds = new JsonString(L"chat_ids");
+	JsonString* pKeyChatIds = new JsonString(L"chat_uids");
 	JsonString* pKeyUsers = new JsonString(L"users");
 	JsonString* pKeyMessages = new JsonString(L"messages");
 
@@ -49,6 +51,9 @@ MDialogsDescriptor::performObjectMappingN(JsonObject* pObject) {
 	pResponseObject->GetValue(pKeyMessages, pValMessagesObject);
 
 	JsonArray *pChatIds = static_cast<JsonArray *> (pValChatIdsArray);
+	JsonString* pKeyChatId = new JsonString(L"chat_id");
+	JsonString* pKeyUids = new JsonString(L"uids");
+
 	JsonArray *pUsers = static_cast<JsonArray *> (pValUsersArray);
 	JsonObject *pMessages = static_cast<JsonObject *> (pValMessagesObject);
 
@@ -66,7 +71,7 @@ MDialogsDescriptor::performObjectMappingN(JsonObject* pObject) {
 
 	JsonString* pKeyMessageUserId = new JsonString(L"user_id");
 	JsonString* pKeyUserId = new JsonString(L"id");
-	AppLogDebug("1");
+
 	for (int index = 0; index < pMessagesArray->GetCount(); index++) {
 		IJsonValue* pMessageObjectValue = null;
 		pMessagesArray->GetAt(index, pMessageObjectValue);
@@ -102,9 +107,22 @@ MDialogsDescriptor::performObjectMappingN(JsonObject* pObject) {
 		pDialogs->Add(dialog);
 	}
 
-	response->SetDialogs(pDialogs);
+	LinkedList *users = new LinkedList();
+	for (int index = 0; index < pUsers->GetCount(); index++) {
+		IJsonValue* pUserObjectValue = null;
+		pUsers->GetAt(index, pUserObjectValue);
+
+		JsonObject* pUserObject = static_cast< JsonObject* >(pUserObjectValue);
+
+		MUser *user = MUser::CreateFromJsonN(*pUserObject);
+		users->Add(user);
+	}
+
+	MUserDao::getInstance().Save(users);
 
 	MDialogDao::getInstance().Save(pDialogs);
+
+	response->SetDialogs(pDialogs);
 
 	delete pKeyResponse;
 	delete pKeyChatIds;
@@ -114,6 +132,9 @@ MDialogsDescriptor::performObjectMappingN(JsonObject* pObject) {
 
 	delete pKeyUserId;
 	delete pKeyMessageUserId;
+
+	delete pKeyChatId;
+	delete pKeyUids;
 
 	return response;
 }

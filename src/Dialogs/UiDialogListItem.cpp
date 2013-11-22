@@ -57,8 +57,11 @@ UiDialogListItem::OnDraw (Tizen::Graphics::Canvas &canvas, const Tizen::Graphics
 		pRounder = Resources::getInstance().GetSelectedRoundImageForm();
 	}
 
-	canvas.DrawBitmap(Rectangle(80 - 108/2, rect.height/2 - 108/2, 108, 108), *pRounder);
-
+	if (this->GetDialog()->GetUid() > isChatValue) {
+		this->DrawRounders(canvas, rect, pRounder);
+	} else {
+		canvas.DrawBitmap(Rectangle(80 - 108/2, rect.height/2 - 108/2, 108, 108), *pRounder);
+	}
 	EnrichedText* pTimeLabel = null;
 	TextElement* pTImeText = null;
 
@@ -104,8 +107,13 @@ UiDialogListItem::OnDraw (Tizen::Graphics::Canvas &canvas, const Tizen::Graphics
 	EnrichedText* pUserName = null;
 	TextElement* pUsetNameText = null;
 
+	float leftOffset = 0;
+	if (this->GetDialog()->GetUid() > isChatValue) {
+		leftOffset = 50;
+	}
+
 	pUserName = new EnrichedText();
-	r = pUserName->Construct(Dimension(rect.width - baseListItemOffset - rightOffset - timeSize.width, 60));
+	r = pUserName->Construct(Dimension(rect.width - baseListItemOffset - rightOffset - timeSize.width - leftOffset, 60));
 
 	pUserName->SetHorizontalAlignment(TEXT_ALIGNMENT_LEFT);
 	pUserName->SetVerticalAlignment(TEXT_ALIGNMENT_BOTTOM);
@@ -113,12 +121,19 @@ UiDialogListItem::OnDraw (Tizen::Graphics::Canvas &canvas, const Tizen::Graphics
 	pUserName->SetTextAbbreviationEnabled(true);
 
 	pUsetNameText = new TextElement();
-	String *fullName = new String();
-	fullName->Append(this->GetDialog()->GetFirstName()->GetPointer());
-	fullName->Append(L" ");
-	fullName->Append(this->GetDialog()->GetLastName()->GetPointer());
 
-	r = pUsetNameText->Construct(fullName->GetPointer());
+	String *titleText;
+	if (this->GetDialog()->GetUid() < isChatValue) {
+		String *fullName = new String();
+		fullName->Append(this->GetDialog()->GetFirstName()->GetPointer());
+		fullName->Append(L" ");
+		fullName->Append(this->GetDialog()->GetLastName()->GetPointer());
+		titleText = fullName;
+	} else {
+		titleText = this->GetDialog()->GetTitle();
+	}
+
+	r = pUsetNameText->Construct(titleText->GetPointer());
 
 	Color *userNameColor = new Color(250, 250, 250, 255);
 	pUsetNameText->SetTextColor(*userNameColor);
@@ -132,7 +147,7 @@ UiDialogListItem::OnDraw (Tizen::Graphics::Canvas &canvas, const Tizen::Graphics
 
 	FloatDimension size;
 	int actualLength;
-	pUserName->GetTextExtent(0, fullName->GetLength(), size, actualLength);
+	pUserName->GetTextExtent(0, titleText->GetLength(), size, actualLength);
 
 	if (size.height > 68) {
 		size.height = 41;
@@ -142,10 +157,24 @@ UiDialogListItem::OnDraw (Tizen::Graphics::Canvas &canvas, const Tizen::Graphics
 
 	float textPosition =  (float)halfHeight/2 -  (float)size.height/2;
 
-	canvas.DrawText(FloatPoint(baseListItemOffset, textPosition + shift), *pUserName);
+	float titleOffset = baseListItemOffset;
+	if (this->GetDialog()->GetUid() > isChatValue) {
+		titleOffset += leftOffset;
+	}
+
+	canvas.DrawText(FloatPoint(titleOffset, textPosition + shift), *pUserName);
 
 /*********************** CHAT ICON ****************************/
 
+	if (this->GetDialog()->GetUid() > isChatValue) {
+		canvas.DrawBitmap(
+				Rectangle(
+						baseListItemOffset,
+						textPosition + shift + size.height - onlineStatusSize,
+						onlineStatusSize,
+						onlineStatusSize),
+				*Resources::getInstance().GetGroupNormalIcon());
+	}
 
 /*********************** USER ICON ****************************/
 
@@ -155,7 +184,9 @@ UiDialogListItem::OnDraw (Tizen::Graphics::Canvas &canvas, const Tizen::Graphics
 
 	if (this->GetDialog()->GetIsOnline() == 1) {
 		float offlinePosition = (float)(textPosition + (float)size.height/2) - onlineStatusSize/2;
-		canvas.DrawBitmap(Rectangle(baseListItemOffset + size.width, offlinePosition, onlineStatusSize, onlineStatusSize), *Resources::getInstance().GetOnlineIndicator());
+		canvas.DrawBitmap(
+				Rectangle(titleOffset + size.width, offlinePosition, onlineStatusSize, onlineStatusSize),
+				*Resources::getInstance().GetOnlineIndicator());
 	}
 
 /*********************** DIALOG TEXT ************************/
@@ -252,6 +283,72 @@ UiDialogListItem::OnDraw (Tizen::Graphics::Canvas &canvas, const Tizen::Graphics
 	canvas.DrawText(FloatPoint(xOffset, yTextPosition - 5), *pDialogLabel);
 
 	return true;
+}
+
+void
+UiDialogListItem::DrawRounders(Tizen::Graphics::Canvas &canvas, const Tizen::Graphics::Rectangle &rect, Bitmap *bitmap) {
+	if (this->__pDialog->GetUsers() && this->__pDialog->GetUsers()->GetCount() > 0) {
+
+		int userCount = this->__pDialog->GetUsers()->GetCount();
+
+		for (int index = 0; index < userCount; index ++) {
+			Rectangle imageRect = Rectangle(0,0,0,0);
+
+			float itemSize = 55;
+			float centerX = 80;
+			float centerY = rect.height/2;
+			if (userCount == 4) {
+
+				switch(index) {
+				case 0:
+					imageRect = Rectangle(centerX - itemSize, centerY - itemSize, itemSize, itemSize);
+					break;
+				case 1:
+					imageRect = Rectangle(centerX, centerY - itemSize, itemSize, itemSize);
+					break;
+				case 2:
+					imageRect = Rectangle(centerX - itemSize, centerY, itemSize, itemSize);
+					break;
+				case 3:
+					imageRect = Rectangle(centerX, centerY, itemSize, itemSize);
+					break;
+				default:
+					break;
+				}
+
+
+			} else if (userCount == 3) {
+				switch(index) {
+				case 0:
+					imageRect = Rectangle(centerX - itemSize, centerY - itemSize, itemSize, itemSize);
+					break;
+				case 1:
+					imageRect = Rectangle(centerX, centerY - itemSize, itemSize, itemSize);
+					break;
+				case 2:
+					imageRect = Rectangle(centerX - itemSize/2, centerY, itemSize, itemSize);
+					break;
+				default:
+					break;
+				}
+
+			} else if (userCount == 2) {
+				switch(index) {
+				case 0:
+					imageRect = Rectangle(centerX - itemSize, centerY - itemSize/2, itemSize, itemSize);
+					break;
+				case 1:
+					imageRect = Rectangle(centerX, centerY - itemSize/2, itemSize, itemSize);
+					break;
+
+				default:
+					break;
+				}
+			}
+
+			canvas.DrawBitmap(imageRect, *bitmap);
+		}
+	}
 }
 
 void

@@ -71,7 +71,7 @@ AuthWebForm::RequestAuthUrl() {
 	query.Append(VK_SCOPE);
 	query.Append(L"&redirect_uri=");
 	query.Append(VK_CALLBACK);
-	query.Append(L"&display=mobile&v=5.2&response_type=token&revoke=1");
+	query.Append(L"&display=mobile&v=5.2&response_type=token");
 
 	Uri uri;
 	uri.SetUri(VK_AUTH_URL);

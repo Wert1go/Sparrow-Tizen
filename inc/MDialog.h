@@ -13,7 +13,10 @@
 
 class MUser;
 
+extern const int isChatValue;
+
 using namespace Tizen::Base;
+using namespace Tizen::Base::Collection;
 
 class MDialog
  : public Bean {
@@ -40,6 +43,11 @@ private:
 	String *__title;
 	String *__text;
 
+	int __chatId;
+	String *chatUids;
+
+	LinkedList *__pUsers;
+
 public:
 	//Getters
 	String * GetFirstName();
@@ -56,8 +64,13 @@ public:
 	String *GetTitle();
 	String *GetText();
 
-	//Setters
+	int GetChatId();
+	String *GetChatUids();
+	ArrayList * GetChatUidsArray();
 
+	//Setters
+	LinkedList *GetUsers();
+	void SetUsers(LinkedList *list);
 	void SetFirstName(String *firstName);
 	void SetLastName(String *lastName);
 	void SetPhoto(String *photo);
@@ -72,7 +85,14 @@ public:
 	void SetTitle(String *title);
 	void SetText(String *text);
 
-	static MDialog * CreateFromJsonN(const Tizen::Web::Json::JsonObject &pUserObject, const Tizen::Web::Json::JsonObject &pMessageObject);
+	void SetChatId(int id);
+	void SetChatUids(String *uids);
+	//void SetChatUids(int[] uids);
+
+	static MDialog * CreateFromJsonN(
+			const Tizen::Web::Json::JsonObject &pUserObject,
+			const Tizen::Web::Json::JsonObject &pMessageObject);
+
 	static MDialog * CreateFromUserN(MUser *pUser);
 
 };

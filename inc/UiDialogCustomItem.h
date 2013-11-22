@@ -21,6 +21,7 @@ class MUser;
 class UiUserListItem;
 
 using namespace Tizen::Base;
+using namespace Tizen::Base::Collection;
 using namespace Tizen::Graphics;
 using namespace Tizen::Ui::Controls;
 
@@ -35,7 +36,7 @@ public:
 	//virtual bool OnDraw (Tizen::Graphics::Canvas &canvas, const Tizen::Graphics::Rectangle &rect, Tizen::Ui::Controls::ListItemDrawingStatus status);
 
 	void Init();
-	void SetImageUrl(String *url);
+	void SetImageUrl(String *url, int code);
 
 	void SetIndex(int index);
 	int GetIndex();
@@ -55,7 +56,7 @@ public:
 	static const int ID_SECOND_USER_AVATAR = 109;
 
 private:
-	virtual void OnImageLoadedN(Bitmap *result);
+	virtual void OnImageLoadedN(Bitmap *result, Integer *code);
 	virtual void OnErrorN(Error *error);
 
 private:
@@ -67,7 +68,8 @@ private:
 
 	Dimension *__pDimension;
 
-	UiImageView *__pImageView;
+	LinkedList *__pImageViews;
+
 	MDialog *__pDialog;
 	MUser *__pUser;
 

@@ -24,6 +24,7 @@ using namespace Tizen::Base::Collection;
 
 class MMessage;
 class UiChapPanel;
+class MDialog;
 
 class UiChatForm
  : public Tizen::Ui::Controls::Form
@@ -134,6 +135,7 @@ private:
 	int __chatId;
 
 	int __lastMessageId;
+	MDialog *__pDialog;
 
 };
 

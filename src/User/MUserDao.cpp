@@ -184,6 +184,44 @@ MUserDao::GetFriendsN(bool onlineOnly) {
 	return pUsers;
 }
 
+
+LinkedList *
+MUserDao::GetUsersN(String * uids) {
+	DbEnumerator* pEnum = null;
+	String sql;
+	LinkedList *pUsers = new LinkedList();
+
+	if (!uids) {
+		return pUsers;
+	}
+
+	MUser *pUser = null;
+
+	sql.Append(L"SELECT uid, last_name, first_name, photo, mini_photo, is_online, last_seen, is_friend, is_contact, is_pending FROM users WHERE uid IN ");
+	sql.Append(L"(");
+	sql.Append(uids->GetPointer());
+	sql.Append(L")");
+
+	DbStatement *compiledSaveStatment = MDatabaseManager::getInstance().GetDatabase()->CreateStatementN(sql);
+
+	pEnum = MDatabaseManager::getInstance().GetDatabase()->ExecuteStatementN(*compiledSaveStatment);
+
+	if (!pEnum) {
+		return pUsers;
+	}
+
+	while (pEnum->MoveNext() == E_SUCCESS)
+	{
+		pUser = LoadUserFromDBN(pEnum);
+		pUsers->Add(pUser);
+	}
+
+	delete compiledSaveStatment;
+	delete pEnum;
+
+	return pUsers;
+}
+
 LinkedList *
 MUserDao::SearchUsers(String *searchText) {
 	DbEnumerator* pEnum = null;

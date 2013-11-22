@@ -11,9 +11,12 @@
 using namespace Tizen::Base;
 using namespace Tizen::Web::Json;
 
-MDialog::MDialog() {
-	// TODO Auto-generated constructor stub
+const int isChatValue = 2000000000;
 
+MDialog::MDialog() {
+	__pUsers = null;
+	chatUids = null;
+	__chatId = 0;
 }
 
 MDialog::~MDialog() {
@@ -23,7 +26,7 @@ MDialog::~MDialog() {
 String*
 MDialog::TableDescription() {
 	String *sql = new String();
-	sql->Append(L"CREATE TABLE IF NOT EXISTS dialogs (_id INTEGER PRIMARY KEY, identifier INTEGER, uid INTEGER UNIQUE, last_name TEXT, first_name TEXT, photo TEXT, mini_photo TEXT, is_online INTEGER, date INTEGER, out INTEGER, read_state INTEGER, title TEXT, text TEXT)");
+	sql->Append(L"CREATE TABLE IF NOT EXISTS dialogs (_id INTEGER PRIMARY KEY, identifier INTEGER, uid INTEGER UNIQUE, last_name TEXT, first_name TEXT, photo TEXT, mini_photo TEXT, is_online INTEGER, date INTEGER, out INTEGER, read_state INTEGER, title TEXT, text TEXT, chat_id INTEGER, chat_uids TEXT)");
 	return sql;
 }
 
@@ -89,7 +92,33 @@ MDialog::GetText() {
 	return __text;
 }
 
+int
+MDialog::GetChatId() {
+	return __chatId;
+}
+
+String *
+MDialog::GetChatUids() {
+	return chatUids;
+}
+
+ArrayList*
+MDialog::GetChatUidsArray() {
+	return new ArrayList();
+}
+
+LinkedList *
+MDialog::GetUsers() {
+	return __pUsers;
+}
+
 /***************** SETTERS ******************/
+
+
+void
+MDialog::SetUsers(LinkedList *list) {
+	__pUsers = list;
+}
 
 void
 MDialog::SetFirstName(String *firstName) {
@@ -151,12 +180,23 @@ MDialog::SetText(String *text) {
 	__text = text;
 }
 
+void
+MDialog::SetChatId(int id) {
+	__chatId = id;
+}
 
+void
+MDialog::SetChatUids(String *uids) {
+	chatUids = uids;
+}
 
 /***************** SETTERS ******************/
 
 MDialog *
-MDialog::CreateFromJsonN(const Tizen::Web::Json::JsonObject &pUserObject, const Tizen::Web::Json::JsonObject &pMessageObject) {
+MDialog::CreateFromJsonN(
+		const Tizen::Web::Json::JsonObject &pUserObject,
+		const Tizen::Web::Json::JsonObject &pMessageObject)
+{
 	MDialog *dialog = new (std::nothrow) MDialog();
 
 	//common
@@ -177,6 +217,11 @@ MDialog::CreateFromJsonN(const Tizen::Web::Json::JsonObject &pUserObject, const 
 	JsonString* pKeyTitle = new JsonString(L"title");
 	JsonString* pKeyText = new JsonString(L"body");
 
+	JsonString* pKeyChatId = new JsonString(L"chat_id");
+	JsonString* pKeyChatActive = new JsonString(L"chat_active");
+	JsonString* pKeyUserCount = new JsonString(L"user_count");
+	JsonString* pKeyAdminId = new JsonString(L"admin_id");
+
 	//user
 	IJsonValue* pValUserId = null;
 	IJsonValue* pValFirstName = null;
@@ -193,6 +238,11 @@ MDialog::CreateFromJsonN(const Tizen::Web::Json::JsonObject &pUserObject, const 
 	IJsonValue* pValReadState = null;
 	IJsonValue* pValTitle = null;
 	IJsonValue* pValText = null;
+	IJsonValue* pValChatId = null;
+	IJsonValue* pValChatActive = null;
+	IJsonValue* pValUserCount = null;
+	IJsonValue* pValAdminId = null;
+
 
 	//user
 	pUserObject.GetValue(pKeyId, pValUserId);
@@ -217,9 +267,23 @@ MDialog::CreateFromJsonN(const Tizen::Web::Json::JsonObject &pUserObject, const 
 	pMessageObject.GetValue(pKeyReadState, pValReadState);
 	pMessageObject.GetValue(pKeyTitle, pValTitle);
 	pMessageObject.GetValue(pKeyText, pValText);
+	pMessageObject.GetValue(pKeyChatId, pValChatId);
+
+	pMessageObject.GetValue(pKeyChatActive, pValChatActive);
+	pMessageObject.GetValue(pKeyUserCount, pValUserCount);
+	pMessageObject.GetValue(pKeyAdminId, pValAdminId);
 
 	JsonNumber *mid = static_cast< JsonNumber* >(pValMessageId);
-	JsonNumber *muid = static_cast< JsonNumber* >(pValMessageUserId);
+	JsonNumber *muid = null;
+	JsonNumber *chatId = null;
+
+	if (pValChatId) {
+		muid = static_cast< JsonNumber* >(pValChatId);
+		chatId = static_cast< JsonNumber* >(pValChatId);
+	} else {
+		muid = static_cast< JsonNumber* >(pValMessageUserId);
+	}
+
 	JsonNumber *date = static_cast< JsonNumber* >(pValDate);
 	JsonNumber *out = static_cast< JsonNumber* >(pValOut);
 	JsonNumber *readState = static_cast< JsonNumber* >(pValReadState);
@@ -236,7 +300,40 @@ MDialog::CreateFromJsonN(const Tizen::Web::Json::JsonObject &pUserObject, const 
 	String *pText = new String(text->GetPointer());
 
 	dialog->SetIdentifier(mid->ToInt());
-	dialog->SetUid(muid->ToInt());
+
+	if (chatId) {
+		dialog->SetUid(chatId->ToInt() + 2000000000);
+		dialog->SetChatId(chatId->ToInt());
+	} else {
+		dialog->SetUid(muid->ToInt());
+	}
+
+	if (pValChatActive) {
+
+		AppLog("pValChatActive pValChatActive pValChatActive pValChatActive");
+
+		String uids(L"");
+
+		JsonArray *pArrayObject = static_cast<JsonArray *>(pValChatActive);
+
+		for (int index = 0; index < pArrayObject->GetCount(); index ++) {
+			IJsonValue *pValUserId;
+			pArrayObject->GetAt(index, pValUserId);
+			JsonNumber *userId = static_cast<JsonNumber *>(pValUserId);
+
+			String id;
+			id.Format(10, L"%d", userId->ToInt());
+			uids.Append(id.GetPointer());
+
+			if (index != pArrayObject->GetCount() - 1) {
+				uids.Append(L",");
+			}
+		}
+
+		AppLog("uids: %S", uids.GetPointer());
+
+		dialog->SetChatUids(new String(uids));
+	}
 
 	dialog->SetFirstName(pFirstName);
 	dialog->SetLastName(pLastName);
@@ -264,10 +361,14 @@ MDialog::CreateFromJsonN(const Tizen::Web::Json::JsonObject &pUserObject, const 
 	delete pKeyReadState;
 	delete pKeyTitle;
 	delete pKeyText;
+	delete pKeyChatId;
+
+	delete pKeyAdminId;
+	delete pKeyUserCount;
+	delete pKeyChatActive;
 
 	return dialog;
 }
-
 
 MDialog *
 MDialog::CreateFromUserN(MUser *pUser) {

@@ -10,6 +10,7 @@
 
 #include <FGraphics.h>
 
+using namespace Tizen::Base;
 using namespace Tizen::Graphics;
 
 class Resources {
@@ -34,7 +35,12 @@ public:
 	Bitmap *GetSelectedRoundImageForm();
 	Bitmap *GetDeliveredIcon();
 
+	Bitmap *GetGroupNormalIcon();
+	Bitmap *GetGroupPressedIcon();
+
 	Bitmap *GetUserAvatar();
+
+	Bitmap *LoadBitmapNamed(String name);
 
 private:
 	Bitmap *__pOnlineIndicator;
@@ -42,6 +48,9 @@ private:
 	Bitmap *__pNormalUnreadRoundImageForm;
 	Bitmap *__pSelectedRoundImageForm;
 	Bitmap *__pDeliveredIcon;
+
+	Bitmap *__pGroupNormalIcon;
+	Bitmap *__pGroupPressedIcon;
 
 	Bitmap *__pUserAvatar;
 

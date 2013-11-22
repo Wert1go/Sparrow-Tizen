@@ -27,6 +27,7 @@ public:
 
 	void SetDialog(MDialog *pDialog);
 	MDialog *GetDialog();
+	void DrawRounders(Tizen::Graphics::Canvas &canvas, const Tizen::Graphics::Rectangle &rect, Bitmap *bitmap);
 
 private:
 	MDialog *__pDialog;

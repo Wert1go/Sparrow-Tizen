@@ -46,7 +46,7 @@ public:
 	//util
 	static String *CacheKeyForUrlN(String *url);
 
-	void LoadImageForTarget(String *url, IImageLoadingListener *target);
+	void LoadImageForTarget(String *url, IImageLoadingListener *target, Integer *code = new Integer(0));
 	void CancelLoadingForTarget(IImageLoadingListener *target);
 
 private:
@@ -60,8 +60,9 @@ private:
 
 private:
 	HashMapT<String*, IImageLoadingListener*> *__pUrlAndTargetMap;
-	HashMapT<IImageLoadingListener*, String*> *__pTargetAndUrlMap;
+	MultiHashMapT<IImageLoadingListener*, String*> *__pTargetAndUrlMap;
 	HashMapT<String*, ImageLoadingOperation*> *__pUrlAndOperationMap;
+	HashMapT<String*, Integer*> *__pUrlAndCodeMap;
 	HashMapT<String*, ImageLoadingOperation*> *__pPendingOperation;
 	Mutex __mutex;
 	int __runningOperations;

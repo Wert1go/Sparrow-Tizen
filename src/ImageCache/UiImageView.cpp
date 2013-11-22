@@ -13,16 +13,13 @@
 using namespace Tizen::Ui::Controls;
 using namespace Tizen::Graphics;
 
-//static int borderSize = 108;
-static int size = 100;
 
 UiImageView::UiImageView() {
-	// TODO Auto-generated constructor stub
-
+	__pBitmapImage = null;
 }
 
 UiImageView::~UiImageView() {
-	// TODO Auto-generated destructor stub
+	delete __pBitmapImage;
 }
 
 bool
@@ -31,7 +28,7 @@ UiImageView::OnDraw(Tizen::Graphics::Canvas &canvas, const Tizen::Graphics::Rect
 
 	if (__pBitmapImage != null)
 	{
-		r = canvas.DrawBitmap(Rectangle(80 - size/2, rect.height/2 - size/2, size, size), *__pBitmapImage);
+		r = canvas.DrawBitmap(rect, *__pBitmapImage);
 	}
 
 	return true;

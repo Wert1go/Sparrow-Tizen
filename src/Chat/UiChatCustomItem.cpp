@@ -28,6 +28,7 @@ UiChatCustomItem::Init() {
 	Rectangle rect = Rectangle(0,0,__pDimension->width, __pDimension->height);
 	__pChatListItem->SetBubbleDimension(__pBubbleDimension);
 	__pChatListItem->SetMessage(this->GetMessage());
+	__pChatListItem->SetDialog(this->GetDialog());
 	this->AddElement(rect, 23, *__pChatListItem);
 }
 
@@ -49,4 +50,14 @@ UiChatCustomItem::SetMessage(MMessage *pMessage) {
 MMessage *
 UiChatCustomItem::GetMessage() {
 	return __pMessage;
+}
+
+void
+UiChatCustomItem::SetDialog(MDialog *pDialog) {
+	__pDialog = pDialog;
+}
+
+MDialog *
+UiChatCustomItem::GetDialog() {
+	return __pDialog;
 }

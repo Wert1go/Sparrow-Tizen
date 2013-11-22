@@ -171,7 +171,9 @@ UiChatForm::OnSceneActivatedN(const Tizen::Ui::Scenes::SceneId& previousSceneId,
 				dialog = MDialog::CreateFromUserN(user);
 			}
 
-			this->__pChatPanel->SetDialog(MDialogDao::getInstance().GetDialogN(__userId));
+			this->__pDialog = dialog;
+
+			this->__pChatPanel->SetDialog(dialog);
 		}
 		MarkUnread();
 	}
@@ -286,6 +288,7 @@ UiChatForm::CreateItem(int index, int itemWidth) {
     pItem->SetMessage(message);
 
     pItem->SetDimension(new Dimension(itemWidth, height));
+    pItem->SetDialog(this->__pDialog);
 //    pItem->SetIndex(index);
 //    pItem->AddRefreshListener(this);
 

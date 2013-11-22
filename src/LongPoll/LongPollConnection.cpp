@@ -234,8 +234,14 @@ LongPollConnection::OnSuccessN(RestResponse *result) {
 
 						break;
 				case LP_MESSAGE_ADD_FULL: {
+					AppLog("test");
 					MUserDao::getInstance().UpdateUserOnlineStatusById(1, pObject->GetUserId());
 					MDialogDao::getInstance().UpdateDialogOnlineStatusById(1, pObject->GetUserId());
+
+					MMessageDao::getInstance().Save(pObject->GetMessage());
+					MUserDao::getInstance().Save(pObject->GetUsers());
+
+					MDialogDao::getInstance().Save(pObject->GetMessage(), static_cast<MUser *>(pObject->GetUsers()->GetAt(0)));
 
 					UiChatForm* pChatForm = static_cast< UiChatForm* >(pFrame->GetControl("UiChatForm", true));
 					if (pChatForm && PostMan::getInstance().ValidateIncomingMessage(pObject->GetMessage())) {
@@ -246,11 +252,6 @@ LongPollConnection::OnSuccessN(RestResponse *result) {
 						Tizen::App::UiApp::GetInstance()->SendUserEvent(UPDATE_MESSAGE_ARRIVED, 0);
 						pArgs = null;
 					}
-
-					MMessageDao::getInstance().Save(pObject->GetMessage());
-					MUserDao::getInstance().Save(pObject->GetUsers());
-
-					MDialogDao::getInstance().Save(pObject->GetMessage(), static_cast<MUser *>(pObject->GetUsers()->GetAt(0)));
 
 					UiMessagesPanel* pMessagePanel = static_cast< UiMessagesPanel* >(pFrame->GetControl("UiMessagesPanel", true));
 					if (pMessagePanel)

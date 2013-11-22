@@ -12,6 +12,7 @@
 #include "Bean.h"
 
 using namespace Tizen::Base;
+using namespace Tizen::Base::Collection;
 
 #define OWNER 	23
 #define FRIEND	24
@@ -49,8 +50,6 @@ private:
 
 
 
-	int __sex;
-
 public:
 	String * GetFirstName();
 	String * GetLastName();
@@ -61,6 +60,8 @@ public:
 	int GetIsOnline();
 	int GetType();
 
+
+
 	void SetFirstName(String *firstName);
 	void SetLastName(String *lastName);
 	void SetPhoto(String *photo);
@@ -69,6 +70,8 @@ public:
 	void SetLastSeen(long lastSeen);
 	void SetIsOnline(int isOnline);
 	void SetType(int type);
+
+
 
 };
 

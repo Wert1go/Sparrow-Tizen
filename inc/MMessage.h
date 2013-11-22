@@ -33,8 +33,14 @@ private:
 
 	int __delivered;
 
+	int __chatId;
+
 public:
 	long __date;
+	String *uids;
+	String *__title;
+	int userCount;
+	int adminId;
 
 public:
 	static String* TableDescription();
@@ -47,6 +53,8 @@ public:
 	int GetDelivered();
 	int GetReadState();
 	String *GetText();
+	String *GetUids();
+	int GetChatId();
 
 	void SetMid(int id);
 	void SetUid(int id);
@@ -56,9 +64,12 @@ public:
 	void SetDelivered(int delivered);
 	void SetReadState(int state);
 	void SetText(String *text);
+	void SetChatId(int chatId);
 
 	static MMessage * CreateFromJsonN(const Tizen::Web::Json::JsonObject &pObject);
 	static MMessage * CreateFromJsonLPN(const Tizen::Web::Json::JsonObject &pObject);
+
+
 };
 
 #endif /* MMESSAGE_H_ */

@@ -22,17 +22,18 @@ ImageCache::ImageCache() {
 	__mutex.Create();
 
 	__pUrlAndTargetMap = new HashMapT<String*, IImageLoadingListener*>();
-	__pTargetAndUrlMap = new HashMapT<IImageLoadingListener*, String*>();
+	__pTargetAndUrlMap = new MultiHashMapT<IImageLoadingListener*, String*>();
 	__pUrlAndOperationMap = new HashMapT<String*, ImageLoadingOperation*>();
 	__pPendingOperation = new HashMapT<String*, ImageLoadingOperation*>();
+	__pUrlAndCodeMap = new HashMapT<String*, Integer*>();
 
 	__pUrlAndTargetMap->Construct(100, 0.75);
 	__pTargetAndUrlMap->Construct(100, 0.75);
 	__pUrlAndOperationMap->Construct(100, 0.75);
 	__pPendingOperation->Construct(100, 0.75);
+	__pUrlAndCodeMap->Construct(100, 0.75);
 
 	__runningOperations = 0;
-
 }
 
 ImageCache::~ImageCache() {
@@ -40,7 +41,7 @@ ImageCache::~ImageCache() {
 }
 
 void
-ImageCache::LoadImageForTarget(String *url, IImageLoadingListener *target) {
+ImageCache::LoadImageForTarget(String *url, IImageLoadingListener *target, Integer *code) {
 	//AppLogDebug("ImageCache::LoadImageForTarget");
 //	return;
 	if (url == null || url->GetPointer() == 0 || url->GetLength() < 10) {
@@ -59,6 +60,7 @@ ImageCache::LoadImageForTarget(String *url, IImageLoadingListener *target) {
 		__pUrlAndTargetMap->Add(url, target);
 		__pTargetAndUrlMap->Add(target, url);
 		__pUrlAndOperationMap->Add(url, operation);
+		__pUrlAndCodeMap->Add(url, code);
 
 		__mutex.Release();
 //		AppLogDebug("LoadImageForTarget::LoadImageForTarget");
@@ -82,12 +84,19 @@ ImageCache::CancelLoadingForTarget(IImageLoadingListener *target) {
 
 	__pTargetAndUrlMap->ContainsKey(target, result);
 	if (result) {
-		String *url;
-		__pTargetAndUrlMap->GetValue(target, url);
+		String *url = null;
+		IEnumeratorT< String * >* pEnum = __pTargetAndUrlMap->GetValuesN(target);
 
-		if (url) {
-			__pUrlAndTargetMap->Remove(url);
+		while(pEnum->MoveNext() == E_SUCCESS)
+		{
+			pEnum->GetCurrent(url);
+			if (url) {
+				__pUrlAndCodeMap->Remove(url);
+				__pUrlAndTargetMap->Remove(url);
+			}
 		}
+		delete pEnum;
+
 		__pTargetAndUrlMap->Remove(target);
 
 	} else {
@@ -138,18 +147,20 @@ ImageCache::FinishOperationForUrl(String *url) {
 	__pUrlAndTargetMap->ContainsKey(url, result);
 
 	if (result) {
-		IImageLoadingListener *target;
-		__pUrlAndTargetMap->GetValue(url, target);
+//		IImageLoadingListener *target;
+//		__pUrlAndTargetMap->GetValue(url, target);
+//
+//		if (target) {
+//			__pTargetAndUrlMap->Remove(target);
+//		}
 
-		if (target) {
-			__pTargetAndUrlMap->Remove(target);
-		}
-
+		__pUrlAndCodeMap->Remove(url);
 		__pUrlAndTargetMap->Remove(url);
 	}
 
 	result = false;
 	__pUrlAndOperationMap->ContainsKey(url, result);
+
 	if (result) {
 		ImageLoadingOperation *operation;
 		__pUrlAndOperationMap->GetValue(url, operation);
@@ -177,8 +188,11 @@ void ImageCache::DispatchImage(String *url, Bitmap *bitmap) {
 	if (result) {
 		IImageLoadingListener *target;
 		__pUrlAndTargetMap->GetValue(url, target);
+		Integer *code;
+
+		__pUrlAndCodeMap->GetValue(url, code);
 		if (target) {
-			target->OnImageLoadedN(bitmap);
+			target->OnImageLoadedN(bitmap, code);
 		}
 	}
 	__mutex.Release();

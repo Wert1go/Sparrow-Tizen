@@ -5,10 +5,10 @@ var i = 0;
 var uids = [];
 var j;
 while (i < c.length) { 
-	i=i+1; 
+	i = i+ 1; 
 	if (parseInt(c[i]) != 0) {
 		j = API.messages.getChatUsers({"chat_id" : c[i]}); 
-		uids = uids + [j]; 
+		uids = uids + [{"chat_id" : c[i], "uids" : j}]; 
 		l = l + j;
 	}
 };

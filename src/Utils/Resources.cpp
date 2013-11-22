@@ -28,6 +28,8 @@ Resources::Resources() {
 	__pNormalRoundImageForm = null;
 	__pNormalUnreadRoundImageForm = null;
 	__pSelectedRoundImageForm = null;
+	__pGroupNormalIcon = null;
+	__pGroupPressedIcon = null;
 }
 
 Resources::~Resources() {
@@ -92,6 +94,33 @@ Resources::GetDeliveredIcon() {
 	}
 
 	return __pDeliveredIcon;
+}
+
+Bitmap *
+Resources::GetGroupNormalIcon() {
+	if (!__pGroupPressedIcon) {
+		this->__pGroupPressedIcon = this->LoadBitmapNamed(L"list_icon_group.png");
+	}
+	return __pGroupPressedIcon;
+}
+
+Bitmap *
+Resources::GetGroupPressedIcon() {
+	if (!__pGroupPressedIcon) {
+		this->__pGroupPressedIcon = this->LoadBitmapNamed(L"list_icon_group.png");
+	}
+	return __pGroupPressedIcon;
+}
+
+
+
+Bitmap *
+Resources::LoadBitmapNamed(String name) {
+	Image image;
+	image.Construct();
+	String filepath = App::GetInstance()->GetAppResourcePath() + L"Images/" + name;
+
+	return image.DecodeN(filepath, BITMAP_PIXEL_FORMAT_ARGB8888);
 }
 
 Bitmap *

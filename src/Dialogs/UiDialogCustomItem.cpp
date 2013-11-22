@@ -44,6 +44,7 @@ UiDialogCustomItem::UiDialogCustomItem() {
 	__pUserListItem = null;
 	__pDialogBG = null;
 	__pRefreshListener = null;
+	__pImageViews = new LinkedList(SingleObjectDeleter);
 }
 
 
@@ -52,8 +53,9 @@ UiDialogCustomItem::~UiDialogCustomItem() {
 	ImageCache::getInstance().CancelLoadingForTarget(this);
 	__pPlaceholder = null;
 	PlaceholderActive = null;
-	delete __pDialogIcon;
+
 	delete __pDialogListItem;
+	delete __pImageViews;
 //	delete __pUrl;
 //	AppLog("UiDialogCustomItem::~UiDialogCustomItem::Complite");
 }
@@ -75,6 +77,7 @@ UiDialogCustomItem::GetDialog() {
 
 void
 UiDialogCustomItem::Init() {
+	int size = 100;
 
 	Rectangle rect = Rectangle(0,0,__pDimension->width, __pDimension->height);
 
@@ -83,18 +86,95 @@ UiDialogCustomItem::Init() {
 
 	this->AddElement(rect, 45, *__pDialogBG);
 
-	__pImageView = new (std::nothrow) UiImageView();
-	__pImageView->__pBitmapImage = __pPlaceholder;
 
-	this->AddElement(rect, ID_USER_AVATAR, *__pImageView);
 
 	if (this->__pDialog) {
 		__pDialogListItem = new UiDialogListItem();
 		__pDialogListItem->SetDialog(this->__pDialog);
 
+		if (this->__pDialog->GetUsers() && this->__pDialog->GetUsers()->GetCount() > 0) {
+
+			int userCount = this->__pDialog->GetUsers()->GetCount();
+
+			for (int index = 0; index < userCount; index ++) {
+				UiImageView *pImageView = new (std::nothrow) UiImageView();
+
+				MUser *user = static_cast<MUser *>(this->__pDialog->GetUsers()->GetAt(index));
+
+				Rectangle imageRect = Rectangle(0,0,0,0);
+
+				float itemSize = 55;
+				float centerX = 80;
+				float centerY = rect.height/2;
+				if (userCount == 4) {
+
+					switch(index) {
+					case 0:
+						imageRect = Rectangle(centerX - itemSize, centerY - itemSize, itemSize, itemSize);
+						break;
+					case 1:
+						imageRect = Rectangle(centerX, centerY - itemSize, itemSize, itemSize);
+						break;
+					case 2:
+						imageRect = Rectangle(centerX - itemSize, centerY, itemSize, itemSize);
+						break;
+					case 3:
+						imageRect = Rectangle(centerX, centerY, itemSize, itemSize);
+						break;
+					default:
+						break;
+					}
+
+
+				} else if (userCount == 3) {
+					switch(index) {
+					case 0:
+						imageRect = Rectangle(centerX - itemSize, centerY - itemSize, itemSize, itemSize);
+						break;
+					case 1:
+						imageRect = Rectangle(centerX, centerY - itemSize, itemSize, itemSize);
+						break;
+					case 2:
+						imageRect = Rectangle(centerX - itemSize/2, centerY, itemSize, itemSize);
+						break;
+					default:
+						break;
+					}
+
+				} else if (userCount == 2) {
+					switch(index) {
+					case 0:
+						imageRect = Rectangle(centerX - itemSize, centerY - itemSize/2, itemSize, itemSize);
+						break;
+					case 1:
+						imageRect = Rectangle(centerX, centerY - itemSize/2, itemSize, itemSize);
+						break;
+
+					default:
+						break;
+					}
+				}
+
+				this->AddElement(imageRect, index, *pImageView);
+				this->__pImageViews->Add(pImageView);
+				this->SetImageUrl(user->GetPhoto(), index);
+			}
+		} else {
+			UiImageView *pImageView = new (std::nothrow) UiImageView();
+			pImageView->__pBitmapImage = __pPlaceholder;
+			this->AddElement(Rectangle(80 - size/2, rect.height/2 - size/2, size, size), 0, *pImageView);
+			this->__pImageViews->Add(pImageView);
+			this->SetImageUrl(this->__pDialog->GetPhoto(), 0);
+		}
+
 		this->AddElement(rect, 23, *__pDialogListItem);
-		this->SetImageUrl(this->__pDialog->GetPhoto());
+
 	} else {
+
+		UiImageView *pImageView = new (std::nothrow) UiImageView();
+		pImageView->__pBitmapImage = __pPlaceholder;
+		this->AddElement(Rectangle(80 - size/2, rect.height/2 - size/2, size, size), 0, *pImageView);
+		this->__pImageViews->Add(pImageView);
 
 		__pUserListItem = new UiUserListItem();
 		__pUserListItem->SetUser(this->__pUser);
@@ -103,15 +183,15 @@ UiDialogCustomItem::Init() {
 
 		if (this->__pUser->GetPhoto()) {
 			AppLogDebug("test!!! %S", this->__pUser->GetPhoto()->GetPointer());
-			this->SetImageUrl(this->__pUser->GetPhoto());
+			this->SetImageUrl(this->__pUser->GetPhoto(), 0);
 		}
 	}
 }
 
 void
-UiDialogCustomItem::SetImageUrl(String *url) {
+UiDialogCustomItem::SetImageUrl(String *url, int code) {
 	__pUrl = url;
-	ImageCache::getInstance().LoadImageForTarget(__pUrl, this);
+	ImageCache::getInstance().LoadImageForTarget(__pUrl, this, new Integer(code));
 }
 
 void
@@ -139,18 +219,24 @@ UiDialogCustomItem::AddRefreshListener(IRefreshableListView *pRefreshListener) {
 }
 
 void
-UiDialogCustomItem::OnImageLoadedN(Bitmap *result) {
+UiDialogCustomItem::OnImageLoadedN(Bitmap *result, Integer *code) {
 	AppLogDebug("OnImageLoadedN!!!");
-	__pDialogIcon = result;
 
-	this->__pImageView->__pBitmapImage = __pDialogIcon;
-	if (__pRefreshListener) {
-		if (__section != -1) {
-			__pRefreshListener->RequestImageUpdateForIndex(__index, __section, ID_USER_AVATAR);
-		} else {
-			__pRefreshListener->RequestUpdateForIndex(__index, ID_USER_AVATAR);
+	int index = code->ToInt();
+
+	if (index < this->__pImageViews->GetCount()) {
+
+		UiImageView *imageView = static_cast<UiImageView *>(this->__pImageViews->GetAt(index));
+
+		imageView->__pBitmapImage = result;
+
+		if (__pRefreshListener) {
+			if (__section != -1) {
+				__pRefreshListener->RequestImageUpdateForIndex(__index, __section, index);
+			} else {
+				__pRefreshListener->RequestUpdateForIndex(__index, index);
+			}
 		}
-
 
 	}
 }

@@ -78,12 +78,18 @@ void
 PostMessageOperation::SendMessage() {
 	if (!__pSendMessageOperation) {
 		HashMap *params = new HashMap();
-		AppLogDebug("4 %d",  __pMessage->GetUid());
+		int rawUid = __pMessage->GetUid() < 2000000000 ? : __pMessage->GetUid() - 2000000000;
 		params->Construct();
 		String uid;
-		uid.Format(25, L"%d", __pMessage->GetUid());
+		uid.Format(25, L"%d", rawUid);
 		AppLogDebug("7");
-		params->Add(new String(L"user_id"), new String(uid));
+
+		if (__pMessage->GetUid() < 2000000000) {
+
+			params->Add(new String(L"user_id"), new String(uid));
+		} else {
+			params->Add(new String(L"chat_id"), new String(uid));
+		}
 		params->Add(new String(L"access_token"), AuthManager::getInstance().AccessToken());
 		AppLogDebug("6");
 		params->Add(new String(L"message"), __pMessage->GetText());

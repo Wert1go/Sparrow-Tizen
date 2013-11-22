@@ -74,7 +74,7 @@ UiUsersPanel::OnInitializing(void) {
 	__pSearchBar->SetSearchFieldColor(SEARCH_FIELD_STATUS_NORMAL, Color(0, 0, 0, 255));
 	__pSearchBar->SetSearchFieldColor(SEARCH_FIELD_STATUS_HIGHLIGHTED, Color(0, 0, 0, 255));
 	__pSearchBar->SetSearchFieldColor(SEARCH_FIELD_STATUS_DISABLED, Color(0, 0, 0, 255));
-	__pSearchBar->SetChromaKeyColor(Color(115, 120, 145, 255));
+//	__pSearchBar->SetChromaKeyColor(Color(115, 120, 145, 255));
 	__pSearchBar->SetSearchFieldTextColor(SEARCH_FIELD_STATUS_NORMAL, Color(115, 120, 145, 255));
 	__pSearchBar->SetSearchFieldTextColor(SEARCH_FIELD_STATUS_HIGHLIGHTED, Color(115, 120, 145, 255));
 	__pSearchBar->SetSearchFieldTextColor(SEARCH_FIELD_STATUS_DISABLED, Color(115, 120, 145, 255));
@@ -97,7 +97,7 @@ UiUsersPanel::OnInitializing(void) {
 
 	// Creates an instance of ListView
 	__pListView = new GroupedListView();
-	__pListView->Construct(Rectangle(0, 110, clientRect.width, clientRect.height - 100 - 110), GROUPED_LIST_VIEW_STYLE_INDEXED, true, false);
+	__pListView->Construct(Rectangle(0, 110, clientRect.width, clientRect.height - 100 - 110), GROUPED_LIST_VIEW_STYLE_INDEXED, true, true);
 	__pListView->SetItemProvider(*this);
 	__pListView->AddGroupedListViewItemEventListener(*this);
 

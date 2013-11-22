@@ -348,7 +348,7 @@ UiMessagesPanel::OnSuccessN(RestResponse *result) {
 
 	RDialogResponse *response = static_cast<RDialogResponse *>(result);
 
-	this->SetDialogsList(response->GetDialogs());
+	this->SetDialogsList(MDialogDao::getInstance().GetDialogsWithOffsetN(0));
 	this->SendUserEvent(222222, 0);
 	Tizen::App::App::GetInstance()->SendUserEvent(222222, 0);
 }
@@ -377,8 +377,8 @@ UiMessagesPanel::SendRequest() {
 		"while (i < c.length) {"
 		"	i=i+1;"
 		" 	if (parseInt(c[i]) != 0) {"
-		"		j = API.messages.getChatUsers({\"chat_id\" : c[i]});"
-		"		uids = uids + [j];"
+		"		j = API.messages.getChatUsers({\"chat_id\" : c[i]}); "
+		"		uids = uids + [{\"chat_id\" : c[i], \"uids\" : j}]; "
 		"		l = l + j;"
 		" 	}"
 		"};"

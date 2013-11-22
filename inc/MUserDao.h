@@ -36,6 +36,7 @@ public:
 
 	MUser *GetCurrentUserN();
 	MUser *GetUserN(int uid);
+	LinkedList *GetUsersN(String * uids);
 	LinkedList *GetUsersByTypeN(int type);
 
 	LinkedList *GetFriendsN(bool onlineOnly = false);

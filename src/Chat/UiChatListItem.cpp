@@ -228,8 +228,6 @@ UiChatListItem::DrawMessage(Tizen::Graphics::Canvas& canvas, const Tizen::Graphi
 		canvas.DrawBitmap(delivered, *Resources::getInstance().GetDeliveredIcon());
 	}
 
-	//AppLogDebug("%d :: %d", datePoint.x, datePoint.y);
-
 	canvas.DrawText(datePoint, *pTimeLabel);
 }
 
@@ -248,4 +246,18 @@ UiChatListItem::GetMessage() {
 void
 UiChatListItem::SetBubbleDimension(Dimension pDimension) {
 	__pBubbleDimension = pDimension;
+}
+
+void
+UiChatListItem::SetDialog(MDialog *pDialog) {
+	__pDialog = pDialog;
+//
+//	for(int index = 0; index < this->__pDialog->GetUsers(); index++) {
+//
+//	}
+}
+
+MDialog *
+UiChatListItem::GetDialog() {
+	return __pDialog;
 }

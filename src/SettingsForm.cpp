@@ -203,7 +203,7 @@ void SettingsForm::UpdateInterfaceForCurrentUser() {
 }
 
 
-void SettingsForm::OnImageLoadedN(Bitmap *result) {
+void SettingsForm::OnImageLoadedN(Bitmap *result, Integer *code) {
 	__bitmap = result;
 	this->SendUserEvent(0, 0);
 	Tizen::App::App::GetInstance()->SendUserEvent(0, 0);

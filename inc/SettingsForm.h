@@ -48,7 +48,7 @@ public:
 	Tizen::Graphics::Bitmap *__bitmap;
 
 	virtual result OnDraw(void);
-	virtual void OnImageLoadedN(Bitmap *result);
+	virtual void OnImageLoadedN(Bitmap *result, Integer *code);
 
 	//ISectionTableViewItemProviderF
 	virtual int GetSectionCount(void);

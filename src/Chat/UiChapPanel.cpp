@@ -42,7 +42,7 @@ UiChapPanel::Initialize(void) {
 }
 
 void
-UiChapPanel::OnImageLoadedN(Bitmap *result) {
+UiChapPanel::OnImageLoadedN(Bitmap *result, Integer *code) {
 	this->__ChatIcon = result;
 	this->SendUserEvent(0, 0);
 	Tizen::App::App::GetInstance()->SendUserEvent(0, 0);
@@ -90,17 +90,19 @@ UiChapPanel::OnDraw() {
 		pCanvas->FillRectangle(Color(65, 97, 137, 255), rect);
 
 		if (__pDialog) {
-
+			bool isChat = this->__pDialog->GetUid() > 2000000000;
 			AppLogDebug("lolololo");
-			Bitmap *userAvatar = this->__ChatIcon;
+			if (!isChat) {
+				AppLogDebug("111lolololo");
+				Bitmap *userAvatar = this->__ChatIcon;
 
-			if (userAvatar) {
+				if (userAvatar) {
+					pCanvas->DrawBitmap(Rectangle(offset, rect.height/2 - imgSize/2, imgSize, imgSize), *userAvatar);
+				}
 
-				pCanvas->DrawBitmap(Rectangle(offset, rect.height/2 - imgSize/2, imgSize, imgSize), *userAvatar);
+				Bitmap *pRounder = this->__pRounder;
+				pCanvas->DrawBitmap(Rectangle(offset, rect.height/2 - imgSize/2, imgSize, imgSize), *pRounder);
 			}
-
-			Bitmap *pRounder = this->__pRounder;
-			pCanvas->DrawBitmap(Rectangle(offset, rect.height/2 - imgSize/2, imgSize, imgSize), *pRounder);
 
 			EnrichedText* pUserName = null;
 			TextElement* pUsetNameText = null;
@@ -114,12 +116,20 @@ UiChapPanel::OnDraw() {
 			pUserName->SetTextAbbreviationEnabled(true);
 
 			pUsetNameText = new TextElement();
-			String *fullName = new String();
-			fullName->Append(this->__pDialog->GetFirstName()->GetPointer());
-			fullName->Append(L" ");
-			fullName->Append(this->__pDialog->GetLastName()->GetPointer());
+			AppLogDebug("11lolololo");
+			String *titleText;
 
-			r = pUsetNameText->Construct(fullName->GetPointer());
+			if (isChat) {
+				titleText = this->__pDialog->GetTitle();
+			} else {
+				String *fullName = new String();
+				fullName->Append(this->__pDialog->GetFirstName()->GetPointer());
+				fullName->Append(L" ");
+				fullName->Append(this->__pDialog->GetLastName()->GetPointer());
+				titleText = fullName;
+			}
+			AppLogDebug("22lolololo");
+			r = pUsetNameText->Construct(titleText->GetPointer());
 
 			pUsetNameText->SetTextColor(Color(255, 255, 255, 255));
 			{
@@ -131,17 +141,23 @@ UiChapPanel::OnDraw() {
 
 			FloatDimension size;
 			int actualLength;
-			pUserName->GetTextExtent(0, fullName->GetLength(), size, actualLength);
+			pUserName->GetTextExtent(0, titleText->GetLength(), size, actualLength);
 
 			if (size.height > 68) {
 				size.height = 41;
 			}
-
+			AppLogDebug("33lolololo");
 			pUserName->SetSize(size);
 
 			float textPosition =  10;
 
-			pCanvas->DrawText(FloatPoint(offset + imgSize + offset, 10), *pUserName);
+			float textOffset = offset;
+
+			if (!isChat) {
+				textOffset += (imgSize + offset);
+			}
+
+			pCanvas->DrawText(FloatPoint(textOffset, 10), *pUserName);
 
 		/*********************** CHAT ICON ****************************/
 
@@ -152,13 +168,13 @@ UiChapPanel::OnDraw() {
 
 		/*********************** ONLINE STATUS ***********************/
 
-			if (this->__IsOinline) {
+			if (this->__IsOinline && !isChat) {
 				float offlinePosition = (float)(textPosition + (float)size.height/2) - 44/2;
 				pCanvas->DrawBitmap(Rectangle(offset + imgSize + offset + size.width, offlinePosition, 44, 44), *Resources::getInstance().GetOnlineIndicator());
 			}
 
 		/*********************** DIALOG TEXT ************************/
-
+			AppLogDebug("444444");
 			EnrichedText* pDescriptionLabel = null;
 			TextElement* pDescriptionText = null;
 
@@ -172,13 +188,22 @@ UiChapPanel::OnDraw() {
 
 			pDescriptionText = new TextElement();
 
-			String *dialogText;
+			String *dialogText = new String();
+			AppLogDebug("5555555");
+			if (isChat) {
+				int count = this->__pDialog->GetUsers()->GetCount() + 1;
+				String countString;
+				countString.Format(10, L"%d", count);
 
-			if (this->__IsOinline) {
-				dialogText = new String(L"Online");
+				dialogText->Append(countString.GetPointer());
+				dialogText->Append(L" участников");
 			} else {
-				dialogText = new String(L"Offline");
-			}
+				if (this->__IsOinline) {
+					dialogText = new String(L"Online");
+				} else {
+					dialogText = new String(L"Offline");
+				}
+			}AppLogDebug("66666");
 
 			if (dialogText->GetLength() == 0) {
 				dialogText = new String(L" ");
@@ -202,9 +227,9 @@ UiChapPanel::OnDraw() {
 			}
 
 			pDescriptionLabel->SetSize(textSize);
-
+			AppLogDebug("7777777");
 			//5 для красоты :/
-			pCanvas->DrawText(FloatPoint(offset + imgSize + offset, 55), *pDescriptionLabel);
+			pCanvas->DrawText(FloatPoint(textOffset, 55), *pDescriptionLabel);
 		}
 
 	}

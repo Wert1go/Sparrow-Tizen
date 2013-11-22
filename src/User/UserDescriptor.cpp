@@ -46,7 +46,7 @@ RestResponse *UserDescriptor::performObjectMappingN(JsonObject* pObject) {
 		JsonObject* pUserObject = static_cast< JsonObject* >(pUserObjectValue);
 
 		MUser *user = MUser::CreateFromJsonN(*pUserObject);
-//
+
 		if (index == 0) {
 			response->SetUser(user);
 		}

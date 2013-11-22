@@ -32,7 +32,7 @@ public:
 	//void SetChat();
 private:
 	virtual result OnDraw(void);
-	virtual void OnImageLoadedN(Bitmap *result);
+	virtual void OnImageLoadedN(Bitmap *result, Integer *code);
 	virtual void OnErrorN(Error *error);
 	virtual void OnUserEventReceivedN(RequestId requestId, Tizen::Base::Collection::IList* pArgs);
 

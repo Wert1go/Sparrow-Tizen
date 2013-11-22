@@ -11,11 +11,13 @@
 #include <FUi.h>
 #include <FGraphics.h>
 
+using namespace Tizen::Base;
 using namespace Tizen::Ui::Controls;
 using namespace Tizen::Graphics;
 
 class UiImageView
-: public ICustomElement {
+: public ICustomElement
+ , public Object{
 public:
 	UiImageView();
 	virtual ~UiImageView();

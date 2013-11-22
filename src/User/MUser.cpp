@@ -60,6 +60,8 @@ int MUser::GetType() {
 	return __type;
 }
 
+
+
 /***************** SETTERS ******************/
 
 void MUser::SetFirstName(String *firstName) {
@@ -93,6 +95,8 @@ void MUser::SetIsOnline(int isOnline) {
 void MUser::SetType(int type) {
 	__type = type;
 }
+
+
 
 /***************** SETTERS ******************/
 

@@ -12,6 +12,7 @@
 
 #include "MMessage.h"
 #include "MUser.h"
+#include "MUserDao.h"
 
 using namespace Tizen::Io;
 using namespace Tizen::Base::Collection;
@@ -40,6 +41,21 @@ MDialogDao::Save(MMessage *message, MUser *user) {
 	tempDialog->SetOut(message->GetOut());
 	tempDialog->SetDate(message->GetDate());
 	tempDialog->SetTitle(new String(L""));
+
+
+	if (message->uids) {
+		tempDialog->SetChatUids(new String(message->uids->GetPointer()));
+	}
+
+	if (message->__title) {
+		tempDialog->SetTitle(message->__title);
+	}
+
+	if (message->GetChatId() != 0) {
+		tempDialog->SetUid(message->GetChatId() + 2000000000);
+		tempDialog->SetChatId(message->GetChatId());
+	}
+
 	this->Save(tempDialog);
 
 	delete tempDialog;
@@ -113,7 +129,7 @@ MDialogDao::GetDialogN(int did) {
 	MDialog *pDialog = null;
 
 	sql.Append(L"SELECT "
-			"identifier, uid, last_name, first_name, photo, mini_photo, is_online, date, out, read_state, title, text "
+			"identifier, uid, last_name, first_name, photo, mini_photo, is_online, date, out, read_state, title, text, chat_id , chat_uids "
 			"FROM dialogs "
 			"WHERE uid = ?");
 
@@ -148,7 +164,7 @@ MDialogDao::GetDialogsWithOffsetN(int offset) {
 	LinkedList *pDialogs = null;
 
 	sql.Append(L"SELECT "
-			"identifier, uid, last_name, first_name, photo, mini_photo, is_online, date, out, read_state, title, text "
+			"identifier, uid, last_name, first_name, photo, mini_photo, is_online, date, out, read_state, title, text, chat_id , chat_uids "
 			"FROM dialogs "
 			"ORDER BY date DESC LIMIT 20 OFFSET 0");
 
@@ -189,9 +205,9 @@ MDialogDao::CreateSaveStatement() {
 	String statement;
 
 	statement.Append(L"INSERT OR REPLACE INTO dialogs ("
-			"identifier, uid, last_name, first_name, photo, mini_photo, is_online, date, out, read_state, title, text"
+			"identifier, uid, last_name, first_name, photo, mini_photo, is_online, date, out, read_state, title, text, chat_id, chat_uids"
 			") VALUES ("
-			"?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?"
+			"?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?"
 			")");
 
 	compiledSaveStatment = MDatabaseManager::getInstance().GetDatabase()->CreateStatementN(statement);
@@ -215,6 +231,21 @@ MDialogDao::BindDialogToSQLStatement(MDialog *dialog, DbStatement *statement) {
 	statement->BindString(10, dialog->GetTitle()->GetPointer());
 	statement->BindString(11, dialog->GetText()->GetPointer());
 
+	if (dialog->GetChatId()) {
+		statement->BindInt(12, dialog->GetChatId());
+	} else {
+		statement->BindInt(12, 0);
+	}
+
+	AppLog("tesssssssssssss +++++++++++++++++++++++++");
+
+	if (dialog->GetChatUids()) {
+		statement->BindString(13, dialog->GetChatUids()->GetPointer());
+	} else {
+		String *string = new String (L"");
+		statement->BindString(13, string->GetPointer());
+	}
+
 	return statement;
 }
 
@@ -234,6 +265,8 @@ MDialogDao::LoadDialogFromDBN(DbEnumerator* pEnum) {
 	int readState;
 	String *title = new String();
 	String *text = new String();
+	int chatId;
+	String *chatUids = new String();
 
 	pEnum->GetIntAt(0, identifier);
 	pEnum->GetIntAt(1, uid);
@@ -247,6 +280,8 @@ MDialogDao::LoadDialogFromDBN(DbEnumerator* pEnum) {
 	pEnum->GetIntAt(9, readState);
 	pEnum->GetStringAt(10, *title);
 	pEnum->GetStringAt(11, *text);
+	pEnum->GetIntAt(12, chatId);
+	pEnum->GetStringAt(13, *chatUids);
 
 	dialog->SetIdentifier(identifier);
 	dialog->SetUid(uid);
@@ -260,6 +295,14 @@ MDialogDao::LoadDialogFromDBN(DbEnumerator* pEnum) {
 	dialog->SetReadState(readState);
 	dialog->SetTitle(title);
 	dialog->SetText(text);
+	dialog->SetChatId(chatId);
+	dialog->SetChatUids(chatUids);
+
+	if (uid > isChatValue) {
+		AppLog("++++++++++++++++++++++++++++++++++");
+		LinkedList *users = MUserDao::getInstance().GetUsersN(chatUids);
+		dialog->SetUsers(users);
+	}
 
 	return dialog;
 }
