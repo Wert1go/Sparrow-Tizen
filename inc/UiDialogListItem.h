@@ -15,6 +15,7 @@ using namespace Tizen::Ui::Controls;
 using namespace Tizen::Graphics;
 
 class MDialog;
+class IImageDrawer;
 
 class UiDialogListItem
 : public ICustomElement
@@ -29,8 +30,11 @@ public:
 	MDialog *GetDialog();
 	void DrawRounders(Tizen::Graphics::Canvas &canvas, const Tizen::Graphics::Rectangle &rect, Bitmap *bitmap);
 
+
+
 private:
 	MDialog *__pDialog;
+
 
 };
 

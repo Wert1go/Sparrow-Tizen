@@ -28,6 +28,8 @@
 #include "MUser.h"
 #include "MDialogDao.h"
 #include "Util.h"
+#include "UpdateUnit.h"
+
 
 using namespace Tizen::App;
 using namespace Tizen::Base;
@@ -87,7 +89,7 @@ UiChatForm::OnInitializing(void)
 	__pPosterPanel->GetEditArea()->AddExpandableEditAreaEventListener(*this);
 
 	__pPosterPanel->GetSendButton()->AddActionEventListener(*this);
-	AppLog("0");
+
 	float editAreaHeight = 100;
 	//__pPosterPanel->SetBounds(FloatRectangle(0, clientRect.height - editAreaHeight,  clientRect.width, editAreaHeight));
 	__pPosterPanel->SetRectangle(FloatRectangle(0, clientRect.height - editAreaHeight,  clientRect.width, editAreaHeight));
@@ -113,14 +115,14 @@ UiChatForm::OnInitializing(void)
 	__pItemContext->Construct();
 	__pItemContext->AddElement(ID_CONTEXT_ITEM_1, L"Test1");
 	__pItemContext->AddElement(ID_CONTEXT_ITEM_2, L"Test2");
-
+	this->__isActive = true;
 	return r;
 }
 
 result
 UiChatForm::OnTerminating() {
 	result r = E_SUCCESS;
-
+	AppLog("OnTerminating");
 	PostMan::getInstance().RemoveListenerForUser(__userId);
 
 	return r;
@@ -143,13 +145,13 @@ UiChatForm::GetMessages() {
 
 void
 UiChatForm::OnFormBackRequested(Tizen::Ui::Controls::Form& source) {
-
+	this->__isActive = false;;
 	AppLogDebug("+++++++++++++++++++++++++++++++++++++++++++");
 
 	SceneManager* pSceneManager = SceneManager::GetInstance();
-		AppAssert(pSceneManager);
-		pSceneManager->GoBackward(BackwardSceneTransition(SCENE_TRANSITION_ANIMATION_TYPE_RIGHT));
-		AppLogDebug("1111+++++++++++++++++++++++++++++++++++++++++++");
+	AppAssert(pSceneManager);
+	pSceneManager->GoBackward(BackwardSceneTransition(SCENE_TRANSITION_ANIMATION_TYPE_RIGHT));
+	AppLogDebug("1111+++++++++++++++++++++++++++++++++++++++++++");
 }
 
 
@@ -162,7 +164,9 @@ UiChatForm::OnSceneActivatedN(const Tizen::Ui::Scenes::SceneId& previousSceneId,
 		__userId = param->ToInt();
 		this->SetMessages(MMessageDao::getInstance().GetMessagesForUser(param->ToInt()));
 		this->ScrollToFirstMessage();
+		//TODO выяснить в чем причина бага, сейчас главный кандидат - запрос к сети, при его комментировании падения прекращаются
 		RequestMessagesForUser(param->ToInt());
+
 		if (this->__pChatPanel) {
 			MDialog *dialog = MDialogDao::getInstance().GetDialogN(__userId);
 
@@ -203,8 +207,6 @@ UiChatForm::OnSceneDeactivated(const Tizen::Ui::Scenes::SceneId& currentSceneId,
 
 void
 UiChatForm::RequestMessagesForUser(int userId) {
-	if (!__pMessagesRequestOperation) {
-	}
 
 	this->__userId = userId;
 
@@ -220,6 +222,7 @@ UiChatForm::RequestMessagesForUser(int userId) {
 		__pMessagesRequestOperation = new RestRequestOperation(GET_MESSAGES_HISTORY, new String(L"messages.getHistory"), params);
 		__pMessagesRequestOperation->AddEventListener(this);
 		__pMessagesRequestOperation->SetResponseDescriptor(new MMessageDescriptor());
+		AppLog("PerformOperation");
 		RestClient::getInstance().PerformOperation(__pMessagesRequestOperation);
 	}
 }
@@ -242,6 +245,7 @@ UiChatForm::RequestMoreMessagesFromMid(int mid) {
 		__pMessagesRequestOperation = new RestRequestOperation(GET_MESSAGES_HISTORY_BACKWARD, new String(L"messages.getHistory"), params);
 		__pMessagesRequestOperation->AddEventListener(this);
 		__pMessagesRequestOperation->SetResponseDescriptor(new MMessageDescriptor());
+
 		RestClient::getInstance().PerformOperation(__pMessagesRequestOperation);
 	}
 }
@@ -289,8 +293,8 @@ UiChatForm::CreateItem(int index, int itemWidth) {
 
     pItem->SetDimension(new Dimension(itemWidth, height));
     pItem->SetDialog(this->__pDialog);
-//    pItem->SetIndex(index);
-//    pItem->AddRefreshListener(this);
+    pItem->AddRefreshListener(this);
+    pItem->SetIndex(index);
 
     pItem->Init();
 
@@ -316,8 +320,7 @@ UiChatForm::GetItemCount(void) {
 
 void
 UiChatForm::OnSuccessN(RestResponse *result) {
-
-
+	AppLog("OnSuccessN");
 	RMessagesResponse *response = static_cast<RMessagesResponse *>(result);
 
 	if (result->GetOperationCode() == GET_MESSAGES_HISTORY_BACKWARD) {
@@ -360,7 +363,9 @@ UiChatForm::OnSuccessN(RestResponse *result) {
 
 void
 UiChatForm::OnErrorN(Error *error) {
-
+	if (__pMessagesRequestOperation) {
+		__pMessagesRequestOperation = null;
+	}
 }
 
 void
@@ -378,7 +383,18 @@ UiChatForm::OnMessageDelivered(int userId, MMessage *message) {
 
 void
 UiChatForm::OnUserEventReceivedN(RequestId requestId, Tizen::Base::Collection::IList* pArgs) {
-	if (requestId == GET_MESSAGES_HISTORY_BACKWARD && __pListView) {
+
+	if (!__isActive) {
+		return;
+	}
+
+	AppLog("1OnUserEventReceivedN");
+
+	if (requestId == 111111) {
+		AppAssert(pArgs->GetCount() > 0);
+		UpdateUnit *unit = static_cast<UpdateUnit *> (pArgs->GetAt(0));
+		__pListView->RefreshList(unit->__index, unit->__requestId);
+	} else if (requestId == GET_MESSAGES_HISTORY_BACKWARD && __pListView) {
 		this->__pListView->UpdateList();
 		ScrollToLastMessage();
 	} else if (requestId == GET_MESSAGES_HISTORY) {
@@ -711,4 +727,28 @@ UiChatForm::MarkUnread() {
 			RestClient::getInstance().PerformOperation(__pMarkAsReadRequestOperation);
 		}
 	}
+}
+
+
+//RefreshableListView
+
+void
+UiChatForm::RequestUpdateForIndex(int index, int elementId) {
+	ArrayList *list = new ArrayList();
+	list->Construct(1);
+
+	UpdateUnit *updateUnit = new UpdateUnit();
+
+	updateUnit->__index = index;
+	updateUnit->__requestId = elementId;
+
+	list->Add(updateUnit);
+
+	this->SendUserEvent(111111, list);
+	Tizen::App::App::GetInstance()->SendUserEvent(111111, 0);
+}
+
+void
+UiChatForm::RequestImageUpdateForIndex(int index, int section, int elementId) {
+
 }

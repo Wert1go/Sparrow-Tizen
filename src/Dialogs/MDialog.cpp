@@ -309,9 +309,6 @@ MDialog::CreateFromJsonN(
 	}
 
 	if (pValChatActive) {
-
-		AppLog("pValChatActive pValChatActive pValChatActive pValChatActive");
-
 		String uids(L"");
 
 		JsonArray *pArrayObject = static_cast<JsonArray *>(pValChatActive);
@@ -329,8 +326,6 @@ MDialog::CreateFromJsonN(
 				uids.Append(L",");
 			}
 		}
-
-		AppLog("uids: %S", uids.GetPointer());
 
 		dialog->SetChatUids(new String(uids));
 	}

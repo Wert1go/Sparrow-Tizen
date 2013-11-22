@@ -174,7 +174,7 @@ UiChapPanel::OnDraw() {
 			}
 
 		/*********************** DIALOG TEXT ************************/
-			AppLogDebug("444444");
+
 			EnrichedText* pDescriptionLabel = null;
 			TextElement* pDescriptionText = null;
 
@@ -189,7 +189,7 @@ UiChapPanel::OnDraw() {
 			pDescriptionText = new TextElement();
 
 			String *dialogText = new String();
-			AppLogDebug("5555555");
+
 			if (isChat) {
 				int count = this->__pDialog->GetUsers()->GetCount() + 1;
 				String countString;
@@ -203,7 +203,7 @@ UiChapPanel::OnDraw() {
 				} else {
 					dialogText = new String(L"Offline");
 				}
-			}AppLogDebug("66666");
+			}
 
 			if (dialogText->GetLength() == 0) {
 				dialogText = new String(L" ");
@@ -227,7 +227,7 @@ UiChapPanel::OnDraw() {
 			}
 
 			pDescriptionLabel->SetSize(textSize);
-			AppLogDebug("7777777");
+
 			//5 для красоты :/
 			pCanvas->DrawText(FloatPoint(textOffset, 55), *pDescriptionLabel);
 		}

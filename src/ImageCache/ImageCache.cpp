@@ -48,7 +48,7 @@ ImageCache::LoadImageForTarget(String *url, IImageLoadingListener *target, Integ
 		return;
 	}
 
-	AppLogDebug("%S :: %d", url->GetPointer(), url->GetLength());
+//	AppLogDebug("%S :: %d", url->GetPointer(), url->GetLength());
 
 	if (CheckExistingOperationForUrl(url)) {
 		//надо придумать, что делать при поптыке загрузить изображение до окончания 1-й попытки
@@ -236,7 +236,7 @@ ImageCache::StoreImageForKey(Bitmap *pBitmap, String *url) {
 	String *key = ImageCache::CacheKeyForUrlN(url);
 	String path = Tizen::App::App::GetInstance()->GetAppDataPath() + key->GetPointer();
 
-	AppLogDebug("Store image to path: %S", path.GetPointer());
+//	AppLogDebug("Store image to path: %S", path.GetPointer());
 
 	image->EncodeToFile(*pBitmap, format, path, true);
 
@@ -269,7 +269,7 @@ ImageCache::LoadFromCacheForKeyN(String *url) {
 	String *key = ImageCache::CacheKeyForUrlN(url);
 	String path = Tizen::App::App::GetInstance()->GetAppDataPath() + key->GetPointer();
 
-	AppLogDebug("Load from path:: %S", path.GetPointer());
+//	AppLogDebug("Load from path:: %S", path.GetPointer());
 
 	Bitmap *pBitmap = image->DecodeN(path.GetPointer(), pixelFormat);
 

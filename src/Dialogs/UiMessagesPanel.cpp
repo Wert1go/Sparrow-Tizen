@@ -24,6 +24,7 @@
 #include "UiUpdateConstants.h"
 #include "SceneRegister.h"
 #include "MainForm.h"
+#include "Resources.h"
 
 using namespace Tizen::App;
 using namespace Tizen::Graphics;
@@ -69,9 +70,57 @@ UiMessagesPanel::OnInitializing(void)
 	clientRect = pForm->GetClientAreaBounds();
 	SetBounds(Rectangle(0, 0, clientRect.width, clientRect.height));
 
-	// Creates an instance of ListView
+	Panel *panel = new Panel();
+	panel->Construct(Rectangle(0, 0, clientRect.width, 100));
+	panel->SetBackgroundColor(Color(23, 30, 38, 255));
+	AddControl(panel);
+
+	Button *addButton = new Button();
+
+	addButton->Construct(Rectangle(
+			clientRect.width - 100 + 70/5,
+			100/2 - 70/2,
+			70,
+			70));
+	addButton->SetActionId(103);
+	addButton->AddActionEventListener(*this);
+	addButton->SetColor(BUTTON_STATUS_NORMAL, Color(44, 51, 59, 255));
+	addButton->SetColor(BUTTON_STATUS_PRESSED, Color(44, 51, 59, 255));
+
+	Bitmap *image = Resources::getInstance().LoadBitmapNamed(L"edit_icon.png");
+	addButton->SetNormalBitmap(FloatPoint(70/2 - 54/2, 70/2 - 54/2), *image);
+	addButton->SetPressedBitmap(FloatPoint(70/2 - 54/2, 70/2 - 54/2), *image);
+	delete image;
+
+	AddControl(addButton);
+
+	__pSearchBar = new SearchBar();
+	__pSearchBar->Construct(Rectangle(0, 0, clientRect.width - 100, 100));
+	__pSearchBar->SetGuideText(L"Поиск");
+	__pSearchBar->AddSearchBarEventListener(*this);
+	__pSearchBar->AddTextEventListener(*this);
+	__pSearchBar->SetSearchFieldColor(SEARCH_FIELD_STATUS_NORMAL, Color(0, 0, 0, 255));
+	__pSearchBar->SetSearchFieldColor(SEARCH_FIELD_STATUS_HIGHLIGHTED, Color(0, 0, 0, 255));
+	__pSearchBar->SetSearchFieldColor(SEARCH_FIELD_STATUS_DISABLED, Color(0, 0, 0, 255));
+	__pSearchBar->SetSearchFieldTextColor(SEARCH_FIELD_STATUS_NORMAL, Color(115, 120, 145, 255));
+	__pSearchBar->SetSearchFieldTextColor(SEARCH_FIELD_STATUS_HIGHLIGHTED, Color(115, 120, 145, 255));
+	__pSearchBar->SetSearchFieldTextColor(SEARCH_FIELD_STATUS_DISABLED, Color(115, 120, 145, 255));
+	__pSearchBar->SetColor(Color(23, 30, 38, 255));
+
+	__pSearchBar->SetButtonTextColor(SEARCH_BAR_BUTTON_STATUS_NORMAL, Color(115, 120, 145, 255));
+	__pSearchBar->SetButtonTextColor(SEARCH_BAR_BUTTON_STATUS_PRESSED, Color(115, 120, 145, 255));
+	__pSearchBar->SetButtonTextColor(SEARCH_BAR_BUTTON_STATUS_HIGHLIGHTED, Color(115, 120, 145, 255));
+	__pSearchBar->SetButtonTextColor(SEARCH_BAR_BUTTON_STATUS_DISABLED, Color(115, 120, 145, 255));
+
+	__pSearchBar->SetButtonColor(SEARCH_BAR_BUTTON_STATUS_NORMAL, Color(0, 0, 0, 255));
+	__pSearchBar->SetButtonColor(SEARCH_BAR_BUTTON_STATUS_PRESSED, Color(0, 0, 0, 255));
+	__pSearchBar->SetButtonColor(SEARCH_BAR_BUTTON_STATUS_HIGHLIGHTED, Color(0, 0, 0, 255));
+	__pSearchBar->SetButtonColor(SEARCH_BAR_BUTTON_STATUS_PRESSED, Color(0, 0, 0, 255));
+
+	AddControl(__pSearchBar);
+
 	__pListView = new ListView();
-	__pListView->Construct(Rectangle(0, 0, clientRect.width, clientRect.height), true, false);
+	__pListView->Construct(Rectangle(0, 100, clientRect.width, clientRect.height - 100), true, false);
 	__pListView->SetItemProvider(*this);
 	__pListView->AddListViewItemEventListener(*this);
 
@@ -115,7 +164,6 @@ UiMessagesPanel::OnSceneActivatedN(const Tizen::Ui::Scenes::SceneId& previousSce
 
 	AppLogDebug("OnSceneActivatedN11");
 
-	Tizen::Ui::Controls::Frame* pFrame = Tizen::App::UiApp::GetInstance()->GetAppFrame()->GetFrame();
 	UpdateUnreadCount();
 }
 
@@ -182,7 +230,7 @@ UiMessagesPanel::OnListViewItemSwept(ListView &listView, int index, SweepDirecti
 ListItemBase*
 UiMessagesPanel::CreateItem(int index, int itemWidth)
 {
-	AppLog("CreateItem :: %d", index);
+//	AppLog("CreateItem :: %d", index);
     // Creates an instance of CustomItem
 	UiDialogCustomItem *pItem = new UiDialogCustomItem();
     ListAnnexStyle style = LIST_ANNEX_STYLE_NORMAL;
@@ -240,12 +288,12 @@ UiMessagesPanel::RequestUpdateForIndex(int index, int elementId) {
 void
 UiMessagesPanel::OnUserEventReceivedN(RequestId requestId, Tizen::Base::Collection::IList* pArgs) {
 
-	AppLogDebug("OnUserEventReceivedN");
+//	AppLogDebug("OnUserEventReceivedN");
 	if (requestId == 111111) {
 		AppAssert(pArgs->GetCount() > 0);
 		UpdateUnit *unit = static_cast<UpdateUnit *> (pArgs->GetAt(0));
 
-		AppLogDebug("%d :: %d", unit->__index, unit->__requestId);
+//		AppLogDebug("%d :: %d", unit->__index, unit->__requestId);
 		__pListView->RefreshList(unit->__index, unit->__requestId);
 	} else if (requestId == 222222) {
 		__pListView->UpdateList();
@@ -406,3 +454,30 @@ void
 UiMessagesPanel::RequestImageUpdateForIndex(int index, int section, int elementId) {
 
 }
+
+void
+UiMessagesPanel::OnTextValueChanged(const Tizen::Ui::Control& source) {
+
+	String string = this->__pSearchBar->GetText();
+
+	if (string.GetLength() == 0) {
+//		AppLog("OnTextValueChanged!!!!!");
+//		this->__pUsersList = MUserDao::getInstance().GetFriendsN();
+	} else {
+//		AppLog("OnTextValueChanged %S", string.GetPointer());
+//
+//		this->__pUsersList = MUserDao::getInstance().SearchUsers(new String(string.GetPointer()));
+//
+//		AppLog("RESULTS %d", this->__pUsersList->GetCount());
+	}
+
+//	this->__pListView->UpdateList();
+}
+
+void
+UiMessagesPanel::OnActionPerformed(const Tizen::Ui::Control& source, int actionId) {
+	if (actionId == 103) {
+		//add action
+	}
+}
+

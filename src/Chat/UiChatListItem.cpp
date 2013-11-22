@@ -8,16 +8,22 @@
 #include "UiChatListItem.h"
 #include "Util.h"
 #include "MMessage.h"
+#include "MUser.h"
+#include "MDialog.h"
 #include "Resources.h"
+#include "IImageDrawer.h"
 
 using namespace Tizen::Media;
 using namespace Tizen::Graphics;
 using namespace Tizen::Ui::Controls;
 
+const int avatarSize = 55;
+
 UiChatListItem::UiChatListItem() {
 	__pMessage = null;
 	__offset = 20;
 	__sideOffset = __offset*3;
+	__leftOffset = __sideOffset;
 	__triangleWidth = 25;
 	__triangleHeight = 32;
 }
@@ -41,6 +47,25 @@ UiChatListItem::OnDraw(Tizen::Graphics::Canvas& canvas, const Tizen::Graphics::R
 
 	this->DrawBubble(canvas, rect, status);
 	this->DrawMessage(canvas, rect, status);
+
+	if (this->GetMessage()->GetOut() == 0 && this->__pDialog->GetUid() > isChatValue) {
+
+		int uid = this->__pMessage->GetFromUid();
+		String *url = null;
+
+		for (int i = 0; i < this->__pDialog->GetUsers()->GetCount(); i++) {
+			MUser *user = static_cast<MUser *> (this->__pDialog->GetUsers()->GetAt(i));
+
+			if(user->GetUid() == uid) {
+				url = user->GetPhoto();
+				break;
+			}
+		}
+
+		this->GetDrawer()->DrawImageFromUrlInRect(url, Rectangle(20, 30, avatarSize, avatarSize));
+	}
+
+	AppLog("DRAWEDDD");
 
 	return true;
 }
@@ -80,7 +105,7 @@ UiChatListItem::DrawBubble(Tizen::Graphics::Canvas& canvas, const Tizen::Graphic
 		triangleThirdPoint = Point(rect.width - sideOffset, rect.y + offset + 30 + __triangleHeight);
 	} else {
 		bubbleRect = FloatRectangle (
-								sideOffset,
+								__leftOffset,
 								0 + offset,
 								width,
 								height - offset*2);
@@ -88,9 +113,9 @@ UiChatListItem::DrawBubble(Tizen::Graphics::Canvas& canvas, const Tizen::Graphic
 		normalColor = Color(76, 109, 150, 255);
 		selectedColor = Color(50, 255, 100, 255);
 
-		triangleFirstPoint = Point(sideOffset, rect.y + offset + 30);
-		triangleSecondPoint = Point(sideOffset - triangleWidth, rect.y + offset + 30);
-		triangleThirdPoint = Point(sideOffset, rect.y + offset +  30 + __triangleHeight);
+		triangleFirstPoint = Point(__leftOffset, rect.y + offset + 30);
+		triangleSecondPoint = Point(__leftOffset - triangleWidth, rect.y + offset + 30);
+		triangleThirdPoint = Point(__leftOffset, rect.y + offset +  30 + __triangleHeight);
 	}
 
 	if (status == LIST_ITEM_DRAWING_STATUS_PRESSED) {
@@ -165,7 +190,7 @@ UiChatListItem::DrawMessage(Tizen::Graphics::Canvas& canvas, const Tizen::Graphi
 	if (this->GetMessage()->GetOut() == 1) {
 		drawPoint = Point(rect.width - __sideOffset - width + __offset, height/2 - resultSize.height/2);
 	} else {
-		drawPoint = Point(__sideOffset + __offset, height/2 - resultSize.height/2);
+		drawPoint = Point(__leftOffset + __offset, height/2 - resultSize.height/2);
 	}
 
 	canvas.DrawText(drawPoint, *pMessageLabel);
@@ -213,7 +238,7 @@ UiChatListItem::DrawMessage(Tizen::Graphics::Canvas& canvas, const Tizen::Graphi
 				height - 136/2 - timeSize.height/2);
 	} else {
 		datePoint = Point(
-				__sideOffset + width + __offset,
+				__leftOffset + width + __offset,
 				height - 136/2 - timeSize.height/2);
 	}
 
@@ -251,13 +276,22 @@ UiChatListItem::SetBubbleDimension(Dimension pDimension) {
 void
 UiChatListItem::SetDialog(MDialog *pDialog) {
 	__pDialog = pDialog;
-//
-//	for(int index = 0; index < this->__pDialog->GetUsers(); index++) {
-//
-//	}
+
+	if (this->__pDialog->GetUid() > isChatValue) {
+		__leftOffset += avatarSize;
+	}
 }
 
 MDialog *
 UiChatListItem::GetDialog() {
 	return __pDialog;
+}
+void
+UiChatListItem::SetDrawer(IImageDrawer *drawer) {
+	__pImageDrawer = drawer;
+}
+
+IImageDrawer *
+UiChatListItem::GetDrawer() {
+	return __pImageDrawer;
 }

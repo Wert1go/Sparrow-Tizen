@@ -147,10 +147,6 @@ MDialogDao::GetDialogN(int did) {
 		pDialog = LoadDialogFromDBN(pEnum);
 	}
 
-	if (pDialog) {
-		AppLogDebug("EXIST pDialog");
-	}
-
 	delete compiledSaveStatment;
 	delete pEnum;
 
@@ -186,10 +182,6 @@ MDialogDao::GetDialogsWithOffsetN(int offset) {
 		if (pDialog) {
 			pDialogs->Add(pDialog);
 		}
-	}
-
-	if (pDialogs) {
-		AppLogDebug("EXIST pDialogs");
 	}
 
 	delete compiledSaveStatment;
@@ -236,8 +228,6 @@ MDialogDao::BindDialogToSQLStatement(MDialog *dialog, DbStatement *statement) {
 	} else {
 		statement->BindInt(12, 0);
 	}
-
-	AppLog("tesssssssssssss +++++++++++++++++++++++++");
 
 	if (dialog->GetChatUids()) {
 		statement->BindString(13, dialog->GetChatUids()->GetPointer());
@@ -299,7 +289,6 @@ MDialogDao::LoadDialogFromDBN(DbEnumerator* pEnum) {
 	dialog->SetChatUids(chatUids);
 
 	if (uid > isChatValue) {
-		AppLog("++++++++++++++++++++++++++++++++++");
 		LinkedList *users = MUserDao::getInstance().GetUsersN(chatUids);
 		dialog->SetUsers(users);
 	}

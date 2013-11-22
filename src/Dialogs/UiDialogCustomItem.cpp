@@ -49,7 +49,7 @@ UiDialogCustomItem::UiDialogCustomItem() {
 
 
 UiDialogCustomItem::~UiDialogCustomItem() {
-	AppLog("UiDialogCustomItem::~UiDialogCustomItem");
+//	AppLog("UiDialogCustomItem::~UiDialogCustomItem");
 	ImageCache::getInstance().CancelLoadingForTarget(this);
 	__pPlaceholder = null;
 	PlaceholderActive = null;

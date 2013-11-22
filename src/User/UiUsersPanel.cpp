@@ -63,9 +63,6 @@ UiUsersPanel::OnInitializing(void) {
 	clientRect = pForm->GetClientAreaBounds();
 	SetBounds(Rectangle(0, 0, clientRect.width, clientRect.height));
 
-	__pSectionItemsList = new LinkedList();
-	__pSectionTitlesList = new LinkedList();
-
 	__pSearchBar = new SearchBar();
 	__pSearchBar->Construct(Rectangle(0, 0, clientRect.width, 100));
 	__pSearchBar->SetText(L"Поиск");
@@ -74,7 +71,6 @@ UiUsersPanel::OnInitializing(void) {
 	__pSearchBar->SetSearchFieldColor(SEARCH_FIELD_STATUS_NORMAL, Color(0, 0, 0, 255));
 	__pSearchBar->SetSearchFieldColor(SEARCH_FIELD_STATUS_HIGHLIGHTED, Color(0, 0, 0, 255));
 	__pSearchBar->SetSearchFieldColor(SEARCH_FIELD_STATUS_DISABLED, Color(0, 0, 0, 255));
-//	__pSearchBar->SetChromaKeyColor(Color(115, 120, 145, 255));
 	__pSearchBar->SetSearchFieldTextColor(SEARCH_FIELD_STATUS_NORMAL, Color(115, 120, 145, 255));
 	__pSearchBar->SetSearchFieldTextColor(SEARCH_FIELD_STATUS_HIGHLIGHTED, Color(115, 120, 145, 255));
 	__pSearchBar->SetSearchFieldTextColor(SEARCH_FIELD_STATUS_DISABLED, Color(115, 120, 145, 255));
@@ -90,18 +86,13 @@ UiUsersPanel::OnInitializing(void) {
 	__pSearchBar->SetButtonColor(SEARCH_BAR_BUTTON_STATUS_HIGHLIGHTED, Color(0, 0, 0, 255));
 	__pSearchBar->SetButtonColor(SEARCH_BAR_BUTTON_STATUS_PRESSED, Color(0, 0, 0, 255));
 
-//	__pSearchBar->SetMode(SEARCH_BAR_MODE_NORMAL);
-//	__pSearchBar->SetModeLocked(true);
-
 	AddControl(__pSearchBar);
 
-	// Creates an instance of ListView
 	__pListView = new GroupedListView();
 	__pListView->Construct(Rectangle(0, 110, clientRect.width, clientRect.height - 100 - 110), GROUPED_LIST_VIEW_STYLE_INDEXED, true, true);
 	__pListView->SetItemProvider(*this);
 	__pListView->AddGroupedListViewItemEventListener(*this);
 
-	//__pSearchBar->SetContent(__pListView);
 
 	__pListView->SetFastScrollIndex(L"#0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZАБВГДЕЖЗИЙКЛМНОПРСТУФХЦЧШЩЭЮЯ", true);
 	__pListView->AddFastScrollListener(*this);
@@ -109,10 +100,8 @@ UiUsersPanel::OnInitializing(void) {
 	__pListView->SetItemDividerColor(*separatorColor);
 	delete separatorColor;
 
-	// Adds the list view to the form
 	AddControl(__pListView);
 
-	// Creates an instance of ListContextItem
 	__pItemContext = new ListContextItem();
 	__pItemContext->Construct();
 	__pItemContext->AddElement(1, L"Test1");
@@ -130,6 +119,7 @@ void
 UiUsersPanel::OnSceneActivatedN(const Tizen::Ui::Scenes::SceneId& previousSceneId,
 									   const Tizen::Ui::Scenes::SceneId& currentSceneId, Tizen::Base::Collection::IList* pArgs) {
 	this->__pUsersList = MUserDao::getInstance().GetFriendsN();
+
 	if (this->__pListView) {
 		this->__pListView->UpdateList();
 	}

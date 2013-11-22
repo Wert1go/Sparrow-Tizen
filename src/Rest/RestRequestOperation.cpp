@@ -221,7 +221,9 @@ RestRequestOperation::Execute() {
 			delete text;
 		}
 
-		__restRequestListener->OnErrorN(new Error(REST_BAD_RESPONSE));
+		if (__restRequestListener) {
+			__restRequestListener->OnErrorN(new Error(REST_BAD_RESPONSE));
+		}
 		return;
 	}
 

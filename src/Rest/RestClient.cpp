@@ -40,8 +40,8 @@ void RestClient::PerformOperation(ImageRequestOperation *operation) {
 }
 
 void RestClient::OnCompliteN(IRequestOperation *operation) {
-	delete operation;
-	operation = null;
+//	delete operation;
+//	operation = null;
 }
 
 

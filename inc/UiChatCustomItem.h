@@ -9,18 +9,25 @@
 #define UICHATCUSTOMITEM_H_
 
 #include <FUi.h>
+#include "IImageDrawer.h"
+#include "IImageLoadingListener.h"
 
 using namespace Tizen::Ui;
 using namespace Tizen::Base;
+using namespace Tizen::Base::Collection;
 using namespace Tizen::Graphics;
 using namespace Tizen::Ui::Controls;
 
 class UiChatListItem;
 class MMessage;
 class MDialog;
+class IRefreshableListView;
+class Error;
 
 class UiChatCustomItem
  : public CustomItem
+ , public IImageLoadingListener
+ , public IImageDrawer
 {
 public:
 	UiChatCustomItem();
@@ -34,6 +41,17 @@ public:
 
 	void SetDialog(MDialog *pDialog);
 	MDialog *GetDialog();
+	void SetIndex(int index);
+
+	virtual void AddRefreshListener(IRefreshableListView *pRefreshListener);
+
+private:
+	virtual void DrawImageFromUrlInRect(String *imageUrl, Rectangle rect);
+
+	void OnImageLoadedN(Bitmap *result, Integer *code);
+	void OnErrorN(Error *error);
+
+	void SetImageUrl(String *url, int code);
 
 private:
 	Dimension *__pDimension;
@@ -44,6 +62,14 @@ private:
 	UiChatListItem* __pChatListItem;
 	MMessage *__pMessage;
 	MDialog *__pDialog;
+
+	int __index;
+	int __section;
+
+	HashMapT<String *, Integer *> *__pUrtToIndexMap;
+	LinkedList *__pImageViews;
+	IRefreshableListView *__pRefreshListener;
+
 };
 
 #endif /* UICHATCUSTOMITEM_H_ */

@@ -15,6 +15,7 @@ using namespace Tizen::Graphics;
 class MDialog;
 class MMessage;
 class MUser;
+class IImageDrawer;
 
 class UiChatListItem
  : public Tizen::Ui::Controls::ICustomElement {
@@ -31,6 +32,9 @@ public:
 	void SetDialog(MDialog *pDialog);
 	MDialog *GetDialog();
 
+	void SetDrawer(IImageDrawer *drawer);
+	IImageDrawer * GetDrawer();
+
 private:
 	void DrawBubble(Tizen::Graphics::Canvas& canvas, const Tizen::Graphics::Rectangle& rect, Tizen::Ui::Controls::ListItemDrawingStatus status);
 	void DrawMessage(Tizen::Graphics::Canvas& canvas, const Tizen::Graphics::Rectangle& rect, Tizen::Ui::Controls::ListItemDrawingStatus status);
@@ -39,10 +43,14 @@ private:
 	Dimension __pBubbleDimension;
 	float __offset;
 	float __sideOffset;
+	float __leftOffset;
+
 	float __triangleWidth;
 	float __triangleHeight;
 	MDialog *__pDialog;
 	MUser *__pUser;
+
+	IImageDrawer *__pImageDrawer;
 
 };
 

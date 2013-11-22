@@ -150,8 +150,6 @@ MUser::CreateFromJsonN(const Tizen::Web::Json::JsonObject &pUserObject) {
 	String *pMiniPhoto = new String(miniPhoto->GetPointer());
 	String *pPhoto = new String(photo->GetPointer());
 
-	AppLog("%d %S %S", uid, pMiniPhoto->GetPointer(), pPhoto->GetPointer());
-
 	user->SetFirstName(pFirstName);
 	user->SetLastName(pLastName);
 	user->SetMiniPhoto(pMiniPhoto);
@@ -162,8 +160,6 @@ MUser::CreateFromJsonN(const Tizen::Web::Json::JsonObject &pUserObject) {
 	if (time) {
 		user->SetLastSeen(time->ToLong());
 	}
-
-	AppLog("+++ %d %S %S", uid, user->GetMiniPhoto()->GetPointer(), user->GetPhoto()->GetPointer());
 
 	delete pKeyFirstName;
 	delete pKeyLastName;

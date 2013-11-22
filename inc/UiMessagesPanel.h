@@ -22,7 +22,10 @@ class UiMessagesPanel
  , public Tizen::Ui::Controls::IListViewItemProvider
  , public IRefreshableListView
  , public IRestRequestListener
+ , public Tizen::Ui::Controls::ISearchBarEventListener
+ , public Tizen::Ui::ITextEventListener
  , public Tizen::Ui::Scenes::ISceneEventListener
+ , public Tizen::Ui::IActionEventListener
 {
 public:
 	UiMessagesPanel();
@@ -52,7 +55,15 @@ public:
 	virtual void OnSceneDeactivated(const Tizen::Ui::Scenes::SceneId& currentSceneId,
 										const Tizen::Ui::Scenes::SceneId& nextSceneId);
 
+    // ISearchBarEventListener
+    virtual void OnSearchBarModeChanged(Tizen::Ui::Controls::SearchBar& source, Tizen::Ui::Controls::SearchBarMode mode){};
+    virtual void OnSearchBarContentAreaResized(Tizen::Ui::Controls::SearchBar& source, Tizen::Graphics::Dimension& size) {};
+    virtual void OnTextValueChanged(const Tizen::Ui::Control& source);
+    virtual void OnTextValueChangeCanceled(const Tizen::Ui::Control& source){};
+
 private:
+    virtual void OnActionPerformed(const Tizen::Ui::Control& source, int actionId);
+
 	void SetDialogsList(LinkedList *list);
 	LinkedList * GetDialogsList();
 
@@ -71,6 +82,8 @@ private:
 
 	LinkedList *__pDialogsList;
 	RestRequestOperation *__pDialogRequestOperation;
+
+	SearchBar *__pSearchBar;
 	void SendRequest();
 };
 

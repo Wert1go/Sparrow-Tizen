@@ -18,6 +18,7 @@
 #include "RestRequestOperation.h"
 #include "UiMessengerPanel.h"
 #include "IMessageDeliveryListener.h"
+#include "IRefreshableListView.h"
 
 using namespace Tizen::Ui::Controls;
 using namespace Tizen::Base::Collection;
@@ -39,6 +40,7 @@ class UiChatForm
  , public Tizen::Ui::IActionEventListener
  , public IScrollEventListener
  , public IMessageDeliveryListener
+ , public IRefreshableListView
 
 {
 public:
@@ -104,6 +106,10 @@ public:
 
 	void RequestMessagesForUser(int userId);
 
+	//RefreshableListView
+	virtual void RequestUpdateForIndex(int index, int elementId);
+	virtual void RequestImageUpdateForIndex(int index, int section, int elementId);
+
 	void SetMessages(LinkedList *messages);
 	LinkedList * GetMessages();
 
@@ -136,6 +142,8 @@ private:
 
 	int __lastMessageId;
 	MDialog *__pDialog;
+
+	bool __isActive;
 
 };
 
