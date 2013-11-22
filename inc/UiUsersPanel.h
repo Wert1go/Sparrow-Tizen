@@ -12,6 +12,7 @@
 #include "IRefreshableListView.h"
 #include "IRestRequestListener.h"
 #include "RestRequestOperation.h"
+#include "BaseUserController.h"
 
 using namespace Tizen::Ui::Controls;
 using namespace Tizen::Base::Collection;
@@ -21,14 +22,13 @@ class Error;
 
 class UiUsersPanel
  : public Panel
-
- , public IRefreshableListView
  , public IRestRequestListener
  , public Tizen::Ui::Scenes::ISceneEventListener
  , public IFastScrollListener
  , public Tizen::Ui::Controls::ISearchBarEventListener
  , public Tizen::Ui::ITextEventListener
  , public Tizen::Ui::IActionEventListener
+ , public BaseUserController
 
 {
 public:
@@ -39,6 +39,7 @@ public:
 	virtual result OnInitializing(void);
 	virtual result OnTerminating(void);
 	void SetCurrentDisplayMode(int mode);
+
 private:
 
 	//Scenes
@@ -53,8 +54,6 @@ private:
 	virtual void OnFastScrollIndexSelected(Tizen::Ui::Control& source, Tizen::Base::String& index);
 
 	virtual void OnUserEventReceivedN(RequestId requestId, Tizen::Base::Collection::IList* pArgs);
-	virtual void RequestImageUpdateForIndex(int index, int section, int elementId);
-	virtual void RequestUpdateForIndex(int index, int elementId);
 
     // ISearchBarEventListener
     virtual void OnSearchBarModeChanged(Tizen::Ui::Controls::SearchBar& source, Tizen::Ui::Controls::SearchBarMode mode){};
@@ -63,18 +62,13 @@ private:
     virtual void OnTextValueChangeCanceled(const Tizen::Ui::Control& source){};
 
     virtual void OnActionPerformed(const Tizen::Ui::Control& source, int actionId);
+    virtual void RequestUiUpdate(int code, IList *pArgs);
 
 private:
-	Tizen::Ui::Controls::GroupedListView* __pListView;
-	Tizen::Ui::Controls::ListContextItem* __pItemContext;
-
-
-
 	RestRequestOperation *__pUserRequestOperation;
 	SearchBar *__pSearchBar;
 
 	void RequestUsers();
-	void SplitUsersToSections();
 
 };
 
