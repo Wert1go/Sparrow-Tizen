@@ -9,6 +9,7 @@
 
 #include <FBase.h>
 #include <FApp.h>
+#include <FShell.h>
 
 #include "RestRequestOperation.h"
 
@@ -39,6 +40,7 @@ using namespace Tizen::App;
 using namespace Tizen::Base;
 using namespace Tizen::Base::Collection;
 using namespace Tizen::Ui::Controls;
+using namespace Tizen::Shell;
 
 LongPollConnection::LongPollConnection() {
 	__pLongPollServerDataOperation = null;
@@ -234,7 +236,6 @@ LongPollConnection::OnSuccessN(RestResponse *result) {
 
 						break;
 				case LP_MESSAGE_ADD_FULL: {
-					AppLog("test");
 					MUserDao::getInstance().UpdateUserOnlineStatusById(1, pObject->GetUserId());
 					MDialogDao::getInstance().UpdateDialogOnlineStatusById(1, pObject->GetUserId());
 
@@ -330,4 +331,5 @@ LongPollConnection::OnErrorN(Error *error) {
 
 	delete error;
 }
+
 

@@ -210,18 +210,47 @@ MDialogDao::CreateSaveStatement() {
 DbStatement *
 MDialogDao::BindDialogToSQLStatement(MDialog *dialog, DbStatement *statement) {
 
+	String *string = new String (L"");
+
 	statement->BindInt(0, dialog->GetIdentifier());
 	statement->BindInt(1, dialog->GetUid());
-	statement->BindString(2, dialog->GetLastName()->GetPointer());
-	statement->BindString(3, dialog->GetFirstName()->GetPointer());
-	statement->BindString(4, dialog->GetPhoto()->GetPointer());
-	statement->BindString(5, dialog->GetMiniPhoto()->GetPointer());
+
+	if (dialog->GetLastName()) {
+		statement->BindString(2, dialog->GetLastName()->GetPointer());
+	} else {
+		statement->BindString(2, string->GetPointer());
+	}
+
+	if (dialog->GetFirstName()) {
+		statement->BindString(3, dialog->GetFirstName()->GetPointer());
+	} else {
+		statement->BindString(3, string->GetPointer());
+	}
+
+	if (dialog->GetPhoto()) {
+		statement->BindString(4, dialog->GetPhoto()->GetPointer());
+	} else {
+		statement->BindString(4, string->GetPointer());
+	}
+
+	if (dialog->GetMiniPhoto()) {
+		statement->BindString(5, dialog->GetMiniPhoto()->GetPointer());
+	} else {
+		statement->BindString(5, string->GetPointer());
+	}
+
 	statement->BindInt(6, dialog->GetIsOnline());
 	statement->BindInt64(7, dialog->GetDate());
 	statement->BindInt(8, dialog->GetOut());
 	statement->BindInt(9, dialog->GetReadState());
+
 	statement->BindString(10, dialog->GetTitle()->GetPointer());
-	statement->BindString(11, dialog->GetText()->GetPointer());
+
+	if (dialog->GetText()) {
+		statement->BindString(11, dialog->GetText()->GetPointer());
+	} else {
+		statement->BindString(11, string->GetPointer());
+	}
 
 	if (dialog->GetChatId()) {
 		statement->BindInt(12, dialog->GetChatId());
@@ -232,7 +261,6 @@ MDialogDao::BindDialogToSQLStatement(MDialog *dialog, DbStatement *statement) {
 	if (dialog->GetChatUids()) {
 		statement->BindString(13, dialog->GetChatUids()->GetPointer());
 	} else {
-		String *string = new String (L"");
 		statement->BindString(13, string->GetPointer());
 	}
 

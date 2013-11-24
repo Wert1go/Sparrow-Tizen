@@ -9,6 +9,7 @@
 #include "MMessage.h"
 #include "MessageComparer.h"
 #include "MDatabaseManager.h"
+#include "MAttachmentDao.h"
 
 using namespace Tizen::Io;
 using namespace Tizen::Base::Collection;
@@ -52,7 +53,9 @@ MMessageDao::Save(IList *messages) {
 		compiledSaveStatment = BindMessageToSQLStatement(pMessage, compiledSaveStatment);
 		pEnum = MDatabaseManager::getInstance().GetDatabase()->ExecuteStatementN(*compiledSaveStatment);
 		delete pEnum;
-
+		if (pMessage->__pAttachments && pMessage->__pAttachments->GetCount() > 0) {
+			MAttachmentDao::getInstance().SaveAttachments(pMessage->__pAttachments, pMessage->GetMid());
+		}
 	}
 
 	MDatabaseManager::getInstance().GetDatabase()->CommitTransaction();
@@ -224,6 +227,11 @@ MMessageDao::LoadMessageFromDBN(DbEnumerator* pEnum) {
 	message->SetReadState(readState);
 	message->SetText(text);
 	message->SetDelivered(delivered);
+
+	message->__pAttachments = MAttachmentDao::getInstance().GetAttachments(mid);
+	if (message->__pAttachments && message->__pAttachments->GetCount()) {
+		AppLog("coun %d", message->__pAttachments->GetCount());
+	}
 
 	return message;
 }

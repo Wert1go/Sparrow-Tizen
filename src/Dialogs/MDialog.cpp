@@ -17,6 +17,12 @@ MDialog::MDialog() {
 	__pUsers = null;
 	chatUids = null;
 	__chatId = 0;
+	__firstName = null;
+	__lastName = null;
+	__photo = null;
+	__miniPhoto = null;
+    __title = null;
+	__text = null;
 }
 
 MDialog::~MDialog() {

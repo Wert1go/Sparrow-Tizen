@@ -11,8 +11,9 @@ using namespace Tizen::Base;
 using namespace Tizen::Web::Json;
 
 MUser::MUser() {
-	// TODO Auto-generated constructor stub
-
+	__isFriend = 0;
+	__isContact = 0;
+	__isPending = 0;
 }
 
 MUser::~MUser() {
@@ -113,6 +114,7 @@ MUser::CreateFromJsonN(const Tizen::Web::Json::JsonObject &pUserObject) {
 	JsonString* pKeyOnline = new JsonString(L"online");
 	JsonString* pKeyLastSeen = new JsonString(L"last_seen");
 	JsonString* pKeyTime = new JsonString(L"time");
+	JsonString* pKeyIsFriend = new JsonString(L"is_friend");
 
 	IJsonValue* pValFirstName = null;
 	IJsonValue* pValLastName = null;
@@ -122,6 +124,7 @@ MUser::CreateFromJsonN(const Tizen::Web::Json::JsonObject &pUserObject) {
 	IJsonValue* pValOnline = null;
 	IJsonValue* pValLastSeen = null;
 	IJsonValue* pValTime = null;
+	IJsonValue* pValIsFriend = null;
 
 	pUserObject.GetValue(pKeyFirstName, pValFirstName);
 	pUserObject.GetValue(pKeyLastName, pValLastName);
@@ -130,6 +133,7 @@ MUser::CreateFromJsonN(const Tizen::Web::Json::JsonObject &pUserObject) {
 	pUserObject.GetValue(pKeyPhoto, pValPhoto);
 	pUserObject.GetValue(pKeyOnline, pValOnline);
 	pUserObject.GetValue(pKeyLastSeen, pValLastSeen);
+	pUserObject.GetValue(pKeyIsFriend, pValIsFriend);
 
 	JsonString *firstName = static_cast< JsonString* >(pValFirstName);
 	JsonString *lastName = static_cast< JsonString* >(pValLastName);
@@ -137,6 +141,7 @@ MUser::CreateFromJsonN(const Tizen::Web::Json::JsonObject &pUserObject) {
 	JsonString *miniPhoto = static_cast< JsonString* >(pValMiniPhoto);
 	JsonString *photo = static_cast< JsonString* >(pValPhoto);
 	JsonNumber *isOnline = static_cast< JsonNumber* >(pValOnline);
+	JsonNumber *isFriend = static_cast< JsonNumber* >(pValIsFriend);
 
 	JsonNumber *time = null;
 	if (pValLastSeen) {
@@ -157,6 +162,13 @@ MUser::CreateFromJsonN(const Tizen::Web::Json::JsonObject &pUserObject) {
 	user->SetUid(uid->ToInt());
 	user->SetIsOnline(isOnline->ToInt());
 
+	if (isFriend) {
+		user->__isFriend = isFriend->ToInt();
+	} else {
+		AppLog("user->__isFriend = 0;");
+		user->__isFriend = 0;
+	}
+
 	if (time) {
 		user->SetLastSeen(time->ToLong());
 	}
@@ -169,6 +181,7 @@ MUser::CreateFromJsonN(const Tizen::Web::Json::JsonObject &pUserObject) {
 	delete pKeyOnline;
 	delete pKeyLastSeen;
 	delete pKeyTime;
+	delete pKeyIsFriend;
 
 	return user;
 }
@@ -187,6 +200,7 @@ MUser::CreateFromJsonLPN(const Tizen::Web::Json::JsonObject &pUserObject) {
 	JsonString* pKeyOnline = new JsonString(L"online");
 	JsonString* pKeyLastSeen = new JsonString(L"last_seen");
 	JsonString* pKeyTime = new JsonString(L"time");
+	JsonString* pKeyIsFriend = new JsonString(L"is_friend");
 
 	IJsonValue* pValFirstName = null;
 	IJsonValue* pValLastName = null;
@@ -196,6 +210,7 @@ MUser::CreateFromJsonLPN(const Tizen::Web::Json::JsonObject &pUserObject) {
 	IJsonValue* pValOnline = null;
 	IJsonValue* pValLastSeen = null;
 	IJsonValue* pValTime = null;
+	IJsonValue* pValIsFriend = null;
 
 	pUserObject.GetValue(pKeyFirstName, pValFirstName);
 	pUserObject.GetValue(pKeyLastName, pValLastName);
@@ -204,6 +219,7 @@ MUser::CreateFromJsonLPN(const Tizen::Web::Json::JsonObject &pUserObject) {
 	pUserObject.GetValue(pKeyPhoto, pValPhoto);
 	pUserObject.GetValue(pKeyOnline, pValOnline);
 	pUserObject.GetValue(pKeyLastSeen, pValLastSeen);
+	pUserObject.GetValue(pKeyIsFriend, pValIsFriend);
 
 	JsonString *firstName = static_cast< JsonString* >(pValFirstName);
 	JsonString *lastName = static_cast< JsonString* >(pValLastName);
@@ -211,6 +227,7 @@ MUser::CreateFromJsonLPN(const Tizen::Web::Json::JsonObject &pUserObject) {
 	JsonString *miniPhoto = static_cast< JsonString* >(pValMiniPhoto);
 	JsonString *photo = static_cast< JsonString* >(pValPhoto);
 	JsonNumber *isOnline = static_cast< JsonNumber* >(pValOnline);
+	JsonNumber *isFriend = static_cast< JsonNumber* >(pValIsFriend);
 
 	JsonObject *lastSeen = static_cast< JsonObject* >(pValLastSeen);
 	lastSeen->GetValue(pKeyTime, pValTime);
@@ -228,6 +245,7 @@ MUser::CreateFromJsonLPN(const Tizen::Web::Json::JsonObject &pUserObject) {
 	user->SetUid(uid->ToInt());
 	user->SetIsOnline(isOnline->ToInt());
 	user->SetLastSeen(time->ToLong());
+	user->__isFriend = isFriend->ToInt();
 
 	delete pKeyFirstName;
 	delete pKeyLastName;
@@ -237,6 +255,7 @@ MUser::CreateFromJsonLPN(const Tizen::Web::Json::JsonObject &pUserObject) {
 	delete pKeyOnline;
 	delete pKeyLastSeen;
 	delete pKeyTime;
+	delete pKeyIsFriend;
 
 	return user;
 }

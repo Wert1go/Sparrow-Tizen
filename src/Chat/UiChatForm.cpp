@@ -146,12 +146,10 @@ UiChatForm::GetMessages() {
 void
 UiChatForm::OnFormBackRequested(Tizen::Ui::Controls::Form& source) {
 	this->__isActive = false;;
-	AppLogDebug("+++++++++++++++++++++++++++++++++++++++++++");
 
 	SceneManager* pSceneManager = SceneManager::GetInstance();
 	AppAssert(pSceneManager);
 	pSceneManager->GoBackward(BackwardSceneTransition(SCENE_TRANSITION_ANIMATION_TYPE_RIGHT));
-	AppLogDebug("1111+++++++++++++++++++++++++++++++++++++++++++");
 }
 
 
@@ -354,6 +352,7 @@ UiChatForm::OnSuccessN(RestResponse *result) {
 		}
 
 	} else {
+		AppLog("ggg");
 		this->SetMessages(MMessageDao::getInstance().GetMessagesForUser(this->__userId));
 	}
 
@@ -371,7 +370,7 @@ UiChatForm::OnErrorN(Error *error) {
 void
 UiChatForm::OnMessageDelivered(int userId, MMessage *message) {
 	LinkedList *pArgs = new LinkedList();
-
+	AppLog("OnMessageDelivered");
 	pArgs->Add(new Integer(userId));
 	pArgs->Add(message);
 
@@ -482,8 +481,13 @@ UiChatForm::IsAlreadyAdded(MMessage *message) {
 		limit = this->GetMessages()->GetCount() - 30;
 	}
 
-	for (int index = this->GetMessages()->GetCount()-1; index > limit; index--) {
+	AppLog("IsAlreadyAdded");
+
+	for (int index = this->GetMessages()->GetCount()-1; index >= limit; index--) {
 		MMessage *existingMessage = static_cast<MMessage*>(this->GetMessages()->GetAt(index));
+
+		AppLog("IsAlreadyAdded %d :: %d",existingMessage->GetMid(), message->GetMid() );
+
 		if (existingMessage->GetMid() == message->GetMid()) {
 			result = true;
 			break;

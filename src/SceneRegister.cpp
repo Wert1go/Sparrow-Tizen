@@ -18,7 +18,12 @@ const wchar_t* SCENE_MAIN = L"MAIN_SCENE";
 const wchar_t* SCENE_CHAT = L"SCENE_CHAT";
 const wchar_t* SCENE_MAIN_MESSAGES_TAB = L"SCENE_MAIN_MESSAGES_TAB";
 const wchar_t* SCENE_MAIN_USERS_TAB = L"SCENE_MAIN_USERS_TAB";
+const wchar_t* SCENE_MAIN_SEARCH_TAB = L"SCENE_MAIN_SEARCH_TAB";
 const wchar_t* SCENE_SETTINGS = L"SCENE_SETTINGS";
+const wchar_t* SCENE_NEW_MESSAGE = L"SCENE_NEW_MESSAGE";
+const wchar_t* SCENE_SELECT_USER = L"SCENE_SELECT_USER";
+const wchar_t* SCENE_CREATE_CONV = L"SCENE_CREATE_CONV";
+const wchar_t* SCENE_PROFILE = L"SCENE_PROFILE";
 
 SceneRegister::SceneRegister() {
 	// TODO Auto-generated constructor stub
@@ -47,5 +52,12 @@ SceneRegister::RegisterAllScenes(void)
 	pSceneManager->RegisterScene(SCENE_SETTINGS, FORM_SETTINGS, PANEL_BLANK);
 	pSceneManager->RegisterScene(SCENE_MAIN_MESSAGES_TAB, FORM_MAIN, PANEL_DIALOGS);
 	pSceneManager->RegisterScene(SCENE_MAIN_USERS_TAB, FORM_MAIN, PANEL_USERS);
+	pSceneManager->RegisterScene(SCENE_MAIN_SEARCH_TAB, FORM_MAIN, PANEL_SEARCH);
+	pSceneManager->RegisterScene(SCENE_NEW_MESSAGE, FORM_NEW_MESSAGE, PANEL_BLANK);
+	pSceneManager->RegisterScene(SCENE_SELECT_USER, FORM_SELECT_USER, PANEL_BLANK);
+	pSceneManager->RegisterScene(SCENE_CREATE_CONV,FORM_CREATE_CONV, PANEL_BLANK);
+	pSceneManager->RegisterScene(SCENE_PROFILE,FORM_PROFILE, PANEL_BLANK);
+
+
 }
 

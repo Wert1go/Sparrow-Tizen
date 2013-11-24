@@ -6,6 +6,8 @@
  */
 
 #include "MMessage.h"
+#include "MDialog.h"
+#include "MAttachment.h"
 
 using namespace Tizen::Base;
 using namespace Tizen::Web::Json;
@@ -15,6 +17,7 @@ MMessage::MMessage() {
 	__text = null;
 	__title = null;
 	__chatId = 0;
+	__pAttachments = null;
 }
 
 MMessage::~MMessage() {
@@ -236,6 +239,37 @@ MMessage::CreateFromJsonN(const Tizen::Web::Json::JsonObject &pObject) {
 	message->SetReadState(readState->ToInt());
 	message->SetText(pText);
 
+	JsonString *pKeyAttachments = new JsonString(L"attachments");
+	IJsonValue* pValAttachments = null;
+
+	pObject.GetValue(pKeyAttachments, pValAttachments);
+
+	if (pValAttachments) {
+
+		LinkedList *pAttachmentsList = new LinkedList();
+		JsonArray *pAttachments = static_cast<JsonArray *>(pValAttachments);
+
+		for (int i = 0; i < pAttachments->GetCount(); i++) {
+			IJsonValue* pValAttachment = null;
+			pAttachments->GetAt(i, pValAttachment);
+
+			if (pValAttachment) {
+				JsonObject *pAttachment = static_cast<JsonObject *>(pValAttachment);
+
+				MAttachment *attachment = MAttachment::CreateFromJsonN(*pAttachment);
+
+				if (attachment) {
+					attachment->__mid = mid->ToInt();
+					pAttachmentsList->Add(attachment);
+				}
+			}
+		}
+
+		message->__pAttachments = new LinkedList();
+		message->__pAttachments->AddItems(*pAttachmentsList);
+	}
+
+	delete pKeyAttachments;
 	delete pKeyId;
 	delete pKeyUserId;
 	delete pKeyDate;
@@ -307,14 +341,11 @@ MMessage::CreateFromJsonLPN(const Tizen::Web::Json::JsonObject &pObject) {
 	JsonNumber* adminId;
 	JsonString* uids;
 	JsonString* title;
-	AppLog("2222trttttttttt");
 
 	if (pValChatId) {
 		chatId = static_cast< JsonNumber* >(pValChatId);
 		message->SetChatId(chatId->ToInt());
 	}
-
-	AppLog("trttttttttt");
 
 	if (pValUserCount) {
 		userCount = static_cast< JsonNumber* >(pValUserCount);
@@ -329,16 +360,19 @@ MMessage::CreateFromJsonLPN(const Tizen::Web::Json::JsonObject &pObject) {
 		message->userCount = userCount->ToInt();
 		message->__title = new String(title->GetPointer());
 	}
-	AppLog("1111trttttttttt");
+
 
 	String *pText = new String(text->GetPointer());
 
 	message->SetMid(mid->ToInt());
+
 	if (message->GetChatId() != 0) {
-		message->SetUid(message->GetChatId() + 2000000000);
+		AppLog("1111trttttttttt");
+		message->SetUid(message->GetChatId() + isChatValue);
 	} else {
 		message->SetUid(uid->ToInt());
 	}
+
 	message->SetFromUid(uid->ToInt());
 	message->SetDate(date->ToLong());
 	message->SetOut(out->ToInt());
@@ -362,6 +396,36 @@ MMessage::CreateFromJsonLPN(const Tizen::Web::Json::JsonObject &pObject) {
 	delete pKeyAdminId;
 	delete pKeyUserCount;
 	delete pKeyChatActive;
+
+	JsonString *pKeyAttachments = new JsonString(L"attachments");
+	IJsonValue* pValAttachments = null;
+
+	pObject.GetValue(pKeyAttachments, pValAttachments);
+
+	if (pValAttachments) {
+
+		LinkedList *pAttachmentsList = new LinkedList();
+		JsonArray *pAttachments = static_cast<JsonArray *>(pValAttachments);
+
+		for (int i = 0; i < pAttachments->GetCount(); i++) {
+			IJsonValue* pValAttachment = null;
+			pAttachments->GetAt(i, pValAttachment);
+
+			if (pValAttachment) {
+				JsonObject *pAttachment = static_cast<JsonObject *>(pValAttachment);
+
+				MAttachment *attachment = MAttachment::CreateFromJsonLPN(*pAttachment);
+
+				if (attachment) {
+					attachment->__mid = mid->ToInt();
+					pAttachmentsList->Add(attachment);
+				}
+			}
+		}
+
+		message->__pAttachments = new LinkedList();
+		message->__pAttachments->AddItems(*pAttachmentsList);
+	}
 
 	AppLog("1111test");
 

@@ -128,7 +128,7 @@ SettingsForm::SendRequest() {
 	HashMap *params = new HashMap();
 	params->Construct();
 	params->Add(new String(L"user_ids"), AuthManager::getInstance().UserId());
-	params->Add(new String(L"fields"), new String(L"photo_50,photo_100,last_seen,online"));
+	params->Add(new String(L"fields"), new String(USER_FILEDS));
 
 	if (!__userRequestOperation) {
 		__userRequestOperation = new RestRequestOperation(GET_USER, new String(L"users.get"), params);

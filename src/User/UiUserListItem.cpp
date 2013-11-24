@@ -51,6 +51,8 @@ UiUserListItem::OnDraw (Tizen::Graphics::Canvas &canvas, const Tizen::Graphics::
 	int height = rect.height;
 	int halfHeight = height/2;
 
+	//AppLog("UiUserListItem::OnDraw  %d", width);
+
 	int rightOffset = 25;
 
 	int onlineStatusSize = 44;

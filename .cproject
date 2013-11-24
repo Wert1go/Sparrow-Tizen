@@ -113,6 +113,7 @@
 									<listOptionValue builtIn="false" value="-losp-bluetooth"/>
 									<listOptionValue builtIn="false" value="-losp-nfc"/>
 									<listOptionValue builtIn="false" value="-losp-face"/>
+									<listOptionValue builtIn="false" value="-losp-secure-element"/>
 									<listOptionValue builtIn="false" value="-losp-speech-tts"/>
 									<listOptionValue builtIn="false" value="-losp-speech-stt"/>
 									<listOptionValue builtIn="false" value="-losp-shell"/>
@@ -252,6 +253,7 @@
 									<listOptionValue builtIn="false" value="-losp-bluetooth"/>
 									<listOptionValue builtIn="false" value="-losp-nfc"/>
 									<listOptionValue builtIn="false" value="-losp-face"/>
+									<listOptionValue builtIn="false" value="-losp-secure-element"/>
 									<listOptionValue builtIn="false" value="-losp-speech-tts"/>
 									<listOptionValue builtIn="false" value="-losp-speech-stt"/>
 									<listOptionValue builtIn="false" value="-losp-shell"/>
@@ -396,6 +398,7 @@
 									<listOptionValue builtIn="false" value="-losp-bluetooth"/>
 									<listOptionValue builtIn="false" value="-losp-nfc"/>
 									<listOptionValue builtIn="false" value="-losp-face"/>
+									<listOptionValue builtIn="false" value="-losp-secure-element"/>
 									<listOptionValue builtIn="false" value="-losp-speech-tts"/>
 									<listOptionValue builtIn="false" value="-losp-speech-stt"/>
 									<listOptionValue builtIn="false" value="-losp-shell"/>

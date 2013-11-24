@@ -14,6 +14,7 @@
 #include <iostream>
 #include <sys/time.h>
 #include "MMessage.h"
+#include "MAttachment.h"
 
 using namespace Tizen::Base;
 using namespace Tizen::Base::Utility;
@@ -125,47 +126,70 @@ Util::formatDateN(long date) {
 
 Dimension
 Util::CalculateDimensionForMessage(MMessage *message) {
-	EnrichedText* pTimeLabel = null;
-	TextElement* pTImeText = null;
 
-	pTimeLabel = new EnrichedText();
-	pTimeLabel->Construct(Dimension(limitSize, 480));
-
-	pTimeLabel->SetHorizontalAlignment(TEXT_ALIGNMENT_LEFT);
-	pTimeLabel->SetVerticalAlignment(TEXT_ALIGNMENT_MIDDLE);
-	pTimeLabel->SetTextWrapStyle(TEXT_WRAP_WORD_WRAP);
-
-	pTImeText = new TextElement();
 
 	String *text = message->GetText();
-
-	if (text->GetLength() == 0) {
-		text = new String(L" ");
-	}
-
-	pTImeText->Construct(*text);
-		pTImeText->SetTextColor(Color(109, 110, 117, 255));
-		{
-			Font font;
-			font.Construct(FONT_STYLE_BOLD, 36);
-			pTImeText->SetFont(font);
-		}
-
-	pTimeLabel->Add(*pTImeText);
-
 	Dimension resultSize;
 
-	FloatDimension size;
-	int actualLength;
-	pTimeLabel->GetTextExtent(0, text->GetLength(), size, actualLength);
+	if (text->GetLength() != 0) {
+		EnrichedText* pTimeLabel = null;
+		TextElement* pTImeText = null;
 
-	if (size.width <= limitSize) {
-		resultSize.width = size.width;
-		resultSize.height = size.height;
+		pTimeLabel = new EnrichedText();
+		pTimeLabel->Construct(Dimension(limitSize, 480));
+
+		pTimeLabel->SetHorizontalAlignment(TEXT_ALIGNMENT_LEFT);
+		pTimeLabel->SetVerticalAlignment(TEXT_ALIGNMENT_MIDDLE);
+		pTimeLabel->SetTextWrapStyle(TEXT_WRAP_WORD_WRAP);
+
+		pTImeText = new TextElement();
+
+		pTImeText->Construct(*text);
+			pTImeText->SetTextColor(Color(109, 110, 117, 255));
+			{
+				Font font;
+				font.Construct(FONT_STYLE_BOLD, 36);
+				pTImeText->SetFont(font);
+			}
+
+		pTimeLabel->Add(*pTImeText);
+
+
+
+		FloatDimension size;
+		int actualLength;
+		pTimeLabel->GetTextExtent(0, text->GetLength(), size, actualLength);
+
+		if (size.width <= limitSize) {
+			resultSize.width = size.width;
+			resultSize.height = size.height;
+		} else {
+			Dimension normalSize = pTimeLabel->GetTextExtent();
+			resultSize = normalSize;
+		}
+
 	} else {
-		Dimension normalSize = pTimeLabel->GetTextExtent();
-		resultSize = normalSize;
+		resultSize = Dimension(0, 0);
 	}
+
+	if (message->__pAttachments && message->__pAttachments->GetCount()) {
+		for (int i = 0; i < message->__pAttachments->GetCount(); i++) {
+			MAttachment *attachment = static_cast<MAttachment *>( message->__pAttachments->GetAt(i));
+			AppLog("CalculateDimensionForMessage %d", resultSize.height);
+			attachment->ratio = (float)attachment->__width/attachment->__height;
+
+			float imgWidth = 130 * attachment->ratio;
+
+			attachment->imageSize = FloatPoint(imgWidth, 130);
+
+			if (resultSize.width < imgWidth) {
+				resultSize.width = imgWidth;
+			}
+
+			resultSize.height += 130;
+		}
+	}
+
 
 	return resultSize;
 }

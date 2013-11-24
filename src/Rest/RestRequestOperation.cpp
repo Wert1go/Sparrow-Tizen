@@ -20,6 +20,8 @@ using namespace Tizen::Base::Utility;
 using namespace Tizen::Net::Http;
 using namespace Tizen::Web::Json;
 
+const wchar_t* USER_FILEDS = L"photo_50,photo_100,last_seen,online,is_friend";
+
 RestRequestOperation::RestRequestOperation(String *_uri, long operationCode, String *method, HashMap *params) {
 	Init(_uri, operationCode, method, params);
 }
@@ -89,6 +91,8 @@ RestRequestOperation::Init(String *_uri, long operationCode, String *method, Has
 	this->__pByteBuffer = null;
 	__isComplited = false;
 	__isError = false;
+
+	AppLogDebug("Created!");
 }
 
 RestRequestOperation::~RestRequestOperation() {
@@ -101,6 +105,7 @@ RestRequestOperation::~RestRequestOperation() {
 }
 
 void RestRequestOperation::perform() {
+
 	if (__pHttpTransaction != null) {
 		__pHttpTransaction->Submit();
 	} else {
@@ -127,8 +132,6 @@ void RestRequestOperation::SetRequestOwner(IRestRequestOwner *owner) {
 void
 RestRequestOperation::OnTransactionReadyToRead(HttpSession& httpSession, HttpTransaction& httpTransaction, int availableBodyLen)
 {
-
-
 	HttpResponse* pHttpResponse = httpTransaction.GetResponse();
 
 	AppLog("RestRequestOperation::OnTransactionReadyToRead %d", pHttpResponse->GetHttpStatusCode());

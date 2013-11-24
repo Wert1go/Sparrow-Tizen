@@ -12,12 +12,15 @@
 #include "MDialog.h"
 #include "Resources.h"
 #include "IImageDrawer.h"
+#include "MAttachment.h"
 
 using namespace Tizen::Media;
 using namespace Tizen::Graphics;
 using namespace Tizen::Ui::Controls;
 
 const int avatarSize = 55;
+
+static int textOffset = 0;
 
 UiChatListItem::UiChatListItem() {
 	__pMessage = null;
@@ -65,7 +68,35 @@ UiChatListItem::OnDraw(Tizen::Graphics::Canvas& canvas, const Tizen::Graphics::R
 		this->GetDrawer()->DrawImageFromUrlInRect(url, Rectangle(20, 30, avatarSize, avatarSize));
 	}
 
-	AppLog("DRAWEDDD");
+	if (this->GetMessage()->__pAttachments && this->GetMessage()->__pAttachments->GetCount()) {
+		float drawOffset = textOffset;
+		for (int i = 0; i < this->GetMessage()->__pAttachments->GetCount(); i++) {
+			MAttachment *attachment = static_cast<MAttachment *>( GetMessage()->__pAttachments->GetAt(i));
+			AppLog("%f %f", attachment->imageSize.x, attachment->imageSize.y);
+
+			Point drawPoint;
+			float width = __pBubbleDimension.width;
+
+			if (this->GetMessage()->GetOut() == 1) {
+				AppLog("textOffset %f", textOffset);
+
+				drawPoint = Point(rect.width - __sideOffset - width + __offset, drawOffset);
+			} else {
+				drawPoint = Point(__leftOffset + __offset, drawOffset);
+			}
+
+			this->GetDrawer()->DrawImageFromUrlInRect(
+					attachment->__pPhoto130,
+					Rectangle(
+							drawPoint.x,
+							drawPoint.y,
+							attachment->imageSize.x,
+							attachment->imageSize.y)
+			);
+
+			drawOffset += attachment->imageSize.y;
+		}
+	}
 
 	return true;
 }
@@ -141,59 +172,63 @@ UiChatListItem::DrawMessage(Tizen::Graphics::Canvas& canvas, const Tizen::Graphi
 	float width = __pBubbleDimension.width;
 	float height = __pBubbleDimension.height;
 
-	EnrichedText* pMessageLabel = null;
-	TextElement* pMessageText = null;
-
-	pMessageLabel = new EnrichedText();
-	pMessageLabel->Construct(Dimension(limitSize, 480));
-
-	pMessageLabel->SetHorizontalAlignment(TEXT_ALIGNMENT_LEFT);
-	pMessageLabel->SetVerticalAlignment(TEXT_ALIGNMENT_MIDDLE);
-	pMessageLabel->SetTextWrapStyle(TEXT_WRAP_WORD_WRAP);
-
-	pMessageText = new TextElement();
-
 	String *text = this->GetMessage()->GetText();
 
-	if (text->GetLength() == 0) {
-		text = new String(L" ");
-	}
+	if (text->GetLength() != 0) {
+		EnrichedText* pMessageLabel = null;
+		TextElement* pMessageText = null;
 
-	pMessageText->Construct(*text);
-	pMessageText->SetTextColor(Color(255, 255, 255, 255));
-	{
-		Font font;
-		font.Construct(FONT_STYLE_BOLD, 36);
-		pMessageText->SetFont(font);
-	}
+		pMessageLabel = new EnrichedText();
+		pMessageLabel->Construct(Dimension(limitSize, 480));
 
-	pMessageLabel->Add(*pMessageText);
+		pMessageLabel->SetHorizontalAlignment(TEXT_ALIGNMENT_LEFT);
+		pMessageLabel->SetVerticalAlignment(TEXT_ALIGNMENT_MIDDLE);
+		pMessageLabel->SetTextWrapStyle(TEXT_WRAP_WORD_WRAP);
 
-	Dimension resultSize;
+		pMessageText = new TextElement();
 
-	FloatDimension size;
-	int actualLength;
-	pMessageLabel->GetTextExtent(0, text->GetLength(), size, actualLength);
+		pMessageText->Construct(*text);
+		pMessageText->SetTextColor(Color(255, 255, 255, 255));
+		{
+			Font font;
+			font.Construct(FONT_STYLE_BOLD, 36);
+			pMessageText->SetFont(font);
+		}
 
-	if (size.width <= limitSize) {
-		resultSize.width = size.width;
-		resultSize.height = size.height;
+		pMessageLabel->Add(*pMessageText);
+
+		Dimension resultSize;
+
+		FloatDimension size;
+		int actualLength;
+		pMessageLabel->GetTextExtent(0, text->GetLength(), size, actualLength);
+
+		if (size.width <= limitSize) {
+			resultSize.width = size.width;
+			resultSize.height = size.height;
+		} else {
+			Dimension normalSize = pMessageLabel->GetTextExtent();
+			resultSize = normalSize;
+		}
+
+		pMessageLabel->SetSize(resultSize);
+
+		Point drawPoint;
+
+		float bubbleOffset = 40;
+
+		if (this->GetMessage()->GetOut() == 1) {
+			drawPoint = Point(rect.width - __sideOffset - width + __offset, bubbleOffset);
+		} else {
+			drawPoint = Point(__leftOffset + __offset, bubbleOffset);
+		}
+
+		textOffset = bubbleOffset + resultSize.height;
+
+		canvas.DrawText(drawPoint, *pMessageLabel);
 	} else {
-		Dimension normalSize = pMessageLabel->GetTextExtent();
-		resultSize = normalSize;
+		textOffset = 40;
 	}
-
-	pMessageLabel->SetSize(resultSize);
-
-	Point drawPoint;
-
-	if (this->GetMessage()->GetOut() == 1) {
-		drawPoint = Point(rect.width - __sideOffset - width + __offset, height/2 - resultSize.height/2);
-	} else {
-		drawPoint = Point(__leftOffset + __offset, height/2 - resultSize.height/2);
-	}
-
-	canvas.DrawText(drawPoint, *pMessageLabel);
 
 	EnrichedText* pTimeLabel = null;
 	TextElement* pTImeText = null;

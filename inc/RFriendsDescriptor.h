@@ -18,6 +18,10 @@ public:
 	virtual ~RFriendsDescriptor();
 
 	virtual RestResponse *performObjectMappingN(JsonObject* pObject);
+
+	void SetPersisterActive(bool state);
+private:
+	bool __isPresisterActive;
 };
 
 #endif /* RFRIENDSDESCRIPTOR_H_ */

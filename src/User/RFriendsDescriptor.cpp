@@ -11,8 +11,7 @@
 #include "MUserDao.h"
 
 RFriendsDescriptor::RFriendsDescriptor() {
-	// TODO Auto-generated constructor stub
-
+	__isPresisterActive = true;
 }
 
 RFriendsDescriptor::~RFriendsDescriptor() {
@@ -47,15 +46,21 @@ RFriendsDescriptor::performObjectMappingN(JsonObject* pObject) {
 		JsonObject* pUserObject = static_cast< JsonObject* >(pUserObjectValue);
 
 		MUser *user = MUser::CreateFromJsonN(*pUserObject);
-		user->__isFriend = 1;
 		users->Add(user);
 	}
 	response->SetUsers(users);
-
-	MUserDao::getInstance().Save(users, true);
+	AppLog("End mapping");
+	if (__isPresisterActive) {
+		MUserDao::getInstance().Save(users, true);
+	}
 
 	delete pKeyResponse;
 	delete pKeyUsers;
 
 	return response;
+}
+
+void
+RFriendsDescriptor::SetPersisterActive(bool state) {
+	__isPresisterActive = state;
 }

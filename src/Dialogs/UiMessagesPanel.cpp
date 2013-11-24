@@ -203,27 +203,13 @@ UiMessagesPanel::OnListViewItemStateChanged(ListView &listView, int index, int e
 void
 UiMessagesPanel::OnListViewContextItemStateChanged(ListView &listView, int index, int elementId, ListContextItemStatus state)
 {
-    switch (elementId)
-    {
-    case ID_CONTEXT_ITEM_1:
-        {
-            // ....
-        }
-        break;
-    case ID_CONTEXT_ITEM_2:
-        {
-            // ....
-        }
-        break;
-    default:
-        break;
-    }
+
 }
 
 void
 UiMessagesPanel::OnListViewItemSwept(ListView &listView, int index, SweepDirection direction)
 {
-    // ....
+
 }
 
 // IListViewItemProvider implementation
@@ -430,7 +416,7 @@ UiMessagesPanel::SendRequest() {
 		"		l = l + j;"
 		" 	}"
 		"};"
-		"var b = API.users.get({\"user_ids\": l, \"fields\": \"photo_100,photo_50,online\"});"
+		"var b = API.users.get({\"user_ids\": l, \"fields\": \"photo_100,photo_50,online,is_friend\"});"
 		"return {\"chat_uids\" : uids, \"users\": b, \"messages\": a};"
 	));
 
@@ -477,7 +463,9 @@ UiMessagesPanel::OnTextValueChanged(const Tizen::Ui::Control& source) {
 void
 UiMessagesPanel::OnActionPerformed(const Tizen::Ui::Control& source, int actionId) {
 	if (actionId == 103) {
-		//add action
+		SceneManager* pSceneManager = SceneManager::GetInstance();
+		AppAssert(pSceneManager);
+		pSceneManager->GoForward(ForwardSceneTransition(SCENE_NEW_MESSAGE, SCENE_TRANSITION_ANIMATION_TYPE_LEFT), 0);
 	}
 }
 

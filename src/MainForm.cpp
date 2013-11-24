@@ -190,6 +190,10 @@ MainForm::OnActionPerformed(const Tizen::Ui::Control& source, int actionId)
 	}
 		break;
 	case ID_SEARCH:
+		pSceneManager = SceneManager::GetInstance();
+		AppAssert(pSceneManager);
+		pSceneManager->GoForward(ForwardSceneTransition(SCENE_MAIN_SEARCH_TAB, SCENE_TRANSITION_ANIMATION_TYPE_NONE,
+					SCENE_HISTORY_OPTION_NO_HISTORY));
 		this->SetActionBarsVisible(FORM_ACTION_BAR_FOOTER, false);
 		break;
 	case ID_SETTINGS:

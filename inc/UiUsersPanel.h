@@ -42,14 +42,14 @@ public:
 
 private:
 
+	virtual void OnSuccessN(RestResponse *result);
+	virtual void OnErrorN(Error *error);
+
 	//Scenes
 	virtual void OnSceneActivatedN(const Tizen::Ui::Scenes::SceneId& previousSceneId,
 									   const Tizen::Ui::Scenes::SceneId& currentSceneId, Tizen::Base::Collection::IList* pArgs);
 	virtual void OnSceneDeactivated(const Tizen::Ui::Scenes::SceneId& currentSceneId,
 										const Tizen::Ui::Scenes::SceneId& nextSceneId);
-
-	virtual void OnSuccessN(RestResponse *result);
-	virtual void OnErrorN(Error *error);
 
 	virtual void OnFastScrollIndexSelected(Tizen::Ui::Control& source, Tizen::Base::String& index);
 

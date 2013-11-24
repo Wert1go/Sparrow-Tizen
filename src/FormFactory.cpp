@@ -11,6 +11,10 @@
 #include "MainForm.h"
 #include "SettingsForm.h"
 #include "UiChatForm.h"
+#include "CreateChatForm.h"
+#include "SelectChatUsersForm.h"
+#include "CreateConversationForm.h"
+#include "ProfileForm.h"
 
 using namespace Tizen::Ui::Scenes;
 
@@ -19,6 +23,10 @@ const wchar_t* FORM_WEB_AUTH = L"FORM_WEB_AUTH";
 const wchar_t* FORM_MAIN = L"FORM_MAIN";
 const wchar_t* FORM_SETTINGS = L"FORM_SETTINGS";
 const wchar_t* FORM_CHAT = L"FORM_CHAT";
+const wchar_t* FORM_NEW_MESSAGE = L"FORM_NEW_MESSAGE";
+const wchar_t* FORM_SELECT_USER = L"FORM_SELECT_USER";
+const wchar_t* FORM_CREATE_CONV = L"FORM_CREATE_CONV";
+const wchar_t* FORM_PROFILE = L"FORM_PROFILE";
 
 
 const wchar_t* FORM_TAB_STYLE_BASE = L"FromTabStyleBase";
@@ -63,6 +71,23 @@ FormFactory::CreateFormN(const Tizen::Base::String& formId, const Tizen::Ui::Sce
 	else if (formId == FORM_CHAT)
 	{
 		UiChatForm *pForm = new (std::nothrow) UiChatForm();
+		pSceneManager->AddSceneEventListener(sceneId, *pForm);
+		pNewForm = pForm;
+	} else if (formId == FORM_NEW_MESSAGE) {
+		CreateChatForm *pForm = new (std::nothrow) CreateChatForm();
+
+		pSceneManager->AddSceneEventListener(sceneId, *pForm);
+		pNewForm = pForm;
+	} else if (formId == FORM_SELECT_USER) {
+		SelectChatUsersForm *pForm = new (std::nothrow) SelectChatUsersForm();
+		pSceneManager->AddSceneEventListener(sceneId, *pForm);
+		pNewForm = pForm;
+	} else if (formId == FORM_CREATE_CONV) {
+		CreateConversationForm *pForm = new (std::nothrow) CreateConversationForm();
+		pSceneManager->AddSceneEventListener(sceneId, *pForm);
+		pNewForm = pForm;
+	} else if (formId == FORM_PROFILE) {
+		ProfileForm *pForm = new (std::nothrow) ProfileForm();
 		pSceneManager->AddSceneEventListener(sceneId, *pForm);
 		pNewForm = pForm;
 	}

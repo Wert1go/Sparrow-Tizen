@@ -22,6 +22,16 @@ static const long SEND_MESSAGE = 100999107;
 static const long MARK_AS_READ = 100999108;
 static const long GET_FRIENDS = 100999109;
 
+static const long CREATE_CHAT = 100999110;
+
+static const long GET_FRIENDS_REQUEST = 100999111;
+static const long GET_FRIENDS_SUGGESST = 100999112;
+static const long SEARCH_USERS = 100999113;
+
+static const long ADD_TO_FRIEND_REQUEST = 100999114;
+
+extern const wchar_t* USER_FILEDS;
+
 #include <FNet.h>
 
 #include "IRestRequestListener.h"

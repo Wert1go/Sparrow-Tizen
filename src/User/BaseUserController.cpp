@@ -112,16 +112,18 @@ BaseUserController::CreateGroupItem(int groupIndex, int itemWidth)
 ListItemBase*
 BaseUserController::CreateItem(int groupIndex, int itemIndex, int itemWidth)
 {
-	AppLogDebug("%d :: %d", itemIndex, groupIndex);
-    // Creates an instance of CustomItem
+//	AppLogDebug("%d :: %d", itemIndex, groupIndex);
 	UiDialogCustomItem* pItem = new UiDialogCustomItem();
-    ListAnnexStyle style = LIST_ANNEX_STYLE_NORMAL;
+    ListAnnexStyle style = this->GetCurrentAnnexStyle();
 
     int height = 136;
 
     pItem->Construct(Dimension(itemWidth, height), style);
 	pItem->SetContextItem(__pItemContext);
-	pItem->SetDimension(new Dimension(itemWidth, height));
+
+	float annexWidth = pItem->GetAnnexWidth(style);
+
+	pItem->SetDimension(new Dimension(itemWidth - annexWidth, height));
 	pItem->SetIndex(itemIndex);
 	pItem->SetSection(groupIndex);
 
@@ -173,6 +175,12 @@ BaseUserController::SplitUsersToSections() {
 
 		__pUsersList->RemoveItems(0, 5);
 	}
+
+	this->SplitUsersToSectionsByAlphabet();
+}
+
+void
+BaseUserController::SplitUsersToSectionsByAlphabet() {
 	AppLog("SORT");
 	UsersComparer *comparer = new UsersComparer();
 	__pUsersList->Sort(*comparer);
@@ -194,13 +202,13 @@ BaseUserController::SplitUsersToSections() {
 		for(int userIndex = 0; userIndex < __pUsersList->GetCount(); userIndex++) {
 
 			MUser *user = static_cast<MUser *>(__pUsersList->GetAt(userIndex));
-			//AppLog("userIndex %d %S", userIndex, user->GetFirstName()->GetPointer());
+//			AppLog("userIndex %d %S", userIndex, user->GetFirstName()->GetPointer());
 			wchar_t ltr;
 			user->GetFirstName()->GetCharAt(0, ltr);
 			String firstLetter(ltr);
 
 			if (letter.Equals(firstLetter, false)) {
-				//AppLog("compare:: %S == %S", firstLetter.GetPointer(), user->GetFirstName()->GetPointer());
+//				AppLog("compare:: %S == %S", firstLetter.GetPointer(), user->GetFirstName()->GetPointer());
 
 				if (begin) {
 					AppAssert(listToAdd);
@@ -218,7 +226,7 @@ BaseUserController::SplitUsersToSections() {
 			} else {
 				if (begin) {
 					listToAdd = null;
-					endIndex = userIndex;
+					endIndex = userIndex-1;
 					break;
 				}
 			}
@@ -226,12 +234,12 @@ BaseUserController::SplitUsersToSections() {
 		}
 
 		if (startIndex != -1 && endIndex != -1) {
-			__pUsersList->RemoveItems(startIndex, endIndex - startIndex + 1);
+			__pUsersList->RemoveItems(startIndex, endIndex);
 		}
 	}
 
 	__pListView->SetFastScrollIndex(fastScrollIndex, true);
-
+	AppLog("COMPLITE");
 	delete comparer;
 }
 
@@ -262,3 +270,7 @@ BaseUserController::RequestUpdateForIndex(int index, int elementId) {
 
 }
 
+ListAnnexStyle
+BaseUserController::GetCurrentAnnexStyle() {
+	return LIST_ANNEX_STYLE_NORMAL;
+}

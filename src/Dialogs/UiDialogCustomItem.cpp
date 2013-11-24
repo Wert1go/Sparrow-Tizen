@@ -182,7 +182,6 @@ UiDialogCustomItem::Init() {
 		this->AddElement(rect, 23, *__pUserListItem);
 
 		if (this->__pUser->GetPhoto()) {
-			AppLogDebug("test!!! %S", this->__pUser->GetPhoto()->GetPointer());
 			this->SetImageUrl(this->__pUser->GetPhoto(), 0);
 		}
 	}
@@ -220,7 +219,6 @@ UiDialogCustomItem::AddRefreshListener(IRefreshableListView *pRefreshListener) {
 
 void
 UiDialogCustomItem::OnImageLoadedN(Bitmap *result, Integer *code) {
-	AppLogDebug("OnImageLoadedN!!!");
 
 	int index = code->ToInt();
 

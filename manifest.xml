@@ -11,6 +11,8 @@
 		<Privileges>
             <Privilege>http://tizen.org/privilege/web.service</Privilege>
             <Privilege>http://tizen.org/privilege/http</Privilege>
+            <Privilege>http://tizen.org/privilege/notification</Privilege>
+           
         </Privileges>
 		<UiApp Name="Sparrow" Main="True" MenuIconVisible="True">
 			<UiScalability CoordinateSystem="Logical" BaseScreenSize="Normal" LogicalCoordinate="720"></UiScalability>

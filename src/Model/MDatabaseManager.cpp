@@ -13,6 +13,7 @@
 #include "MUser.h"
 #include "MDialog.h"
 #include "MMessage.h"
+#include "MAttachment.h"
 
 using namespace Tizen::App;
 using namespace Tizen::Base;
@@ -37,6 +38,9 @@ MDatabaseManager::MDatabaseManager() {
 	r = __database->ExecuteSql(sqlMessage->GetPointer(), true);
 	delete sqlMessage;
 
+	String *sqlAttachment = MAttachment::TableDescription();
+	r = __database->ExecuteSql(sqlAttachment->GetPointer(), true);
+	delete sqlAttachment;
 }
 
 MDatabaseManager::~MDatabaseManager() {

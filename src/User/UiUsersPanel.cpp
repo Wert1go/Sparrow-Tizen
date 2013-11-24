@@ -138,7 +138,7 @@ UiUsersPanel::RequestUsers() {
 	params->Construct();
 
 	params->Add(new String(L"access_token"), AuthManager::getInstance().AccessToken());
-	params->Add(new String(L"fields"), new String(L"photo_50,photo_100,last_seen,online"));
+	params->Add(new String(L"fields"), new String(USER_FILEDS));
 	params->Add(new String(L"order"), new String(L"hints"));
 
 	if (!__pUserRequestOperation) {

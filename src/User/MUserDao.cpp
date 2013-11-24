@@ -26,18 +26,6 @@ MUserDao::CreateSaveStatment() {
 	DbStatement *compiledSaveStatment = null;
 
 	String statement;
-	statement.Append(L"INSERT OR REPLACE INTO users (uid, last_name, first_name, photo, mini_photo, is_online, last_seen, is_contact, is_pending) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)");
-
-	compiledSaveStatment = MDatabaseManager::getInstance().GetDatabase()->CreateStatementN(statement);
-
-	return compiledSaveStatment;
-}
-
-DbStatement *
-MUserDao::CreateSaveFriendsStatment() {
-	DbStatement *compiledSaveStatment = null;
-
-	String statement;
 	statement.Append(L"INSERT OR REPLACE INTO users (uid, last_name, first_name, photo, mini_photo, is_online, last_seen, is_friend, is_contact, is_pending) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
 
 	compiledSaveStatment = MDatabaseManager::getInstance().GetDatabase()->CreateStatementN(statement);
@@ -50,13 +38,8 @@ void MUserDao::Save(MUser *user, bool isFriend) {
 	DbStatement *compiledSaveStatment;
 	DbEnumerator* pEnum = null;
 
-	if (isFriend) {
-		compiledSaveStatment = CreateSaveFriendsStatment();
-		compiledSaveStatment = BindFriendToSQLStatement(user, compiledSaveStatment);
-	} else {
 		compiledSaveStatment = CreateSaveStatment();
 		compiledSaveStatment = BindUserToSQLStatement(user, compiledSaveStatment);
-	}
 
 	pEnum = MDatabaseManager::getInstance().GetDatabase()->ExecuteStatementN(*compiledSaveStatment);
 
@@ -68,11 +51,7 @@ void MUserDao::Save(IList *users, bool isFriends) {
 
 	DbStatement *compiledSaveStatment;
 
-	if (isFriends) {
-		compiledSaveStatment = CreateSaveFriendsStatment();
-	} else {
-		compiledSaveStatment = CreateSaveStatment();
-	}
+	compiledSaveStatment = CreateSaveStatment();
 
 	DbEnumerator* pEnum = null;
 
@@ -83,11 +62,8 @@ void MUserDao::Save(IList *users, bool isFriends) {
 	while (pUserEnum->MoveNext() == E_SUCCESS)
 	{
 		pUser = dynamic_cast<MUser *>(pUserEnum->GetCurrent());
-		if (isFriends) {
-			compiledSaveStatment = BindFriendToSQLStatement(pUser, compiledSaveStatment);
-		} else {
-			compiledSaveStatment = BindUserToSQLStatement(pUser, compiledSaveStatment);
-		}
+
+		compiledSaveStatment = BindUserToSQLStatement(pUser, compiledSaveStatment);
 
 		pEnum = MDatabaseManager::getInstance().GetDatabase()->ExecuteStatementN(*compiledSaveStatment);
 		delete pEnum;
@@ -267,23 +243,10 @@ MUserDao::GetPendingUsersN() {
 	return null;
 }
 
+
+
 DbStatement *
 MUserDao::BindUserToSQLStatement(MUser *user, DbStatement *statement) {
-
-	statement->BindInt(0, user->GetUid());
-	statement->BindString(1, user->GetLastName()->GetPointer());
-	statement->BindString(2, user->GetFirstName()->GetPointer());
-	statement->BindString(3, user->GetPhoto()->GetPointer());
-	statement->BindString(4, user->GetMiniPhoto()->GetPointer());
-	statement->BindInt(5, user->GetIsOnline());
-	statement->BindInt64(6, user->GetLastSeen());
-	statement->BindInt(7, user->__isContact);
-	statement->BindInt(8, user->__isPending);
-	return statement;
-}
-
-DbStatement *
-MUserDao::BindFriendToSQLStatement(MUser *user, DbStatement *statement) {
 
 	statement->BindInt(0, user->GetUid());
 	statement->BindString(1, user->GetLastName()->GetPointer());

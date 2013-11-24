@@ -11,8 +11,10 @@
 
 #include "RestRequestOperation.h"
 #include "LongPollConnection.h"
+#include "UiUpdateConstants.h"
 
 #include <FBase.h>
+#include <FShell.h>
 
 using namespace Tizen::App;
 using namespace Tizen::Base;
@@ -20,6 +22,7 @@ using namespace Tizen::Base::Collection;
 using namespace Tizen::System;
 using namespace Tizen::Ui;
 using namespace Tizen::Ui::Controls;
+using namespace Tizen::Shell;
 
 SparrowApp::SparrowApp(void)
 {
@@ -139,7 +142,19 @@ SparrowApp::OnUserEventReceivedN(RequestId requestId, Tizen::Base::Collection::I
 		LongPollConnection::getInstance().SendRequestToLongPollServer(pArgs);
 	} else if (requestId == LONGPOLL_CONNECTION) {
 		LongPollConnection::getInstance().Reconnect();
+	} else if (requestId == UPDATE_MESSAGE_ARRIVED){
+		//PostNotification(new String(L"Пис"));
 	}
 
 	delete pArgs;
+}
+
+void
+SparrowApp::PostNotification(String *text) {
+	 int badgeNumber;
+	 Tizen::Shell::NotificationManager notiMgr;
+	notiMgr.Construct();
+	badgeNumber = notiMgr.GetBadgeNumber();
+	badgeNumber++;
+	notiMgr.Notify(L"tetrtet erw re ");
 }

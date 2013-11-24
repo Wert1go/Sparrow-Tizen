@@ -24,6 +24,7 @@ UiChatCustomItem::UiChatCustomItem() {
 	__pRefreshListener = null;
 	__pUrtToIndexMap = new HashMapT<String *, Integer *>();
 	__pUrtToIndexMap->Construct(100, 0.75);
+	__section = -1;
 }
 
 UiChatCustomItem::~UiChatCustomItem() {

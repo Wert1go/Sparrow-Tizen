@@ -15,6 +15,7 @@
 
 using namespace Tizen::Base;
 using namespace Tizen::Base::Collection;
+using namespace Tizen::Ui::Controls;
 
 class BaseUserController
  : public Tizen::Base::Object
@@ -48,6 +49,9 @@ public:
 	virtual void RequestUiUpdate(int code, IList *pArgs) = 0;
 
 	void SplitUsersToSections();
+	void SplitUsersToSectionsByAlphabet();
+
+	ListAnnexStyle GetCurrentAnnexStyle();
 
 public:
 	Tizen::Ui::Controls::GroupedListView* __pListView;

@@ -12,6 +12,7 @@
 #include "Bean.h"
 
 using namespace Tizen::Base;
+using namespace Tizen::Base::Collection;
 
 class MMessage
  : public Bean
@@ -41,6 +42,8 @@ public:
 	String *__title;
 	int userCount;
 	int adminId;
+
+	LinkedList *__pAttachments;
 
 public:
 	static String* TableDescription();

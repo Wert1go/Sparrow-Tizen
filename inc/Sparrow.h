@@ -6,6 +6,8 @@
 #include <FSystem.h>
 #include <FUi.h>
 
+using namespace Tizen::Base;
+
 /**
  * [Sparrow] UiApp must inherit from UiApp class
  * which provides basic features necessary to define an UiApp.
@@ -56,6 +58,7 @@ public:
 	virtual void OnScreenOff(void);
 
 	virtual void OnUserEventReceivedN(RequestId requestId, Tizen::Base::Collection::IList* pArgs);
+	void PostNotification(String *text);
 };
 
 #endif // _SPARROW_H_

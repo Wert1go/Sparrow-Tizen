@@ -62,18 +62,19 @@ ImageCache::LoadImageForTarget(String *url, IImageLoadingListener *target, Integ
 		__pUrlAndOperationMap->Add(url, operation);
 		__pUrlAndCodeMap->Add(url, code);
 
-		__mutex.Release();
-//		AppLogDebug("LoadImageForTarget::LoadImageForTarget");
-		if (__runningOperations < 3) {
 
-			__mutex.Acquire();
+//		if (__runningOperations < 3) {
+//			AppLogDebug("LoadImageForTarget::LoadImageForTarget :: %d", __runningOperations);
+
 			__runningOperations++;
 			__mutex.Release();
+//			AppLogDebug("__runningOperations :: %d", __runningOperations);
 			operation->Perform();
-		} else {
-			//AppLogDebug("__pPendingOperation->Add <<<<<<<<<<<<<<<<<<");
-			__pPendingOperation->Add(url, operation);
-		}
+//		} else {
+//			AppLogDebug("__pPendingOperation->Add <<<<<<<<<<<<<<<<<<");
+//			__pPendingOperation->Add(url, operation);
+//			__mutex.Release();
+//		}
 	}
 }
 
@@ -120,7 +121,8 @@ ImageCache::CheckExistingOperationForUrl(String *url) {
 
 void
 ImageCache::CheckPendingOperationsAndRun() {
-	//return;
+	//TODO
+	return;
 	if (__pPendingOperation->GetCount() > 0) {
 		IListT<String *> *keysList = __pPendingOperation->GetKeysN();
 
@@ -131,6 +133,7 @@ ImageCache::CheckPendingOperationsAndRun() {
 		__pPendingOperation->GetValue(key, operation);
 
 		if (operation) {
+			__runningOperations++;
 			operation->Perform();
 		}
 
@@ -147,13 +150,6 @@ ImageCache::FinishOperationForUrl(String *url) {
 	__pUrlAndTargetMap->ContainsKey(url, result);
 
 	if (result) {
-//		IImageLoadingListener *target;
-//		__pUrlAndTargetMap->GetValue(url, target);
-//
-//		if (target) {
-//			__pTargetAndUrlMap->Remove(target);
-//		}
-
 		__pUrlAndCodeMap->Remove(url);
 		__pUrlAndTargetMap->Remove(url);
 	}
@@ -175,8 +171,11 @@ ImageCache::FinishOperationForUrl(String *url) {
 	}
 
 	//AppLog("FinishOperationForUrl");
+
 	__runningOperations--;
-	CheckPendingOperationsAndRun();
+	if (__runningOperations < 3) {
+		CheckPendingOperationsAndRun();
+	}
 	__mutex.Release();
 }
 
@@ -293,7 +292,7 @@ ImageCache::LoadFromCacheForKeyN(String *url) {
 	}
 
 	if (r != E_SUCCESS) {
-		AppLogDebug("Loading image from path:: %S FAILED", path.GetPointer());
+//		AppLogDebug("Loading image from path:: %S FAILED", path.GetPointer());
 		pBitmap = null;
 	}
 
