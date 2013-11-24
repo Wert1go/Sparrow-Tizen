@@ -31,7 +31,7 @@ MMessageDescriptor::performObjectMappingN(JsonObject* pObject) {
 
 	pObject->GetValue(pKeyResponse, pValResponseObject);
 
-	if (!pValResponseObject) {
+	if (!this->IsAuthorized(pObject)) {
 		response->SetError(new Error());
 		return response;
 	}

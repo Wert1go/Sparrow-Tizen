@@ -42,14 +42,17 @@ UiMessengerPanel::Initialize(void)
 			3
 	);
 
-	__pEditArea->SetTextColor(EDIT_TEXT_COLOR_NORMAL, Color(255, 255, 255, 255));
-	__pEditArea->SetTextColor(EDIT_TEXT_COLOR_HIGHLIGHTED, Color(255, 255, 255, 255));
-	__pEditArea->SetTextColor(EDIT_TEXT_COLOR_LINK, Color(255, 255, 255, 255));
+	__pEditArea->SetTextColor(EDIT_TEXT_COLOR_NORMAL, Color(115, 120, 145, 255));
+	__pEditArea->SetTextColor(EDIT_TEXT_COLOR_HIGHLIGHTED, Color(115, 120, 145, 255));
+	__pEditArea->SetTextColor(EDIT_TEXT_COLOR_LINK, Color(115, 120, 145, 255));
+
+	__pEditArea->SetGuideTextColor(Color(115, 120, 145, 255));
+
 	__pEditArea->SetTextSize(40);
 	__pEditArea->SetColor(EDIT_STATUS_NORMAL, Color(0,0,0,255));
 	__pEditArea->SetColor(EDIT_STATUS_HIGHLIGHTED, Color(0,0,0,255));
 	__pEditArea->SetColor(EDIT_STATUS_PRESSED, Color(0,0,0,255));
-
+	__pEditArea->SetGuideText(L"Введите сообщение");
 	AddControl(__pEditArea);
 
 	__pSendButton = new (std::nothrow) Button();

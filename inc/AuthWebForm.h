@@ -54,6 +54,8 @@ private:
 	void SetUrl(const Tizen::Base::String& url);
 	bool ExtractAccessDataAndSave(const Tizen::Base::String& url);
 	Tizen::Base::String* RequestAuthUrl();
+
+	bool __watingForReqistration;
 };
 
 #endif /* AUTHWEBFORM_H_ */

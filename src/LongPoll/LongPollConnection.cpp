@@ -58,7 +58,7 @@ LongPollConnection::~LongPollConnection() {
 
 void
 LongPollConnection::Run() {
-	if (!__IsRunning) {
+	if (!__IsRunning && AuthManager::getInstance().IsAuthorized()) {
 		__IsRunning = true;
 		GetLongPollServerData();
 	}
@@ -231,9 +231,7 @@ LongPollConnection::OnSuccessN(RestResponse *result) {
 						Tizen::App::UiApp::GetInstance()->SendUserEvent(UPDATE_READ_STATE, 0);
 					}
 
-
 				}
-
 						break;
 				case LP_MESSAGE_ADD_FULL: {
 					MUserDao::getInstance().UpdateUserOnlineStatusById(1, pObject->GetUserId());
@@ -331,5 +329,3 @@ LongPollConnection::OnErrorN(Error *error) {
 
 	delete error;
 }
-
-

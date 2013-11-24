@@ -72,14 +72,11 @@ UiChatListItem::OnDraw(Tizen::Graphics::Canvas& canvas, const Tizen::Graphics::R
 		float drawOffset = textOffset;
 		for (int i = 0; i < this->GetMessage()->__pAttachments->GetCount(); i++) {
 			MAttachment *attachment = static_cast<MAttachment *>( GetMessage()->__pAttachments->GetAt(i));
-			AppLog("%f %f", attachment->imageSize.x, attachment->imageSize.y);
 
 			Point drawPoint;
 			float width = __pBubbleDimension.width;
 
 			if (this->GetMessage()->GetOut() == 1) {
-				AppLog("textOffset %f", textOffset);
-
 				drawPoint = Point(rect.width - __sideOffset - width + __offset, drawOffset);
 			} else {
 				drawPoint = Point(__leftOffset + __offset, drawOffset);

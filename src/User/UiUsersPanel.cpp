@@ -64,7 +64,7 @@ UiUsersPanel::OnInitializing(void) {
 
 	__pSearchBar = new SearchBar();
 	__pSearchBar->Construct(Rectangle(0, 0, clientRect.width, 100));
-	__pSearchBar->SetText(L"Поиск");
+	__pSearchBar->SetGuideText(L"Поиск");
 	__pSearchBar->AddSearchBarEventListener(*this);
 	__pSearchBar->AddTextEventListener(*this);
 	__pSearchBar->SetSearchFieldColor(SEARCH_FIELD_STATUS_NORMAL, Color(0, 0, 0, 255));
@@ -91,7 +91,7 @@ UiUsersPanel::OnInitializing(void) {
 	__pListView->Construct(Rectangle(0, 110, clientRect.width, clientRect.height - 100 - 110), GROUPED_LIST_VIEW_STYLE_INDEXED, true, true);
 	__pListView->SetItemProvider(*this);
 	__pListView->AddGroupedListViewItemEventListener(*this);
-
+	__pListView->SetSweepEnabled(false);
 
 	__pListView->SetFastScrollIndex(this->__pScrollIndex->GetPointer(), true);
 	__pListView->AddFastScrollListener(*this);

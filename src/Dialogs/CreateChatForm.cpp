@@ -89,7 +89,7 @@ CreateChatForm::OnInitializing(void) {
 	__pListView->SetItemProvider(*this);
 	__pListView->AddGroupedListViewItemEventListener(*this);
 	__pListView->SetBackgroundColor(Color(8, 8,8, 255));
-
+	__pListView->SetSweepEnabled(false);
 	__pListView->SetFastScrollIndex(this->__pScrollIndex->GetPointer(), true);
 	__pListView->AddFastScrollListener(*this);
 	Color *separatorColor = new (std::nothrow) Color(48, 48, 48, 255);

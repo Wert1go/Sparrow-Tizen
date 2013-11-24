@@ -14,6 +14,7 @@
 #include "MMessageDao.h"
 #include "UiUsersPanel.h"
 #include "UiUpdateConstants.h"
+#include "LongPollConnection.h"
 
 using namespace Tizen::App;
 using namespace Tizen::Base;
@@ -145,6 +146,8 @@ MainForm::MainForm() {
 	delete pContactsIconBitmap;
 	delete pSearchIconBitmap;
 	delete pSettingsIconBitmap;
+
+	LongPollConnection::getInstance().Run();
 }
 
 MainForm::~MainForm() {

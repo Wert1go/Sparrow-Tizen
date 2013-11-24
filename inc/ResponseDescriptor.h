@@ -19,6 +19,8 @@ public:
 	virtual ~ResponseDescriptor();
 
 	virtual RestResponse *performObjectMappingN(JsonObject* pObject) = 0;
+
+	bool IsAuthorized(JsonObject* pObject);
 };
 
 #endif /* RESPONSEDESCRIPTOR_H_ */

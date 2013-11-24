@@ -39,7 +39,6 @@ UiMessagesPanel::UiMessagesPanel() {
 	__pDialogsList = null;
 	__pDialogRequestOperation = null;
 	this->__pListView = null;
-	LongPollConnection::getInstance().Run();
 }
 
 UiMessagesPanel::~UiMessagesPanel() {
@@ -123,9 +122,10 @@ UiMessagesPanel::OnInitializing(void)
 	__pListView->Construct(Rectangle(0, 100, clientRect.width, clientRect.height - 100), true, false);
 	__pListView->SetItemProvider(*this);
 	__pListView->AddListViewItemEventListener(*this);
-
+	__pListView->AddScrollEventListener(*this);
 	Color *separatorColor = new (std::nothrow) Color(48, 48, 48, 255);
 	__pListView->SetItemDividerColor(*separatorColor);
+	__pListView->SetSweepEnabled(false);
 	delete separatorColor;
 
 	// Adds the list view to the form
@@ -233,7 +233,7 @@ UiMessagesPanel::CreateItem(int index, int itemWidth)
     pItem->SetDialog(dialog);
 
     pItem->Init();
-
+//    AppLog("Created!");
     return pItem;
 }
 
@@ -279,10 +279,12 @@ UiMessagesPanel::OnUserEventReceivedN(RequestId requestId, Tizen::Base::Collecti
 		AppAssert(pArgs->GetCount() > 0);
 		UpdateUnit *unit = static_cast<UpdateUnit *> (pArgs->GetAt(0));
 
-//		AppLogDebug("%d :: %d", unit->__index, unit->__requestId);
 		__pListView->RefreshList(unit->__index, unit->__requestId);
+
 	} else if (requestId == 222222) {
+		AppLogDebug("2222OnUserEventReceivedN");
 		__pListView->UpdateList();
+		AppLogDebug("3333OnUserEventReceivedN");
 	} else if (requestId == UPDATE_USER_ONLINE) {
 
 		AppAssert(pArgs->GetCount() > 0);
@@ -361,8 +363,12 @@ UiMessagesPanel::SetReadStateWithMessageId(int msgId) {
 void
 UiMessagesPanel::SetDialogsList(LinkedList *list) {
 
-	if (this->__pDialogsList) {
-		delete this->__pDialogsList;
+//	if (this->__pDialogsList) {
+//		delete this->__pDialogsList;
+//	}
+
+	if (list) {
+		AppLog("COUNT %d", list->GetCount());
 	}
 
 	__pDialogsList = list;
@@ -396,29 +402,40 @@ UiMessagesPanel::OnErrorN(Error *error) {
 }
 
 void
-UiMessagesPanel::SendRequest() {
+UiMessagesPanel::SendRequest(int offset) {
 
 	HashMap *params = new HashMap();
 	params->Construct();
 
-	params->Add(new String(L"code"), new String(L""
-		"var a = API.messages.getDialogs({\"offset\" : 0, \"count\":20});"
-		"var l = a.items@.user_id;"
-		"var c = a.items@.chat_id;"
-		"var i = 0;"
-		"var uids = [];"
-		"var j;"
-		"while (i < c.length) {"
-		"	i=i+1;"
-		" 	if (parseInt(c[i]) != 0) {"
-		"		j = API.messages.getChatUsers({\"chat_id\" : c[i]}); "
-		"		uids = uids + [{\"chat_id\" : c[i], \"uids\" : j}]; "
-		"		l = l + j;"
-		" 	}"
-		"};"
-		"var b = API.users.get({\"user_ids\": l, \"fields\": \"photo_100,photo_50,online,is_friend\"});"
-		"return {\"chat_uids\" : uids, \"users\": b, \"messages\": a};"
-	));
+	String offsetString;
+	offsetString.Format(10, L"%d", offset);
+
+	String requestBegin = L"var a = API.messages.getDialogs({\"offset\" : ";
+	requestBegin.Append(offsetString);
+
+	String requestEnd = L", \"count\":20});"
+			"var l = a.items@.user_id;"
+			"var c = a.items@.chat_id;"
+			"var i = 0;"
+			"var uids = [];"
+			"var j;"
+			"while (i < c.length) {"
+			"	i=i+1;"
+			" 	if (parseInt(c[i]) != 0) {"
+			"		j = API.messages.getChatUsers({\"chat_id\" : c[i]}); "
+			"		uids = uids + [{\"chat_id\" : c[i], \"uids\" : j}]; "
+			"		l = l + j;"
+			" 	}"
+			"};"
+			"var b = API.users.get({\"user_ids\": l, \"fields\": \"photo_100,photo_50,online,is_friend,photo_200\"});"
+			"return {\"chat_uids\" : uids, \"users\": b, \"messages\": a};";
+
+	String request(L"");
+	request.Append(requestBegin);
+	request.Append(requestEnd);
+
+
+	params->Add(new String(L"code"), new String(request));
 
 	params->Add(new String(L"access_token"), AuthManager::getInstance().AccessToken());
 
@@ -469,3 +486,11 @@ UiMessagesPanel::OnActionPerformed(const Tizen::Ui::Control& source, int actionI
 	}
 }
 
+void
+UiMessagesPanel::OnScrollEndReached(Tizen::Ui::Control& source, Tizen::Ui::Controls::ScrollEndEvent type) {
+	if (type == SCROLL_END_EVENT_END_BOTTOM) {
+		if (this->__pDialogsList && this->__pDialogsList->GetCount() > 0) {
+			this->SendRequest(this->__pDialogsList->GetCount());
+		}
+	}
+}

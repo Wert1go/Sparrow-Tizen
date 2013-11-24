@@ -11,6 +11,7 @@
 #include "MDialogDao.h"
 #include "MUser.h"
 #include "MUserDao.h"
+#include <typeinfo>
 
 MDialogsDescriptor::MDialogsDescriptor() {
 	// TODO Auto-generated constructor stub
@@ -23,6 +24,8 @@ MDialogsDescriptor::~MDialogsDescriptor() {
 
 RestResponse *
 MDialogsDescriptor::performObjectMappingN(JsonObject* pObject) {
+
+
 	RDialogResponse *response = new RDialogResponse();
 	LinkedList *pDialogs = new LinkedList();
 	JsonString* pKeyResponse = new JsonString(L"response");
@@ -31,26 +34,28 @@ MDialogsDescriptor::performObjectMappingN(JsonObject* pObject) {
 
 	pObject->GetValue(pKeyResponse, pValResponseObject);
 
-	if (!pValResponseObject) {
+	if (!this->IsAuthorized(pObject)) {
 		response->SetError(new Error());
 		return response;
 	}
-
 	JsonObject *pResponseObject = static_cast< JsonObject* >(pValResponseObject);
 
-	JsonString* pKeyChatIds = new JsonString(L"chat_uids");
+//	JsonString* pKeyChatIds = new JsonString(L"chat_uids");
 	JsonString* pKeyUsers = new JsonString(L"users");
 	JsonString* pKeyMessages = new JsonString(L"messages");
 
-	IJsonValue* pValChatIdsArray = null;
+//	IJsonValue* pValChatIdsArray = null;
 	IJsonValue* pValUsersArray = null;
 	IJsonValue* pValMessagesObject = null;
-
-	pResponseObject->GetValue(pKeyChatIds, pValChatIdsArray);
+//	pResponseObject->GetValue(pKeyChatIds, pValChatIdsArray);
 	pResponseObject->GetValue(pKeyUsers, pValUsersArray);
 	pResponseObject->GetValue(pKeyMessages, pValMessagesObject);
 
-	JsonArray *pChatIds = static_cast<JsonArray *> (pValChatIdsArray);
+	if (!pValUsersArray || !pValMessagesObject) {
+		response->SetError(new Error());
+		return response;
+	}
+//	JsonArray *pChatIds = static_cast<JsonArray *> (pValChatIdsArray);
 	JsonString* pKeyChatId = new JsonString(L"chat_id");
 	JsonString* pKeyUids = new JsonString(L"uids");
 
@@ -62,20 +67,21 @@ MDialogsDescriptor::performObjectMappingN(JsonObject* pObject) {
 
 	pMessages->GetValue(pKeyMessagesArray, pValMessagesArray);
 
-	JsonArray *pMessagesArray = static_cast<JsonArray*>(pValMessagesArray);
-
-	if (pMessagesArray->GetCount() == 0) {
+	if (!pValMessagesArray) {
+		response->SetError(new Error());
+		return response;
+	}
+	JsonArray *pMessagesArray = dynamic_cast<JsonArray*>(pValMessagesArray);
+	if (dynamic_cast<JsonArray*>(pValMessagesArray) == 0 || !pMessagesArray || pMessagesArray->GetCount() == 0) {
 		response->SetDialogs(pDialogs);
 		return response;
 	}
 
 	JsonString* pKeyMessageUserId = new JsonString(L"user_id");
 	JsonString* pKeyUserId = new JsonString(L"id");
-
 	for (int index = 0; index < pMessagesArray->GetCount(); index++) {
 		IJsonValue* pMessageObjectValue = null;
 		pMessagesArray->GetAt(index, pMessageObjectValue);
-
 		JsonObject* pMessageObject = static_cast< JsonObject* >(pMessageObjectValue);
 
 		IJsonValue* pValUserId = null;
@@ -85,7 +91,6 @@ MDialogsDescriptor::performObjectMappingN(JsonObject* pObject) {
 		int messageUid = uid->ToInt();
 
 		JsonObject *pUserObject = null;
-
 		for (int nestedIndex = 0; nestedIndex < pUsers->GetCount(); nestedIndex++) {
 			IJsonValue* pUserObjectValue = null;
 			pUsers->GetAt(nestedIndex, pUserObjectValue);
@@ -94,7 +99,6 @@ MDialogsDescriptor::performObjectMappingN(JsonObject* pObject) {
 			IJsonValue* pValUserId = null;
 			userObject->GetValue(pKeyUserId, pValUserId);
 			JsonNumber *uid = static_cast< JsonNumber* >(pValUserId);
-
 			int userId = uid->ToInt();
 
 			if (userId == messageUid) {
@@ -103,10 +107,12 @@ MDialogsDescriptor::performObjectMappingN(JsonObject* pObject) {
 			}
 		}
 
-		MDialog *dialog = MDialog::CreateFromJsonN(*pUserObject, *pMessageObject);
-		pDialogs->Add(dialog);
+		if (pUserObject) {
+			MDialog *dialog = MDialog::CreateFromJsonN(*pUserObject, *pMessageObject);
+			pDialogs->Add(dialog);
+		}
 	}
-
+	AppLog("test5");
 	LinkedList *users = new LinkedList();
 	for (int index = 0; index < pUsers->GetCount(); index++) {
 		IJsonValue* pUserObjectValue = null;
@@ -118,14 +124,15 @@ MDialogsDescriptor::performObjectMappingN(JsonObject* pObject) {
 		users->Add(user);
 	}
 
+	AppLog("SAVE");
 	MUserDao::getInstance().Save(users);
-
+	AppLog("COMPLITE");
 	MDialogDao::getInstance().Save(pDialogs);
 
 	response->SetDialogs(pDialogs);
 
 	delete pKeyResponse;
-	delete pKeyChatIds;
+//	delete pKeyChatIds;
 	delete pKeyUsers;
 	delete pKeyMessages;
 	delete pKeyMessagesArray;

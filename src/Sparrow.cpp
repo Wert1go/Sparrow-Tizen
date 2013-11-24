@@ -12,6 +12,9 @@
 #include "RestRequestOperation.h"
 #include "LongPollConnection.h"
 #include "UiUpdateConstants.h"
+#include "MDatabaseManager.h"
+#include "AuthManager.h"
+#include "SceneRegister.h"
 
 #include <FBase.h>
 #include <FShell.h>
@@ -23,6 +26,7 @@ using namespace Tizen::System;
 using namespace Tizen::Ui;
 using namespace Tizen::Ui::Controls;
 using namespace Tizen::Shell;
+using namespace Tizen::Ui::Scenes;
 
 SparrowApp::SparrowApp(void)
 {
@@ -144,9 +148,24 @@ SparrowApp::OnUserEventReceivedN(RequestId requestId, Tizen::Base::Collection::I
 		LongPollConnection::getInstance().Reconnect();
 	} else if (requestId == UPDATE_MESSAGE_ARRIVED){
 		//PostNotification(new String(L"Пис"));
+	} else if (requestId == LOGOUT) {
+		this->Logout();
+	} else if (requestId == 666) {
+		AuthManager::getInstance().UpdateImage();
 	}
 
 	delete pArgs;
+}
+
+void
+SparrowApp::Logout() {
+	LongPollConnection::getInstance().Stop();
+	AuthManager::getInstance().Clear();
+	MDatabaseManager::getInstance().Clear();
+
+	SceneManager* pSceneManager = SceneManager::GetInstance();
+	AppAssert(pSceneManager);
+	pSceneManager->GoForward(ForwardSceneTransition(SCENE_AUTH));
 }
 
 void

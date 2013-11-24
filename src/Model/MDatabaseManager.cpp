@@ -43,6 +43,27 @@ MDatabaseManager::MDatabaseManager() {
 	delete sqlAttachment;
 }
 
+void
+MDatabaseManager::Clear() {
+	result r = E_SUCCESS;
+
+	String *sqlUser = new String(L"DELETE FROM users");
+	r = __database->ExecuteSql(sqlUser->GetPointer(), true);
+	delete sqlUser;
+
+	String *sqlDialog = new String(L"DELETE FROM dialogs");
+	r = __database->ExecuteSql(sqlDialog->GetPointer(), true);
+	delete sqlDialog;
+
+	String *sqlMessage = new String(L"DELETE FROM messages");
+	r = __database->ExecuteSql(sqlMessage->GetPointer(), true);
+	delete sqlMessage;
+
+	String *sqlAttachment = new String(L"DELETE FROM attachments");
+	r = __database->ExecuteSql(sqlAttachment->GetPointer(), true);
+	delete sqlAttachment;
+}
+
 MDatabaseManager::~MDatabaseManager() {
 	delete __database;
 	__database = null;

@@ -20,7 +20,7 @@ using namespace Tizen::Base::Utility;
 using namespace Tizen::Net::Http;
 using namespace Tizen::Web::Json;
 
-const wchar_t* USER_FILEDS = L"photo_50,photo_100,last_seen,online,is_friend";
+const wchar_t* USER_FILEDS = L"photo_50,photo_100,last_seen,online,is_friend,photo_200";
 
 RestRequestOperation::RestRequestOperation(String *_uri, long operationCode, String *method, HashMap *params) {
 	Init(_uri, operationCode, method, params);

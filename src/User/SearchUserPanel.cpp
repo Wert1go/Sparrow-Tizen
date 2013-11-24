@@ -37,6 +37,9 @@ SearchUserPanel::SearchUserPanel() {
 	__pUsersRequests = new LinkedList();
 	__pUsersSearchResults = new LinkedList();
 	__pListUpdateTimer = null;
+	__pUserRequestsOperation = null;
+	__pUserSuggestOperation = null;
+	__pUserSearchOperation = null;
 }
 
 SearchUserPanel::~SearchUserPanel() {
@@ -94,7 +97,7 @@ SearchUserPanel::OnInitializing(void) {
 	__pListView->SetItemProvider(*this);
 	__pListView->AddGroupedListViewItemEventListener(*this);
 	__pListView->SetBackgroundColor(Color(8, 8, 8, 255));
-
+	__pListView->SetSweepEnabled(false);
 	__pListView->SetItemDividerColor(Color(48, 48, 48, 255));
 
 	AddControl(__pListView);
@@ -136,7 +139,7 @@ SearchUserPanel::GetUserRequests() {
 	params->Add(new String(L"code"), new String(L""
 			"var a = API.friends.getRequests({\"offset\" : 0, \"extended\":0, \"out\":0});"
 			"if (a.items.length > 0) {"
-				"var b = API.users.get({\"user_ids\": a.items, \"fields\":\"photo_50,photo_100,last_seen,online,is_friend\"});"
+				"var b = API.users.get({\"user_ids\": a.items, \"fields\":\"photo_50,photo_100,last_seen,online,is_friend,photo_200\"});"
 				"return {\"items\": b};"
 			"} else {"
 				"return {\"items\": []};"
@@ -181,7 +184,7 @@ SearchUserPanel::GetSuggests() {
 
 	params->Add(new String(L"access_token"), AuthManager::getInstance().AccessToken());
 	params->Add(new String(L"code"), new String(L""
-				"var a = API.friends.getSuggestions({\"count\" : 20,\"fields\":\"photo_50,photo_100,last_seen,online,is_friend\"});"
+				"var a = API.friends.getSuggestions({\"count\" : 20,\"fields\":\"photo_50,photo_100,last_seen,online,is_friend,photo_200\"});"
 				"return {\"items\": a};"
 				""));
 
@@ -274,11 +277,12 @@ void
 SearchUserPanel::OnTimerExpired (Timer &timer) {
 	if (this->__pListUpdateTimer) {
 		if (searchTextHolder != NULL) {
-
+			AppLog("2OnTimerExpired %S", searchTextHolder.GetPointer());
 			if (searchTextHolder.GetLength() == 0) {
 				this->__pUsersSearchResults->RemoveAll();
 				SplitUsersToSections();
 			} else {
+				AppLog("1OnTimerExpired %S", searchTextHolder.GetPointer());
 				this->SearchUserWithString(searchTextHolder);
 			}
 		}
@@ -293,6 +297,8 @@ SearchUserPanel::OnTextValueChanged(const Tizen::Ui::Control& source) {
 
 	String string = this->__pSearchBar->GetText();
 	searchTextHolder = string;
+
+	AppLog("%S", searchTextHolder.GetPointer());
 	if (string.GetLength() == 0) {
 		this->__pUsersSearchResults->RemoveAll();
 		SplitUsersToSections();
@@ -311,7 +317,6 @@ SearchUserPanel::OnTextValueChanged(const Tizen::Ui::Control& source) {
 		//
 	}
 }
-
 
 void
 SearchUserPanel::OnErrorN(Error *error) {

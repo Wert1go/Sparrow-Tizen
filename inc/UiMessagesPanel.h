@@ -26,6 +26,7 @@ class UiMessagesPanel
  , public Tizen::Ui::ITextEventListener
  , public Tizen::Ui::Scenes::ISceneEventListener
  , public Tizen::Ui::IActionEventListener
+ , public IScrollEventListener
 {
 public:
 	UiMessagesPanel();
@@ -61,6 +62,8 @@ public:
     virtual void OnTextValueChanged(const Tizen::Ui::Control& source);
     virtual void OnTextValueChangeCanceled(const Tizen::Ui::Control& source){};
 
+    virtual void OnScrollEndReached(Tizen::Ui::Control& source, Tizen::Ui::Controls::ScrollEndEvent type);
+
 private:
     virtual void OnActionPerformed(const Tizen::Ui::Control& source, int actionId);
 
@@ -84,7 +87,7 @@ private:
 	RestRequestOperation *__pDialogRequestOperation;
 
 	SearchBar *__pSearchBar;
-	void SendRequest();
+	void SendRequest(int offset = 0);
 };
 
 #endif /* UIMESSAGESPANEL_H_ */

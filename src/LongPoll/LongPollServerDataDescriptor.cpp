@@ -27,8 +27,8 @@ LongPollServerDataDescriptor::performObjectMappingN(JsonObject* pObject) {
 	IJsonValue* pValResponseObject = null;
 	pObject->GetValue(pKeyResponse, pValResponseObject);
 
-	if (!pValResponseObject) {
-		response->SetError(new Error(UNKNOW));
+	if (!this->IsAuthorized(pObject)) {
+		response->SetError(new Error());
 		return response;
 	}
 

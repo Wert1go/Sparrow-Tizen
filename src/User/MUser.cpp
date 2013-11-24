@@ -14,6 +14,7 @@ MUser::MUser() {
 	__isFriend = 0;
 	__isContact = 0;
 	__isPending = 0;
+	__pBigPhoto = null;
 }
 
 MUser::~MUser() {
@@ -111,6 +112,7 @@ MUser::CreateFromJsonN(const Tizen::Web::Json::JsonObject &pUserObject) {
 	JsonString* pKeyId = new JsonString(L"id");
 	JsonString* pKeyMiniPhoto = new JsonString(L"photo_50");
 	JsonString* pKeyPhoto = new JsonString(L"photo_100");
+	JsonString* pKeyBigPhoto = new JsonString(L"photo_200");
 	JsonString* pKeyOnline = new JsonString(L"online");
 	JsonString* pKeyLastSeen = new JsonString(L"last_seen");
 	JsonString* pKeyTime = new JsonString(L"time");
@@ -120,6 +122,7 @@ MUser::CreateFromJsonN(const Tizen::Web::Json::JsonObject &pUserObject) {
 	IJsonValue* pValLastName = null;
 	IJsonValue* pValId = null;
 	IJsonValue* pValMiniPhoto = null;
+	IJsonValue* pValBigPhoto = null;
 	IJsonValue* pValPhoto = null;
 	IJsonValue* pValOnline = null;
 	IJsonValue* pValLastSeen = null;
@@ -134,11 +137,19 @@ MUser::CreateFromJsonN(const Tizen::Web::Json::JsonObject &pUserObject) {
 	pUserObject.GetValue(pKeyOnline, pValOnline);
 	pUserObject.GetValue(pKeyLastSeen, pValLastSeen);
 	pUserObject.GetValue(pKeyIsFriend, pValIsFriend);
+	pUserObject.GetValue(pKeyBigPhoto, pValBigPhoto);
 
 	JsonString *firstName = static_cast< JsonString* >(pValFirstName);
 	JsonString *lastName = static_cast< JsonString* >(pValLastName);
 	JsonNumber *uid = static_cast< JsonNumber* >(pValId);
 	JsonString *miniPhoto = static_cast< JsonString* >(pValMiniPhoto);
+
+
+	JsonString *bigPhoto = null;
+	if (pValBigPhoto) {
+		bigPhoto = static_cast< JsonString* >(pValBigPhoto);
+	}
+
 	JsonString *photo = static_cast< JsonString* >(pValPhoto);
 	JsonNumber *isOnline = static_cast< JsonNumber* >(pValOnline);
 	JsonNumber *isFriend = static_cast< JsonNumber* >(pValIsFriend);
@@ -155,10 +166,17 @@ MUser::CreateFromJsonN(const Tizen::Web::Json::JsonObject &pUserObject) {
 	String *pMiniPhoto = new String(miniPhoto->GetPointer());
 	String *pPhoto = new String(photo->GetPointer());
 
+	if (!bigPhoto) {
+		bigPhoto = photo;
+	}
+
+	String *pBigPhoto = new String(bigPhoto->GetPointer());
+
 	user->SetFirstName(pFirstName);
 	user->SetLastName(pLastName);
 	user->SetMiniPhoto(pMiniPhoto);
 	user->SetPhoto(pPhoto);
+	user->__pBigPhoto = pBigPhoto;
 	user->SetUid(uid->ToInt());
 	user->SetIsOnline(isOnline->ToInt());
 
@@ -182,6 +200,7 @@ MUser::CreateFromJsonN(const Tizen::Web::Json::JsonObject &pUserObject) {
 	delete pKeyLastSeen;
 	delete pKeyTime;
 	delete pKeyIsFriend;
+	delete pKeyBigPhoto;
 
 	return user;
 }
@@ -242,6 +261,7 @@ MUser::CreateFromJsonLPN(const Tizen::Web::Json::JsonObject &pUserObject) {
 	user->SetLastName(pLastName);
 	user->SetMiniPhoto(pMiniPhoto);
 	user->SetPhoto(pPhoto);
+	user->__pBigPhoto = pPhoto;
 	user->SetUid(uid->ToInt());
 	user->SetIsOnline(isOnline->ToInt());
 	user->SetLastSeen(time->ToLong());
@@ -265,7 +285,7 @@ MUser::TableDescription() {
 
 	String *sql = new String();
 
-	sql->Append(L"CREATE TABLE IF NOT EXISTS users (_id INTEGER PRIMARY KEY, uid INTEGER UNIQUE, last_name TEXT, first_name TEXT, photo TEXT, mini_photo TEXT, is_online INTEGER, last_seen INTEGER, is_friend  INTEGER, is_contact INTEGER, is_pending INTEGER)");
+	sql->Append(L"CREATE TABLE IF NOT EXISTS users (_id INTEGER PRIMARY KEY, uid INTEGER UNIQUE, last_name TEXT, first_name TEXT, photo TEXT, mini_photo TEXT, is_online INTEGER, last_seen INTEGER, is_friend  INTEGER, is_contact INTEGER, is_pending INTEGER, big_photo TEXT)");
 
 	return sql;
 }

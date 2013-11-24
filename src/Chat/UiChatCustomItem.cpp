@@ -82,7 +82,9 @@ UiChatCustomItem::DrawImageFromUrlInRect(String *imageUrl, Rectangle rect) {
 		return;
 	}
 
-	AppAssert(imageUrl);
+	if (!imageUrl) {
+		return;
+	}
 
 	int index = this->__pImageViews->GetCount();
 

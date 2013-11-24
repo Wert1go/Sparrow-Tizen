@@ -117,7 +117,7 @@ CreateConversationForm::OnInitializing(void) {
 	__pItemContext->Construct();
 	__pItemContext->AddElement(1, L"Test1");
 	__pItemContext->AddElement(2, L"Test2");
-
+	AppLogDebug("OnInitia!!!!2321lizing");
 	return r;
 }
 
@@ -228,7 +228,7 @@ CreateConversationForm::OnListViewItemSwept(ListView &listView, int index, Sweep
 ListItemBase*
 CreateConversationForm::CreateItem(int index, int itemWidth)
 {
-
+	AppLogDebug("AppLogDebug(OnInitializing);");
 	UiDialogCustomItem* pItem = new UiDialogCustomItem();
 	ListAnnexStyle style = LIST_ANNEX_STYLE_NORMAL;
 

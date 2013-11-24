@@ -10,8 +10,17 @@
 
 #include <FApp.h>
 #include <FBase.h>
+#include "IRestRequestListener.h"
+#include "IImageLoadingListener.h"
+#include "RestRequestOperation.h"
 
-class AuthManager {
+class MUser;
+using namespace Tizen::Graphics;
+
+class AuthManager
+ : public IRestRequestListener
+ , public IImageLoadingListener
+{
 public:
 	static AuthManager& getInstance()
     {
@@ -25,6 +34,15 @@ public:
 
 	Tizen::Base::String* AccessToken();
 	Tizen::Base::String* UserId();
+	void Clear();
+	bool IsForced();
+	void SetForced(bool state);
+
+	void SendRequest(void);
+	virtual void OnSuccessN(RestResponse *user);
+	virtual void OnErrorN(Error *error);
+	virtual void OnImageLoadedN(Bitmap *result, Integer *code);
+	void UpdateImage();
 
 private:
 	AuthManager();
@@ -34,10 +52,15 @@ private:
 
 	void LoadAccessDataFromStore();
 
+
+
 private:
 	Tizen::Base::String* __token;
 	Tizen::Base::String* __userId;
 	Tizen::Base::String* __expiresIn;
+	RestRequestOperation *__userRequestOperation;
+
+	MUser *__pUser;
 
 };
 

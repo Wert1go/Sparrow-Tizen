@@ -183,7 +183,7 @@ ProfileForm::UpdateScreenForUser() {
 //		__pRemoveButton->SetShowState(false);
 //	}
 
-	ImageCache::getInstance().LoadImageForTarget(this->__pUser->GetPhoto(), this);
+	ImageCache::getInstance().LoadImageForTarget(this->__pUser->__pBigPhoto, this);
 }
 
 void

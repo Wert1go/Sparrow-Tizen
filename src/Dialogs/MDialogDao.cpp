@@ -162,11 +162,9 @@ MDialogDao::GetDialogsWithOffsetN(int offset) {
 	sql.Append(L"SELECT "
 			"identifier, uid, last_name, first_name, photo, mini_photo, is_online, date, out, read_state, title, text, chat_id , chat_uids "
 			"FROM dialogs "
-			"ORDER BY date DESC LIMIT 20 OFFSET 0");
+			"ORDER BY date DESC LIMIT 500 OFFSET 0");
 
 	DbStatement *compiledSaveStatment = MDatabaseManager::getInstance().GetDatabase()->CreateStatementN(sql);
-
-	//compiledSaveStatment->BindInt(0, offset);
 
 	pEnum = MDatabaseManager::getInstance().GetDatabase()->ExecuteStatementN(*compiledSaveStatment);
 

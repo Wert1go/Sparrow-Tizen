@@ -15,6 +15,8 @@
 #include "SceneRegister.h"
 #include "Util.h"
 
+#include "UiUpdateConstants.h"
+
 #include "MUser.h"
 #include "RestRequestOperation.h"
 #include "UserDescriptor.h"
@@ -38,6 +40,9 @@ using namespace Tizen::Media;
 using namespace Tizen::Net::Http;
 using namespace Tizen::Web::Json;
 
+const int imageOffset = 100;
+const int imageSize = 200;
+const int imageBottomOffset = 100;
 
 SettingsForm::SettingsForm() {
 	Form::Construct(FORM_STYLE_HEADER);
@@ -83,7 +88,31 @@ SettingsForm::SettingsForm() {
 	__pSectionTableView->Construct(Rectangle(0, 250, rect.width, rect.height - 250), true, TABLE_VIEW_SCROLL_BAR_STYLE_NONE);
 	__pSectionTableView->SetItemProviderF(this);
 	__pSectionTableView->AddSectionTableViewItemEventListener(*this);
-	AddControl(__pSectionTableView);
+	//AddControl(__pSectionTableView);
+
+	Color *textNormalColor = new (std::nothrow) Color(255, 255, 255, 255);
+	Color *textSelectedColor = new (std::nothrow) Color(0, 0, 0, 255);
+	Color *buttonNormalColor = new (std::nothrow) Color(52, 87, 119, 255);
+	Color *buttonSelectedColor = new (std::nothrow) Color(255, 255, 255, 255);
+
+	rect = this->GetClientAreaBounds();
+
+	int buttonWidth = 0;
+
+	buttonWidth = (rect.width * 84)/100;
+
+	__pExitButton = new (std::nothrow) Button();
+	__pExitButton->Construct(Rectangle(rect.width/2 - buttonWidth/2, rect.height - 80, buttonWidth, 80));
+	__pExitButton->SetText(L"Выход");
+	__pExitButton->SetActionId(2);
+	__pExitButton->AddActionEventListener(*this);
+	__pExitButton->SetTextColor(*textNormalColor);
+	__pExitButton->SetHighlightedTextColor(*textSelectedColor);
+	__pExitButton->SetColor(BUTTON_STATUS_NORMAL, *buttonNormalColor);
+	__pExitButton->SetColor(BUTTON_STATUS_PRESSED, *buttonSelectedColor);
+
+	AddControl(__pExitButton);
+
 }
 
 SettingsForm::~SettingsForm() {
@@ -219,7 +248,7 @@ result SettingsForm::OnDraw() {
 	{
 		Rectangle bounds = GetBounds();
 
-		Rectangle rect = Rectangle(bounds.width/2 - 100/2, 300, 100, 100);
+		Rectangle rect = Rectangle(bounds.width/2 - imageSize/2, imageOffset * 2, imageSize, imageSize);
 		r = pCanvas->DrawBitmap(rect, *__bitmap);
 	}
 
@@ -345,4 +374,11 @@ SettingsForm::OnSectionTableViewItemStateChanged(Tizen::Ui::Controls::SectionTab
 void
 SettingsForm::OnSectionTableViewContextItemActivationStateChanged(Tizen::Ui::Controls::SectionTableView& tableView, int sectionIndex, int itemIndex, Tizen::Ui::Controls::TableViewContextItem* pContextItem, bool activated)
 {
+}
+
+void
+SettingsForm::OnActionPerformed(const Tizen::Ui::Control& source, int actionId)
+{
+	AuthManager::getInstance().SetForced(true);
+	Tizen::App::UiApp::GetInstance()->SendUserEvent(LOGOUT, 0);
 }

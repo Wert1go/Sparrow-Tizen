@@ -16,5 +16,6 @@ static const int UPDATE_MESSAGE_ARRIVED = 10000003;
 static const int UPDATE_MESSAGE_DELIVERED = 10000004;
 
 static const int UPDATE_READ_STATE = 10000005;
+static const int LOGOUT = 10000006;
 
 #endif /* UIUPDATECONSTANTS_H_ */

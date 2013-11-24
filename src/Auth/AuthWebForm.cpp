@@ -8,6 +8,7 @@
 #include "AuthWebForm.h"
 #include "AuthManager.h"
 #include "SceneRegister.h"
+#include "LongPollConnection.h"
 
 using namespace Tizen::App;
 using namespace Tizen::Ui;
@@ -35,7 +36,7 @@ using namespace Tizen::System;
 
 AuthWebForm::AuthWebForm() {
 	result r = E_SUCCESS;
-
+	__watingForReqistration = false;
 	r = Form::Construct(FORM_STYLE_NORMAL);
 
 	SetFormBackEventListener(this);
@@ -72,6 +73,10 @@ AuthWebForm::RequestAuthUrl() {
 	query.Append(L"&redirect_uri=");
 	query.Append(VK_CALLBACK);
 	query.Append(L"&display=mobile&v=5.2&response_type=token");
+
+	if (AuthManager::getInstance().IsForced()) {
+		query.Append(L"&revoke=1");
+	}
 
 	Uri uri;
 	uri.SetUri(VK_AUTH_URL);
@@ -279,11 +284,29 @@ AuthWebForm::OnLoadingCompleted(void)
 	String *url = new (std::nothrow) String(__pWeb->GetUrl().GetPointer());
 	AppLog("OnLoadingCompleted %S", url->GetPointer());
 
+	if (this->__watingForReqistration) {
+		__watingForReqistration = false;
+		__pWeb->LoadUrl(RequestAuthUrl()->GetPointer());
+		return;
+	}
+
 	if(url->StartsWith(VK_CALLBACK, 0)) {
 		if (ExtractAccessDataAndSave(*url)) {
+
+			//AuthManager::getInstance().SendRequest();
+
+			if(AuthManager::getInstance().IsForced()) {
+				AuthManager::getInstance().SetForced(false);
+			}
+
+			LongPollConnection::getInstance().Run();
 			SceneManager* pSceneManager = SceneManager::GetInstance();
 			AppAssert(pSceneManager);
-			pSceneManager->GoForward(ForwardSceneTransition(SCENE_MAIN, SCENE_TRANSITION_ANIMATION_TYPE_LEFT));
+			pSceneManager->GoForward(ForwardSceneTransition(SCENE_MAIN_MESSAGES_TAB, SCENE_TRANSITION_ANIMATION_TYPE_LEFT));
+		} else {
+			SceneManager* pSceneManager = SceneManager::GetInstance();
+			AppAssert(pSceneManager);
+			pSceneManager->GoBackward(BackwardSceneTransition(SCENE_TRANSITION_ANIMATION_TYPE_RIGHT));
 		}
 		//TODO добавить обработчик отказа пользователя
 	}
@@ -321,8 +344,7 @@ AuthWebForm::OnLoadingRequested(const Tizen::Base::String& url, WebNavigationTyp
 		//https://login.vk.com/?act=login&_origin=https://m.vk.com&ip_h=26569ad0e14f34c684&role=pda&join_code=45917&join_hash=4918def96a5cb8497d6269a130333e4b&to=am9pbj9hY3Q9ZG9uZQ--
 		//https://m.vk.com/id229874355
 
-		__pWeb->LoadUrl(RequestAuthUrl()->GetPointer());
-		return true;
+		__watingForReqistration = true;
 	}
 
 	return false;

@@ -30,6 +30,8 @@
 #include "Util.h"
 #include "UpdateUnit.h"
 
+#include <iostream>
+#include <sys/time.h>
 
 using namespace Tizen::App;
 using namespace Tizen::Base;
@@ -108,7 +110,7 @@ UiChatForm::OnInitializing(void)
 	__pListView->AddScrollEventListener(*this);
 	__pListView->SetBackgroundColor(Color(8, 8, 8, 255));
 	__pListView->SetItemDividerColor(Color(0, 0, 0, 0));
-
+	__pListView->SetSweepEnabled(false);
 	AddControl(__pListView);
 
 	__pItemContext = new ListContextItem();
@@ -227,6 +229,8 @@ UiChatForm::RequestMessagesForUser(int userId) {
 
 void
 UiChatForm::RequestMoreMessagesFromMid(int mid) {
+	AppLog("RequestMoreMessagesFromMid");
+
 	HashMap *params = new HashMap();
 	String uidString;
 	uidString.Format(25, L"%d", __userId);
@@ -352,7 +356,11 @@ UiChatForm::OnSuccessN(RestResponse *result) {
 		}
 
 	} else {
-		AppLog("ggg");
+		if (__pMessagesRequestOperation) {
+			__pMessagesRequestOperation->AddEventListener(null);
+			__pMessagesRequestOperation = null;
+		}
+
 		this->SetMessages(MMessageDao::getInstance().GetMessagesForUser(this->__userId));
 	}
 
@@ -399,6 +407,7 @@ UiChatForm::OnUserEventReceivedN(RequestId requestId, Tizen::Base::Collection::I
 	} else if (requestId == GET_MESSAGES_HISTORY) {
 		this->__pListView->UpdateList();
 		this->ScrollToFirstMessage();
+		MarkUnread();
 	} else if (requestId == UPDATE_MESSAGE_ARRIVED || requestId == UPDATE_MESSAGE_DELIVERED) {
 		AppAssert(pArgs && pArgs->GetCount() == 2);
 		Integer *pUserId = static_cast<Integer *>(pArgs->GetAt(0));
@@ -648,12 +657,17 @@ UiChatForm::SendMessage() {
 
 	MMessage *pMessage = new MMessage();
 
+	AppLog("%d", __userId);
+
 	pMessage->SetUid(__userId);
 	pMessage->SetText(messageText);
 	pMessage->SetOut(1);
 	pMessage->SetReadState(0);
 	pMessage->SetDelivered(0);
+	unsigned long int timestamp = time(NULL);
+	AppLog("%ld", timestamp);
 
+	pMessage->SetDate(timestamp);
 	PostMan::getInstance().SendMessageFromUserWithListener(pMessage, __userId, this);
 
 }

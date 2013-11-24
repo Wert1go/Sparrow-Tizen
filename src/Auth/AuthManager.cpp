@@ -6,16 +6,29 @@
  */
 
 #include "AuthManager.h"
+#include "RestClient.h"
+#include "RestResponse.h"
+#include "MUser.h"
+#include "ImageCache.h"
+#include "UserDescriptor.h"
+#include "UserRestResponse.h"
+
+#include <FApp.h>
+#include <FGraphics.h>
 
 using namespace Tizen::App;
 using namespace Tizen::Base;
+using namespace Tizen::Base::Collection;
+using namespace Tizen::Graphics;
 
 #define KEY_ACCESS_TOKEN L"access_token"
 #define KEY_USER_ID		 L"user_id"
 #define KEY_EXPIRES_IN	 L"expires_id"
+#define KEY_FORCED	 	 L"force"
 
 AuthManager::AuthManager() {
 	LoadAccessDataFromStore();
+	__pUser = null;
 }
 
 AuthManager::~AuthManager() {
@@ -67,6 +80,51 @@ void AuthManager::LoadAccessDataFromStore() {
 
 }
 
+bool
+AuthManager::IsForced() {
+	result r;
+	AppRegistry *appRegistry = Application::GetInstance()->GetAppRegistry();
+	String token;
+	r = appRegistry->Get(KEY_FORCED, token);
+
+	if (r == E_KEY_NOT_FOUND) {
+		return false;
+	}
+
+	return true;
+}
+
+void
+AuthManager::SetForced(bool state) {
+	result r;
+	AppRegistry *appRegistry = Application::GetInstance()->GetAppRegistry();
+
+	if (state) {
+		appRegistry->Add(KEY_FORCED, L"forced");
+	} else {
+		appRegistry->Remove(KEY_FORCED);
+	}
+
+	appRegistry->Save();
+}
+
+void
+AuthManager::Clear() {
+	AppRegistry *appRegistry = Application::GetInstance()->GetAppRegistry();
+	result r;
+	__token = null;
+	__userId = null;
+	__expiresIn = null;
+
+	appRegistry->Remove(KEY_ACCESS_TOKEN);
+	appRegistry->Remove(KEY_USER_ID);
+	appRegistry->Remove(KEY_EXPIRES_IN);
+
+	appRegistry->Save();
+
+	LoadAccessDataFromStore();
+}
+
 bool AuthManager::IsAuthorized() {
 	return __token != null && __userId != null && __expiresIn != null && __token->GetLength() > 0;
 }
@@ -79,3 +137,64 @@ Tizen::Base::String* AuthManager::UserId() {
 	return __userId;
 }
 
+void
+AuthManager::SendRequest() {
+
+	HashMap *params = new HashMap();
+	params->Construct();
+	params->Add(new String(L"user_ids"), AuthManager::getInstance().UserId());
+	params->Add(new String(L"fields"), new String(USER_FILEDS));
+
+	if (!__userRequestOperation) {
+		__userRequestOperation = new RestRequestOperation(GET_USER, new String(L"users.get"), params);
+		__userRequestOperation->AddEventListener(this);
+		__userRequestOperation->SetResponseDescriptor(new UserDescriptor());
+		RestClient::getInstance().PerformOperation(__userRequestOperation);
+	}
+}
+
+void
+AuthManager::OnSuccessN(RestResponse *response) {
+
+	if (response->GetOperationCode() == GET_USER) {
+
+		if(__userRequestOperation) {
+			__userRequestOperation->AddEventListener(null);
+			__userRequestOperation = null;
+		}
+
+		UserRestResponse *userResponse = static_cast<UserRestResponse *>(response);
+
+		MUser *user = userResponse->GetUser();
+
+		if (user != null && user->GetFirstName() != null) {
+			__pUser = user;
+		}
+	}
+
+	//this->SendUserEvent(response->GetOperationCode(), 0);
+	Tizen::App::App::GetInstance()->SendUserEvent(666, 0);
+}
+
+
+void
+AuthManager::OnErrorN(Error *error) {
+	if (__userRequestOperation) {
+		__userRequestOperation->AddEventListener(null);
+		__userRequestOperation = null;
+	}
+
+	delete error;
+}
+
+void
+AuthManager::OnImageLoadedN(Bitmap *result, Integer *code) {
+
+}
+
+void
+AuthManager::UpdateImage() {
+	if (this->__pUser) {
+		ImageCache::getInstance().LoadImageForTarget(this->__pUser->GetPhoto(), this);
+	}
+}

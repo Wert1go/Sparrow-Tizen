@@ -21,6 +21,7 @@
 
 using namespace Tizen::Media;
 using namespace Tizen::Graphics;
+using namespace Tizen::Ui::Controls;
 
 class SettingsForm
  : public Tizen::Ui::Controls::Form
@@ -29,6 +30,7 @@ class SettingsForm
  , public IImageLoadingListener
  , public Tizen::Ui::Controls::ISectionTableViewItemEventListener
  , public Tizen::Ui::Controls::ISectionTableViewItemProviderF
+ , public Tizen::Ui::IActionEventListener
    {
 public:
 	SettingsForm();
@@ -42,13 +44,16 @@ public:
 	void SendRequest(void);
 	virtual void OnSuccessN(RestResponse *user);
 	virtual void OnErrorN(Error *error);
+	virtual void OnImageLoadedN(Bitmap *result, Integer *code);
 
 	virtual void OnUserEventReceivedN(RequestId requestId, Tizen::Base::Collection::IList* pArgs);
+	virtual void OnActionPerformed(const Tizen::Ui::Control& source, int actionId);
+
 	MUser *__user;
 	Tizen::Graphics::Bitmap *__bitmap;
 
 	virtual result OnDraw(void);
-	virtual void OnImageLoadedN(Bitmap *result, Integer *code);
+
 
 	//ISectionTableViewItemProviderF
 	virtual int GetSectionCount(void);
@@ -74,6 +79,7 @@ private:
 	void UpdateInterfaceForCurrentUser();
 
 	Tizen::Ui::Controls::SectionTableView* __pSectionTableView;
+	Button *__pExitButton;
 
 };
 

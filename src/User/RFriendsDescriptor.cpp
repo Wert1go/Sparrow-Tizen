@@ -27,6 +27,11 @@ RFriendsDescriptor::performObjectMappingN(JsonObject* pObject) {
 	IJsonValue* pValResponseObject = null;
 	pObject->GetValue(pKeyResponse, pValResponseObject);
 
+	if (!this->IsAuthorized(pObject)) {
+		response->SetError(new Error());
+		return response;
+	}
+
 	JsonObject *pResponseObject = static_cast< JsonObject* >(pValResponseObject);
 
 	JsonString* pKeyUsers = new JsonString(L"items");

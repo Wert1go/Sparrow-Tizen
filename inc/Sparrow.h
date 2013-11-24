@@ -59,6 +59,8 @@ public:
 
 	virtual void OnUserEventReceivedN(RequestId requestId, Tizen::Base::Collection::IList* pArgs);
 	void PostNotification(String *text);
+
+	void Logout();
 };
 
 #endif // _SPARROW_H_

@@ -30,6 +30,7 @@ private:
 
 public:
 	Database *GetDatabase();
+	void Clear();
 
 private:
 	Database *__database;

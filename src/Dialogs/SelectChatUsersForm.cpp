@@ -138,8 +138,6 @@ SelectChatUsersForm::OnUserEventReceivedN(RequestId requestId, Tizen::Base::Coll
 ListItemBase*
 SelectChatUsersForm::CreateItem(int groupIndex, int itemIndex, int itemWidth)
 {
-	AppLogDebug("%d :: %d", itemIndex, groupIndex);
-    // Creates an instance of CustomItem
 	UiDialogCustomItem* pItem = new UiDialogCustomItem();
     ListAnnexStyle style = this->GetCurrentAnnexStyle();
 
@@ -166,7 +164,6 @@ SelectChatUsersForm::CreateItem(int groupIndex, int itemIndex, int itemWidth)
 
 void
 SelectChatUsersForm::OnFastScrollIndexSelected(Tizen::Ui::Control& source, Tizen::Base::String& index) {
-	AppLog("OnFastScrollIndexSelected: %S", index.GetPointer());
 
 	for (int i = 0; i < this->__pSectionTitlesList->GetCount(); i ++) {
 		String *scrollIndex = static_cast<String *>(__pSectionTitlesList->GetAt(i));
@@ -181,10 +178,11 @@ SelectChatUsersForm::OnFastScrollIndexSelected(Tizen::Ui::Control& source, Tizen
 void
 SelectChatUsersForm::OnActionPerformed(const Tizen::Ui::Control& source, int actionId) {
 
-	SceneManager* pSceneManager = SceneManager::GetInstance();
-	AppAssert(pSceneManager);
-	pSceneManager->GoForward(ForwardSceneTransition(SCENE_CREATE_CONV, SCENE_TRANSITION_ANIMATION_TYPE_LEFT), __pSelectedUsers);
-
+	if (__pSelectedUsers && __pSelectedUsers->GetCount() > 0) {
+		SceneManager* pSceneManager = SceneManager::GetInstance();
+		AppAssert(pSceneManager);
+		pSceneManager->GoForward(ForwardSceneTransition(SCENE_CREATE_CONV, SCENE_TRANSITION_ANIMATION_TYPE_LEFT), __pSelectedUsers);
+	}
 }
 
 void

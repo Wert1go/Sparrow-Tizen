@@ -27,13 +27,18 @@ RestResponse *UserDescriptor::performObjectMappingN(JsonObject* pObject) {
 	IJsonValue* pValResponseObject = null;
 	pObject->GetValue(pKeyResponse, pValResponseObject);
 
+	if (!this->IsAuthorized(pObject)) {
+		response->SetError(new Error());
+		return response;
+	}
+	AppLog("11231Begin mapping");
 	JsonObject *pResponseObject = static_cast< JsonObject* >(pValResponseObject);
 
 	JsonString* pKeyUsers = new JsonString(L"items");
 	IJsonValue* pValUsersArray = null;
 
 	pResponseObject->GetValue(pKeyUsers, pValUsersArray);
-
+	AppLog("11Begin mapping");
 	JsonArray *pArray = static_cast< JsonArray* >(pValUsersArray);
 
 	LinkedList *users = new LinkedList();

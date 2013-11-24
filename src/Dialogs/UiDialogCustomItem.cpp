@@ -44,7 +44,7 @@ UiDialogCustomItem::UiDialogCustomItem() {
 	__pUserListItem = null;
 	__pDialogBG = null;
 	__pRefreshListener = null;
-	__pImageViews = new LinkedList(SingleObjectDeleter);
+	__pImageViews = new LinkedList();
 }
 
 
@@ -220,6 +220,7 @@ UiDialogCustomItem::AddRefreshListener(IRefreshableListView *pRefreshListener) {
 void
 UiDialogCustomItem::OnImageLoadedN(Bitmap *result, Integer *code) {
 
+//	AppLog("OnImageLoadedN!!1");
 	int index = code->ToInt();
 
 	if (index < this->__pImageViews->GetCount()) {

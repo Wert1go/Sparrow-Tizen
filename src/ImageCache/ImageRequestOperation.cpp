@@ -190,6 +190,10 @@ ImageRequestOperation::Execute() {
 
 	result r = GetLastResult();
 
+	if (r != E_SUCCESS) {
+		pBitmap = null;
+	}
+
 	if (r == E_INVALID_ARG) {
 		AppLog("The specified pixel format is not supported.");
 	} else if (r == E_INVALID_DATA) {
@@ -211,6 +215,8 @@ ImageRequestOperation::Execute() {
 		if (pBitmap) {
 			ImageCache::StoreImageForKey(pBitmap, __pUrl);
 		}
+	} else {
+		__pImageRequestListener->OnErrorN(new Error());
 	}
 
 	delete pImage;

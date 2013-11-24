@@ -30,7 +30,7 @@ ImageCache::ImageCache() {
 	__pUrlAndTargetMap->Construct(100, 0.75);
 	__pTargetAndUrlMap->Construct(100, 0.75);
 	__pUrlAndOperationMap->Construct(100, 0.75);
-	__pPendingOperation->Construct(100, 0.75);
+	__pPendingOperation->Construct(1000, 0.75);
 	__pUrlAndCodeMap->Construct(100, 0.75);
 
 	__runningOperations = 0;
@@ -63,18 +63,20 @@ ImageCache::LoadImageForTarget(String *url, IImageLoadingListener *target, Integ
 		__pUrlAndCodeMap->Add(url, code);
 
 
-//		if (__runningOperations < 3) {
-//			AppLogDebug("LoadImageForTarget::LoadImageForTarget :: %d", __runningOperations);
-
+		if (__runningOperations < 3) {
 			__runningOperations++;
 			__mutex.Release();
-//			AppLogDebug("__runningOperations :: %d", __runningOperations);
 			operation->Perform();
-//		} else {
-//			AppLogDebug("__pPendingOperation->Add <<<<<<<<<<<<<<<<<<");
-//			__pPendingOperation->Add(url, operation);
-//			__mutex.Release();
-//		}
+		} else {
+			__pPendingOperation->Add(url, operation);
+
+			result r = GetLastResult();
+			if (IsFailed(r)) {
+			   AppLog(GetErrorMessage(r));
+			}
+
+			__mutex.Release();
+		}
 	}
 }
 
@@ -122,7 +124,8 @@ ImageCache::CheckExistingOperationForUrl(String *url) {
 void
 ImageCache::CheckPendingOperationsAndRun() {
 	//TODO
-	return;
+//	return;
+
 	if (__pPendingOperation->GetCount() > 0) {
 		IListT<String *> *keysList = __pPendingOperation->GetKeysN();
 
@@ -146,6 +149,7 @@ ImageCache::CheckPendingOperationsAndRun() {
 void
 ImageCache::FinishOperationForUrl(String *url) {
 	__mutex.Acquire();
+
 	bool result = false;
 	__pUrlAndTargetMap->ContainsKey(url, result);
 
@@ -170,7 +174,6 @@ ImageCache::FinishOperationForUrl(String *url) {
 		//delete url;
 	}
 
-	//AppLog("FinishOperationForUrl");
 
 	__runningOperations--;
 	if (__runningOperations < 3) {

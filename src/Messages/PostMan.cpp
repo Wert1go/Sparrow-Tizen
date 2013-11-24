@@ -105,9 +105,9 @@ PostMan::SendMessageFromUserWithListener(MMessage *pMessage, int userId, IMessag
 	Integer *key = this->KeyForUid(userId);
 
 	if (!key) {
-		AppLogDebug("1");
-		key = new Integer(userId);
 
+		key = new Integer(userId);
+		AppLogDebug("%d", key->ToInt());
 		PostMessageOperation *operation = new PostMessageOperation();
 		operation->SetMessageOwner(this);
 		operation->SetDeliveryListener(pListener);

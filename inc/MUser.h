@@ -37,6 +37,8 @@ public:
 	int __isContact;
 	int __isPending;
 
+	String *__pBigPhoto;
+
 private:
 
 

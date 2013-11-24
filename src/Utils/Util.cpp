@@ -87,14 +87,18 @@ Util::LogE() {
 
 String*
 Util::formatDateN(long date) {
+
+
 	String *stringDate = new String();
 
 	 DateTime today;
 	 Locale locale(LANGUAGE_RUS, COUNTRY_RU);
 	 SystemTime::GetCurrentTime(TIME_MODE_UTC, today);
 
-	 unsigned long int timestamp = time(NULL);
-	 long int delta = (timestamp - date)/(24 * 60 * 60);
+	 long int timestamp = time(NULL);
+	 long int delta = (long int)((timestamp - (long int)date)/(24 * 60 * 60));
+
+//	 AppLog("formatDateN %ld || %ld :: %ld", delta, timestamp, date);
 
 	 LocaleManager localeManager;
 	 localeManager.Construct();

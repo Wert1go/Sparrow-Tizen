@@ -78,11 +78,10 @@ void
 PostMessageOperation::SendMessage() {
 	if (!__pSendMessageOperation) {
 		HashMap *params = new HashMap();
-		int rawUid = __pMessage->GetUid() < 2000000000 ? : __pMessage->GetUid() - 2000000000;
+		int rawUid = __pMessage->GetUid() < 2000000000 ? __pMessage->GetUid() : __pMessage->GetUid() - 2000000000;
 		params->Construct();
 		String uid;
 		uid.Format(25, L"%d", rawUid);
-		AppLogDebug("7");
 
 		if (__pMessage->GetUid() < 2000000000) {
 
@@ -91,11 +90,9 @@ PostMessageOperation::SendMessage() {
 			params->Add(new String(L"chat_id"), new String(uid));
 		}
 		params->Add(new String(L"access_token"), AuthManager::getInstance().AccessToken());
-		AppLogDebug("6");
+
 		params->Add(new String(L"message"), __pMessage->GetText());
-		AppLogDebug("5");
-		//params->Add(new String(L"guid"), )
-		AppLogDebug("3");
+
 		__pSendMessageOperation = new RestRequestOperation(SEND_MESSAGE, new String(L"messages.send"), params);
 		__pSendMessageOperation->AddEventListener(this);
 		__pSendMessageOperation->SetResponseDescriptor(new RMessageSendDescriptor());
