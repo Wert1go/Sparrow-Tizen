@@ -11,11 +11,14 @@
 using namespace Tizen::Base;
 using namespace Tizen::Graphics;
 
+class MAttachment;
+
 class IImageDrawer {
 public:
 	virtual ~IImageDrawer(void){};
 
 	virtual void DrawImageFromUrlInRect(String *imageUrl, Rectangle rect){};
+	virtual void DrawAttachmentFromUrlInRect(String *imageUrl, Rectangle rect, MAttachment *attachment){};
 };
 
 

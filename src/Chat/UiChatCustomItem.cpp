@@ -10,6 +10,7 @@
 #include "MMessage.h"
 #include "IRefreshableListView.h"
 #include "UiImageView.h"
+#include "UiAttachmentView.h"
 #include "ImageCache.h"
 
 using namespace Tizen::Ui;
@@ -91,12 +92,33 @@ UiChatCustomItem::DrawImageFromUrlInRect(String *imageUrl, Rectangle rect) {
 	UiImageView *pImageView = new (std::nothrow) UiImageView();
 
 	__pUrtToIndexMap->Add(imageUrl, new Integer(index));
-	__pImageViews->Add(pImageView);
 
 	this->AddElement(rect, index, *pImageView);
 	this->__pImageViews->Add(pImageView);
 	this->SetImageUrl(imageUrl, index);
+}
 
+void
+UiChatCustomItem::DrawAttachmentFromUrlInRect(String *imageUrl, Rectangle rect, MAttachment *attachment) {
+	bool exist = false;
+	this->__pUrtToIndexMap->ContainsKey(imageUrl, exist);
+	if (exist) {
+		return;
+	}
+
+	if (!imageUrl) {
+		return;
+	}
+
+	int index = this->__pImageViews->GetCount();
+
+	UiAttachmentView *pImageView = new (std::nothrow) UiAttachmentView();
+	pImageView->__pAttachment = attachment;
+	__pUrtToIndexMap->Add(imageUrl, new Integer(index));
+
+	this->AddElement(rect, index, *pImageView);
+	this->__pImageViews->Add(pImageView);
+	this->SetImageUrl(imageUrl, index);
 }
 
 void

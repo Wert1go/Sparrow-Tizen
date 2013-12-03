@@ -23,6 +23,7 @@ class MMessage;
 class MDialog;
 class IRefreshableListView;
 class Error;
+class MAttachment;
 
 class UiChatCustomItem
  : public CustomItem
@@ -47,6 +48,7 @@ public:
 
 private:
 	virtual void DrawImageFromUrlInRect(String *imageUrl, Rectangle rect);
+	virtual void DrawAttachmentFromUrlInRect(String *imageUrl, Rectangle rect, MAttachment *attachment);
 
 	void OnImageLoadedN(Bitmap *result, Integer *code);
 	void OnErrorN(Error *error);

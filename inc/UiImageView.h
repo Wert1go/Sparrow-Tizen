@@ -16,7 +16,7 @@ using namespace Tizen::Ui::Controls;
 using namespace Tizen::Graphics;
 
 class UiImageView
-: public ICustomElement
+ : public ICustomElement
  , public Object{
 public:
 	UiImageView();

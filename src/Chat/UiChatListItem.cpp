@@ -91,13 +91,14 @@ UiChatListItem::OnDraw(Tizen::Graphics::Canvas& canvas, const Tizen::Graphics::R
 				imgUrl = attachment->__pPhoto130;
 			}
 
-			this->GetDrawer()->DrawImageFromUrlInRect(
+			this->GetDrawer()->DrawAttachmentFromUrlInRect(
 					imgUrl,
 					Rectangle(
 							drawPoint.x,
 							drawPoint.y,
 							attachment->imageSize.x,
-							attachment->imageSize.y)
+							attachment->imageSize.y),
+					attachment
 			);
 
 			drawOffset += attachment->imageSize.y;

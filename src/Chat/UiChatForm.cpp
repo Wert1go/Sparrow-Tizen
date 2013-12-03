@@ -27,6 +27,7 @@
 #include "MUserDao.h"
 #include "MUser.h"
 #include "MDialogDao.h"
+#include "MAttachment.h"
 #include "Util.h"
 #include "UpdateUnit.h"
 
@@ -260,7 +261,21 @@ UiChatForm::OnListViewContextItemStateChanged(Tizen::Ui::Controls::ListView &lis
 
 void
 UiChatForm::OnListViewItemStateChanged(Tizen::Ui::Controls::ListView &listView, int index, int elementId, Tizen::Ui::Controls::ListItemStatus status) {
-	//this->__pListView->
+
+	if (status == LIST_ITEM_STATUS_SELECTED) {
+		MMessage *message = static_cast<MMessage *>(this->GetMessages()->GetAt(index));
+
+		if (elementId >= 0 && message->__pAttachments && message->__pAttachments->GetCount() > 0) {
+
+			if (elementId < message->__pAttachments->GetCount()) {
+				MAttachment *attach = static_cast<MAttachment *>(message->__pAttachments->GetAt(elementId));
+				AppLog("attach: %S", attach->__pPhoto604->GetPointer());
+			}
+		}
+	}
+
+	//Здесь можно обрабатывать нажатия на элементы сообщения. Важно вынести за пределы 100 все основные элементы
+	//и исключить отрисовку аватаров!
 }
 
 void
