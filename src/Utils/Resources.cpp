@@ -33,16 +33,53 @@ Resources::Resources() {
 }
 
 Resources::~Resources() {
-	// TODO Auto-generated destructor stub
+
+	if (__pUserAvatar) {
+		delete __pUserAvatar;
+		__pUserAvatar = null;
+	}
+
+	if (__pDeliveredIcon) {
+		delete __pDeliveredIcon;
+		__pDeliveredIcon = null;
+	}
+
+	if (__pOnlineIndicator) {
+		delete __pOnlineIndicator;
+		__pOnlineIndicator = null;
+	}
+
+	if (__pNormalRoundImageForm) {
+		delete __pNormalRoundImageForm;
+		__pNormalRoundImageForm = null;
+	}
+
+	if (__pNormalUnreadRoundImageForm) {
+		delete __pNormalUnreadRoundImageForm;
+		__pNormalUnreadRoundImageForm = null;
+	}
+
+	if (__pSelectedRoundImageForm) {
+		delete __pSelectedRoundImageForm;
+		__pSelectedRoundImageForm = null;
+	}
+
+	if (__pGroupNormalIcon) {
+		delete __pGroupNormalIcon;
+		__pGroupNormalIcon = null;
+	}
+
+	if (__pGroupPressedIcon) {
+		delete __pGroupPressedIcon;
+		__pGroupPressedIcon = null;
+	}
+
 }
 
 Bitmap *
 Resources::GetOnlineIndicator() {
 	if (!this->__pOnlineIndicator) {
-		Image image;
-		image.Construct();
-		String filepath = App::GetInstance()->GetAppResourcePath() + L"Images/online_list.png";
-		this->__pOnlineIndicator = image.DecodeN(filepath, BITMAP_PIXEL_FORMAT_ARGB8888);
+		this->__pOnlineIndicator = this->LoadBitmapNamed("online_list.png");
 	}
 
 	return this->__pOnlineIndicator;
@@ -51,10 +88,7 @@ Resources::GetOnlineIndicator() {
 Bitmap *
 Resources::GetNormalRoundImageForm() {
 	if (!__pNormalRoundImageForm) {
-		Image image;
-		image.Construct();
-		String filepath = App::GetInstance()->GetAppResourcePath() + L"Images/thumbnail_list.png";
-		this->__pNormalRoundImageForm = image.DecodeN(filepath, BITMAP_PIXEL_FORMAT_ARGB8888);
+		this->__pNormalRoundImageForm = this->LoadBitmapNamed("thumbnail_list.png");
 	}
 
 	return __pNormalRoundImageForm;
@@ -63,10 +97,7 @@ Resources::GetNormalRoundImageForm() {
 Bitmap *
 Resources::GetNormalUnreadRoundImageForm() {
 	if (!__pNormalUnreadRoundImageForm) {
-		Image image;
-		image.Construct();
-		String filepath = App::GetInstance()->GetAppResourcePath() + L"Images/thumbnail_list_unread.png";
-		this->__pNormalUnreadRoundImageForm = image.DecodeN(filepath, BITMAP_PIXEL_FORMAT_ARGB8888);
+		this->__pNormalUnreadRoundImageForm = this->LoadBitmapNamed("thumbnail_list_unread.png");
 	}
 
 	return __pNormalUnreadRoundImageForm;
@@ -75,10 +106,7 @@ Resources::GetNormalUnreadRoundImageForm() {
 Bitmap *
 Resources::GetSelectedRoundImageForm() {
 	if (!__pSelectedRoundImageForm) {
-		Image image;
-		image.Construct();
-		String filepath = App::GetInstance()->GetAppResourcePath() + L"Images/thumbnail_list_active.png";
-		this->__pSelectedRoundImageForm = image.DecodeN(filepath, BITMAP_PIXEL_FORMAT_ARGB8888);
+		this->__pSelectedRoundImageForm = this->LoadBitmapNamed("thumbnail_list_active.png");
 	}
 
 	return __pSelectedRoundImageForm;
@@ -87,10 +115,7 @@ Resources::GetSelectedRoundImageForm() {
 Bitmap *
 Resources::GetDeliveredIcon() {
 	if (!__pDeliveredIcon) {
-		Image image;
-		image.Construct();
-		String filepath = App::GetInstance()->GetAppResourcePath() + L"Images/check_on.png";
-		this->__pDeliveredIcon = image.DecodeN(filepath, BITMAP_PIXEL_FORMAT_ARGB8888);
+		this->__pDeliveredIcon = this->LoadBitmapNamed( L"check_on.png");
 	}
 
 	return __pDeliveredIcon;

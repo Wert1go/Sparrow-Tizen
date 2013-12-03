@@ -127,7 +127,7 @@ AuthWebForm::ExtractAccessDataAndSave(const Tizen::Base::String& url) {
 	String expires_in(L"");
 	String user_id(L"");
 
-		//https://oauth.vk.com/blank.html#access_token=fda4eb8b27d2e796a15239907974c1499c9dace3b3f58f440fc4b0fc50a96c462884e3d281be031e66cd0&expires_in=86400&user_id=30143161
+	//https://oauth.vk.com/blank.html#access_token=fda4eb8b27d2e796a15239907974c1499c9dace3b3f58f440fc4b0fc50a96c462884e3d281be031e66cd0&expires_in=86400&user_id=30143161
 
 	String redirectedUrl = url;
 
@@ -152,33 +152,33 @@ AuthWebForm::ExtractAccessDataAndSave(const Tizen::Base::String& url) {
 
 	String keyValuePair;
 
-		while (pairsStringTokenizer.HasMoreTokens())
-		{
+	while (pairsStringTokenizer.HasMoreTokens())
+	{
 
-			pairsStringTokenizer.GetNextToken(keyValuePair);
+		pairsStringTokenizer.GetNextToken(keyValuePair);
 
-			StringTokenizer paramStringTokenizer(keyValuePair, paramDelimer);
-			String paramValue = null;
-			String prevValue = null;
+		StringTokenizer paramStringTokenizer(keyValuePair, paramDelimer);
+		String paramValue = null;
+		String prevValue = null;
 
-			AppLogDebug("param count: %d", paramStringTokenizer.GetTokenCount());
+		AppLogDebug("param count: %d", paramStringTokenizer.GetTokenCount());
 
-			while(paramStringTokenizer.HasMoreTokens()) {
-				paramStringTokenizer.GetNextToken(paramValue);
+		while(paramStringTokenizer.HasMoreTokens()) {
+			paramStringTokenizer.GetNextToken(paramValue);
 
-				if (prevValue != null) {
-					if(prevValue.Equals(L"access_token", false)) {
-						access_token = paramValue;
-					} else if (prevValue.Equals(L"user_id", false)) {
-						user_id = paramValue;
-					} else if (prevValue.Equals(L"expires_in", false)) {
-						expires_in = paramValue;
-					}
+			if (prevValue != null) {
+				if(prevValue.Equals(L"access_token", false)) {
+					access_token = paramValue;
+				} else if (prevValue.Equals(L"user_id", false)) {
+					user_id = paramValue;
+				} else if (prevValue.Equals(L"expires_in", false)) {
+					expires_in = paramValue;
 				}
-				prevValue = paramValue;
 			}
-
+			prevValue = paramValue;
 		}
+
+	}
 
 	if (access_token != null && user_id != null && expires_in != null) {
 
@@ -308,7 +308,6 @@ AuthWebForm::OnLoadingCompleted(void)
 			AppAssert(pSceneManager);
 			pSceneManager->GoBackward(BackwardSceneTransition(SCENE_TRANSITION_ANIMATION_TYPE_RIGHT));
 		}
-		//TODO добавить обработчик отказа пользователя
 	}
 }
 

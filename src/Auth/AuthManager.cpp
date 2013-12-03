@@ -172,7 +172,6 @@ AuthManager::OnSuccessN(RestResponse *response) {
 		}
 	}
 
-	//this->SendUserEvent(response->GetOperationCode(), 0);
 	Tizen::App::App::GetInstance()->SendUserEvent(666, 0);
 }
 

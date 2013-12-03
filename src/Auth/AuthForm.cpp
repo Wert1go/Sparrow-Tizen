@@ -29,7 +29,6 @@ AuthForm::AuthForm() {
 	// TODO Auto-generated constructor stub
 	Form::Construct(FORM_STYLE_NORMAL);
 
-
 	result r = E_SUCCESS;
 
 	Rectangle rect = GetBounds();
