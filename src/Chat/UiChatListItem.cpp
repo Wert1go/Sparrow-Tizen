@@ -68,8 +68,9 @@ UiChatListItem::OnDraw(Tizen::Graphics::Canvas& canvas, const Tizen::Graphics::R
 		this->GetDrawer()->DrawImageFromUrlInRect(url, Rectangle(20, 30, avatarSize, avatarSize));
 	}
 
-	if (this->GetMessage()->__pAttachments && this->GetMessage()->__pAttachments->GetCount()) {
+	if (this->GetMessage()->__pAttachments && this->GetMessage()->__pAttachments->GetCount() > 0) {
 		float drawOffset = textOffset;
+
 		for (int i = 0; i < this->GetMessage()->__pAttachments->GetCount(); i++) {
 			MAttachment *attachment = static_cast<MAttachment *>( GetMessage()->__pAttachments->GetAt(i));
 
@@ -82,8 +83,16 @@ UiChatListItem::OnDraw(Tizen::Graphics::Canvas& canvas, const Tizen::Graphics::R
 				drawPoint = Point(__leftOffset + __offset, drawOffset);
 			}
 
+			String *imgUrl = null;
+
+			if (attachment->__pPhoto604) {
+				imgUrl = attachment->__pPhoto604;
+			} else {
+				imgUrl = attachment->__pPhoto130;
+			}
+
 			this->GetDrawer()->DrawImageFromUrlInRect(
-					attachment->__pPhoto130,
+					imgUrl,
 					Rectangle(
 							drawPoint.x,
 							drawPoint.y,
@@ -92,6 +101,10 @@ UiChatListItem::OnDraw(Tizen::Graphics::Canvas& canvas, const Tizen::Graphics::R
 			);
 
 			drawOffset += attachment->imageSize.y;
+
+			if (i != this->GetMessage()->__pAttachments->GetCount() - 1) {
+				drawOffset += msgImageOffset;
+			}
 		}
 	}
 

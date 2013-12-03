@@ -90,18 +90,26 @@ UiChapPanel::OnDraw() {
 		pCanvas->FillRectangle(Color(65, 97, 137, 255), rect);
 
 		if (__pDialog) {
-			bool isChat = this->__pDialog->GetUid() > 2000000000;
-			AppLogDebug("lolololo");
+			bool isChat = this->__pDialog->GetUid() > isChatValue;
+
 			if (!isChat) {
-				AppLogDebug("111lolololo");
+
 				Bitmap *userAvatar = this->__ChatIcon;
 
 				if (userAvatar) {
-					pCanvas->DrawBitmap(Rectangle(offset, rect.height/2 - imgSize/2, imgSize, imgSize), *userAvatar);
+					pCanvas->DrawBitmap(Rectangle(
+							offset,
+							rect.height/2 - imgSize/2,
+							imgSize,
+							imgSize), *userAvatar);
 				}
 
 				Bitmap *pRounder = this->__pRounder;
-				pCanvas->DrawBitmap(Rectangle(offset, rect.height/2 - imgSize/2, imgSize, imgSize), *pRounder);
+				pCanvas->DrawBitmap(Rectangle(
+						offset,
+						rect.height/2 - imgSize/2,
+						imgSize,
+						imgSize), *pRounder);
 			}
 
 			EnrichedText* pUserName = null;
@@ -116,7 +124,7 @@ UiChapPanel::OnDraw() {
 			pUserName->SetTextAbbreviationEnabled(true);
 
 			pUsetNameText = new TextElement();
-			AppLogDebug("11lolololo");
+
 			String *titleText;
 
 			if (isChat) {
@@ -128,7 +136,7 @@ UiChapPanel::OnDraw() {
 				fullName->Append(this->__pDialog->GetLastName()->GetPointer());
 				titleText = fullName;
 			}
-			AppLogDebug("22lolololo");
+
 			r = pUsetNameText->Construct(titleText->GetPointer());
 
 			pUsetNameText->SetTextColor(Color(255, 255, 255, 255));
@@ -146,7 +154,7 @@ UiChapPanel::OnDraw() {
 			if (size.height > 68) {
 				size.height = 41;
 			}
-			AppLogDebug("33lolololo");
+
 			pUserName->SetSize(size);
 
 			float textPosition =  10;
@@ -163,7 +171,6 @@ UiChapPanel::OnDraw() {
 
 
 		/*********************** USER ICON ****************************/
-
 
 
 		/*********************** ONLINE STATUS ***********************/

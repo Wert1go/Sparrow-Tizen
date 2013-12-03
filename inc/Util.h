@@ -18,6 +18,10 @@ class MMessage;
 
 extern const int limitSize;
 
+extern const int msgImageOffset;
+extern const int imageSizeMedium;
+extern const int imageSizeSmall;
+
 class Util
  : public Object
 {

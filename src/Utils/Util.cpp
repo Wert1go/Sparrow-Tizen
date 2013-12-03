@@ -26,6 +26,9 @@ using namespace Tizen::System;
 using namespace Tizen::Graphics;
 
 const int limitSize = 400;//720 - 190 - 130
+const int msgImageOffset = 20;
+const int imageSizeMedium = 480;
+const int imageSizeSmall = 130;
 
 Util::Util() {
 	// TODO Auto-generated constructor stub
@@ -179,18 +182,42 @@ Util::CalculateDimensionForMessage(MMessage *message) {
 	if (message->__pAttachments && message->__pAttachments->GetCount()) {
 		for (int i = 0; i < message->__pAttachments->GetCount(); i++) {
 			MAttachment *attachment = static_cast<MAttachment *>( message->__pAttachments->GetAt(i));
-			AppLog("CalculateDimensionForMessage %d", resultSize.height);
+
 			attachment->ratio = (float)attachment->__width/attachment->__height;
 
-			float imgWidth = 130 * attachment->ratio;
+			float imgWidth;
+			float imgHeight;
 
-			attachment->imageSize = FloatPoint(imgWidth, 130);
+			AppLog("attachment->ratio %f", attachment->ratio);
+
+			if (attachment->__pPhoto604) {
+				if (attachment->__width > attachment->__height) {
+					imgWidth = imageSizeMedium;
+					imgHeight = imageSizeMedium / attachment->ratio;
+				} else {
+					imgHeight = imageSizeMedium;
+					imgWidth = imageSizeMedium * attachment->ratio;
+				}
+			} else {
+				if (attachment->__width > attachment->__height) {
+					imgWidth = imageSizeSmall;
+					imgHeight = imageSizeSmall / attachment->ratio;
+				} else {
+					imgHeight = imageSizeSmall;
+					imgWidth = imageSizeSmall * attachment->ratio;
+				}
+			}
+
+			attachment->imageSize = FloatPoint(imgWidth, imgHeight);
 
 			if (resultSize.width < imgWidth) {
 				resultSize.width = imgWidth;
 			}
 
-			resultSize.height += 130;
+			resultSize.height += imgHeight;
+			if (i != message->__pAttachments->GetCount() - 1) {
+				resultSize.height += msgImageOffset;
+			}
 		}
 	}
 

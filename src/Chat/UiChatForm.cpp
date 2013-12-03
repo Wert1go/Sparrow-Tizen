@@ -70,8 +70,6 @@ UiChatForm::~UiChatForm() {
 	}
 }
 
-
-
 result
 UiChatForm::OnInitializing(void)
 {
@@ -118,6 +116,7 @@ UiChatForm::OnInitializing(void)
 	__pItemContext->AddElement(ID_CONTEXT_ITEM_1, L"Test1");
 	__pItemContext->AddElement(ID_CONTEXT_ITEM_2, L"Test2");
 	this->__isActive = true;
+
 	return r;
 }
 
@@ -261,7 +260,7 @@ UiChatForm::OnListViewContextItemStateChanged(Tizen::Ui::Controls::ListView &lis
 
 void
 UiChatForm::OnListViewItemStateChanged(Tizen::Ui::Controls::ListView &listView, int index, int elementId, Tizen::Ui::Controls::ListItemStatus status) {
-
+	//this->__pListView->
 }
 
 void
@@ -279,7 +278,7 @@ UiChatForm::CreateItem(int index, int itemWidth) {
     MMessage *message = static_cast<MMessage *>(this->GetMessages()->GetAt(index));
     Dimension dmns = Util::CalculateDimensionForMessage(message);
     dmns.height = dmns.height +  20*4;
-    dmns.width = dmns.width +  20*4;
+    dmns.width = dmns.width +  20*2;
 
     int height = dmns.height;
     if (height < 136) {
