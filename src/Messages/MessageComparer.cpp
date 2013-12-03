@@ -14,12 +14,11 @@
 using namespace Tizen::Base;
 
 MessageComparer::MessageComparer() {
-	// TODO Auto-generated constructor stub
 
 }
 
 MessageComparer::~MessageComparer() {
-	// TODO Auto-generated destructor stub
+
 }
 
 result

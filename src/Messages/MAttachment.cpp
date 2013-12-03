@@ -23,7 +23,25 @@ MAttachment::MAttachment() {
 }
 
 MAttachment::~MAttachment() {
-	// TODO Auto-generated destructor stub
+	if (__pType) {
+		delete __pType;
+		__pType = null;
+	}
+
+	if (__pAccessKey) {
+		delete __pAccessKey;
+		__pAccessKey = null;
+	}
+
+	if (__pPhoto130) {
+		delete __pPhoto130;
+		__pPhoto130 = null;
+	}
+
+	if (__pPhoto604) {
+		delete __pPhoto604;
+		__pPhoto604 = null;
+	}
 }
 
 MAttachment*
