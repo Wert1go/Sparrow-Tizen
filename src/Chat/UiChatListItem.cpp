@@ -20,19 +20,45 @@ using namespace Tizen::Ui::Controls;
 
 const int avatarSize = 55;
 
-static int textOffset = 0;
 
 UiChatListItem::UiChatListItem() {
+	__textOffset = 0;
 	__pMessage = null;
 	__offset = 20;
 	__sideOffset = __offset*3;
 	__leftOffset = __sideOffset;
 	__triangleWidth = 25;
 	__triangleHeight = 32;
+
+	__pMessageLabel = null;
+	__pMessageText = null;
+	__pTimeLabel = null;
+	__pTimeText  = null;
+
 }
 
 UiChatListItem::~UiChatListItem() {
-	// TODO Auto-generated destructor stub
+	__textOffset = 0;
+
+	if (__pMessageText) {
+		delete __pMessageText;
+		__pMessageText = null;
+	}
+
+	if (__pTimeText) {
+		delete __pTimeText;
+		__pTimeText = null;
+	}
+
+	if (__pMessageLabel) {
+		__pMessageLabel->RemoveAll(true);
+		delete __pMessageLabel;
+	}
+
+	if (__pTimeLabel) {
+		__pTimeLabel->RemoveAll(true);
+		delete __pTimeLabel;
+	}
 }
 
 bool
@@ -69,13 +95,16 @@ UiChatListItem::OnDraw(Tizen::Graphics::Canvas& canvas, const Tizen::Graphics::R
 	}
 
 	if (this->GetMessage()->__pAttachments && this->GetMessage()->__pAttachments->GetCount() > 0) {
-		float drawOffset = textOffset;
+		float drawOffset = __textOffset;
 
 		for (int i = 0; i < this->GetMessage()->__pAttachments->GetCount(); i++) {
 			MAttachment *attachment = static_cast<MAttachment *>( GetMessage()->__pAttachments->GetAt(i));
 
 			Point drawPoint;
 			float width = __pBubbleDimension.width;
+
+
+			AppLog("drawOffset %d :: %f", i, drawOffset);
 
 			if (this->GetMessage()->GetOut() == 1) {
 				drawPoint = Point(rect.width - __sideOffset - width + __offset, drawOffset);
@@ -180,6 +209,32 @@ UiChatListItem::DrawBubble(Tizen::Graphics::Canvas& canvas, const Tizen::Graphic
 
 void
 UiChatListItem::DrawMessage(Tizen::Graphics::Canvas& canvas, const Tizen::Graphics::Rectangle& rect, Tizen::Ui::Controls::ListItemDrawingStatus status) {
+
+	if (__pMessageLabel) {
+		canvas.DrawText(__messageDrawPoint, *__pMessageLabel);
+	}
+
+	if (__pTimeLabel) {
+		canvas.DrawText(__timeDrawPoint, *__pTimeLabel);
+
+
+		if (this->GetMessage()->GetOut() == 1 && this->GetMessage()->GetDelivered() == 1 && this->GetMessage()->GetReadState() == 0) {
+			FloatRectangle delivered = FloatRectangle(
+					__timeDrawPoint.x - __timeSize.height - 5,
+					__timeDrawPoint.y,
+					__timeSize.height,
+					__timeSize.height
+			);
+
+			canvas.DrawBitmap(delivered, *Resources::getInstance().GetDeliveredIcon());
+		}
+	}
+}
+
+/************************** UTILS ******************************/
+
+void
+UiChatListItem::Initalize() {
 	float width = __pBubbleDimension.width;
 	float height = __pBubbleDimension.height;
 
@@ -229,17 +284,24 @@ UiChatListItem::DrawMessage(Tizen::Graphics::Canvas& canvas, const Tizen::Graphi
 		float bubbleOffset = 40;
 
 		if (this->GetMessage()->GetOut() == 1) {
-			drawPoint = Point(rect.width - __sideOffset - width + __offset, bubbleOffset);
+			drawPoint = Point(__rect.width - __sideOffset - width + __offset, bubbleOffset);
 		} else {
 			drawPoint = Point(__leftOffset + __offset, bubbleOffset);
 		}
 
-		textOffset = bubbleOffset + resultSize.height;
+		__textOffset = bubbleOffset + resultSize.height;
 
-		canvas.DrawText(drawPoint, *pMessageLabel);
+		__messageDrawPoint = drawPoint;
+		__pMessageLabel = pMessageLabel;
+		__pMessageText = pMessageText;
+
+//		canvas.DrawText(drawPoint, *pMessageLabel);
+
 	} else {
-		textOffset = 40;
+		__textOffset = 40;
 	}
+
+	AppLog("textOffset %f", __textOffset);
 
 	EnrichedText* pTimeLabel = null;
 	TextElement* pTImeText = null;
@@ -275,12 +337,13 @@ UiChatListItem::DrawMessage(Tizen::Graphics::Canvas& canvas, const Tizen::Graphi
 	FloatDimension timeSize;
 	pTimeLabel->GetTextExtent(0, text->GetLength(), timeSize, actualLen);
 	pTimeLabel->SetSize(timeSize);
+	__timeSize = timeSize;
 
 	Point datePoint;
 
 	if (this->GetMessage()->GetOut() == 1) {
 		datePoint = Point(
-				rect.width - __sideOffset - width - timeSize.width - __offset,
+				__rect.width - __sideOffset - width - timeSize.width - __offset,
 				height - 136/2 - timeSize.height/2);
 	} else {
 		datePoint = Point(
@@ -288,21 +351,13 @@ UiChatListItem::DrawMessage(Tizen::Graphics::Canvas& canvas, const Tizen::Graphi
 				height - 136/2 - timeSize.height/2);
 	}
 
-	if (this->GetMessage()->GetOut() == 1 && this->GetMessage()->GetDelivered() == 1 && this->GetMessage()->GetReadState() == 0) {
-		FloatRectangle delivered = FloatRectangle(
-				datePoint.x - timeSize.height - 5,
-				datePoint.y,
-				timeSize.height,
-				timeSize.height
-		);
+	__pTimeLabel = pTimeLabel;
+	__pTimeText = pTImeText;
+	__timeDrawPoint = datePoint;
 
-		canvas.DrawBitmap(delivered, *Resources::getInstance().GetDeliveredIcon());
-	}
-
-	canvas.DrawText(datePoint, *pTimeLabel);
+//	canvas.DrawText(datePoint, *pTimeLabel);
+//	delete pTImeText;
 }
-
-/************************** UTILS ******************************/
 
 void
 UiChatListItem::SetMessage(MMessage *pMessage) {

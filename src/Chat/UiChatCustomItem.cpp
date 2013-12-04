@@ -38,9 +38,13 @@ void
 UiChatCustomItem::Init() {
 	Rectangle rect = Rectangle(0,0,__pDimension->width, __pDimension->height);
 	__pChatListItem->SetBubbleDimension(__pBubbleDimension);
+	__pChatListItem->SetDrawer(this);
+	__pChatListItem->__rect = Dimension(__pDimension->width, __pDimension->height);
 	__pChatListItem->SetMessage(this->GetMessage());
 	__pChatListItem->SetDialog(this->GetDialog());
-	__pChatListItem->SetDrawer(this);
+
+	__pChatListItem->Initalize();
+
 	this->AddElement(rect, 23, *__pChatListItem);
 }
 

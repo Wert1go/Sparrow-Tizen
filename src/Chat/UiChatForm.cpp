@@ -319,6 +319,8 @@ UiChatForm::CreateItem(int index, int itemWidth) {
 
 bool
 UiChatForm::DeleteItem(int index, Tizen::Ui::Controls::ListItemBase* pItem, int itemWidth) {
+	delete pItem;
+	pItem = null;
 	return true;
 }
 
