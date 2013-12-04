@@ -17,6 +17,7 @@ public:
 
 	virtual void OnSuccessN(RestResponse *result){};
 	virtual void OnErrorN(Error *error){};
+	virtual void OnProgressChanged(int progress){};
 };
 
 #endif /* IRESTREQUESTLISTENER_H_ */

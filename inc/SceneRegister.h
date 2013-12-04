@@ -23,6 +23,7 @@ extern const wchar_t* SCENE_CREATE_CONV;
 extern const wchar_t* SCENE_PROFILE;
 
 extern const wchar_t* SCENE_SETTINGS;
+extern const wchar_t* SCENE_IMAGE_VIEWER;
 
 class SceneRegister {
 public:

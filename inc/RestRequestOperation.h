@@ -30,6 +30,10 @@ static const long SEARCH_USERS = 100999113;
 
 static const long ADD_TO_FRIEND_REQUEST = 100999114;
 
+static const long ATTACHMENT_IMAGE_GET_SERVER = 100999115;
+static const long ATTACHMENT_IMAGE_UPLOAD = 100999116;
+static const long ATTACHMENT_IMAGE_SAVE = 100999117;
+
 extern const wchar_t* USER_FILEDS;
 
 #include <FNet.h>
@@ -45,9 +49,11 @@ using namespace Tizen::Base::Collection;
 
 class RestRequestOperation
  : public Tizen::Net::Http::IHttpTransactionEventListener
+ , public Tizen::Net::Http::IHttpProgressEventListener
  , IRequestOperation
 {
 public:
+	RestRequestOperation(String *uri, long operationCode, String *method, HashMap *params, HashMap *files);
 	RestRequestOperation(String *uri, long operationCode, String *method, HashMap *params);
 	RestRequestOperation(long operationCode, String *method, HashMap *params);
 	virtual ~RestRequestOperation();
@@ -61,13 +67,25 @@ private:
 	virtual void OnTransactionCompleted(Tizen::Net::Http::HttpSession& httpSession, Tizen::Net::Http::HttpTransaction& httpTransaction);
 	virtual void OnTransactionCertVerificationRequiredN(Tizen::Net::Http::HttpSession& httpSession, Tizen::Net::Http::HttpTransaction& httpTransaction, Tizen::Base::String* pCert);
 
-	void Init(String *_uri, long operationCode, String *method, HashMap *params);
+
+	// IHttpProgressEventListener handlers are declared
+	virtual void OnHttpUploadInProgress(Tizen::Net::Http::HttpSession& httpSession,
+									  Tizen::Net::Http::HttpTransaction& httpTransaction,
+									  long long currentLength,
+									  long long totalLength);
+
+	virtual void OnHttpDownloadInProgress(Tizen::Net::Http::HttpSession& httpSession,
+								Tizen::Net::Http::HttpTransaction& httpTransaction, long long currentLength, long long totalLength){};
+
+
+	void Init(String *_uri, long operationCode, String *method, HashMap *params, HashMap *files);
 
 public:
 	void SetRequestOwner(IRestRequestOwner *owner);
 	void AddEventListener(IRestRequestListener *listener);
 	void SetResponseDescriptor(ResponseDescriptor *responseDescriptor);
 
+	bool __isSync;
 
 private:
 	Tizen::Net::Http::HttpTransaction* __pHttpTransaction;

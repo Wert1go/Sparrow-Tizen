@@ -159,8 +159,9 @@ void
 UiChatForm::OnSceneActivatedN(const Tizen::Ui::Scenes::SceneId& previousSceneId,
 								   const Tizen::Ui::Scenes::SceneId& currentSceneId, Tizen::Base::Collection::IList* pArgs) {
 
-	if (pArgs->GetCount() > 0) {
+	if (pArgs && pArgs->GetCount() > 0) {
 		Integer *param = static_cast< Integer* > (pArgs->GetAt(0));
+
 		__userId = param->ToInt();
 		this->SetMessages(MMessageDao::getInstance().GetMessagesForUser(param->ToInt()));
 		this->ScrollToFirstMessage();
@@ -179,6 +180,7 @@ UiChatForm::OnSceneActivatedN(const Tizen::Ui::Scenes::SceneId& previousSceneId,
 
 			this->__pChatPanel->SetDialog(dialog);
 		}
+
 		MarkUnread();
 	}
 
@@ -269,7 +271,29 @@ UiChatForm::OnListViewItemStateChanged(Tizen::Ui::Controls::ListView &listView, 
 
 			if (elementId < message->__pAttachments->GetCount()) {
 				MAttachment *attach = static_cast<MAttachment *>(message->__pAttachments->GetAt(elementId));
-				AppLog("attach: %S", attach->__pPhoto604->GetPointer());
+
+				if (attach->__pType->Equals(PHOTO, false)) {
+					AppLog("attach: %S", attach->__pType->GetPointer());
+
+					SceneManager* pSceneManager = SceneManager::GetInstance();
+					AppAssert(pSceneManager);
+
+					ArrayList *paramsList = new (std::nothrow) ArrayList();
+					paramsList->Construct();
+
+					String *imgUrl = null;
+
+					if (attach->__pPhoto604) {
+						imgUrl = attach->__pPhoto604;
+					} else {
+						imgUrl = attach->__pPhoto130;
+					}
+
+					paramsList->Add(new String(imgUrl->GetPointer()));
+					pSceneManager->GoForward(ForwardSceneTransition(SCENE_IMAGE_VIEWER, SCENE_TRANSITION_ANIMATION_TYPE_LEFT), paramsList);
+				}
+
+
 			}
 		}
 	}

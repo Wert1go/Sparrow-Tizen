@@ -16,6 +16,8 @@
 #include "CreateConversationForm.h"
 #include "ProfileForm.h"
 
+#include "UiImageViewer.h"
+
 using namespace Tizen::Ui::Scenes;
 
 const wchar_t* FORM_AUTH = L"FORM_AUTH";
@@ -27,6 +29,8 @@ const wchar_t* FORM_NEW_MESSAGE = L"FORM_NEW_MESSAGE";
 const wchar_t* FORM_SELECT_USER = L"FORM_SELECT_USER";
 const wchar_t* FORM_CREATE_CONV = L"FORM_CREATE_CONV";
 const wchar_t* FORM_PROFILE = L"FORM_PROFILE";
+
+const wchar_t* FORM_IMAGE_VIEWER = L"FORM_IMAGE_VIEWER";
 
 
 const wchar_t* FORM_TAB_STYLE_BASE = L"FromTabStyleBase";
@@ -88,6 +92,11 @@ FormFactory::CreateFormN(const Tizen::Base::String& formId, const Tizen::Ui::Sce
 		pNewForm = pForm;
 	} else if (formId == FORM_PROFILE) {
 		ProfileForm *pForm = new (std::nothrow) ProfileForm();
+		pSceneManager->AddSceneEventListener(sceneId, *pForm);
+		pNewForm = pForm;
+	} else if (formId == FORM_IMAGE_VIEWER) {
+		UiImageViewer *pForm = new (std::nothrow) UiImageViewer();
+		pForm->Initialize();
 		pSceneManager->AddSceneEventListener(sceneId, *pForm);
 		pNewForm = pForm;
 	}

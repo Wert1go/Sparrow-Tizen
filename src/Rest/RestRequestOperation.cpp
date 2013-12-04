@@ -22,16 +22,22 @@ using namespace Tizen::Web::Json;
 
 const wchar_t* USER_FILEDS = L"photo_50,photo_100,last_seen,online,is_friend,photo_200";
 
+
+RestRequestOperation::RestRequestOperation(String *_uri, long operationCode, String *method, HashMap *params, HashMap *files) {
+	Init(_uri, operationCode, method, params, files);
+}
+
 RestRequestOperation::RestRequestOperation(String *_uri, long operationCode, String *method, HashMap *params) {
-	Init(_uri, operationCode, method, params);
+	Init(_uri, operationCode, method, params, null);
 }
 
 RestRequestOperation::RestRequestOperation(long operationCode, String *method, HashMap *params) {
-	Init(new String(L"https://api.vk.com/method/"), operationCode, method, params);
+	Init(new String(L"https://api.vk.com/method/"), operationCode, method, params, null);
 }
 
 void
-RestRequestOperation::Init(String *_uri, long operationCode, String *method, HashMap *params) {
+RestRequestOperation::Init(String *_uri, long operationCode, String *method, HashMap *params, HashMap *files) {
+	__isSync = false;
 	__method = method;
 	__operationCode = operationCode;
 
@@ -41,7 +47,9 @@ RestRequestOperation::Init(String *_uri, long operationCode, String *method, Has
 		uri.Append(method->GetPointer());
 	}
 
-	uri.Append(L"?");
+	if (params && params->GetCount() > 0) {
+		uri.Append(L"?");
+	}
 
 	IMapEnumerator* pMapEnum = params->GetMapEnumeratorN();
 	String* pKey = null;
@@ -64,7 +72,9 @@ RestRequestOperation::Init(String *_uri, long operationCode, String *method, Has
 		index++;
 	}
 
-	uri.Append(L"&v=5.3");
+	if (params && params->GetCount() > 0) {
+		uri.Append(L"&v=5.3");
+	}
 
 	AppLogDebug("uri = %S", uri.GetPointer());
 
@@ -79,7 +89,31 @@ RestRequestOperation::Init(String *_uri, long operationCode, String *method, Has
 
 	HttpRequest* pHttpRequest = __pHttpTransaction->GetRequest();
 
-	pHttpRequest->SetMethod(NET_HTTP_METHOD_GET);
+	if (files) {
+		pHttpRequest->SetMethod(NET_HTTP_METHOD_POST);
+
+		HttpMultipartEntity *pMultipartEntity = new HttpMultipartEntity();
+		pMultipartEntity->Construct();
+
+		IMapEnumerator* pMapEnum = files->GetMapEnumeratorN();
+		String* pKey = null;
+		String* pValue = null;
+
+		while (pMapEnum->MoveNext() == E_SUCCESS)
+		{
+			pKey = static_cast< String* > (pMapEnum->GetKey());
+			pValue = static_cast< String* > (pMapEnum->GetValue());
+			pMultipartEntity->AddFilePart(pKey->GetPointer(), pValue->GetPointer());
+		}
+
+		pHttpRequest->SetEntity(*pMultipartEntity);
+
+		__pHttpTransaction->SetUserObject(pMultipartEntity);
+		__pHttpTransaction->SetHttpProgressListener(*this);
+
+	} else {
+		pHttpRequest->SetMethod(NET_HTTP_METHOD_GET);
+	}
 
 	pHttpRequest->SetUri(uri);
 	pHeader = pHttpRequest->GetHeader();
@@ -186,11 +220,21 @@ void
 RestRequestOperation::OnTransactionCompleted(HttpSession& httpSession, HttpTransaction& httpTransaction)
 {
 	AppLog("RestRequestOperation::OnTransactionCompleted");
+	HttpMultipartEntity* pMultipartEntity = static_cast< HttpMultipartEntity* >(httpTransaction.GetUserObject());
+	if (pMultipartEntity) {
+		delete pMultipartEntity;
+	}
 
-	dispatch_async(dispatch_get_global_queue( DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+	if (__isSync) {
 		Execute();
 		__pRequestOwner->OnCompliteN(this);
-	});
+	} else {
+
+		dispatch_async(dispatch_get_global_queue( DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+			Execute();
+			__pRequestOwner->OnCompliteN(this);
+		});
+	}
 
 }
 
@@ -203,7 +247,24 @@ RestRequestOperation::OnTransactionCertVerificationRequiredN(HttpSession& httpSe
 	delete pCert;
 }
 
-void RestRequestOperation::SetResponseDescriptor(ResponseDescriptor *responseDescriptor) {
+void
+RestRequestOperation::OnHttpUploadInProgress(Tizen::Net::Http::HttpSession& httpSession,
+									  Tizen::Net::Http::HttpTransaction& httpTransaction,
+									  long long currentLength, long long totalLength) {
+	if (__restRequestListener) {
+		int progress = (currentLength * 100)/totalLength;
+		AppLog("progress: %d", progress);
+		__restRequestListener->OnProgressChanged(progress);
+	}
+
+}
+
+
+
+/********************** UTILS *********************/
+
+void
+RestRequestOperation::SetResponseDescriptor(ResponseDescriptor *responseDescriptor) {
 	__responseDescriptor = responseDescriptor;
 }
 

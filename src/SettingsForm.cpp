@@ -27,6 +27,8 @@
 #include "MUserDao.h"
 #include "ImageCache.h"
 
+#include "ImageAttachmentOperation.h"
+
 using namespace Tizen::App;
 using namespace Tizen::Base;
 using namespace Tizen::Base::Utility;
@@ -113,6 +115,8 @@ SettingsForm::SettingsForm() {
 
 	AddControl(__pExitButton);
 
+	ImageAttachmentOperation *operation = new ImageAttachmentOperation();
+	operation->Perform();
 }
 
 SettingsForm::~SettingsForm() {

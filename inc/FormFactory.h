@@ -19,6 +19,8 @@ extern const wchar_t* FORM_TAB_STYLE_BASE;
 extern const wchar_t* FORM_CREATE_CONV;
 extern const wchar_t* FORM_PROFILE;
 
+extern const wchar_t* FORM_IMAGE_VIEWER;
+
 #include <FUi.h>
 
 class FormFactory: public Tizen::Ui::Scenes::IFormFactory

@@ -25,6 +25,8 @@ const wchar_t* SCENE_SELECT_USER = L"SCENE_SELECT_USER";
 const wchar_t* SCENE_CREATE_CONV = L"SCENE_CREATE_CONV";
 const wchar_t* SCENE_PROFILE = L"SCENE_PROFILE";
 
+const wchar_t* SCENE_IMAGE_VIEWER = L"SCENE_IMAGE_VIEWER";
+
 SceneRegister::SceneRegister() {
 	// TODO Auto-generated constructor stub
 
@@ -55,8 +57,9 @@ SceneRegister::RegisterAllScenes(void)
 	pSceneManager->RegisterScene(SCENE_MAIN_SEARCH_TAB, FORM_MAIN, PANEL_SEARCH);
 	pSceneManager->RegisterScene(SCENE_NEW_MESSAGE, FORM_NEW_MESSAGE, PANEL_BLANK);
 	pSceneManager->RegisterScene(SCENE_SELECT_USER, FORM_SELECT_USER, PANEL_BLANK);
-	pSceneManager->RegisterScene(SCENE_CREATE_CONV,FORM_CREATE_CONV, PANEL_BLANK);
+	pSceneManager->RegisterScene(SCENE_CREATE_CONV, FORM_CREATE_CONV, PANEL_BLANK);
 	pSceneManager->RegisterScene(SCENE_PROFILE,FORM_PROFILE, PANEL_BLANK);
+	pSceneManager->RegisterScene(SCENE_IMAGE_VIEWER, FORM_IMAGE_VIEWER, PANEL_BLANK);
 
 
 }
