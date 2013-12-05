@@ -14,7 +14,7 @@ using namespace Tizen::Web::Json;
 
 MMessage::MMessage() {
 	uids = null;
-	__text = null;
+	__text = new String(L"");
 	__title = null;
 	__chatId = 0;
 	__pAttachments = null;

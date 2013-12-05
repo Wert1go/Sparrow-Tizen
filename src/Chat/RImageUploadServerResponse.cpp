@@ -13,6 +13,7 @@ RImageUploadServerResponse::RImageUploadServerResponse() {
 	__pPhotoData = null;
 	__pServerData = null;
 	__pHashData = null;
+	__pAttachment = null;
 }
 
 RImageUploadServerResponse::~RImageUploadServerResponse() {

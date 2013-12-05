@@ -8,14 +8,21 @@
 #ifndef IMAGEATTACHMENTOPERATION_H_
 #define IMAGEATTACHMENTOPERATION_H_
 
+#include <FBase.h>
+
 #include "IRestRequestListener.h"
 
 class RestResponse;
 class Error;
 class RestRequestOperation;
+class MAttachment;
+class IAttachmentListener;
+
+using namespace Tizen::Base;
 
 class ImageAttachmentOperation
- : public IRestRequestListener
+ : public Object
+ , public IRestRequestListener
 {
 public:
 	ImageAttachmentOperation();
@@ -23,9 +30,14 @@ public:
 
 	void Perform();
 
+	MAttachment *__pAttachment;
+	IAttachmentListener *__pAttachmentListener;
+	int __uid;
+
 private:
 	void OnSuccessN(RestResponse *result);
 	void OnErrorN(Error *error);
+	void OnProgressChanged(int progress);
 
 	void GetUploadServer();
 	void UploadImageToUrl(String *url);

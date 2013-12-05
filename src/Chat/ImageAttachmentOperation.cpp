@@ -20,6 +20,10 @@
 #include "AuthManager.h"
 #include "RestResponse.h"
 #include "Error.h"
+#include "RImageSaveDescriptor.h"
+
+#include "IAttachmentListener.h"
+#include "MAttachment.h"
 
 using namespace Tizen::App;
 
@@ -27,8 +31,10 @@ ImageAttachmentOperation::ImageAttachmentOperation() {
 	__pGetUploadServerOperation = null;
 	__pSaveImageOnServerOperation = null;
 	__pUploadImageOperation = null;
-
+	__pAttachmentListener = null;
+	__pAttachment = null;
 	__IsRunning = false;
+	__uid = 0;
 }
 
 ImageAttachmentOperation::~ImageAttachmentOperation() {
@@ -45,6 +51,10 @@ ImageAttachmentOperation::~ImageAttachmentOperation() {
 	if (__pUploadImageOperation) {
 		__pUploadImageOperation->AddEventListener(null);
 		__pUploadImageOperation = null;
+	}
+
+	if (__pAttachmentListener) {
+		__pAttachmentListener = null;
 	}
 
 }
@@ -68,12 +78,13 @@ void
 ImageAttachmentOperation::UploadImageToUrl(String *url) {
 	HashMap *params = new HashMap();
 	params->Construct();
-//	params->Add(new String(L"access_token"), AuthManager::getInstance().AccessToken());
 
 	HashMap *files = new HashMap();
 	files->Construct();
 
-	files->Add(new String(L"photo"), new String(App::GetInstance()->GetAppResourcePath() + L"Main.png"));
+	if (this->__pAttachment->__pFilePath) {
+		files->Add(new String(L"photo"), this->__pAttachment->__pFilePath);
+	}
 
 	if (!__pUploadImageOperation) {
 		__pUploadImageOperation = new RestRequestOperation(url, ATTACHMENT_IMAGE_UPLOAD, null, params, files);
@@ -96,7 +107,7 @@ ImageAttachmentOperation::SavePhotoOnServer(String *photoData, String *server, S
 	if (!__pSaveImageOnServerOperation) {
 		__pSaveImageOnServerOperation = new RestRequestOperation(ATTACHMENT_IMAGE_SAVE, new String(L"photos.saveMessagesPhoto"), params);
 		__pSaveImageOnServerOperation->AddEventListener(this);
-		__pSaveImageOnServerOperation->SetResponseDescriptor(new RImageUploadDataDescriptor());
+		__pSaveImageOnServerOperation->SetResponseDescriptor(new RImageSaveDescriptor());
 		__pSaveImageOnServerOperation->__isSync = true;
 		RestClient::getInstance().PerformOperation(__pSaveImageOnServerOperation);
 	}
@@ -104,16 +115,15 @@ ImageAttachmentOperation::SavePhotoOnServer(String *photoData, String *server, S
 
 void
 ImageAttachmentOperation::OnSuccessN(RestResponse *result) {
+	RImageUploadServerResponse *response = static_cast<RImageUploadServerResponse *>(result);
+
 	if (result->GetOperationCode() == ATTACHMENT_IMAGE_GET_SERVER) {
-
-		RImageUploadServerResponse *response = static_cast<RImageUploadServerResponse *>(result);
-
 		if (response->__pUploadServer) {
 			this->UploadImageToUrl(response->__pUploadServer);
 		}
 
 	} else if (result->GetOperationCode() == ATTACHMENT_IMAGE_UPLOAD) {
-		RImageUploadServerResponse *response = static_cast<RImageUploadServerResponse *>(result);
+
 
 		if (response->__pPhotoData) {
 			this->SavePhotoOnServer(
@@ -122,12 +132,42 @@ ImageAttachmentOperation::OnSuccessN(RestResponse *result) {
 					response->__pHashData
 					);
 		}
+	} else {
+		MAttachment *resultAttachment = response->__pAttachment;
+
+		if (resultAttachment) {
+			this->__pAttachment->__id = resultAttachment->__id;
+			this->__pAttachment->__pType = resultAttachment->__pType;
+			this->__pAttachment->__ownerId = resultAttachment->__ownerId;
+			this->__pAttachment->__date = resultAttachment->__date;
+			this->__pAttachment->__pAccessKey = resultAttachment->__pAccessKey;
+			this->__pAttachment->__pPhoto130 = resultAttachment->__pPhoto130;
+			this->__pAttachment->__pPhoto604 = resultAttachment->__pPhoto604;
+			this->__pAttachment->__width = resultAttachment->__width;
+			this->__pAttachment->__height = resultAttachment->__height;
+			this->__pAttachment->__mid = resultAttachment->__mid;
+
+			AppLog("%d :: %d", resultAttachment->__ownerId, resultAttachment->__id);
+		}
+
+		if (__pAttachmentListener) {
+			__pAttachmentListener->OnSuccessN(this->__pAttachment, this->__uid);
+		}
 	}
 }
 
 void
 ImageAttachmentOperation::OnErrorN(Error *error) {
+	if (__pAttachmentListener) {
+		__pAttachmentListener->OnErrorN(error, this->__pAttachment, this->__uid);
+	}
+}
 
+void
+ImageAttachmentOperation::OnProgressChanged(int progress) {
+	if (__pAttachmentListener) {
+		__pAttachmentListener->OnProgressChanged(this->__pAttachment, progress, this->__uid);
+	}
 }
 
 void

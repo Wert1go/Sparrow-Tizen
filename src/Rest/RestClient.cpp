@@ -12,6 +12,7 @@ using namespace Tizen::Net::Http;
 using namespace Tizen::Base;
 
 RestClient::RestClient() {
+	__pHttpSession = null;
 }
 
 RestClient::~RestClient() {
@@ -40,10 +41,20 @@ void RestClient::PerformOperation(ImageRequestOperation *operation) {
 }
 
 void RestClient::OnCompliteN(IRequestOperation *operation) {
-//	delete operation;
-//	operation = null;
+	delete operation;
+	operation = null;
 }
 
+void
+RestClient::RecreateSession() {
+	if (__pHttpSession) {
+		delete __pHttpSession;
+		__pHttpSession = null;
+	}
+
+	__pHttpSession = new HttpSession();
+	__pHttpSession->Construct(NET_HTTP_SESSION_MODE_MULTIPLE_HOST, null, GetBaseUrl()->GetPointer(), null);
+}
 
 Tizen::Net::Http::HttpSession* RestClient::GetActiveSession() {
 	return __pHttpSession;

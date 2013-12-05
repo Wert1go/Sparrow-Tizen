@@ -182,6 +182,8 @@ UiChatForm::OnSceneActivatedN(const Tizen::Ui::Scenes::SceneId& previousSceneId,
 		}
 
 		MarkUnread();
+
+		PostMan::getInstance().__pAttachmentListener = this;
 	}
 
 }
@@ -193,6 +195,8 @@ UiChatForm::OnSceneDeactivated(const Tizen::Ui::Scenes::SceneId& currentSceneId,
 		__pMessagesRequestOperation->AddEventListener(null);
 		__pMessagesRequestOperation = null;
 	}
+
+	PostMan::getInstance().__pAttachmentListener = null;
 }
 
 /*
@@ -623,6 +627,11 @@ UiChatForm::OnExpandableEditAreaLineRemoved(Tizen::Ui::Controls::ExpandableEditA
 void
 UiChatForm::OnKeypadActionPerformed(Control& source, KeypadAction keypadAction)
 {
+
+	if (keypadAction == KEYPAD_ACTION_ENTER) {
+		this->SendMessage();
+	}
+
 }
 
 void
@@ -681,9 +690,10 @@ UiChatForm::OnKeypadBoundsChanged(Control& source)
 void
 UiChatForm::OnActionPerformed(const Tizen::Ui::Control& source, int actionId) {
 	if (actionId == 45) {
-		if (__pPosterPanel->GetEditArea()->GetText().GetLength() != 0) {
-			SendMessage();
-		}
+//		if (__pPosterPanel->GetEditArea()->GetText().GetLength() != 0) {
+			//SendMessage();
+			OpenGallery();
+//		}
 		__pPosterPanel->GetEditArea()->SetText(L"");
 		__pPosterPanel->GetEditArea()->HideKeypad();
 	}
@@ -693,14 +703,29 @@ UiChatForm::OnActionPerformed(const Tizen::Ui::Control& source, int actionId) {
 
 void
 UiChatForm::SendMessage() {
-	String *messageText = new String(__pPosterPanel->GetEditArea()->GetText());
+
+//	for (int i = 0; i < 3; i++) {
+//		MAttachment *attachment = new MAttachment();
+//		attachment->__pType = new String(PHOTO);
+//		attachment->__tempId = i;
+//		PostMan::getInstance().AddAttachmentWithUid(attachment, this->__userId);
+//	}
+
+	String *messageText = null;
+	if (__pPosterPanel->GetEditArea()->GetText().GetLength() != 0) {
+		messageText = new String(__pPosterPanel->GetEditArea()->GetText());
+	}
 
 	MMessage *pMessage = new MMessage();
 
 	AppLog("%d", __userId);
 
 	pMessage->SetUid(__userId);
-	pMessage->SetText(messageText);
+
+	if (messageText) {
+		pMessage->SetText(messageText);
+	}
+
 	pMessage->SetOut(1);
 	pMessage->SetReadState(0);
 	pMessage->SetDelivered(0);
@@ -709,7 +734,6 @@ UiChatForm::SendMessage() {
 
 	pMessage->SetDate(timestamp);
 	PostMan::getInstance().SendMessageFromUserWithListener(pMessage, __userId, this);
-
 }
 
 /********************** SCROLL ***********************/
@@ -809,4 +833,111 @@ UiChatForm::RequestUpdateForIndex(int index, int elementId) {
 void
 UiChatForm::RequestImageUpdateForIndex(int index, int section, int elementId) {
 
+}
+
+/****************** ATTACHMENT ***********************/
+
+
+void
+UiChatForm::OpenGallery() {
+String mime = L"*/*";
+   HashMap extraData;
+   extraData.Construct();
+   String selectKey = L"http://tizen.org/appcontrol/data/selection_mode";
+   String selectVal = L"multiple";
+   extraData.Add(&selectKey, &selectVal);
+
+   AppControl* pAc = AppManager::FindAppControlN(L"tizen.gallery",
+												 L"http://tizen.org/appcontrol/operation/pick");
+   if (pAc)
+   {
+	  pAc->Start(null, &mime, &extraData, this);
+	  delete pAc;
+   }
+}
+
+void
+UiChatForm::OnAppControlCompleteResponseReceived(const Tizen::App::AppId& appId,
+                                                 const Tizen::Base::String& operationId,
+                                                 const Tizen::App::AppCtrlResult appControlResult,
+                                                 const Tizen::Base::Collection::IMap* pExtraData)
+{
+   if (appId.Equals(String(L"tizen.gallery")) &&
+       operationId.Equals(String(L"http://tizen.org/appcontrol/operation/pick")))
+   {
+      if (appControlResult  == APP_CTRL_RESULT_SUCCEEDED)
+      {
+         AppLog("Media list retrieving succeeded.");
+         // Use the selected media paths
+         if (pExtraData)
+         {
+            IList* pValueList = const_cast< IList* >(dynamic_cast< const IList* >
+                                                     (pExtraData->GetValue(String(L"http://tizen.org/appcontrol/data/selected"))));
+            if (pValueList)
+            {
+               for (int i = 0; i < pValueList->GetCount(); i++)
+               {
+                  String* pValue = dynamic_cast< String* >(pValueList->GetAt(i));
+
+                  MAttachment *attachment = new MAttachment();
+                  attachment->__pType = new String(PHOTO);
+
+                  LinkedList *attachments = PostMan::getInstance().GetAttachmentsForUid(__userId);
+
+                  int index = 0;
+
+                  if (attachments && attachments->GetCount() > 0) {
+                	  MAttachment *attach = static_cast<MAttachment *>(attachments->GetAt(attachments->GetCount()-1));
+                	  index = attach->__tempId + 1;
+                  }
+
+                  attachment->__tempId = index;
+                  attachment->__pFilePath = pValue;
+                  PostMan::getInstance().AddAttachmentWithUid(attachment, this->__userId);
+
+
+               }
+            }
+         }
+      }
+      else if (appControlResult  == APP_CTRL_RESULT_FAILED)
+      {
+         AppLog("Media list retrieving failed.");
+      }
+      else if (appControlResult  == APP_CTRL_RESULT_CANCELED)
+      {
+         AppLog("Media list retrieving was canceled.");
+      }
+      else if (appControlResult == APP_CTRL_RESULT_TERMINATED)
+      {
+         AppLog("Media list retrieving was terminated.");
+      }
+      else if (appControlResult == APP_CTRL_RESULT_ABORTED)
+      {
+         AppLog("Media list retrieving was is aborted.");
+      }
+
+   }
+}
+
+
+void
+UiChatForm::OnSuccessN(MAttachment *attachment, int uid) {
+	if (this->__userId == uid) {
+
+	}
+}
+
+void
+UiChatForm::OnErrorN(Error *error, MAttachment *attachment, int uid) {
+	if (this->__userId == uid) {
+
+	}
+}
+
+void
+UiChatForm::OnProgressChanged(MAttachment *attachment, int progress, int uid) {
+	if (this->__userId == uid) {
+
+	}
 }

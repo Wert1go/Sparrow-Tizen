@@ -18,6 +18,8 @@
 #include "IMessageOwner.h"
 #include "IMessageDeliveryListener.h"
 
+#include "MAttachment.h"
+
 using namespace Tizen::Base;
 
 PostMessageOperation::PostMessageOperation() {
@@ -91,7 +93,37 @@ PostMessageOperation::SendMessage() {
 		}
 		params->Add(new String(L"access_token"), AuthManager::getInstance().AccessToken());
 
-		params->Add(new String(L"message"), __pMessage->GetText());
+		if (__pMessage->GetText()) {
+			params->Add(new String(L"message"), __pMessage->GetText());
+		}
+
+		if (__pMessage->__pAttachments) {
+			String *attachmentString = new String();
+			for (int i = 0; i < __pMessage->__pAttachments->GetCount(); i++) {
+				MAttachment *attachment = static_cast<MAttachment *>(__pMessage->__pAttachments->GetAt(i));
+
+				attachmentString->Append(attachment->__pType->GetPointer());
+
+				String ownerId;
+				String itemId;
+
+				AppLog("%d :: %d", attachment->__ownerId, attachment->__id);
+
+				ownerId.Format(20, L"%d", attachment->__ownerId);
+				itemId.Format(20, L"%d", attachment->__id);
+				attachmentString->Append(ownerId);
+				attachmentString->Append(L"_");
+				attachmentString->Append(itemId);
+
+				if (i != __pMessage->__pAttachments->GetCount()-1) {
+					attachmentString->Append(L",");
+				}
+			}
+
+			params->Add(new String(L"attachment"), attachmentString);
+
+			AppLog("ATTACHMENT COUNT: %d :: %S", __pMessage->__pAttachments->GetCount(), attachmentString->GetPointer());
+		}
 
 		__pSendMessageOperation = new RestRequestOperation(SEND_MESSAGE, new String(L"messages.send"), params);
 		__pSendMessageOperation->AddEventListener(this);
@@ -103,4 +135,9 @@ PostMessageOperation::SendMessage() {
 void
 PostMessageOperation::SetMessage(MMessage *message) {
 	__pMessage = message;
+}
+
+MMessage *
+PostMessageOperation::GetMessage() {
+	return __pMessage;
 }

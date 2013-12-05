@@ -103,9 +103,6 @@ UiChatListItem::OnDraw(Tizen::Graphics::Canvas& canvas, const Tizen::Graphics::R
 			Point drawPoint;
 			float width = __pBubbleDimension.width;
 
-
-			AppLog("drawOffset %d :: %f", i, drawOffset);
-
 			if (this->GetMessage()->GetOut() == 1) {
 				drawPoint = Point(rect.width - __sideOffset - width + __offset, drawOffset);
 			} else {

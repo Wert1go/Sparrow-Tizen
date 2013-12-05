@@ -10,6 +10,7 @@
 
 #include <FUiCtrlForm.h>
 #include <FUi.h>
+#include <FApp.h>
 
 #include "RestResponse.h"
 #include "Error.h"
@@ -20,12 +21,17 @@
 #include "IMessageDeliveryListener.h"
 #include "IRefreshableListView.h"
 
+#include "IAttachmentListener.h"
+
+using namespace Tizen::App;
+using namespace Tizen::Ui;
 using namespace Tizen::Ui::Controls;
 using namespace Tizen::Base::Collection;
 
 class MMessage;
 class UiChapPanel;
 class MDialog;
+class MAttachment;
 
 class UiChatForm
  : public Tizen::Ui::Controls::Form
@@ -41,6 +47,8 @@ class UiChatForm
  , public IScrollEventListener
  , public IMessageDeliveryListener
  , public IRefreshableListView
+ , public IAttachmentListener
+ , public IAppControlResponseListener
 
 {
 public:
@@ -110,6 +118,11 @@ public:
 	virtual void RequestUpdateForIndex(int index, int elementId);
 	virtual void RequestImageUpdateForIndex(int index, int section, int elementId);
 
+	//Attachment
+	virtual void OnSuccessN(MAttachment *attachment, int uid);
+	virtual void OnErrorN(Error *error, MAttachment *attachment, int uid);
+	virtual void OnProgressChanged(MAttachment *attachment, int progress, int uid);
+
 	void SetMessages(LinkedList *messages);
 	LinkedList * GetMessages();
 
@@ -119,6 +132,9 @@ public:
 	void UpdateCurrentUserOnlineWithValue(int value);
 	void SetReadStateWithMessageId(int msgId);
 	void MarkUnread();
+
+	void OpenGallery();
+	virtual void OnAppControlCompleteResponseReceived(const AppId& appId, const Tizen::Base::String& operationId, AppCtrlResult appControlResult, const Tizen::Base::Collection::IMap* pExtraData);
 
 private:
 	static const int ID_CONTEXT_ITEM_1 = 103;

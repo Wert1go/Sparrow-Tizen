@@ -29,6 +29,8 @@ public:
 	void SetDeliveryListener(IMessageDeliveryListener *pDeliveryListener);
 
 	void SetMessage(MMessage *message);
+	MMessage *GetMessage();
+
 	void Perform();
 
 	int __operationId;

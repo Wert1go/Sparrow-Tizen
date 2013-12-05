@@ -89,6 +89,7 @@ public:
 
 private:
 	Tizen::Net::Http::HttpTransaction* __pHttpTransaction;
+	Tizen::Net::Http::HttpSession* __pHttpSession;
 
 	IRestRequestListener *__restRequestListener;
 	ResponseDescriptor *__responseDescriptor;
@@ -96,10 +97,14 @@ private:
 	bool __isComplited;
 	bool __isError;
 
+	String *__pRequestUrl;
+	HashMap *__pFiles;
 	String *__method;
 	long __operationCode;
 
 	ByteBuffer *__pByteBuffer;
+
+	void CreateHttpRequest();
 
 public:
 	void perform();

@@ -7,6 +7,7 @@
 
 #include "RImageUploadServerDescriptor.h"
 #include "RImageUploadServerResponse.h"
+#include "MAttachment.h"
 
 RImageUploadServerDescriptor::RImageUploadServerDescriptor() {
 	// TODO Auto-generated constructor stub

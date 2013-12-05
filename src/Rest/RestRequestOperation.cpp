@@ -40,6 +40,11 @@ RestRequestOperation::Init(String *_uri, long operationCode, String *method, Has
 	__isSync = false;
 	__method = method;
 	__operationCode = operationCode;
+	this->__pFiles = null;
+
+	if (files) {
+		this->__pFiles = files;;
+	}
 
 	String uri = _uri->GetPointer();
 
@@ -76,11 +81,41 @@ RestRequestOperation::Init(String *_uri, long operationCode, String *method, Has
 		uri.Append(L"&v=5.3");
 	}
 
-	AppLogDebug("uri = %S", uri.GetPointer());
+//	AppLogDebug("uri = %S", uri.GetPointer());
 
 	delete pMapEnum;
 	delete params;
 
+	__pRequestUrl = new String (uri);
+
+	CreateHttpRequest();
+
+	__restRequestListener = null;
+	__responseDescriptor = null;
+	__pRequestOwner = null;
+	this->__pByteBuffer = null;
+	__isComplited = false;
+	__isError = false;
+
+//	AppLogDebug("Created!");
+}
+
+RestRequestOperation::~RestRequestOperation() {
+//	AppLogDebug("RestRequestOperation::~RestRequestOperation");
+	delete __method;
+	__method = null;
+	delete __pHttpTransaction;
+	__pHttpTransaction = null;
+	delete __pByteBuffer;
+
+	delete __pRequestUrl;
+	if (this->__pFiles) {
+		delete this->__pFiles;
+	}
+}
+
+void
+RestRequestOperation::CreateHttpRequest() {
 	HttpHeader* pHeader = null;
 
 	__pHttpTransaction = RestClient::getInstance().GetActiveSession()->OpenTransactionN();
@@ -89,13 +124,14 @@ RestRequestOperation::Init(String *_uri, long operationCode, String *method, Has
 
 	HttpRequest* pHttpRequest = __pHttpTransaction->GetRequest();
 
-	if (files) {
+	if (this->__pFiles) {
+
 		pHttpRequest->SetMethod(NET_HTTP_METHOD_POST);
 
 		HttpMultipartEntity *pMultipartEntity = new HttpMultipartEntity();
 		pMultipartEntity->Construct();
 
-		IMapEnumerator* pMapEnum = files->GetMapEnumeratorN();
+		IMapEnumerator* pMapEnum = this->__pFiles->GetMapEnumeratorN();
 		String* pKey = null;
 		String* pValue = null;
 
@@ -115,33 +151,21 @@ RestRequestOperation::Init(String *_uri, long operationCode, String *method, Has
 		pHttpRequest->SetMethod(NET_HTTP_METHOD_GET);
 	}
 
-	pHttpRequest->SetUri(uri);
+	pHttpRequest->SetUri(this->__pRequestUrl->GetPointer());
 	pHeader = pHttpRequest->GetHeader();
 	pHeader->AddField(L"Accept", L"application/json");
-
-	__restRequestListener = null;
-	__responseDescriptor = null;
-	__pRequestOwner = null;
-	this->__pByteBuffer = null;
-	__isComplited = false;
-	__isError = false;
-
-	AppLogDebug("Created!");
-}
-
-RestRequestOperation::~RestRequestOperation() {
-//	AppLogDebug("RestRequestOperation::~RestRequestOperation");
-	delete __method;
-	__method = null;
-	delete __pHttpTransaction;
-	__pHttpTransaction = null;
-	delete __pByteBuffer;
 }
 
 void RestRequestOperation::perform() {
 
 	if (__pHttpTransaction != null) {
 		__pHttpTransaction->Submit();
+		result r = GetLastResult();
+		if (r != E_SUCCESS) {
+			RestClient::getInstance().RecreateSession();
+			this->CreateHttpRequest();
+			this->perform();
+		}
 	} else {
 		AppLogDebug("Ошибка при попытке выполнить HTTP запрос");
 	}
@@ -168,7 +192,7 @@ RestRequestOperation::OnTransactionReadyToRead(HttpSession& httpSession, HttpTra
 {
 	HttpResponse* pHttpResponse = httpTransaction.GetResponse();
 
-	AppLog("RestRequestOperation::OnTransactionReadyToRead %d", pHttpResponse->GetHttpStatusCode());
+//	AppLog("RestRequestOperation::OnTransactionReadyToRead %d", pHttpResponse->GetHttpStatusCode());
 
 	if (pHttpResponse->GetHttpStatusCode() == HTTP_STATUS_OK)
 	{
@@ -219,7 +243,7 @@ RestRequestOperation::OnTransactionHeaderCompleted(HttpSession& httpSession, Htt
 void
 RestRequestOperation::OnTransactionCompleted(HttpSession& httpSession, HttpTransaction& httpTransaction)
 {
-	AppLog("RestRequestOperation::OnTransactionCompleted");
+//	AppLog("RestRequestOperation::OnTransactionCompleted");
 	HttpMultipartEntity* pMultipartEntity = static_cast< HttpMultipartEntity* >(httpTransaction.GetUserObject());
 	if (pMultipartEntity) {
 		delete pMultipartEntity;

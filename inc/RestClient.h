@@ -34,6 +34,8 @@ public:
 	void PerformOperation(ImageRequestOperation *operation);
 	Tizen::Net::Http::HttpSession* GetActiveSession();
 
+	void RecreateSession();
+
 private:
 	RestClient();
 	virtual ~RestClient();

@@ -21,12 +21,16 @@ public:
 	virtual ~MAttachment();
 
 	String *__pType;
+	int __tempId;
 	int __id;
 	int __ownerId;
 	int __date;
 	String *__pAccessKey;
 	String *__pPhoto130;
 	String *__pPhoto604;
+
+	String *__pFilePath;
+
 	int __width;
 	int __height;
 
@@ -36,6 +40,8 @@ public:
 	int __mid;
 
 	static MAttachment* CreateFromJsonN(const Tizen::Web::Json::JsonObject &jsonObject);
+
+	static MAttachment * CreatePhotoFromJsonN(Tizen::Web::Json::JsonObject *pPhotoObject);
 	static MAttachment* CreateFromJsonLPN(const Tizen::Web::Json::JsonObject &jsonObject);
 	static String* TableDescription();
 

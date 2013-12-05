@@ -10,6 +10,8 @@
 
 #include "RestResponse.h"
 
+class MAttachment;
+
 class RImageUploadServerResponse
  : public RestResponse
 
@@ -23,6 +25,8 @@ public:
 	String *__pPhotoData;
 	String *__pServerData;
 	String *__pHashData;
+
+	MAttachment *__pAttachment;
 };
 
 #endif /* RIMAGEUPLOADSERVERRESPONSE_H_ */
