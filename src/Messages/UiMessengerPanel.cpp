@@ -14,6 +14,7 @@
 #include <FMedia.h>
 #include "IRequestAttachmentDelete.h"
 #include "AttachmentItem.h"
+#include "MAttachment.h"
 
 static int itemSize = 170;
 static int itemOffset = 20;
@@ -234,10 +235,14 @@ UiMessengerPanel::GetCount() {
 
 void
 UiMessengerPanel::ReloadData() {
+
+//	this->__pScrollPanel->RemoveAllControls();
+
 	for (int i = 0; i < this->GetCount(); i++) {
 		AttachmentItem *pItem = static_cast<AttachmentItem *>(this->__pItems->GetAt(i));
 		pItem->SetCustomBounds(Rectangle((itemOffset * (i + 1)) + itemSize * i, 0, itemSize, itemSize));
 		pItem->__index = i;
+
 	}
 
 	this->UpdateScrollPanel();
@@ -251,7 +256,7 @@ UiMessengerPanel::CreateItem(int index, MAttachment *attach) {
 	pItem->__pAttachment = attach;
 	pItem->__index = index;
 	pItem->Initialize();
-	pItem->SetCustomBounds(Rectangle((itemOffset * (index + 1)) + itemSize * index, 0, itemSize, itemSize));
+//	pItem->SetCustomBounds(Rectangle((itemOffset * (index + 1)) + itemSize * index, 0, itemSize, itemSize));
 	pItem->AddTouchEventListener(*this);
 	pItem->__pItemEventListener = this;
 	return pItem;
@@ -345,3 +350,18 @@ UiMessengerPanel::ClearAttachments() {
 	this->__pScrollPanel->RemoveAllControls();
 	this->UpdateScrollPanel();
 }
+
+void
+UiMessengerPanel::AddAttachments(LinkedList *pAttachments) {
+	for (int i = 0; i < pAttachments->GetCount(); i++) {
+		MAttachment *attach = static_cast<MAttachment *>(pAttachments->GetAt(i));
+
+		AttachmentItem *pItem = this->CreateItem(this->GetCount(), attach);
+
+		this->__pItems->Add(pItem);
+		this->__pScrollPanel->AddControl(pItem);
+	}
+
+	this->ReloadData();
+}
+

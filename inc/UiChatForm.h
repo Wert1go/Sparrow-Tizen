@@ -132,8 +132,10 @@ public:
 	virtual void RequestAttachmentDelete(MAttachment *attachment, int index);
 
 	void AddAttachmentToContainer(MAttachment *attachment);
+	void AddAttachmentsToContainer(LinkedList *pAttachments);
 	void ResetAttachmentsContainer();
 	void RestoreAttachmentContainer();
+	void EnlargeMessengerPanel();
 	//
 
 	//Popup

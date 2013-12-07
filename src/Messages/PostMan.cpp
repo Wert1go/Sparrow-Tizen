@@ -359,58 +359,58 @@ PostMan::OnSuccessN(MAttachment *attachment, int uid) {
 	AppLog("OnSuccessN");
 	if(__pAttachmentListener) {
 		__pAttachmentListener->OnSuccessN(attachment, uid);
+	}
 
-		Integer *key = this->KeyForAttachmentUid(uid);
+	Integer *key = this->KeyForAttachmentUid(uid);
 
-		LinkedList *attachmentList = null;
-		LinkedList *attachmentOperationList = null;
+	LinkedList *attachmentList = null;
+	LinkedList *attachmentOperationList = null;
 
-		if (!key) {
-			return;
-		}
+	if (!key) {
+		return;
+	}
 
-		this->__pUidToAttachmentsMap->GetValue(key, attachmentList);
-		this->__pUidToAttachmentOperationsMap->GetValue(key, attachmentOperationList);
-		ImageAttachmentOperation *operation = this->GetOperationForAttachment(key, attachment);
+	this->__pUidToAttachmentsMap->GetValue(key, attachmentList);
+	this->__pUidToAttachmentOperationsMap->GetValue(key, attachmentOperationList);
+	ImageAttachmentOperation *operation = this->GetOperationForAttachment(key, attachment);
 
-		if (operation && attachmentOperationList->Contains(*operation)) {
-			attachmentOperationList->Remove(*operation);
+	if (operation && attachmentOperationList->Contains(*operation)) {
+		attachmentOperationList->Remove(*operation);
 
-			if (attachmentOperationList->GetCount() > 0) {
-				AppLog("attachmentOperationList->GetCount() > 0");
-				operation = static_cast<ImageAttachmentOperation *>(attachmentOperationList->GetAt(0));
+		if (attachmentOperationList->GetCount() > 0) {
+			AppLog("attachmentOperationList->GetCount() > 0");
+			operation = static_cast<ImageAttachmentOperation *>(attachmentOperationList->GetAt(0));
 
-				operation->Perform();
-			} else {
-				AppLog("attachmentOperationList->GetCount() == 0");
-				Integer *messageKey = this->KeyForUid(uid);
+			operation->Perform();
+		} else {
+			AppLog("attachmentOperationList->GetCount() == 0");
+			Integer *messageKey = this->KeyForUid(uid);
 
-				PostMessageOperation *operation = null;
-				__pUidToOperationMap->GetValue(messageKey, operation);
+			PostMessageOperation *operation = null;
+			__pUidToOperationMap->GetValue(messageKey, operation);
+
+			if (operation) {
+				MMessage *message = operation->GetMessage();
+
+				//add attachments
+				for (int i = 0; i < attachmentList->GetCount(); i++) {
+					MAttachment *attachment = static_cast<MAttachment *>(attachmentList->GetAt(i));
+
+					if (!message->__pAttachments) {
+						message->__pAttachments = new LinkedList();
+					}
+
+					message->__pAttachments->Add(attachment);
+				}
 
 				if (operation) {
-					MMessage *message = operation->GetMessage();
-
-					//add attachments
-					for (int i = 0; i < attachmentList->GetCount(); i++) {
-						MAttachment *attachment = static_cast<MAttachment *>(attachmentList->GetAt(i));
-
-						if (!message->__pAttachments) {
-							message->__pAttachments = new LinkedList();
-						}
-
-						message->__pAttachments->Add(attachment);
-					}
-
-					if (operation) {
-						AppLog("attachmentOperationList->GetCount() == 0 :: SEND");
-						operation->Perform();
-					}
+					AppLog("attachmentOperationList->GetCount() == 0 :: SEND");
+					operation->Perform();
 				}
 			}
 		}
-
 	}
+
 }
 
 void

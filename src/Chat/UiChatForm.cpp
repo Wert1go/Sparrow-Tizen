@@ -84,6 +84,8 @@ UiChatForm::OnInitializing(void)
 	FloatRectangle clientRect;
 	clientRect = this->GetClientAreaBoundsF();
 
+	this->SetBackgroundColor(Color(8, 8, 8, 255));
+
 	__pPosterPanel = new UiMessengerPanel();
 	__pPosterPanel->Initialize();
 	__pPosterPanel->SetBackgroundColor(Color(23, 30, 38, 255));
@@ -914,29 +916,49 @@ UiChatForm::ResetAttachmentsContainer() {
 void
 UiChatForm::RestoreAttachmentContainer() {
 	LinkedList *pAttachments = PostMan::getInstance().GetAttachmentsForUid(__userId);
-	AppLog("pAttachments %d", pAttachments->GetCount());
-	for (int i = 0; i < pAttachments->GetCount(); i++) {
-		MAttachment *attachment = static_cast<MAttachment *>(pAttachments->GetAt(i));
-		this->AddAttachmentToContainer(attachment);
+
+	if (pAttachments->GetCount() > 0) {
+		this->__pPosterPanel->AddAttachments(pAttachments);
+		this->EnlargeMessengerPanel();
 	}
+}
+
+void
+UiChatForm::EnlargeMessengerPanel() {
+	int height = this->__pPosterPanel->GetBounds().height;
+
+	int editAreaHeight = height + itemContentSize;
+
+	FloatRectangle clientRect;
+	clientRect = this->GetClientAreaBoundsF();
+
+	__pPosterPanel->SetRectangle(FloatRectangle(0, clientRect.height - editAreaHeight,  clientRect.width, editAreaHeight));
+	__pListView->SetBounds(Rectangle(0, 100, clientRect.width, clientRect.height - editAreaHeight - 100));
 }
 
 void
 UiChatForm::AddAttachmentToContainer(MAttachment *attachment) {
 	this->__pPosterPanel->AddAttachment(attachment);
-	AppLog("PostMan::getInstance().GetAttachmentsForUid(__userId)->GetCount() %d", PostMan::getInstance().GetAttachmentsForUid(__userId)->GetCount());
+
 	if(PostMan::getInstance().GetAttachmentsForUid(__userId)->GetCount() == 1) {
 		AppLog("AddAttachmentToContainer");
 
-		int height = this->__pPosterPanel->GetBounds().height;
+		this->EnlargeMessengerPanel();
+	}
+}
 
-		int editAreaHeight = height + itemContentSize;
+void
+UiChatForm::AddAttachmentsToContainer(LinkedList *pAttachments) {
 
-		FloatRectangle clientRect;
-		clientRect = this->GetClientAreaBoundsF();
+	bool task = false;
+	if (this->__pPosterPanel->__pItems->GetCount() == 0) {
+		task = true;
+	}
 
-		__pPosterPanel->SetRectangle(FloatRectangle(0, clientRect.height - editAreaHeight,  clientRect.width, editAreaHeight));
-		__pListView->SetBounds(Rectangle(0, 100, clientRect.width, clientRect.height - editAreaHeight - height));
+	this->__pPosterPanel->AddAttachments(pAttachments);
+
+	if (task) {
+		this->EnlargeMessengerPanel();
 	}
 }
 
@@ -977,6 +999,9 @@ UiChatForm::OnAppControlCompleteResponseReceived(const Tizen::App::AppId& appId,
                                                      (pExtraData->GetValue(String(L"http://tizen.org/appcontrol/data/selected"))));
             if (pValueList)
             {
+
+            	LinkedList *pAttachments = new LinkedList();
+
                for (int i = 0; i < pValueList->GetCount(); i++)
                {
 
@@ -991,7 +1016,7 @@ UiChatForm::OnAppControlCompleteResponseReceived(const Tizen::App::AppId& appId,
                   MAttachment *attachment = new MAttachment();
                   attachment->__pType = new String(PHOTO);
 
-
+                  pAttachments->Add(attachment);
 
                   int index = 0;
 
@@ -1004,9 +1029,12 @@ UiChatForm::OnAppControlCompleteResponseReceived(const Tizen::App::AppId& appId,
                   attachment->__pFilePath = pValue;
 
                   PostMan::getInstance().AddAttachmentWithUid(attachment, this->__userId);
-                  this->AddAttachmentToContainer(attachment);
+//                  this->AddAttachmentToContainer(attachment);
 
                }
+
+               this->AddAttachmentsToContainer(pAttachments);
+
             }
          }
       }

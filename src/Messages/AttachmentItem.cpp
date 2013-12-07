@@ -69,6 +69,15 @@ AttachmentItem::Initialize(void) {
 	TryReturn(!IsFailed(r), false, "%s", GetErrorMessage(r));
 	AppLog("Initialize");
 
+
+
+	return true;
+}
+
+result
+AttachmentItem::OnInitializing(void) {
+	result r = E_SUCCESS;
+
 	this->__pButton = new (std::nothrow) Button();
 	__pButton->Construct(Rectangle(0,0,10,10));
 	__pButton->SetNormalBackgroundBitmap(*Resources::getInstance().LoadBitmapNamed(L"banner_close_normal.png"));
@@ -89,11 +98,11 @@ AttachmentItem::Initialize(void) {
 
 	if (this->__pAttachment && this->__pAttachment->__pFilePath) {
 
-		Image image;
-		image.Construct();
-		String filepath = *this->__pAttachment->__pFilePath;
-
-		__pImage = image.DecodeN(filepath, BITMAP_PIXEL_FORMAT_ARGB8888);
+//		Image image;
+//		image.Construct();
+//		String filepath = *this->__pAttachment->__pFilePath;
+//
+//		__pImage = image.DecodeN(filepath, BITMAP_PIXEL_FORMAT_ARGB8888);
 
 		String tempPath;
 		String urlDelim(L"/");
@@ -108,7 +117,7 @@ AttachmentItem::Initialize(void) {
 	}
 
 	if (!fileName) {
-		fileName = new String(L"");
+		fileName = new String(L" ");
 	}
 
 	String *text = new String(*fileName);
@@ -172,15 +181,6 @@ AttachmentItem::Initialize(void) {
 
 	this->__pTitleLabel = pMessageLabel;
 	this->__pTitleText = pMessageText;
-
-	return true;
-}
-
-result
-AttachmentItem::OnInitializing(void) {
-	result r = E_SUCCESS;
-
-
 	AppLog("OnInitializing");
 	return r;
 }
@@ -296,6 +296,21 @@ AttachmentItem::OnActionPerformed(const Tizen::Ui::Control& source, int actionId
 void
 AttachmentItem::SetReady(bool state) {
 	this->__ready = state;
+
+	if (this->__pAttachment && this->__pAttachment->__pFilePath) {
+
+		Image image;
+		image.Construct();
+		String filepath = *this->__pAttachment->__pFilePath;
+
+		if (__pImage) {
+			delete __pImage;
+			__pImage = null;
+		}
+
+		__pImage = image.DecodeN(filepath, BITMAP_PIXEL_FORMAT_ARGB8888);
+	}
+
 	this->Invalidate(true);
 }
 

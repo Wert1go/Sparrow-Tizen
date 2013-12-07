@@ -52,6 +52,7 @@ public:
 
 	IRequestAttachmentDelete *__pAttachmentOwner;
 	LinkedList *__pItems;
+	void AddAttachments(LinkedList *pAttachments);
 
 protected:
 	bool	__bButtonMoved;
@@ -63,6 +64,8 @@ protected:
 	int GetCount();
 	void ReloadData();
 	void UpdateScrollPanel();
+
+
 
 	AttachmentItem *CreateItem(int index, MAttachment *attach);
 
