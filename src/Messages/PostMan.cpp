@@ -293,15 +293,17 @@ PostMan::RemoveAttachmentAtIndexWithUid(int index, int uid) {
 	Integer *key = this->KeyForAttachmentUid(uid);
 	LinkedList *attachmentList = null;
 
+	AppLog("!DELETE: %d", index);
 
 	if (!key) {
 		return;
 	}
-
+	AppLog("!!DELETE");
 	this->__pUidToAttachmentsMap->GetValue(key, attachmentList);
 
+	if (attachmentList && index < attachmentList->GetCount()) {
+		AppLog("DELETE");
 
-	if (attachmentList && attachmentList->GetCount() < index) {
 		MAttachment *attachment = static_cast<MAttachment *>(attachmentList->GetAt(index));
 		attachmentList->RemoveAt(index);
 		ImageAttachmentOperation *operation = this->GetOperationForAttachment(key, attachment);

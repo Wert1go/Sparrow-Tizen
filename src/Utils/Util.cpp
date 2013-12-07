@@ -188,8 +188,6 @@ Util::CalculateDimensionForMessage(MMessage *message) {
 			float imgWidth;
 			float imgHeight;
 
-			AppLog("attachment->ratio %f", attachment->ratio);
-
 			if (attachment->__pPhoto604) {
 				if (attachment->__width > attachment->__height) {
 					imgWidth = imageSizeMedium;

@@ -21,7 +21,7 @@ using namespace Tizen::Ui::Controls;
 
 UiChatCustomItem::UiChatCustomItem() {
 	__pChatListItem = new UiChatListItem();
-	__pImageViews = new LinkedList();
+	__pImageViews = new LinkedList(SingleObjectDeleter);
 	__pRefreshListener = null;
 	__pUrtToIndexMap = new HashMapT<String *, Integer *>();
 	__pUrtToIndexMap->Construct(100, 0.75);
@@ -29,6 +29,10 @@ UiChatCustomItem::UiChatCustomItem() {
 }
 
 UiChatCustomItem::~UiChatCustomItem() {
+
+//	AppLog("UiChatCustomItem::~UiChatCustomItem");
+	this->RemoveAllElements();
+	delete __pImageViews;
 	delete __pChatListItem;
 	__pChatListItem = null;
 	ImageCache::getInstance().CancelLoadingForTarget(this);

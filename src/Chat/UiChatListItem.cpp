@@ -298,8 +298,6 @@ UiChatListItem::Initalize() {
 		__textOffset = 40;
 	}
 
-	AppLog("textOffset %f", __textOffset);
-
 	EnrichedText* pTimeLabel = null;
 	TextElement* pTImeText = null;
 

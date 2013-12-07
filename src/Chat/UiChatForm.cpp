@@ -47,6 +47,8 @@ using namespace Tizen::Graphics;
 using namespace Tizen::Io;
 using namespace Tizen::Media;
 
+const int itemContentSize = 180;
+
 UiChatForm::UiChatForm() {
 	result r = E_SUCCESS;
 
@@ -90,9 +92,9 @@ UiChatForm::OnInitializing(void)
 	__pPosterPanel->GetEditArea()->AddExpandableEditAreaEventListener(*this);
 
 	__pPosterPanel->GetSendButton()->AddActionEventListener(*this);
-
+	__pPosterPanel->GetAttachButton()->AddActionEventListener(*this);
+	__pPosterPanel->__pAttachmentOwner = this;
 	float editAreaHeight = 100;
-	//__pPosterPanel->SetBounds(FloatRectangle(0, clientRect.height - editAreaHeight,  clientRect.width, editAreaHeight));
 	__pPosterPanel->SetRectangle(FloatRectangle(0, clientRect.height - editAreaHeight,  clientRect.width, editAreaHeight));
 
 	AddControl(__pPosterPanel);
@@ -103,7 +105,7 @@ UiChatForm::OnInitializing(void)
 	AddControl(__pChatPanel);
 
 	__pListView = new ListView();
-	__pListView->Construct(Rectangle(0, 100, clientRect.width, clientRect.height - editAreaHeight *2), true, false);
+	__pListView->Construct(Rectangle(0, 100, clientRect.width, clientRect.height - editAreaHeight - 100), true, false);
 	__pListView->SetItemProvider(*this);
 	__pListView->AddListViewItemEventListener(*this);
 	__pListView->AddScrollEventListener(*this);
@@ -126,6 +128,7 @@ UiChatForm::OnTerminating() {
 	result r = E_SUCCESS;
 	AppLog("OnTerminating");
 	PostMan::getInstance().RemoveListenerForUser(__userId);
+	__pPosterPanel->__pAttachmentOwner = null;
 
 	return r;
 }
@@ -439,8 +442,6 @@ UiChatForm::OnUserEventReceivedN(RequestId requestId, Tizen::Base::Collection::I
 		return;
 	}
 
-	AppLog("1OnUserEventReceivedN");
-
 	if (requestId == 111111) {
 		AppAssert(pArgs->GetCount() > 0);
 		UpdateUnit *unit = static_cast<UpdateUnit *> (pArgs->GetAt(0));
@@ -470,6 +471,22 @@ UiChatForm::OnUserEventReceivedN(RequestId requestId, Tizen::Base::Collection::I
 
 		this->MarkUnread();
 		delete pUserId;
+
+		if (requestId == UPDATE_MESSAGE_DELIVERED) {
+			__pPosterPanel->GetEditArea()->HideKeypad();
+
+			if (__pPosterPanel->__pItems->GetCount() > 0) {
+				__pPosterPanel->ClearAttachments();
+				this->ResetAttachmentsContainer();
+			}
+
+			__pPosterPanel->GetEditArea()->Clear();
+
+			this->__pPosterPanel->GetEditArea()->SetEnabled(true);
+			this->__pPosterPanel->GetSendButton()->SetEnabled(true);
+			this->__pPosterPanel->GetAttachButton()->SetEnabled(true);
+		}
+
 	} else if (requestId == UPDATE_USER_ONLINE) {
 
 		AppAssert(pArgs->GetCount() > 0);
@@ -534,12 +551,12 @@ UiChatForm::IsAlreadyAdded(MMessage *message) {
 		limit = this->GetMessages()->GetCount() - 30;
 	}
 
-	AppLog("IsAlreadyAdded");
+//	AppLog("IsAlreadyAdded");
 
 	for (int index = this->GetMessages()->GetCount()-1; index >= limit; index--) {
 		MMessage *existingMessage = static_cast<MMessage*>(this->GetMessages()->GetAt(index));
 
-		AppLog("IsAlreadyAdded %d :: %d",existingMessage->GetMid(), message->GetMid() );
+//		AppLog("IsAlreadyAdded %d :: %d",existingMessage->GetMid(), message->GetMid() );
 
 		if (existingMessage->GetMid() == message->GetMid()) {
 			result = true;
@@ -564,15 +581,24 @@ UiChatForm::OnTextValueChangeCanceled(const Tizen::Ui::Control& source) {
 
 void
 UiChatForm::OnExpandableEditAreaLineAdded(Tizen::Ui::Controls::ExpandableEditArea& source, int newLineCount) {
-
 	FloatRectangle editBounds = source.GetBoundsF();
 
 	FloatRectangle clientArea = this->GetClientAreaBoundsF();
 
 	FloatRectangle panelBounds = __pPosterPanel->GetBoundsF();
-	float prevEditHeight = panelBounds.height - 32;
+	int addedHeight = 0;
+
+	if (this->__pPosterPanel->__pItems->GetCount() > 0) {
+		AppLog("+++++++++++++++++++++++++++++++===========");
+		addedHeight = itemContentSize;
+	}
+
+	float prevEditHeight = panelBounds.height - editAreaOffset*2 - addedHeight;
 
 	float deltaHeight = editBounds.height - prevEditHeight;
+	if (deltaHeight < 10) {
+		return;
+	}
 
 	this->__pListView->SetBounds(FloatRectangle(
 			0,
@@ -580,7 +606,6 @@ UiChatForm::OnExpandableEditAreaLineAdded(Tizen::Ui::Controls::ExpandableEditAre
 			clientArea.width,
 			this->__pListView->GetBounds().height - deltaHeight)
 			);
-AppLog("1");
 	__pPosterPanel->SetRectangle(FloatRectangle(
 			panelBounds.x,
 			100 + this->__pListView->GetBounds().height,
@@ -593,17 +618,26 @@ AppLog("1");
 
 void
 UiChatForm::OnExpandableEditAreaLineRemoved(Tizen::Ui::Controls::ExpandableEditArea& source, int newLineCount) {
+
 	FloatRectangle editBounds = source.GetBoundsF();
 
 	FloatRectangle clientArea = this->GetClientAreaBoundsF();
 
 	FloatRectangle panelBounds = __pPosterPanel->GetBoundsF();
-	float prevEditHeight = panelBounds.height - 32;
+
+	int addedHeight = 0;
+
+	if (this->__pPosterPanel->__pItems->GetCount() > 0) {
+		AppLog("+++++++++++++++++++++++++++++++===========");
+		addedHeight = itemContentSize;
+	}
+
+	float prevEditHeight = panelBounds.height - editAreaOffset*2 - addedHeight;
+
 
 	float deltaHeight = prevEditHeight - editBounds.height;
-	AppLog("2 %f", deltaHeight);
 
-	if (deltaHeight < 1) {
+	if (deltaHeight < 10) {
 		return;
 	}
 
@@ -629,7 +663,7 @@ UiChatForm::OnKeypadActionPerformed(Control& source, KeypadAction keypadAction)
 {
 
 	if (keypadAction == KEYPAD_ACTION_ENTER) {
-		this->SendMessage();
+
 	}
 
 }
@@ -640,7 +674,6 @@ UiChatForm::OnKeypadClosed(Control& source)
 
 	FloatRectangle clientRect;
 	clientRect = this->GetClientAreaBoundsF();
-	FloatRectangle editBounds = source.GetBoundsF();
 	FloatRectangle panelBounds = __pPosterPanel->GetBoundsF();
 
 	this->__pPosterPanel->SetRectangle(FloatRectangle(0, clientRect.height - panelBounds.height, clientRect.width, panelBounds.height));
@@ -690,12 +723,19 @@ UiChatForm::OnKeypadBoundsChanged(Control& source)
 void
 UiChatForm::OnActionPerformed(const Tizen::Ui::Control& source, int actionId) {
 	if (actionId == 45) {
-//		if (__pPosterPanel->GetEditArea()->GetText().GetLength() != 0) {
-			//SendMessage();
-			OpenGallery();
-//		}
-		__pPosterPanel->GetEditArea()->SetText(L"");
-		__pPosterPanel->GetEditArea()->HideKeypad();
+
+		if ((__pPosterPanel->GetEditArea()->GetText().GetLength() != 0 && !__pPosterPanel->GetEditArea()->GetText().Equals(L"", true)) ||
+			PostMan::getInstance().GetAttachmentsForUid(__userId)->GetCount() > 0
+		) {
+			this->SendMessage();
+
+			this->__pPosterPanel->GetEditArea()->SetEnabled(false);
+			this->__pPosterPanel->GetSendButton()->SetEnabled(false);
+			this->__pPosterPanel->GetAttachButton()->SetEnabled(false);
+		}
+
+	} else if (actionId == 46) {
+		OpenGallery();
 	}
 }
 
@@ -704,21 +744,14 @@ UiChatForm::OnActionPerformed(const Tizen::Ui::Control& source, int actionId) {
 void
 UiChatForm::SendMessage() {
 
-//	for (int i = 0; i < 3; i++) {
-//		MAttachment *attachment = new MAttachment();
-//		attachment->__pType = new String(PHOTO);
-//		attachment->__tempId = i;
-//		PostMan::getInstance().AddAttachmentWithUid(attachment, this->__userId);
-//	}
-
 	String *messageText = null;
 	if (__pPosterPanel->GetEditArea()->GetText().GetLength() != 0) {
 		messageText = new String(__pPosterPanel->GetEditArea()->GetText());
+
+		AppLog("len: %d content: %S", __pPosterPanel->GetEditArea()->GetText().GetLength(), __pPosterPanel->GetEditArea()->GetText().GetPointer());
 	}
 
 	MMessage *pMessage = new MMessage();
-
-	AppLog("%d", __userId);
 
 	pMessage->SetUid(__userId);
 
@@ -837,6 +870,48 @@ UiChatForm::RequestImageUpdateForIndex(int index, int section, int elementId) {
 
 /****************** ATTACHMENT ***********************/
 
+void
+UiChatForm::RequestAttachmentDelete(MAttachment *attachment, int index) {
+	PostMan::getInstance().RemoveAttachmentAtIndexWithUid(index, __userId);
+	this->__pPosterPanel->RemoveAttachment(attachment, index);
+
+	if(PostMan::getInstance().GetAttachmentsForUid(__userId)->GetCount() == 0) {
+		this->ResetAttachmentsContainer();
+	}
+}
+
+void
+UiChatForm::ResetAttachmentsContainer() {
+	int height = this->__pPosterPanel->GetBounds().height;
+	int editAreaHeight = height - itemContentSize;
+
+	FloatRectangle clientRect;
+	clientRect = this->GetClientAreaBoundsF();
+
+	AppLog("editAreaHeight %d", editAreaHeight);
+
+	__pPosterPanel->SetRectangle(FloatRectangle(0, clientRect.height - editAreaHeight,  clientRect.width, editAreaHeight));
+	__pListView->SetBounds(Rectangle(0, 100, clientRect.width, clientRect.height - editAreaHeight - 100));
+}
+
+void
+UiChatForm::AddAttachmentToContainer(MAttachment *attachment) {
+	this->__pPosterPanel->AddAttachment(attachment);
+
+	if(PostMan::getInstance().GetAttachmentsForUid(__userId)->GetCount() == 1) {
+		AppLog("AddAttachmentToContainer");
+
+		int height = this->__pPosterPanel->GetBounds().height;
+
+		int editAreaHeight = height + itemContentSize;
+
+		FloatRectangle clientRect;
+		clientRect = this->GetClientAreaBoundsF();
+
+		__pPosterPanel->SetRectangle(FloatRectangle(0, clientRect.height - editAreaHeight,  clientRect.width, editAreaHeight));
+		__pListView->SetBounds(Rectangle(0, 100, clientRect.width, clientRect.height - editAreaHeight - height));
+	}
+}
 
 void
 UiChatForm::OpenGallery() {
@@ -877,12 +952,19 @@ UiChatForm::OnAppControlCompleteResponseReceived(const Tizen::App::AppId& appId,
             {
                for (int i = 0; i < pValueList->GetCount(); i++)
                {
+
+            	  LinkedList *attachments = PostMan::getInstance().GetAttachmentsForUid(__userId);
+
+            	  if (attachments->GetCount() >= 10) {
+            		  continue;
+            	  }
+
                   String* pValue = dynamic_cast< String* >(pValueList->GetAt(i));
 
                   MAttachment *attachment = new MAttachment();
                   attachment->__pType = new String(PHOTO);
 
-                  LinkedList *attachments = PostMan::getInstance().GetAttachmentsForUid(__userId);
+
 
                   int index = 0;
 
@@ -893,8 +975,9 @@ UiChatForm::OnAppControlCompleteResponseReceived(const Tizen::App::AppId& appId,
 
                   attachment->__tempId = index;
                   attachment->__pFilePath = pValue;
-                  PostMan::getInstance().AddAttachmentWithUid(attachment, this->__userId);
 
+                  PostMan::getInstance().AddAttachmentWithUid(attachment, this->__userId);
+                  this->AddAttachmentToContainer(attachment);
 
                }
             }
@@ -925,6 +1008,12 @@ void
 UiChatForm::OnSuccessN(MAttachment *attachment, int uid) {
 	if (this->__userId == uid) {
 
+		int index = -1;
+		PostMan::getInstance().GetAttachmentsForUid(__userId)->IndexOf(*attachment, index);
+
+		if (index != -1) {
+			this->__pPosterPanel->SetAttachmentReady(true, index, attachment);
+		}
 	}
 }
 
@@ -939,5 +1028,11 @@ void
 UiChatForm::OnProgressChanged(MAttachment *attachment, int progress, int uid) {
 	if (this->__userId == uid) {
 
+		int index = -1;
+		PostMan::getInstance().GetAttachmentsForUid(__userId)->IndexOf(*attachment, index);
+
+		if (index != -1) {
+			this->__pPosterPanel->UpdateAttachmentProgress(progress, index, attachment);
+		}
 	}
 }

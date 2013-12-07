@@ -21,7 +21,7 @@ UiAttachmentView::UiAttachmentView() {
 }
 
 UiAttachmentView::~UiAttachmentView() {
-
+//	AppLog("UiAttachmentView::~UiAttachmentView");
 	if (__pBitmapImage) {
 		delete __pBitmapImage;
 	}

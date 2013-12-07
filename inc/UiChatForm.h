@@ -22,6 +22,7 @@
 #include "IRefreshableListView.h"
 
 #include "IAttachmentListener.h"
+#include "IRequestAttachmentDelete.h"
 
 using namespace Tizen::App;
 using namespace Tizen::Ui;
@@ -49,6 +50,7 @@ class UiChatForm
  , public IRefreshableListView
  , public IAttachmentListener
  , public IAppControlResponseListener
+ , public IRequestAttachmentDelete
 
 {
 public:
@@ -114,6 +116,8 @@ public:
 
 	void RequestMessagesForUser(int userId);
 
+
+
 	//RefreshableListView
 	virtual void RequestUpdateForIndex(int index, int elementId);
 	virtual void RequestImageUpdateForIndex(int index, int section, int elementId);
@@ -122,6 +126,12 @@ public:
 	virtual void OnSuccessN(MAttachment *attachment, int uid);
 	virtual void OnErrorN(Error *error, MAttachment *attachment, int uid);
 	virtual void OnProgressChanged(MAttachment *attachment, int progress, int uid);
+
+	virtual void RequestAttachmentDelete(MAttachment *attachment, int index);
+
+	void AddAttachmentToContainer(MAttachment *attachment);
+	void ResetAttachmentsContainer();
+	//
 
 	void SetMessages(LinkedList *messages);
 	LinkedList * GetMessages();
