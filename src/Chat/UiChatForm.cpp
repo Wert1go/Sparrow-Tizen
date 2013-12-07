@@ -30,6 +30,7 @@
 #include "MAttachment.h"
 #include "Util.h"
 #include "UpdateUnit.h"
+#include "UiAttachmentListPopup.h"
 
 #include <iostream>
 #include <sys/time.h>
@@ -120,6 +121,10 @@ UiChatForm::OnInitializing(void)
 	__pItemContext->AddElement(ID_CONTEXT_ITEM_2, L"Test2");
 	this->__isActive = true;
 
+	__pAttachmentPopup = new UiAttachmentListPopup();
+	__pAttachmentPopup->Construct(true, FloatDimension(630.0f, 750.0f));
+	this->__pAttachmentPopup->__pPopupHandler = this;
+
 	return r;
 }
 
@@ -129,6 +134,7 @@ UiChatForm::OnTerminating() {
 	AppLog("OnTerminating");
 	PostMan::getInstance().RemoveListenerForUser(__userId);
 	__pPosterPanel->__pAttachmentOwner = null;
+	__pAttachmentPopup->Destroy();
 
 	return r;
 }
@@ -187,6 +193,8 @@ UiChatForm::OnSceneActivatedN(const Tizen::Ui::Scenes::SceneId& previousSceneId,
 		MarkUnread();
 
 		PostMan::getInstance().__pAttachmentListener = this;
+
+		RestoreAttachmentContainer();
 	}
 
 }
@@ -735,6 +743,15 @@ UiChatForm::OnActionPerformed(const Tizen::Ui::Control& source, int actionId) {
 		}
 
 	} else if (actionId == 46) {
+		__pAttachmentPopup->ShowPopup();
+	}
+}
+
+void
+UiChatForm::DidSelectItemInPopup(int itemIndex, int popupId) {
+	this->__pAttachmentPopup->HidePopup();
+
+	if (itemIndex == 0) {
 		OpenGallery();
 	}
 }
@@ -895,9 +912,19 @@ UiChatForm::ResetAttachmentsContainer() {
 }
 
 void
+UiChatForm::RestoreAttachmentContainer() {
+	LinkedList *pAttachments = PostMan::getInstance().GetAttachmentsForUid(__userId);
+	AppLog("pAttachments %d", pAttachments->GetCount());
+	for (int i = 0; i < pAttachments->GetCount(); i++) {
+		MAttachment *attachment = static_cast<MAttachment *>(pAttachments->GetAt(i));
+		this->AddAttachmentToContainer(attachment);
+	}
+}
+
+void
 UiChatForm::AddAttachmentToContainer(MAttachment *attachment) {
 	this->__pPosterPanel->AddAttachment(attachment);
-
+	AppLog("PostMan::getInstance().GetAttachmentsForUid(__userId)->GetCount() %d", PostMan::getInstance().GetAttachmentsForUid(__userId)->GetCount());
 	if(PostMan::getInstance().GetAttachmentsForUid(__userId)->GetCount() == 1) {
 		AppLog("AddAttachmentToContainer");
 

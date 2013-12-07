@@ -34,6 +34,8 @@ public:
 	IAttachmentListener *__pAttachmentListener;
 	int __uid;
 
+	bool __IsRunning;
+
 private:
 	void OnSuccessN(RestResponse *result);
 	void OnErrorN(Error *error);
@@ -48,7 +50,7 @@ private:
 	RestRequestOperation *__pUploadImageOperation;
 	RestRequestOperation *__pSaveImageOnServerOperation;
 
-	bool __IsRunning;
+
 };
 
 #endif /* IMAGEATTACHMENTOPERATION_H_ */

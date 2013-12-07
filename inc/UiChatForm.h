@@ -23,6 +23,7 @@
 
 #include "IAttachmentListener.h"
 #include "IRequestAttachmentDelete.h"
+#include "IPopupHandler.h"
 
 using namespace Tizen::App;
 using namespace Tizen::Ui;
@@ -33,6 +34,7 @@ class MMessage;
 class UiChapPanel;
 class MDialog;
 class MAttachment;
+class UiAttachmentListPopup;
 
 class UiChatForm
  : public Tizen::Ui::Controls::Form
@@ -51,12 +53,12 @@ class UiChatForm
  , public IAttachmentListener
  , public IAppControlResponseListener
  , public IRequestAttachmentDelete
+ , public IPopupHandler
 
 {
 public:
 	UiChatForm();
 	virtual ~UiChatForm();
-
 
 	virtual result OnInitializing(void);
 	virtual result OnTerminating(void);
@@ -131,7 +133,11 @@ public:
 
 	void AddAttachmentToContainer(MAttachment *attachment);
 	void ResetAttachmentsContainer();
+	void RestoreAttachmentContainer();
 	//
+
+	//Popup
+	virtual void DidSelectItemInPopup(int itemIndex, int popupId);
 
 	void SetMessages(LinkedList *messages);
 	LinkedList * GetMessages();
@@ -160,6 +166,7 @@ private:
 
 	UiChapPanel *__pChatPanel;
 	UiMessengerPanel *__pPosterPanel;
+	UiAttachmentListPopup *__pAttachmentPopup;
 
 	void RequestMoreMessagesFromMid(int mid);
 

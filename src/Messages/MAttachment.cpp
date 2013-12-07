@@ -22,6 +22,7 @@ MAttachment::MAttachment() {
 	__tempId = 0;
 	ratio = 0;
 	imageSize = FloatPoint(0,0);
+	__id = 0;
 
 }
 

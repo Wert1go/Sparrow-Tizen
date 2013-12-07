@@ -14,6 +14,8 @@ using namespace Tizen::Ui;
 using namespace Tizen::Ui::Controls;
 using namespace Tizen::Graphics;
 
+class IPopupHandler;
+
 class UiAttachmentListPopup
  : public Tizen::Ui::Controls::Popup
  , public Tizen::Ui::IPropagatedKeyEventListener
@@ -45,6 +47,8 @@ public:
 	virtual Tizen::Ui::Controls::ListItemBase* CreateItem(int index, int itemWidth);
 	virtual bool DeleteItem(int index, Tizen::Ui::Controls::ListItemBase* pItem, int itemWidth);
 	virtual int GetItemCount(void);
+
+	IPopupHandler *__pPopupHandler;
 
 private:
 	Tizen::Ui::Controls::ListView *__pListView;

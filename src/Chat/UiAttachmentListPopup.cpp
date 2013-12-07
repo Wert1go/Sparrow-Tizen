@@ -6,6 +6,8 @@
  */
 
 #include "UiAttachmentListPopup.h"
+#include "Resources.h"
+#include "IPopupHandler.h"
 
 using namespace Tizen::Ui;
 using namespace Tizen::Ui::Controls;
@@ -13,6 +15,7 @@ using namespace Tizen::Graphics;
 
 UiAttachmentListPopup::UiAttachmentListPopup() {
 	__pListView = null;
+	this->__pPopupHandler = null;
 }
 
 UiAttachmentListPopup::~UiAttachmentListPopup() {
@@ -25,6 +28,9 @@ UiAttachmentListPopup::OnInitializing(void) {
 
 	SetTitleText(L"Вложить");
 	SetPropagatedKeyEventListener(this);
+
+	this->SetColor(Color(52, 87, 119, 255));
+	this->SetTitleTextColor(Color(0, 0, 0, 255));
 
 	Rectangle clientRect;
 	clientRect = this->GetClientAreaBounds();
@@ -106,7 +112,9 @@ UiAttachmentListPopup::OnListViewContextItemStateChanged(Tizen::Ui::Controls::Li
 
 void
 UiAttachmentListPopup::OnListViewItemStateChanged(Tizen::Ui::Controls::ListView &listView, int index, int elementId, Tizen::Ui::Controls::ListItemStatus status) {
-
+	if (status == LIST_ITEM_STATUS_SELECTED && __pPopupHandler) {
+		__pPopupHandler->DidSelectItemInPopup(index, 0);
+	}
 }
 void
 UiAttachmentListPopup::OnListViewItemSwept(ListView &listView, int index, SweepDirection direction)
@@ -122,12 +130,49 @@ UiAttachmentListPopup::CreateItem(int index, int itemWidth)
 	CustomItem* pItem = new CustomItem();
 	ListAnnexStyle style = LIST_ANNEX_STYLE_NORMAL;
 
-	int height = this->GetBounds().height/this->GetItemCount();
+	int height = (this->GetBounds().height - 80)/this->GetItemCount();
 
 	pItem->Construct(Dimension(itemWidth, height), style);
 	pItem->SetContextItem(__pItemContext);
+	pItem->SetBackgroundColor(LIST_ITEM_DRAWING_STATUS_NORMAL, Color(31, 52, 71, 255));
+	pItem->SetBackgroundColor(LIST_ITEM_DRAWING_STATUS_PRESSED, Color(33, 63, 99, 255));
+	pItem->SetBackgroundColor(LIST_ITEM_DRAWING_STATUS_HIGHLIGHTED, Color(33, 63, 99, 255));
 
-	pItem->AddElement(Rectangle(0,0, itemWidth, height), index, L"TEST", false);
+	Bitmap *pIcon = null;
+	String text;
+
+	if (index == 0) {
+		text = L"Фото";
+		pIcon = Resources::getInstance().LoadBitmapNamed(L"icon_photo.png");
+	} else if (index == 1) {
+		text = L"Видео";
+		pIcon = Resources::getInstance().LoadBitmapNamed(L"icon_video.png");
+	} else if (index == 2) {
+		text = L"Аудио";
+		pIcon = Resources::getInstance().LoadBitmapNamed(L"icon_audio.png");
+	} else if (index == 3) {
+		text = L"Документ";
+		pIcon = Resources::getInstance().LoadBitmapNamed(L"icon_document.png");
+	} else if (index == 4) {
+		text = L"Местоположение";
+		pIcon = Resources::getInstance().LoadBitmapNamed(L"icon_location.png");
+	}
+
+	pItem->AddElement(
+			Rectangle(10, height/2 - 72/2, 72, 72),
+			1,
+			*pIcon,
+			pIcon,
+			pIcon);
+
+	pItem->AddElement(
+			Rectangle(102, 0, itemWidth - 102, height),
+			2,
+			text,
+			42,
+			Color(255, 255, 255, 255),
+			Color(255, 255, 255, 255),
+			Color(255, 255, 255, 255) );
 
     return pItem;
 }
@@ -145,3 +190,5 @@ UiAttachmentListPopup::GetItemCount(void)
 {
 	return 5;
 }
+
+

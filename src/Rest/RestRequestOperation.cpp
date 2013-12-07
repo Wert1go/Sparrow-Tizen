@@ -277,7 +277,6 @@ RestRequestOperation::OnHttpUploadInProgress(Tizen::Net::Http::HttpSession& http
 									  long long currentLength, long long totalLength) {
 	if (__restRequestListener) {
 		int progress = (currentLength * 100)/totalLength;
-		AppLog("progress: %d", progress);
 		__restRequestListener->OnProgressChanged(progress);
 	}
 

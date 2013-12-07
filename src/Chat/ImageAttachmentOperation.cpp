@@ -115,6 +115,7 @@ ImageAttachmentOperation::SavePhotoOnServer(String *photoData, String *server, S
 
 void
 ImageAttachmentOperation::OnSuccessN(RestResponse *result) {
+
 	RImageUploadServerResponse *response = static_cast<RImageUploadServerResponse *>(result);
 
 	if (result->GetOperationCode() == ATTACHMENT_IMAGE_GET_SERVER) {
@@ -150,6 +151,7 @@ ImageAttachmentOperation::OnSuccessN(RestResponse *result) {
 			AppLog("%d :: %d", resultAttachment->__ownerId, resultAttachment->__id);
 		}
 
+		__IsRunning = false;
 		if (__pAttachmentListener) {
 			__pAttachmentListener->OnSuccessN(this->__pAttachment, this->__uid);
 		}
@@ -158,6 +160,7 @@ ImageAttachmentOperation::OnSuccessN(RestResponse *result) {
 
 void
 ImageAttachmentOperation::OnErrorN(Error *error) {
+	__IsRunning = false;
 	if (__pAttachmentListener) {
 		__pAttachmentListener->OnErrorN(error, this->__pAttachment, this->__uid);
 	}
@@ -172,5 +175,6 @@ ImageAttachmentOperation::OnProgressChanged(int progress) {
 
 void
 ImageAttachmentOperation::Perform() {
+	__IsRunning = true;
 	this->GetUploadServer();
 }

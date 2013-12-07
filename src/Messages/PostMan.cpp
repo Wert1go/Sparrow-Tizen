@@ -309,10 +309,25 @@ PostMan::RemoveAttachmentAtIndexWithUid(int index, int uid) {
 		ImageAttachmentOperation *operation = this->GetOperationForAttachment(key, attachment);
 
 		if (operation) {
+			bool isRunning = operation->__IsRunning;
 			operation->__pAttachmentListener = null;
+			LinkedList *attachmentOperationList = null;
+			this->__pUidToAttachmentOperationsMap->GetValue(key, attachmentOperationList);
+
+			attachmentOperationList->Remove(*operation);
+
+			AppLog("TEST");
+			if (isRunning) {
+				AppLog("TEST11");
+				if (attachmentOperationList->GetCount() > 0) {
+					AppLog("TEST22");
+					operation = static_cast<ImageAttachmentOperation *>(attachmentOperationList->GetAt(0));
+					operation->Perform();
+				}
+			}
+
 		}
 	}
-
 }
 
 ImageAttachmentOperation *

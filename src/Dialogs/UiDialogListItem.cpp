@@ -78,6 +78,8 @@ UiDialogListItem::OnDraw (Tizen::Graphics::Canvas &canvas, const Tizen::Graphics
 	String *text = Util::formatDateN(this->__pDialog->GetDate());
 
 	if (text->GetLength() == 0) {
+
+
 		text = new String(L" ");
 	}
 

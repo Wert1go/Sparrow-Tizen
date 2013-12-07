@@ -56,6 +56,10 @@ AttachmentItem::~AttachmentItem() {
 		delete this->__pTitleLabel;
 	}
 
+	if (__pImage) {
+		delete __pImage;
+	}
+
 	__pItemEventListener = null;
 }
 
@@ -78,6 +82,10 @@ AttachmentItem::Initialize(void) {
 	__pIcon = Resources::getInstance().LoadBitmapNamed(L"icon_photo.png");
 
 	String *fileName = null;
+
+	if (this->__pAttachment->__id != 0) {
+		this->__ready = true;
+	}
 
 	if (this->__pAttachment && this->__pAttachment->__pFilePath) {
 
@@ -197,8 +205,6 @@ AttachmentItem::SetCustomBounds(const Tizen::Graphics::Rectangle& rect) {
 result
 AttachmentItem::OnDraw(void) {
 	result r = E_SUCCESS;
-
-	AppLog("DRAW+++++++++++++++++++++++++++");
 
 	Canvas* pCanvas = GetCanvasN();
 
