@@ -29,6 +29,8 @@ public:
 	MUser *GetUser();
 private:
 	MUser *__pUser;
+	EnrichedText* __pUserName;
+	TextElement* __pUserNameText;
 
 };
 

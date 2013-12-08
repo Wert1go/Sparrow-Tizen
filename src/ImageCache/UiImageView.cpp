@@ -27,16 +27,12 @@ UiImageView::~UiImageView() {
 bool
 UiImageView::OnDraw(Tizen::Graphics::Canvas &canvas, const Tizen::Graphics::Rectangle &rect, Tizen::Ui::Controls::ListItemDrawingStatus status) {
 	result r;
-//	AppLog("OnDraw::BEGIN");
 
 	if (__pBitmapImage != null)
 	{
-//		AppLogDebug("TryDraw");
 		r = canvas.DrawBitmap(rect, *__pBitmapImage);
-//		AppLogDebug("Drawed!");
 	}
 
-//	AppLog("OnDraw::END");
 	return true;
 }
 
