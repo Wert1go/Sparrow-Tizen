@@ -225,6 +225,19 @@ void
 RestRequestOperation::OnTransactionAborted(HttpSession& httpSession, HttpTransaction& httpTransaction, result r)
 {
 	AppLog("RestRequestOperation::OnTransactionAborted(%s)", GetErrorMessage(r));
+
+	if (this->__restRequestListener) {
+		Error *pError;
+
+		if (r == E_NETWORK_UNAVAILABLE) {
+			pError = new Error(NO_NETWORK);
+		} else {
+			pError = new Error(UNKNOW);
+		}
+		AppLog("ERROR REPORTED!!!!");
+		this->__restRequestListener->OnErrorN(pError);
+	}
+
 	__pRequestOwner->OnCompliteN(this);
 }
 

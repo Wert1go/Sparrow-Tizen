@@ -71,6 +71,7 @@ SparrowApp::OnAppInitialized(void)
 {
 	// TODO:
 	// Comment.
+	AppLog("OnAppInitialized");
 	return true;
 }
 
@@ -79,6 +80,7 @@ SparrowApp::OnAppWillTerminate(void)
 {
 	// TODO:
 	// Deallocate or release resources that are UI dependent.
+	AppLog("OnAppWillTerminate");
 	return true;
 }
 
@@ -88,6 +90,7 @@ SparrowApp::OnAppTerminating(AppRegistry& appRegistry, bool forcedTermination)
 	// TODO:
 	// Deallocate resources allocated by this App for termination.
 	// The App's permanent data and context can be saved via appRegistry.
+	AppLog("OnAppTerminating");
 	return true;
 }
 
@@ -96,6 +99,11 @@ SparrowApp::OnForeground(void)
 {
 	// TODO:
 	// Start or resume drawing when the application is moved to the foreground.
+	AppLog("OnForeground");
+
+	if (LongPollConnection::getInstance().PendingRestart()) {
+		LongPollConnection::getInstance().Reconnect();
+	}
 }
 
 void
@@ -103,6 +111,7 @@ SparrowApp::OnBackground(void)
 {
 	// TODO:
 	// Stop drawing when the application is moved to the background.
+	AppLog("OnBackground");
 }
 
 void
@@ -125,6 +134,7 @@ SparrowApp::OnScreenOn(void)
 {
 	// TODO:
 	// Get the released resources or resume the operations that were paused or stopped in OnScreenOff().
+	AppLog("OnScreenOn");
 }
 
 void
@@ -136,6 +146,7 @@ SparrowApp::OnScreenOff(void)
 	// Invoking a lengthy asynchronous method within this listener method can be risky, because it is not guaranteed to invoke a
 	// callback before the device enters the sleep mode.
 	// Similarly, do not perform lengthy operations in this listener method. Any operation must be a quick one.
+	AppLog("OnScreenOff");
 }
 
 //******************************* DISPATCHER ***************************/

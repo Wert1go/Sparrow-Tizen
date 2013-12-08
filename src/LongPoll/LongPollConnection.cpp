@@ -49,11 +49,17 @@ LongPollConnection::LongPollConnection() {
 	this->__pServer = null;
 	this->__pTS = null;
 	__IsRunning = false;
+	__pendingRestart = false;
+	__pPendingTimer = null;
 }
 
 LongPollConnection::~LongPollConnection() {
 	__pLongPollServerDataOperation = null;
 	__pLongPollConnectionOperation = null;
+
+	if (__pPendingTimer) {
+		this->CancelTimer();
+	}
 }
 
 void
@@ -76,6 +82,7 @@ LongPollConnection::GetLongPollServerData() {
 	params->Add(new String(L"access_token"), AuthManager::getInstance().AccessToken());
 
 	if (!__pLongPollServerDataOperation) {
+		__pendingRestart = false;
 		__pLongPollServerDataOperation = new RestRequestOperation(LONGPOLL_GET_SERVER, new String(L"messages.getLongPollServer"), params);
 		__pLongPollServerDataOperation->AddEventListener(this);
 		__pLongPollServerDataOperation->SetResponseDescriptor(new LongPollServerDataDescriptor());
@@ -122,6 +129,7 @@ LongPollConnection::SendRequestToLongPollServer(String *key, String *server, Str
 	uri.Append(server->GetPointer());
 
 	if (!__pLongPollConnectionOperation) {
+		__pendingRestart = false;
 		__pLongPollConnectionOperation = new RestRequestOperation(new String(uri), LONGPOLL_CONNECTION, null, params);
 		__pLongPollConnectionOperation->AddEventListener(this);
 		__pLongPollConnectionOperation->SetResponseDescriptor(new LongPollDescriptor());
@@ -361,11 +369,62 @@ LongPollConnection::OnSuccessN(RestResponse *result) {
 
 void
 LongPollConnection::OnErrorN(Error *error) {
-	if (error->GetCode() == LONG_POLL_REQUEST_RECONNECT) {
+	if (__pLongPollServerDataOperation) {
+		__pLongPollServerDataOperation->AddEventListener(null);
+		__pLongPollServerDataOperation = null;
+	}
+
+	if (__pLongPollConnectionOperation) {
+		__pLongPollConnectionOperation->AddEventListener(null);
+		__pLongPollConnectionOperation = null;
+	}
+
+	AppLog("LongPollConnection::OnErrorN");
+	if (error && error->GetCode() == LONG_POLL_REQUEST_RECONNECT) {
 		if (__IsRunning) {
 			GetLongPollServerData();
 		}
+	} else {
+		AppLog("!!!LongPollConnection::OnErrorN");
+		__pendingRestart = true;
+		this->RunTimer();
 	}
 
 	delete error;
+}
+
+bool
+LongPollConnection::PendingRestart() {
+	return __IsRunning && __pendingRestart;
+}
+
+void
+LongPollConnection::RunTimer() {
+	if (this->__pPendingTimer) {
+		this->CancelTimer();
+	}
+
+	AppLog("RUN TIMER");
+
+	this->__pPendingTimer = new Timer();
+	this->__pPendingTimer->Construct(*this);
+	this->__pPendingTimer->Start(10000);
+}
+
+void
+LongPollConnection::CancelTimer() {
+	this->__pPendingTimer->Cancel();
+	delete this->__pPendingTimer;
+	this->__pPendingTimer = null;
+}
+
+void
+LongPollConnection::OnTimerExpired (Timer &timer) {
+	delete this->__pPendingTimer;
+	this->__pPendingTimer = null;
+
+	if (this->PendingRestart()) {
+		this->Reconnect();
+		this->RunTimer();
+	}
 }

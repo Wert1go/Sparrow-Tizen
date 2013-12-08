@@ -13,10 +13,13 @@
 #include "RestResponse.h"
 #include "Error.h"
 
+
 using namespace Tizen::Base;
+using namespace Tizen::Base::Runtime;
 
 class LongPollConnection
  : IRestRequestListener
+ , public ITimerEventListener
 {
 public:
 	static LongPollConnection& getInstance()
@@ -44,12 +47,18 @@ public:
 
 	void Reconnect();
 
+	bool PendingRestart();
+
 	//сохранение TS
 	//получение TS
 
 private:
 	void OnSuccessN(RestResponse *result);
 	void OnErrorN(Error *error);
+	virtual void OnTimerExpired (Timer &timer);
+
+	void RunTimer();
+	void CancelTimer();
 
 private:
 	RestRequestOperation *__pLongPollServerDataOperation;
@@ -59,6 +68,10 @@ private:
 	String *__pKey;
 	String *__pTS;
 	String *__pServer;
+
+	bool __pendingRestart;
+
+	Timer *__pPendingTimer;
 
 };
 
