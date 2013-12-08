@@ -26,7 +26,7 @@ ImageLoadingOperation::ImageLoadingOperation(String *url) {
 }
 
 ImageLoadingOperation::~ImageLoadingOperation() {
-//	AppLog("ImageLoadingOperation::~ImageLoadingOperation");
+	AppLog("ImageLoadingOperation::~ImageLoadingOperation");
 	if (__pImageRequestOperation) {
 		delete __pImageRequestOperation;
 		__pImageRequestOperation = null;
@@ -40,7 +40,7 @@ ImageLoadingOperation::~ImageLoadingOperation() {
 
 void ImageLoadingOperation::Perform() {
 	if (__lolprotector != 0) {
-//		AppLogDebug("Operation already running!");
+		AppLogDebug("Operation already running!");
 		return;
 	}
 	__lolprotector++;
@@ -67,7 +67,6 @@ void ImageLoadingOperation::Perform() {
 }
 
 void ImageLoadingOperation::Execute() {
-
 
 }
 

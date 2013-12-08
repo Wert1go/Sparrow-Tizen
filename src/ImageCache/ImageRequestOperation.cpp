@@ -43,8 +43,7 @@ ImageRequestOperation::ImageRequestOperation(const Tizen::Base::String *url) {
 }
 
 ImageRequestOperation::~ImageRequestOperation() {
-	delete __pHttpTransaction;
-	__pHttpTransaction = null;
+
 	delete __pUrl;
 	__pUrl = null;
 	if (__pByteBuffer) {
@@ -125,6 +124,8 @@ ImageRequestOperation::OnTransactionAborted(HttpSession& httpSession, HttpTransa
 	if (__pRequestOwner) {
 		__pRequestOwner->OnCompliteN(this);
 	}
+	__pHttpTransaction = null;
+	delete &httpTransaction;
 }
 
 void
@@ -143,6 +144,9 @@ void
 ImageRequestOperation::OnTransactionCompleted(HttpSession& httpSession, HttpTransaction& httpTransaction)
 {
 //	AppLog("ImageRequestOperation::OnTransactionCompleted");
+
+	delete &httpTransaction;
+
 	dispatch_async(dispatch_get_global_queue( DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
 		Execute();
 		if (__pRequestOwner) {
@@ -169,7 +173,7 @@ void
 ImageRequestOperation::Execute() {
 
 	if (__isError) {
-		__pImageRequestListener->OnErrorN(null);
+		__pImageRequestListener->OnErrorN(new Error());
 		return;
 	}
 

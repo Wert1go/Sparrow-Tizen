@@ -61,7 +61,8 @@ UiUserListItem::SetUser(MUser *pUser) {
 	pUserName->SetTextAbbreviationEnabled(true);
 
 	pUsetNameText = new TextElement();
-	String *fullName = new String();
+	String *fullName = new String(L"");
+
 	fullName->Append(this->GetUser()->GetFirstName()->GetPointer());
 	fullName->Append(L" ");
 	fullName->Append(this->GetUser()->GetLastName()->GetPointer());

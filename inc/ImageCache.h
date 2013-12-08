@@ -54,7 +54,7 @@ private:
 	virtual void OnErrorN(String *url, Error *error);
 
 	bool CheckExistingOperationForUrl(String *url);
-	void CheckPendingOperationsAndRun();
+	ImageLoadingOperation * CheckPendingOperationsAndRun();
 	void FinishOperationForUrl(String *url);
 	void DispatchImage(String *url, Bitmap *bitmap);
 

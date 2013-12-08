@@ -17,9 +17,7 @@ using namespace Tizen::Base;
 using namespace Tizen::Base::Collection;
 using namespace Tizen::Base::Runtime;
 
-//Мне кажется проблема в удалении чего то, что еще нужно для работа
-//Из-за быстрого скролла. От части это объясняет то, что не были замечены подения в сообщениях - там меньше картинок и
-//нет возможности развить большую скорость
+const int operationLimit = 3;
 
 ImageCache::ImageCache() {
 	__mutex.Create();
@@ -30,11 +28,11 @@ ImageCache::ImageCache() {
 	__pPendingOperation = new HashMapT<String*, ImageLoadingOperation*>();
 	__pUrlAndCodeMap = new HashMapT<String*, Integer*>();
 
-	__pUrlAndTargetMap->Construct(100, 0.75);
-	__pTargetAndUrlMap->Construct(100, 0.75);
-	__pUrlAndOperationMap->Construct(100, 0.75);
+	__pUrlAndTargetMap->Construct(1000, 0.75);
+	__pTargetAndUrlMap->Construct(1000, 0.75);
+	__pUrlAndOperationMap->Construct(1000, 0.75);
 	__pPendingOperation->Construct(1000, 0.75);
-	__pUrlAndCodeMap->Construct(100, 0.75);
+	__pUrlAndCodeMap->Construct(1000, 0.75);
 
 	__runningOperations = 0;
 }
@@ -60,14 +58,16 @@ ImageCache::LoadImageForTarget(String *url, IImageLoadingListener *target, Integ
 		operation->AddImageOperationListener(this);
 
 		__mutex.Acquire();
+
 		__pUrlAndTargetMap->Add(url, target);
 		__pTargetAndUrlMap->Add(target, url);
 		__pUrlAndOperationMap->Add(url, operation);
 		__pUrlAndCodeMap->Add(url, code);
 
-
-		if (__runningOperations < 3) {
+		AppLog("before add:: %d", __runningOperations);
+		if (__runningOperations <= operationLimit) {
 			__runningOperations++;
+			AppLog("after add:: %d", __runningOperations);
 			__mutex.Release();
 			operation->Perform();
 		} else {
@@ -77,9 +77,10 @@ ImageCache::LoadImageForTarget(String *url, IImageLoadingListener *target, Integ
 			if (IsFailed(r)) {
 			   AppLog(GetErrorMessage(r));
 			}
-
+			AppLog("after add to pending:: %d", __runningOperations);
 			__mutex.Release();
 		}
+
 	}
 }
 
@@ -99,6 +100,14 @@ ImageCache::CancelLoadingForTarget(IImageLoadingListener *target) {
 			if (url) {
 				__pUrlAndCodeMap->Remove(url);
 				__pUrlAndTargetMap->Remove(url);
+
+				bool exist = false;
+
+				__pPendingOperation->ContainsKey(url, exist);
+				if (exist) {
+					__pPendingOperation->Remove(url);
+				}
+
 			}
 		}
 		delete pEnum;
@@ -118,17 +127,23 @@ ImageCache::CheckExistingOperationForUrl(String *url) {
 
 	__mutex.Acquire();
 	__pUrlAndTargetMap->ContainsKey(url, result);
+	if (!result) {
+		this->__pPendingOperation->ContainsKey(url, result);
+	}
 	__mutex.Release();
 
 	return result;
 }
 
-void
+ImageLoadingOperation *
 ImageCache::CheckPendingOperationsAndRun() {
 	//TODO
 //	return;
+	ImageLoadingOperation *result = null;
+	AppLog("CheckPendingOperationsAndRun");
 
 	if (__pPendingOperation->GetCount() > 0) {
+		AppLog("CheckPendingOperationsAndRun %d :: %d", __pPendingOperation->GetCount(), __runningOperations);
 		IListT<String *> *keysList = __pPendingOperation->GetKeysN();
 
 		String *key;
@@ -138,14 +153,15 @@ ImageCache::CheckPendingOperationsAndRun() {
 		__pPendingOperation->GetValue(key, operation);
 
 		if (operation) {
-			__runningOperations++;
-			operation->Perform();
+			result = operation;
 		}
 
 		__pPendingOperation->Remove(key);
 
 		delete keysList;
 	}
+
+	return result;
 }
 
 void
@@ -175,13 +191,32 @@ ImageCache::FinishOperationForUrl(String *url) {
 
 		//delete url;
 	}
-
-
+	AppLog("before end:: %d", __runningOperations);
 	__runningOperations--;
-	if (__runningOperations < 3) {
-		CheckPendingOperationsAndRun();
+	AppLog("after end:: %d", __runningOperations);
+
+	ImageLoadingOperation *operation = null;
+	if (__runningOperations <= operationLimit) {
+		operation = CheckPendingOperationsAndRun();
 	}
+
 	__mutex.Release();
+
+	if (operation) {
+		operation->Perform();
+		__mutex.Acquire();
+		__runningOperations++;
+		__mutex.Release();
+	} else {
+		//WARNING HACK INDAHOUSE!
+		__mutex.Acquire();
+		if (this->__pPendingOperation->GetCount() == 0 || __runningOperations < 0) {
+			__runningOperations = 0;
+		}
+		__mutex.Release();
+	}
+
+	AppLog("after checkPending:: %d", __runningOperations);
 }
 
 void ImageCache::DispatchImage(String *url, Bitmap *bitmap) {
