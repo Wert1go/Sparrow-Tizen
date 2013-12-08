@@ -19,7 +19,6 @@ UiImageView::UiImageView() {
 }
 
 UiImageView::~UiImageView() {
-	AppLog("UiImageView::~UiImageView");
 	if (__pBitmapImage) {
 		delete __pBitmapImage;
 	}

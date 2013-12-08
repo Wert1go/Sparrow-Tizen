@@ -47,16 +47,13 @@ UiDialogCustomItem::UiDialogCustomItem() {
 
 
 UiDialogCustomItem::~UiDialogCustomItem() {
-//	AppLog("UiDialogCustomItem::~UiDialogCustomItem");
 
 	ImageCache::getInstance().CancelLoadingForTarget(this);
 
-//	this->RemoveAllElements();
+	this->RemoveAllElements();
 
-//	__pImageViews->RemoveAll(true);
-
-//	delete __pImageViews;
-//	__pImageViews = null;
+	delete __pImageViews;
+	__pImageViews = null;
 
 	__pPlaceholder = null;
 	PlaceholderActive = null;
@@ -71,8 +68,6 @@ UiDialogCustomItem::~UiDialogCustomItem() {
 		__pDialogListItem = null;
 	}
 
-//	delete __pUrl;
-	AppLog("UiDialogCustomItem::~UiDialogCustomItem::Complite");
 }
 
 void
@@ -174,7 +169,7 @@ UiDialogCustomItem::Init() {
 			}
 		} else {
 			UiImageView *pImageView = new (std::nothrow) UiImageView();
-			pImageView->__pBitmapImage = __pPlaceholder;
+//			pImageView->__pBitmapImage = __pPlaceholder;
 			this->AddElement(Rectangle(80 - size/2, rect.height/2 - size/2, size, size), 0, *pImageView);
 			this->__pImageViews->Add(pImageView);
 			this->SetImageUrl(this->__pDialog->GetPhoto(), 0);
@@ -185,7 +180,7 @@ UiDialogCustomItem::Init() {
 	} else {
 
 		UiImageView *pImageView = new (std::nothrow) UiImageView();
-		pImageView->__pBitmapImage = __pPlaceholder;
+//		pImageView->__pBitmapImage = __pPlaceholder;
 		this->AddElement(Rectangle(80 - size/2, rect.height/2 - size/2, size, size), 0, *pImageView);
 		this->__pImageViews->Add(pImageView);
 

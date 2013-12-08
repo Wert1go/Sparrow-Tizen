@@ -25,7 +25,7 @@ UiDialogListItem::UiDialogListItem() {
 }
 
 UiDialogListItem::~UiDialogListItem() {
-	AppLog("UiDialogListItem::~UiDialogListItem");
+
 }
 
 bool

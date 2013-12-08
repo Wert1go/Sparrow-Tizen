@@ -85,7 +85,6 @@ ImageCache::LoadImageForTarget(String *url, IImageLoadingListener *target, Integ
 
 void
 ImageCache::CancelLoadingForTarget(IImageLoadingListener *target) {
-	AppLog("CancelLoadingForTarget");
 	__mutex.Acquire();
 	bool result = false;
 
@@ -109,7 +108,6 @@ ImageCache::CancelLoadingForTarget(IImageLoadingListener *target) {
 	} else {
 		//ничего не делаем, раз ключа нет
 	}
-	AppLog("CancelLoadingForTarget1111111111");
 	__mutex.Release();
 }
 
@@ -275,7 +273,7 @@ ImageCache::LoadFromCacheForKeyN(String *url) {
 	String *key = ImageCache::CacheKeyForUrlN(url);
 	String path = Tizen::App::App::GetInstance()->GetAppDataPath() + key->GetPointer();
 
-	AppLogDebug("Load from path:: %S", path.GetPointer());
+//	AppLogDebug("Load from path:: %S", path.GetPointer());
 
 	Bitmap *pBitmap = image->DecodeN(path.GetPointer(), pixelFormat);
 

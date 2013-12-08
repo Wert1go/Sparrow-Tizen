@@ -22,12 +22,11 @@ using namespace Tizen::Graphics;
 static int baseListItemOffset = 150;
 
 UiUserListItem::UiUserListItem() {
-	// TODO Auto-generated constructor stub
 
 }
 
 UiUserListItem::~UiUserListItem() {
-	AppLog("UiUserListItem::~UiUserListItem");
+
 }
 
 void
