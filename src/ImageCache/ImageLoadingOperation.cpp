@@ -26,7 +26,6 @@ ImageLoadingOperation::ImageLoadingOperation(String *url) {
 }
 
 ImageLoadingOperation::~ImageLoadingOperation() {
-	AppLog("ImageLoadingOperation::~ImageLoadingOperation");
 	if (__pImageRequestOperation) {
 		delete __pImageRequestOperation;
 		__pImageRequestOperation = null;

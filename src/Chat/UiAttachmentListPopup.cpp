@@ -16,10 +16,20 @@ using namespace Tizen::Graphics;
 UiAttachmentListPopup::UiAttachmentListPopup() {
 	__pListView = null;
 	this->__pPopupHandler = null;
+
+	pPhotoIcon = null;
+	pAudioIcon = null;
+	pVideoIcon = null;
+	pDocIcon = null;
+	pMapIcon = null;
 }
 
 UiAttachmentListPopup::~UiAttachmentListPopup() {
-	// TODO Auto-generated destructor stub
+	delete pPhotoIcon;
+	delete pAudioIcon;
+	delete pVideoIcon;
+	delete pDocIcon;
+	delete pMapIcon;
 }
 
 result
@@ -58,6 +68,11 @@ result
 UiAttachmentListPopup::OnTerminating(void) {
 	result r = E_SUCCESS;
 
+	__pPopupHandler = null;
+
+//	if (__pItemContext) {
+//		delete __pItemContext;
+//	}
 
 	return r;
 }
@@ -116,6 +131,7 @@ UiAttachmentListPopup::OnListViewItemStateChanged(Tizen::Ui::Controls::ListView 
 		__pPopupHandler->DidSelectItemInPopup(index, 0);
 	}
 }
+
 void
 UiAttachmentListPopup::OnListViewItemSwept(ListView &listView, int index, SweepDirection direction)
 {
@@ -126,7 +142,6 @@ UiAttachmentListPopup::OnListViewItemSwept(ListView &listView, int index, SweepD
 ListItemBase*
 UiAttachmentListPopup::CreateItem(int index, int itemWidth)
 {
-	AppLogDebug("AppLogDebug(OnInitializing);");
 	CustomItem* pItem = new CustomItem();
 	ListAnnexStyle style = LIST_ANNEX_STYLE_NORMAL;
 
@@ -144,18 +159,23 @@ UiAttachmentListPopup::CreateItem(int index, int itemWidth)
 	if (index == 0) {
 		text = L"Фото";
 		pIcon = Resources::getInstance().LoadBitmapNamed(L"icon_photo.png");
+		this->pPhotoIcon = pIcon;
 	} else if (index == 1) {
 		text = L"Видео";
 		pIcon = Resources::getInstance().LoadBitmapNamed(L"icon_video.png");
+		this->pVideoIcon = pIcon;
 	} else if (index == 2) {
 		text = L"Аудио";
 		pIcon = Resources::getInstance().LoadBitmapNamed(L"icon_audio.png");
+		this->pAudioIcon = pIcon;
 	} else if (index == 3) {
 		text = L"Документ";
 		pIcon = Resources::getInstance().LoadBitmapNamed(L"icon_document.png");
+		this->pDocIcon = pIcon;
 	} else if (index == 4) {
 		text = L"Местоположение";
 		pIcon = Resources::getInstance().LoadBitmapNamed(L"icon_location.png");
+		this->pMapIcon = pIcon;
 	}
 
 	pItem->AddElement(

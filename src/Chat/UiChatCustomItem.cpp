@@ -31,12 +31,21 @@ UiChatCustomItem::UiChatCustomItem() {
 UiChatCustomItem::~UiChatCustomItem() {
 
 //	AppLog("UiChatCustomItem::~UiChatCustomItem");
+	ImageCache::getInstance().CancelLoadingForTarget(this);
+
 	this->RemoveAllElements();
 	delete __pImageViews;
 	__pImageViews = null;
+
 	delete __pChatListItem;
 	__pChatListItem = null;
-	ImageCache::getInstance().CancelLoadingForTarget(this);
+
+	delete this->__pDimension;
+
+	if (__pUrtToIndexMap) {
+		__pUrtToIndexMap->RemoveAll();
+		delete __pUrtToIndexMap;
+	}
 }
 
 void

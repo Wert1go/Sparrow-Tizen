@@ -132,7 +132,7 @@ UiChatForm::OnInitializing(void)
 result
 UiChatForm::OnTerminating() {
 	result r = E_SUCCESS;
-	AppLog("OnTerminating");
+
 	PostMan::getInstance().RemoveListenerForUser(__userId);
 	__pPosterPanel->__pAttachmentOwner = null;
 	__pAttachmentPopup->Destroy();
@@ -196,6 +196,8 @@ UiChatForm::OnSceneActivatedN(const Tizen::Ui::Scenes::SceneId& previousSceneId,
 		PostMan::getInstance().__pAttachmentListener = this;
 
 		RestoreAttachmentContainer();
+
+		delete pArgs;
 	}
 
 }
@@ -392,7 +394,7 @@ UiChatForm::OnSuccessN(RestResponse *result) {
 			//ВК возвращает 1 повторяющееся сообщение
 			response->GetMessages()->RemoveAt(response->GetMessages()->GetCount() - 1);
 		}
-		messages->AddItems(* response->GetMessages());
+		messages->AddItems(*response->GetMessages());
 		messages->AddItems(*this->GetMessages());
 
 		this->SetMessages(messages);
@@ -434,7 +436,7 @@ UiChatForm::OnErrorN(Error *error) {
 void
 UiChatForm::OnMessageDelivered(int userId, MMessage *message) {
 	LinkedList *pArgs = new LinkedList();
-	AppLog("OnMessageDelivered");
+
 	pArgs->Add(new Integer(userId));
 	pArgs->Add(message);
 
@@ -455,6 +457,7 @@ UiChatForm::OnUserEventReceivedN(RequestId requestId, Tizen::Base::Collection::I
 		AppAssert(pArgs->GetCount() > 0);
 		UpdateUnit *unit = static_cast<UpdateUnit *> (pArgs->GetAt(0));
 		__pListView->RefreshList(unit->__index, unit->__requestId);
+		delete unit;
 	} else if (requestId == GET_MESSAGES_HISTORY_BACKWARD && __pListView) {
 		this->__pListView->UpdateList();
 		ScrollToLastMessage();
@@ -560,12 +563,8 @@ UiChatForm::IsAlreadyAdded(MMessage *message) {
 		limit = this->GetMessages()->GetCount() - 30;
 	}
 
-//	AppLog("IsAlreadyAdded");
-
 	for (int index = this->GetMessages()->GetCount()-1; index >= limit; index--) {
 		MMessage *existingMessage = static_cast<MMessage*>(this->GetMessages()->GetAt(index));
-
-//		AppLog("IsAlreadyAdded %d :: %d",existingMessage->GetMid(), message->GetMid() );
 
 		if (existingMessage->GetMid() == message->GetMid()) {
 			result = true;
@@ -598,7 +597,6 @@ UiChatForm::OnExpandableEditAreaLineAdded(Tizen::Ui::Controls::ExpandableEditAre
 	int addedHeight = 0;
 
 	if (this->__pPosterPanel->__pItems->GetCount() > 0) {
-		AppLog("+++++++++++++++++++++++++++++++===========");
 		addedHeight = itemContentSize;
 	}
 
@@ -637,7 +635,6 @@ UiChatForm::OnExpandableEditAreaLineRemoved(Tizen::Ui::Controls::ExpandableEditA
 	int addedHeight = 0;
 
 	if (this->__pPosterPanel->__pItems->GetCount() > 0) {
-		AppLog("+++++++++++++++++++++++++++++++===========");
 		addedHeight = itemContentSize;
 	}
 
@@ -709,8 +706,6 @@ UiChatForm::OnKeypadWillOpen(Control& source)
 	float size = 34.6875;
 	float yOffset = this->GetBoundsF().height - (this->GetBoundsF().height * size)/100;
 
-	AppLogDebug("yOffset %f %f", yOffset - panelBounds.height, yOffset);
-
 	this->__pListView->SetBounds(FloatRectangle(0, 100, prevBounds.width, yOffset - panelBounds.height - 100));
 	__pPosterPanel->SetRectangle(FloatRectangle(panelBounds.x, yOffset - panelBounds.height, panelBounds.width, panelBounds.height));
 
@@ -724,7 +719,6 @@ UiChatForm::OnKeypadBoundsChanged(Control& source)
 	FloatRectangle panelBounds = __pPosterPanel->GetBoundsF();
 
 	FloatRectangle editBounds = source.GetBoundsF();
-	AppLog("keypad %f, %f, %f, %f", editBounds.x, editBounds.y, editBounds.width, editBounds.height);
 }
 
 /********************** BUTTON CALLBACK ***********************/
@@ -781,7 +775,6 @@ UiChatForm::SendMessage() {
 	pMessage->SetReadState(0);
 	pMessage->SetDelivered(0);
 	unsigned long int timestamp = time(NULL);
-	AppLog("%ld", timestamp);
 
 	pMessage->SetDate(timestamp);
 	PostMan::getInstance().SendMessageFromUserWithListener(pMessage, __userId, this);
@@ -792,7 +785,6 @@ UiChatForm::SendMessage() {
 void
 UiChatForm::OnScrollEndReached(Tizen::Ui::Control& source, Tizen::Ui::Controls::ScrollEndEvent type) {
 	if (type == SCROLL_END_EVENT_END_TOP) {
-		AppLogDebug("TOP REACHED");
 		MMessage *firstMessage = static_cast<MMessage *>(this->GetMessages()->GetAt(0));
 
 		LinkedList *fetchedMessages = MMessageDao::getInstance().GetMessagesForUser(__userId, firstMessage->GetMid());
@@ -940,8 +932,6 @@ UiChatForm::AddAttachmentToContainer(MAttachment *attachment) {
 	this->__pPosterPanel->AddAttachment(attachment);
 
 	if(PostMan::getInstance().GetAttachmentsForUid(__userId)->GetCount() == 1) {
-		AppLog("AddAttachmentToContainer");
-
 		this->EnlargeMessengerPanel();
 	}
 }
@@ -1028,7 +1018,6 @@ UiChatForm::OnAppControlCompleteResponseReceived(const Tizen::App::AppId& appId,
                   attachment->__pFilePath = pValue;
 
                   PostMan::getInstance().AddAttachmentWithUid(attachment, this->__userId);
-//                  this->AddAttachmentToContainer(attachment);
 
                }
 

@@ -167,6 +167,8 @@ UiChapPanel::OnDraw() {
 
 			pCanvas->DrawText(FloatPoint(textOffset, 10), *pUserName);
 
+			delete pUserName;
+
 		/*********************** CHAT ICON ****************************/
 
 
@@ -237,6 +239,8 @@ UiChapPanel::OnDraw() {
 
 			//5 для красоты :/
 			pCanvas->DrawText(FloatPoint(textOffset, 55), *pDescriptionLabel);
+
+			delete pDescriptionText;
 		}
 
 	}

@@ -53,6 +53,13 @@ public:
 private:
 	Tizen::Ui::Controls::ListView *__pListView;
 	Tizen::Ui::Controls::ListContextItem* __pItemContext;
+
+	Bitmap *pPhotoIcon;
+	Bitmap *pAudioIcon;
+	Bitmap *pVideoIcon;
+	Bitmap *pDocIcon;
+	Bitmap *pMapIcon;
+
 };
 
 #endif /* UIATTACHMENTLISTPOPUP_H_ */
