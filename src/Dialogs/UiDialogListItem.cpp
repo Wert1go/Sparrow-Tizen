@@ -25,7 +25,7 @@ UiDialogListItem::UiDialogListItem() {
 }
 
 UiDialogListItem::~UiDialogListItem() {
-	// TODO Auto-generated destructor stub
+	AppLog("UiDialogListItem::~UiDialogListItem");
 }
 
 bool

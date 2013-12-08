@@ -17,6 +17,9 @@ using namespace Tizen::Base;
 using namespace Tizen::Base::Collection;
 using namespace Tizen::Base::Runtime;
 
+//Мне кажется проблема в удалении чего то, что еще нужно для работа
+//Из-за быстрого скролла. От части это объясняет то, что не были замечены подения в сообщениях - там меньше картинок и
+//нет возможности развить большую скорость
 
 ImageCache::ImageCache() {
 	__mutex.Create();
@@ -82,6 +85,7 @@ ImageCache::LoadImageForTarget(String *url, IImageLoadingListener *target, Integ
 
 void
 ImageCache::CancelLoadingForTarget(IImageLoadingListener *target) {
+	AppLog("CancelLoadingForTarget");
 	__mutex.Acquire();
 	bool result = false;
 
@@ -105,7 +109,7 @@ ImageCache::CancelLoadingForTarget(IImageLoadingListener *target) {
 	} else {
 		//ничего не делаем, раз ключа нет
 	}
-
+	AppLog("CancelLoadingForTarget1111111111");
 	__mutex.Release();
 }
 
@@ -220,7 +224,7 @@ ImageCache::StoreImageForKey(Bitmap *pBitmap, String *url) {
 	BitmapPixelFormat pixelFormat = BITMAP_PIXEL_FORMAT_RGB565;
 	ImageFormat format = IMG_FORMAT_JPG;
 
-	//AppLogDebug("ImageCache::StoreImageForKey Begin");
+//	AppLogDebug("ImageCache::StoreImageForKey Begin");
 
 	if(url->EndsWith(L"jpg") or url->EndsWith(L"bmp") or url->EndsWith(L"gif"))
 	{
@@ -242,7 +246,7 @@ ImageCache::StoreImageForKey(Bitmap *pBitmap, String *url) {
 
 	image->EncodeToFile(*pBitmap, format, path, true);
 
-	//AppLogDebug("ImageCache::StoreImageForKey End");
+//	AppLogDebug("ImageCache::StoreImageForKey End");
 	delete key;
 	delete image;
 
@@ -271,12 +275,11 @@ ImageCache::LoadFromCacheForKeyN(String *url) {
 	String *key = ImageCache::CacheKeyForUrlN(url);
 	String path = Tizen::App::App::GetInstance()->GetAppDataPath() + key->GetPointer();
 
-//	AppLogDebug("Load from path:: %S", path.GetPointer());
+	AppLogDebug("Load from path:: %S", path.GetPointer());
 
 	Bitmap *pBitmap = image->DecodeN(path.GetPointer(), pixelFormat);
 
 	result r = GetLastResult();
-
 
 	if (r == E_INVALID_ARG) {
 		AppLog("The specified pixel format is not supported.");
@@ -295,7 +298,7 @@ ImageCache::LoadFromCacheForKeyN(String *url) {
 	}
 
 	if (r != E_SUCCESS) {
-//		AppLogDebug("Loading image from path:: %S FAILED", path.GetPointer());
+		AppLogDebug("Loading image from path:: %S FAILED", path.GetPointer());
 		pBitmap = null;
 	}
 

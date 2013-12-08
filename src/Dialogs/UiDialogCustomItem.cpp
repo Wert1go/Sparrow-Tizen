@@ -29,8 +29,6 @@ using namespace Tizen::Graphics;
 using namespace Tizen::Ui::Controls;
 
 UiDialogCustomItem::UiDialogCustomItem() {
-	result r;
-
 	__index = 0;
 	__section = -1;
 
@@ -44,20 +42,37 @@ UiDialogCustomItem::UiDialogCustomItem() {
 	__pUserListItem = null;
 	__pDialogBG = null;
 	__pRefreshListener = null;
-	__pImageViews = new LinkedList();
+	__pImageViews = new LinkedList(SingleObjectDeleter);
 }
 
 
 UiDialogCustomItem::~UiDialogCustomItem() {
 //	AppLog("UiDialogCustomItem::~UiDialogCustomItem");
+
 	ImageCache::getInstance().CancelLoadingForTarget(this);
+
+//	this->RemoveAllElements();
+
+//	__pImageViews->RemoveAll(true);
+
+//	delete __pImageViews;
+//	__pImageViews = null;
+
 	__pPlaceholder = null;
 	PlaceholderActive = null;
 
-	delete __pDialogListItem;
-	delete __pImageViews;
+	if (__pUserListItem) {
+		delete __pUserListItem;
+		__pUserListItem = null;
+	}
+
+	if (__pDialogListItem) {
+		delete __pDialogListItem;
+		__pDialogListItem = null;
+	}
+
 //	delete __pUrl;
-//	AppLog("UiDialogCustomItem::~UiDialogCustomItem::Complite");
+	AppLog("UiDialogCustomItem::~UiDialogCustomItem::Complite");
 }
 
 void
@@ -85,8 +100,6 @@ UiDialogCustomItem::Init() {
 	this->__pDialogBG->SetDialog(this->__pDialog);
 
 	this->AddElement(rect, 45, *__pDialogBG);
-
-
 
 	if (this->__pDialog) {
 		__pDialogListItem = new UiDialogListItem();
@@ -220,10 +233,9 @@ UiDialogCustomItem::AddRefreshListener(IRefreshableListView *pRefreshListener) {
 void
 UiDialogCustomItem::OnImageLoadedN(Bitmap *result, Integer *code) {
 
-//	AppLog("OnImageLoadedN!!1");
 	int index = code->ToInt();
 
-	if (index < this->__pImageViews->GetCount()) {
+	if (__pImageViews && index < this->__pImageViews->GetCount()) {
 
 		UiImageView *imageView = static_cast<UiImageView *>(this->__pImageViews->GetAt(index));
 

@@ -26,13 +26,16 @@ ImageLoadingOperation::ImageLoadingOperation(String *url) {
 }
 
 ImageLoadingOperation::~ImageLoadingOperation() {
+//	AppLog("ImageLoadingOperation::~ImageLoadingOperation");
 	if (__pImageRequestOperation) {
 		delete __pImageRequestOperation;
+		__pImageRequestOperation = null;
 	}
 
 	__pUrl = null;
-	__pImageRequestOperation = null;
+
 	__pImageOperationListener = null;
+//	AppLog("ImageLoadingOperation::~ImageLoadingOperation ++++++++++++++++++");
 }
 
 void ImageLoadingOperation::Perform() {
@@ -54,8 +57,11 @@ void ImageLoadingOperation::Perform() {
 
 		} else {
 //			AppLogDebug("ImageLoadingOperation::Begin loading");
-			__pImageRequestOperation->AddImageRequestListener(this);
-			RestClient::getInstance().PerformOperation(__pImageRequestOperation);
+			if (__pImageRequestOperation) {
+				__pImageRequestOperation->AddImageRequestListener(this);
+				RestClient::getInstance().PerformOperation(__pImageRequestOperation);
+//				__pImageRequestOperation->perform();
+			}
 		}
 	});
 }
@@ -80,6 +86,9 @@ void ImageLoadingOperation::OnImageLoadedN(Bitmap *pBitmap) {
 }
 
 void ImageLoadingOperation::OnErrorN(Error *error) {
+	__pImageRequestOperation->AddImageRequestListener(null);
+	__pImageRequestOperation = null;
+
 	__pImageOperationListener->OnErrorN(__pUrl, error);
 	delete error;
 }

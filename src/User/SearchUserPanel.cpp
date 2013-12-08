@@ -259,8 +259,9 @@ SearchUserPanel::OnUserEventReceivedN(RequestId requestId, Tizen::Base::Collecti
 
 		AppAssert(pArgs->GetCount() > 0);
 		UpdateUnit *unit = static_cast<UpdateUnit *> (pArgs->GetAt(0));
-
+		AppLog("baaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa");
 		__pListView->RefreshList(unit->__section, unit->__index, unit->__requestId);
+		AppLog("mmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmm");
 	} else {
 		SplitUsersToSections();
 		try {

@@ -19,7 +19,7 @@ UiImageView::UiImageView() {
 }
 
 UiImageView::~UiImageView() {
-//	AppLog("UiImageView::~UiImageView");
+	AppLog("UiImageView::~UiImageView");
 	if (__pBitmapImage) {
 		delete __pBitmapImage;
 	}
@@ -32,7 +32,9 @@ UiImageView::OnDraw(Tizen::Graphics::Canvas &canvas, const Tizen::Graphics::Rect
 
 	if (__pBitmapImage != null)
 	{
+//		AppLogDebug("TryDraw");
 		r = canvas.DrawBitmap(rect, *__pBitmapImage);
+//		AppLogDebug("Drawed!");
 	}
 
 //	AppLog("OnDraw::END");

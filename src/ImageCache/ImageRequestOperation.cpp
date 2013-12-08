@@ -43,17 +43,20 @@ ImageRequestOperation::ImageRequestOperation(const Tizen::Base::String *url) {
 }
 
 ImageRequestOperation::~ImageRequestOperation() {
-//	AppLogDebug("ImageRequestOperation::~ImageRequestOperatio");
 	delete __pHttpTransaction;
 	__pHttpTransaction = null;
 	delete __pUrl;
 	__pUrl = null;
-	delete __pByteBuffer;
+	if (__pByteBuffer) {
+		delete __pByteBuffer;
+	}
 }
 
 void ImageRequestOperation::perform() {
+	AppLogDebug("TRY ImageRequestOperation::PERFORM");
 	if (__pHttpTransaction != null) {
 		__pHttpTransaction->Submit();
+		AppLogDebug("ImageRequestOperation::PERFORM");
 	} else {
 		AppLogDebug("ImageRequestOperation::Ошибка при попытке выполнить HTTP запрос");
 	}
@@ -73,7 +76,9 @@ void ImageRequestOperation::AddImageRequestListener(IImageRequestListener *pImag
 
 void ImageRequestOperation::CheckCompletionAndCleanUp() {
 	if (__isComplited) {
-		__pRequestOwner->OnCompliteN(this);
+		if (__pRequestOwner) {
+			__pRequestOwner->OnCompliteN(this);
+		}
 	} else {
 		__isComplited = true;
 	}
@@ -119,7 +124,9 @@ void
 ImageRequestOperation::OnTransactionAborted(HttpSession& httpSession, HttpTransaction& httpTransaction, result r)
 {
 //	AppLog("ImageRequestOperation::OnTransactionAborted(%s)", GetErrorMessage(r));
-	__pRequestOwner->OnCompliteN(this);
+	if (__pRequestOwner) {
+		__pRequestOwner->OnCompliteN(this);
+	}
 }
 
 void
@@ -140,7 +147,9 @@ ImageRequestOperation::OnTransactionCompleted(HttpSession& httpSession, HttpTran
 //	AppLog("ImageRequestOperation::OnTransactionCompleted");
 	dispatch_async(dispatch_get_global_queue( DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
 		Execute();
-		__pRequestOwner->OnCompliteN(this);
+		if (__pRequestOwner) {
+			__pRequestOwner->OnCompliteN(this);
+		}
 	});
 }
 
@@ -210,14 +219,18 @@ ImageRequestOperation::Execute() {
 		AppLog("E_OUT_OF_RANGE");
 	}
 
+	delete pImage;
+
 	if (__pImageRequestListener && r == E_SUCCESS) {
-		__pImageRequestListener->OnImageLoadedN(pBitmap);
 		if (pBitmap) {
 			ImageCache::StoreImageForKey(pBitmap, __pUrl);
 		}
+
+		__pImageRequestListener->OnImageLoadedN(pBitmap);
+
 	} else {
 		__pImageRequestListener->OnErrorN(new Error());
 	}
+//	AppLog("---- !!ImageRequestOperation::Execute");
 
-	delete pImage;
 }

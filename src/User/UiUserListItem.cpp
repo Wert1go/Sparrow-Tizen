@@ -27,7 +27,7 @@ UiUserListItem::UiUserListItem() {
 }
 
 UiUserListItem::~UiUserListItem() {
-	// TODO Auto-generated destructor stub
+	AppLog("UiUserListItem::~UiUserListItem");
 }
 
 void

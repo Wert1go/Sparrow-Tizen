@@ -33,6 +33,7 @@ UiChatCustomItem::~UiChatCustomItem() {
 //	AppLog("UiChatCustomItem::~UiChatCustomItem");
 	this->RemoveAllElements();
 	delete __pImageViews;
+	__pImageViews = null;
 	delete __pChatListItem;
 	__pChatListItem = null;
 	ImageCache::getInstance().CancelLoadingForTarget(this);
