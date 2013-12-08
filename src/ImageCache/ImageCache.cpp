@@ -277,6 +277,14 @@ ImageCache::StoreImageForKey(Bitmap *pBitmap, String *url) {
 	return true;
 }
 
+String
+ImageCache::PathForUrl(String *url) {
+	String *key = ImageCache::CacheKeyForUrlN(url);
+	String path = Tizen::App::App::GetInstance()->GetAppDataPath() + key->GetPointer();
+	delete key;
+	return path;
+}
+
 Bitmap *
 ImageCache::LoadFromCacheForKeyN(String *url) {
 	BitmapPixelFormat pixelFormat = BITMAP_PIXEL_FORMAT_RGB565;
@@ -296,8 +304,7 @@ ImageCache::LoadFromCacheForKeyN(String *url) {
 	Image *image = new Image();
 	image->Construct();
 
-	String *key = ImageCache::CacheKeyForUrlN(url);
-	String path = Tizen::App::App::GetInstance()->GetAppDataPath() + key->GetPointer();
+	String path = PathForUrl(url);
 
 //	AppLogDebug("Load from path:: %S", path.GetPointer());
 
@@ -326,7 +333,7 @@ ImageCache::LoadFromCacheForKeyN(String *url) {
 		pBitmap = null;
 	}
 
-	delete key;
+
 	delete image;
 
 	return pBitmap;

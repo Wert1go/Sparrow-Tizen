@@ -179,7 +179,7 @@ private:
 
 	void RequestMoreMessagesFromMid(int mid);
 
-	int __userId;
+
 	int __chatId;
 
 	int __lastMessageId;
@@ -190,6 +190,9 @@ private:
 	//
 	Timer *__pPrintingTimer;
 	bool __isUserPrinting;
+
+public:
+	int __userId;
 
 };
 

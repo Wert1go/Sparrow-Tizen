@@ -33,8 +33,12 @@
 #include "MUserDao.h"
 #include "MDialogDao.h"
 #include "MMessageDao.h"
-
+#include <FShell.h>
 #include "PostMan.h"
+#include "MUser.h"
+#include "MMessage.h"
+
+#include "ImageCache.h"
 
 using namespace Tizen::App;
 using namespace Tizen::Base;
@@ -51,6 +55,12 @@ LongPollConnection::LongPollConnection() {
 	__IsRunning = false;
 	__pendingRestart = false;
 	__pPendingTimer = null;
+
+	__pNotificationManager = new Tizen::Shell::NotificationManager;
+	AppAssert(__pNotificationManager);
+	__pNotificationManager->Construct();
+	__mutex.Create();
+
 }
 
 LongPollConnection::~LongPollConnection() {
@@ -242,8 +252,6 @@ LongPollConnection::OnSuccessN(RestResponse *result) {
 				}
 						break;
 				case LP_MESSAGE_ADD_FULL: {
-					MUserDao::getInstance().UpdateUserOnlineStatusById(1, pObject->GetUserId());
-					MDialogDao::getInstance().UpdateDialogOnlineStatusById(1, pObject->GetUserId());
 
 					MMessageDao::getInstance().Save(pObject->GetMessage());
 					MUserDao::getInstance().Save(pObject->GetUsers());
@@ -272,6 +280,22 @@ LongPollConnection::OnSuccessN(RestResponse *result) {
 					if (pMainForm) {
 						pMainForm->SendUserEvent(UPDATE_READ_STATE, 0);
 						Tizen::App::UiApp::GetInstance()->SendUserEvent(UPDATE_READ_STATE, 0);
+					}
+
+					if (!pChatForm ||
+							Tizen::App::UiApp::GetInstance()->GetAppUiState() != APP_UI_STATE_FOREGROUND ||
+							(pChatForm && pChatForm->__userId != pObject->GetMessage()->GetUid())) {
+
+						MUser *pUser = null;
+
+						for (int i = 0; i < pObject->GetUsers()->GetCount(); i++) {
+							MUser *user = static_cast<MUser *>(pObject->GetUsers()->GetAt(i));
+							if (user->GetUid() == pObject->GetMessage()->GetUid()) {
+								pUser = user;
+							}
+						}
+
+						ShowNotification(pObject->GetMessage(), pUser);
 					}
 				}
 						break;
@@ -386,6 +410,7 @@ LongPollConnection::OnErrorN(Error *error) {
 		}
 	} else {
 		AppLog("!!!LongPollConnection::OnErrorN");
+
 		__pendingRestart = true;
 		this->RunTimer();
 	}
@@ -400,6 +425,7 @@ LongPollConnection::PendingRestart() {
 
 void
 LongPollConnection::RunTimer() {
+	__mutex.Acquire();
 	if (this->__pPendingTimer) {
 		this->CancelTimer();
 	}
@@ -407,8 +433,12 @@ LongPollConnection::RunTimer() {
 	AppLog("RUN TIMER");
 
 	this->__pPendingTimer = new Timer();
+	AppLog("RUN TIMER1");
 	this->__pPendingTimer->Construct(*this);
+	AppLog("RUN TIMER2");
 	this->__pPendingTimer->Start(10000);
+	AppLog("RUN TIMER3");
+	__mutex.Release();
 }
 
 void
@@ -427,4 +457,36 @@ LongPollConnection::OnTimerExpired (Timer &timer) {
 		this->Reconnect();
 		this->RunTimer();
 	}
+}
+
+void
+LongPollConnection::ShowNotification(MMessage *pMessage, MUser *pUser) {
+	String *title = null;
+
+	AppLog("ShowNotification");
+
+	if (pUser) {
+		String *fullName = new String();
+		fullName->Append(pUser->GetFirstName()->GetPointer());
+		fullName->Append(L" ");
+		fullName->Append(pUser->GetLastName()->GetPointer());
+		title = fullName;
+		title->Append(L" пишет...");
+	}
+
+	if (!title) {
+		title = new String("New message");
+	}
+
+	NotificationRequest request;
+	request.SetAlertText(pMessage->GetText()->GetPointer());
+	request.SetTitleText(title->GetPointer());
+	request.SetAppMessage(L"AppMessage");
+	request.SetNotificationStyle(NOTIFICATION_STYLE_NORMAL);
+	//Добавить проверку на отсутствие иконки!
+	if (pUser) {
+		request.SetIconFilePath(ImageCache::getInstance().PathForUrl(pUser->GetMiniPhoto()));
+	}
+
+	result r = __pNotificationManager->Notify(request);
 }

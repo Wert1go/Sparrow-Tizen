@@ -13,9 +13,16 @@
 #include "RestResponse.h"
 #include "Error.h"
 
-
 using namespace Tizen::Base;
 using namespace Tizen::Base::Runtime;
+
+class MMessage;
+class MUser;
+
+namespace Tizen { namespace Shell
+{
+	class NotificationManager;
+} }
 
 class LongPollConnection
  : IRestRequestListener
@@ -60,6 +67,8 @@ private:
 	void RunTimer();
 	void CancelTimer();
 
+	void ShowNotification(MMessage *pMessage, MUser *pUser);
+
 private:
 	RestRequestOperation *__pLongPollServerDataOperation;
 	RestRequestOperation *__pLongPollConnectionOperation;
@@ -71,7 +80,10 @@ private:
 
 	bool __pendingRestart;
 
+	Mutex __mutex;
 	Timer *__pPendingTimer;
+
+	Tizen::Shell::NotificationManager* __pNotificationManager;
 
 };
 

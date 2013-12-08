@@ -49,6 +49,8 @@ public:
 	void LoadImageForTarget(String *url, IImageLoadingListener *target, Integer *code = new Integer(0));
 	void CancelLoadingForTarget(IImageLoadingListener *target);
 
+	static String PathForUrl(String *url);
+
 private:
 	virtual void OnImageLoadedN(String *url, Bitmap *result);
 	virtual void OnErrorN(String *url, Error *error);
