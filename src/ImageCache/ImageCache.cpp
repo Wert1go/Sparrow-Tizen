@@ -64,10 +64,8 @@ ImageCache::LoadImageForTarget(String *url, IImageLoadingListener *target, Integ
 		__pUrlAndOperationMap->Add(url, operation);
 		__pUrlAndCodeMap->Add(url, code);
 
-		AppLog("before add:: %d", __runningOperations);
 		if (__runningOperations <= operationLimit) {
 			__runningOperations++;
-			AppLog("after add:: %d", __runningOperations);
 			__mutex.Release();
 			operation->Perform();
 		} else {
@@ -77,7 +75,6 @@ ImageCache::LoadImageForTarget(String *url, IImageLoadingListener *target, Integ
 			if (IsFailed(r)) {
 			   AppLog(GetErrorMessage(r));
 			}
-			AppLog("after add to pending:: %d", __runningOperations);
 			__mutex.Release();
 		}
 
@@ -138,12 +135,9 @@ ImageCache::CheckExistingOperationForUrl(String *url) {
 ImageLoadingOperation *
 ImageCache::CheckPendingOperationsAndRun() {
 	//TODO
-//	return;
 	ImageLoadingOperation *result = null;
-	AppLog("CheckPendingOperationsAndRun");
 
 	if (__pPendingOperation->GetCount() > 0) {
-		AppLog("CheckPendingOperationsAndRun %d :: %d", __pPendingOperation->GetCount(), __runningOperations);
 		IListT<String *> *keysList = __pPendingOperation->GetKeysN();
 
 		String *key;
@@ -191,9 +185,7 @@ ImageCache::FinishOperationForUrl(String *url) {
 
 		//delete url;
 	}
-	AppLog("before end:: %d", __runningOperations);
 	__runningOperations--;
-	AppLog("after end:: %d", __runningOperations);
 
 	ImageLoadingOperation *operation = null;
 	if (__runningOperations <= operationLimit) {
@@ -216,7 +208,6 @@ ImageCache::FinishOperationForUrl(String *url) {
 		__mutex.Release();
 	}
 
-	AppLog("after checkPending:: %d", __runningOperations);
 }
 
 void ImageCache::DispatchImage(String *url, Bitmap *bitmap) {
@@ -331,7 +322,7 @@ ImageCache::LoadFromCacheForKeyN(String *url) {
 	}
 
 	if (r != E_SUCCESS) {
-		AppLogDebug("Loading image from path:: %S FAILED", path.GetPointer());
+//		AppLogDebug("Loading image from path:: %S FAILED", path.GetPointer());
 		pBitmap = null;
 	}
 

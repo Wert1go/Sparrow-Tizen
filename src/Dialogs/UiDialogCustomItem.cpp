@@ -98,6 +98,8 @@ UiDialogCustomItem::Init() {
 
 	if (this->__pDialog) {
 		__pDialogListItem = new UiDialogListItem();
+		__pDialogListItem->__pDimension = Dimension(this->__pDimension->width, this->__pDimension->height);
+
 		__pDialogListItem->SetDialog(this->__pDialog);
 
 		if (this->__pDialog->GetUsers() && this->__pDialog->GetUsers()->GetCount() > 0) {

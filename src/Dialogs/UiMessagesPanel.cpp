@@ -63,7 +63,7 @@ UiMessagesPanel::OnInitializing(void)
 	result r = E_SUCCESS;
 	Rectangle clientRect;
 	this->SetName(L"UiMessagesPanel");
-	// Resize
+
 	const Form* pForm = dynamic_cast<Form*>(GetParent());
 	AppAssert(pForm);
 	clientRect = pForm->GetClientAreaBounds();
@@ -128,10 +128,8 @@ UiMessagesPanel::OnInitializing(void)
 	__pListView->SetSweepEnabled(false);
 	delete separatorColor;
 
-	// Adds the list view to the form
 	AddControl(__pListView);
 
-	// Creates an instance of ListContextItem
 	__pItemContext = new ListContextItem();
 	__pItemContext->Construct();
 	__pItemContext->AddElement(ID_CONTEXT_ITEM_1, L"Test1");
@@ -153,16 +151,11 @@ void
 UiMessagesPanel::OnSceneActivatedN(const Tizen::Ui::Scenes::SceneId& previousSceneId,
 									   const Tizen::Ui::Scenes::SceneId& currentSceneId, Tizen::Base::Collection::IList* pArgs) {
 
-	AppLogDebug("OnSceneActivatedN");
 	this->SetDialogsList(MDialogDao::getInstance().GetDialogsWithOffsetN(0));
 	if (this->__pListView) {
-		AppLogDebug("OnSceneActivatedN++++++++");
 		this->__pListView->UpdateList();
-		AppLogDebug("OnSceneActivatedN!!!!!!!!!!!!!");
 	}
 	SendRequest();
-
-	AppLogDebug("OnSceneActivatedN11");
 
 	UpdateUnreadCount();
 }
@@ -170,17 +163,14 @@ UiMessagesPanel::OnSceneActivatedN(const Tizen::Ui::Scenes::SceneId& previousSce
 void
 UiMessagesPanel::OnSceneDeactivated(const Tizen::Ui::Scenes::SceneId& currentSceneId,
 									const Tizen::Ui::Scenes::SceneId& nextSceneId) {
-	AppLogDebug("------------------------------ OnSceneDeactivated");
 
 	if (__pDialogRequestOperation) {
 		__pDialogRequestOperation->AddEventListener(null);
 		__pDialogRequestOperation = null;
 
 	}
-
 }
 
-// IListViewItemEventListener implementation
 void
 UiMessagesPanel::OnListViewItemStateChanged(ListView &listView, int index, int elementId, ListItemStatus status)
 {
@@ -217,7 +207,6 @@ ListItemBase*
 UiMessagesPanel::CreateItem(int index, int itemWidth)
 {
 //	AppLog("CreateItem :: %d", index);
-    // Creates an instance of CustomItem
 	UiDialogCustomItem *pItem = new UiDialogCustomItem();
     ListAnnexStyle style = LIST_ANNEX_STYLE_NORMAL;
 
@@ -233,7 +222,6 @@ UiMessagesPanel::CreateItem(int index, int itemWidth)
     pItem->SetDialog(dialog);
 
     pItem->Init();
-//    AppLog("Created!");
     return pItem;
 }
 
@@ -278,26 +266,22 @@ UiMessagesPanel::OnUserEventReceivedN(RequestId requestId, Tizen::Base::Collecti
 	if (requestId == 111111) {
 		AppAssert(pArgs->GetCount() > 0);
 		UpdateUnit *unit = static_cast<UpdateUnit *> (pArgs->GetAt(0));
-
 		__pListView->RefreshList(unit->__index, unit->__requestId);
+		delete unit;
 
 	} else if (requestId == 222222) {
-		AppLogDebug("2222OnUserEventReceivedN");
 		__pListView->UpdateList();
-		AppLogDebug("3333OnUserEventReceivedN");
 	} else if (requestId == UPDATE_USER_ONLINE) {
 
 		AppAssert(pArgs->GetCount() > 0);
 		Integer *userId = static_cast<Integer*>(pArgs->GetAt(0));
 		this->UpdateItemListWithUserId(userId->ToInt(), 1);
-
 		delete userId;
 
 	} else if (requestId == UPDATE_USER_OFFLINE) {
 
 		AppAssert(pArgs->GetCount() > 0);
 		Integer *userId = static_cast<Integer*>(pArgs->GetAt(0));
-
 		this->UpdateItemListWithUserId(userId->ToInt(), 0);
 
 		delete userId;
@@ -306,10 +290,8 @@ UiMessagesPanel::OnUserEventReceivedN(RequestId requestId, Tizen::Base::Collecti
 		this->__pListView->UpdateList();
 		UpdateUnreadCount();
 	} else if (requestId == UPDATE_READ_STATE) {
-		AppLogDebug("SOMEONE READ A MESSAGE!");
 		AppAssert(pArgs->GetCount() > 0);
 		Integer *msgId = static_cast<Integer*>(pArgs->GetAt(0));
-
 		this->SetReadStateWithMessageId(msgId->ToInt());
 		UpdateUnreadCount();
 		delete msgId;
@@ -343,7 +325,7 @@ UiMessagesPanel::SetReadStateWithMessageId(int msgId) {
 	for (int index = 0; index < this->GetDialogsList()->GetCount(); index++) {
 		MDialog *dialog = static_cast<MDialog*>(this->GetDialogsList()->GetAt(index));
 
-		AppLog("%d %d", dialog->GetIdentifier(), msgId);
+//		AppLog("%d %d", dialog->GetIdentifier(), msgId);
 
 		if (dialog->GetIdentifier() == msgId) {
 			dialog->SetReadState(1);
@@ -366,10 +348,6 @@ UiMessagesPanel::SetDialogsList(LinkedList *list) {
 //	if (this->__pDialogsList) {
 //		delete this->__pDialogsList;
 //	}
-
-	if (list) {
-		AppLog("COUNT %d", list->GetCount());
-	}
 
 	__pDialogsList = list;
 }
@@ -433,7 +411,6 @@ UiMessagesPanel::SendRequest(int offset) {
 	String request(L"");
 	request.Append(requestBegin);
 	request.Append(requestEnd);
-
 
 	params->Add(new String(L"code"), new String(request));
 

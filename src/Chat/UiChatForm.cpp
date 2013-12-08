@@ -77,7 +77,6 @@ UiChatForm::~UiChatForm() {
 result
 UiChatForm::OnInitializing(void)
 {
-
 	AppLog("OnInitializing");
 	this->SetName(L"UiChatForm");
 	result r = E_SUCCESS;

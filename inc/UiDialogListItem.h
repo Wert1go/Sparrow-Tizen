@@ -30,11 +30,29 @@ public:
 	MDialog *GetDialog();
 	void DrawRounders(Tizen::Graphics::Canvas &canvas, const Tizen::Graphics::Rectangle &rect, Bitmap *bitmap);
 
-
+	Dimension __pDimension;
 
 private:
 	MDialog *__pDialog;
 
+	EnrichedText* __pTimeLabel;
+	TextElement* __pTimeText;
+
+	EnrichedText* __pUserName;
+	TextElement* __pUserNameText;
+
+	EnrichedText* __pDialogLabel;
+	TextElement* __pDialogText;
+
+	Point drawTimePoint;
+	Point drawUserNamePoint;
+	Point drawDialogPoint;
+
+	Rectangle drawChatRect;
+	Rectangle drawOnlineIconRect;
+
+	Rectangle drawAvatarRect;
+	Rectangle drawTextBgRect;
 
 };
 
