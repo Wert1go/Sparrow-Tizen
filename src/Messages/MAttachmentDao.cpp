@@ -47,7 +47,6 @@ MAttachmentDao::CreateSavePhotoStatement() {
 	compiledSaveStatment = MDatabaseManager::getInstance().GetDatabase()->CreateStatementN(statement);
 
 	r = GetLastResult();
-	AppLog(GetErrorMessage(r));
 	if (IsFailed(r))
 	{
 	   AppLog(GetErrorMessage(r));
@@ -107,7 +106,7 @@ MAttachmentDao::LoadPhotoFromDBN(DbEnumerator* pEnum) {
 
 void
 MAttachmentDao::SaveAttachments(IList *pAttachments, int mid) {
-	AppLog("SaveAttachments %d", mid);
+//	AppLog("SaveAttachments %d", mid);
 	DbStatement *compiledSaveStatment = CreateSavePhotoStatement();
 	DbEnumerator* pEnum = null;
 

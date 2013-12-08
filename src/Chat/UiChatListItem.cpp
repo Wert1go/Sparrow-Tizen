@@ -373,6 +373,10 @@ void
 UiChatListItem::SetDialog(MDialog *pDialog) {
 	__pDialog = pDialog;
 
+	if (!this->__pDialog) {
+		AppLog("HOLLY FUCK!");
+	}
+
 	if (this->__pDialog->GetUid() > isChatValue) {
 		__leftOffset += avatarSize;
 	}

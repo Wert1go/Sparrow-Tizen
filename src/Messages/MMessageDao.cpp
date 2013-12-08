@@ -159,6 +159,8 @@ MMessageDao::GetMessagesForUser(int userId, int lastMessageId) {
 	delete compiledSaveStatment;
 	delete pEnum;
 
+	AppLog("LOADED: %d", pMessages->GetCount());
+
 	return pMessages;
 }
 

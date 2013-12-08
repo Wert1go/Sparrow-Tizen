@@ -58,7 +58,7 @@ UiChatForm::UiChatForm() {
 	SetFormBackEventListener(this);
 	__pMessagesRequestOperation = null;
 	__pMarkAsReadRequestOperation = null;
-	__pMessages = null;
+	__pMessages = new LinkedList();
 	__pListView = null;
 }
 
@@ -114,6 +114,7 @@ UiChatForm::OnInitializing(void)
 	__pListView->SetBackgroundColor(Color(8, 8, 8, 255));
 	__pListView->SetItemDividerColor(Color(0, 0, 0, 0));
 	__pListView->SetSweepEnabled(false);
+	__pListView->SetShowState(false);
 	AddControl(__pListView);
 
 	__pItemContext = new ListContextItem();
@@ -168,15 +169,12 @@ UiChatForm::OnFormBackRequested(Tizen::Ui::Controls::Form& source) {
 void
 UiChatForm::OnSceneActivatedN(const Tizen::Ui::Scenes::SceneId& previousSceneId,
 								   const Tizen::Ui::Scenes::SceneId& currentSceneId, Tizen::Base::Collection::IList* pArgs) {
+	AppLog("OnSceneActivatedN");
 
 	if (pArgs && pArgs->GetCount() > 0) {
 		Integer *param = static_cast< Integer* > (pArgs->GetAt(0));
 
 		__userId = param->ToInt();
-		this->SetMessages(MMessageDao::getInstance().GetMessagesForUser(param->ToInt()));
-		this->ScrollToFirstMessage();
-		//TODO выяснить в чем причина бага, сейчас главный кандидат - запрос к сети, при его комментировании падения прекращаются
-		RequestMessagesForUser(param->ToInt());
 
 		if (this->__pChatPanel) {
 			MDialog *dialog = MDialogDao::getInstance().GetDialogN(__userId);
@@ -191,10 +189,21 @@ UiChatForm::OnSceneActivatedN(const Tizen::Ui::Scenes::SceneId& previousSceneId,
 			this->__pChatPanel->SetDialog(dialog);
 		}
 
+		this->SetMessages(MMessageDao::getInstance().GetMessagesForUser(param->ToInt()));
+		this->__pListView->UpdateList();
+		this->ScrollToFirstMessage();
+
+		if (this->__pListView && this->GetMessages()->GetCount() > 0) {
+			this->__pListView->SetShowState(true);
+			this->Invalidate(true);
+		}
+
+		RequestMessagesForUser(param->ToInt());
+
 		MarkUnread();
-
+//
 		PostMan::getInstance().__pAttachmentListener = this;
-
+//
 		RestoreAttachmentContainer();
 
 		delete pArgs;
@@ -383,6 +392,8 @@ UiChatForm::OnSuccessN(RestResponse *result) {
 	AppLog("OnSuccessN");
 	RMessagesResponse *response = static_cast<RMessagesResponse *>(result);
 
+	bool needUpdate = true;
+
 	if (result->GetOperationCode() == GET_MESSAGES_HISTORY_BACKWARD) {
 		if(__pMessagesRequestOperation) {
 			__pMessagesRequestOperation->AddEventListener(null);
@@ -419,11 +430,33 @@ UiChatForm::OnSuccessN(RestResponse *result) {
 			__pMessagesRequestOperation = null;
 		}
 
-		this->SetMessages(MMessageDao::getInstance().GetMessagesForUser(this->__userId));
+
+		MMessage *serverMessage = null;
+		MMessage *localMessage = null;
+
+		if (response->GetMessages()->GetCount() > 0) {
+			serverMessage = static_cast<MMessage *>(response->GetMessages()->GetAt(0));
+		}
+
+		if(this->GetMessages() && this->GetMessages()->GetCount() > 0) {
+			localMessage = static_cast<MMessage *>(this->GetMessages()->GetAt(this->GetMessages()->GetCount() - 1));
+		}
+
+		if (serverMessage && localMessage) {
+			AppLog("serverMid %d :: localMid %d", serverMessage->GetMid(), localMessage->GetMid());
+		}
+
+		needUpdate = (!localMessage || (serverMessage->GetMid() != localMessage->GetMid()));
+
+		if (needUpdate) {
+			this->SetMessages(MMessageDao::getInstance().GetMessagesForUser(this->__userId));
+		}
 	}
 
-	this->SendUserEvent(result->GetOperationCode(), 0);
-	Tizen::App::App::GetInstance()->SendUserEvent(result->GetOperationCode(), 0);
+	if (needUpdate) {
+		this->SendUserEvent(result->GetOperationCode(), 0);
+		Tizen::App::App::GetInstance()->SendUserEvent(result->GetOperationCode(), 0);
+	}
 }
 
 void
@@ -464,6 +497,12 @@ UiChatForm::OnUserEventReceivedN(RequestId requestId, Tizen::Base::Collection::I
 	} else if (requestId == GET_MESSAGES_HISTORY) {
 		this->__pListView->UpdateList();
 		this->ScrollToFirstMessage();
+
+		if (!this->__pListView->IsVisible() && this->GetMessages()->GetCount() > 0) {
+			this->__pListView->SetShowState(true);
+			this->Invalidate(true);
+		}
+
 		MarkUnread();
 	} else if (requestId == UPDATE_MESSAGE_ARRIVED || requestId == UPDATE_MESSAGE_DELIVERED) {
 		AppAssert(pArgs && pArgs->GetCount() == 2);
@@ -822,7 +861,7 @@ UiChatForm::ScrollToLastMessage() {
 
 void
 UiChatForm::ScrollToFirstMessage() {
-	if (this->GetMessages() && this->GetMessages()->GetCount() > 0) {
+	if (this->__pListView && this->GetMessages() && this->GetMessages()->GetCount() > 0) {
 		this->__pListView->ScrollToItem(this->GetMessages()->GetCount() - 1);
 	}
 }

@@ -53,9 +53,9 @@ MMessageDescriptor::performObjectMappingN(JsonObject* pObject) {
 		MMessage *message = MMessage::CreateFromJsonN(*pMessageObject);
 		AppAssert(message);
 
-		if (message->__pAttachments) {
-			AppLog("message->__pAttachments:: %d", message->__pAttachments->GetCount());
-		}
+//		if (message->__pAttachments) {
+//			AppLog("message->__pAttachments:: %d", message->__pAttachments->GetCount());
+//		}
 
 		pMessages->Add(message);
 	}
