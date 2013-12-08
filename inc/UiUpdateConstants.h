@@ -18,4 +18,7 @@ static const int UPDATE_MESSAGE_DELIVERED = 10000004;
 static const int UPDATE_READ_STATE = 10000005;
 static const int LOGOUT = 10000006;
 
+static const int UPDATE_USER_PRINTING = 10000007;
+static const int UPDATE_USER_PRINTING_IN_CONVERSATION = 10000008;
+
 #endif /* UIUPDATECONSTANTS_H_ */

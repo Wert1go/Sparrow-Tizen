@@ -42,6 +42,10 @@ public:
 
 	void SetUserId(int userId);
 	int GetUserId();
+
+	void SetChatId(int chatId);
+	int GetChatId();
+
 	int GetMessageId();
 
 	void SetUsers(LinkedList * users);
@@ -56,6 +60,7 @@ public:
 private:
 	int __type;
 	int __userId;
+	int __chatId;
 
 	MMessage *__pMessage;
 	LinkedList *__pUsers;

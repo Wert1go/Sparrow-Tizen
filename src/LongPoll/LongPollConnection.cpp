@@ -280,7 +280,17 @@ LongPollConnection::OnSuccessN(RestResponse *result) {
 						pArgs = null;
 					}
 
+					UiChatForm* pChatForm = static_cast< UiChatForm* >(pFrame->GetControl("UiChatForm", true));
+					if (pChatForm) {
+						pArgs = new LinkedList();
+						pArgs->Add(new Integer(pObject->GetUserId()));
+						pChatForm->SendUserEvent(UPDATE_USER_ONLINE, pArgs);
+						Tizen::App::UiApp::GetInstance()->SendUserEvent(UPDATE_USER_ONLINE, 0);
+						pArgs = null;
+					}
 
+					MUserDao::getInstance().UpdateUserOnlineStatusById(1, pObject->GetUserId());
+					MDialogDao::getInstance().UpdateDialogOnlineStatusById(1, pObject->GetUserId());
 				}
 						break;
 				case LP_USER_OFFLINE: {
@@ -296,6 +306,15 @@ LongPollConnection::OnSuccessN(RestResponse *result) {
 						pArgs = null;
 					}
 
+					UiChatForm* pChatForm = static_cast< UiChatForm* >(pFrame->GetControl("UiChatForm", true));
+					if (pChatForm) {
+						pArgs = new LinkedList();
+						pArgs->Add(new Integer(pObject->GetUserId()));
+						pChatForm->SendUserEvent(UPDATE_USER_OFFLINE, pArgs);
+						Tizen::App::UiApp::GetInstance()->SendUserEvent(UPDATE_USER_ONLINE, 0);
+						pArgs = null;
+					}
+
 					MUserDao::getInstance().UpdateUserOnlineStatusById(0, pObject->GetUserId());
 					MDialogDao::getInstance().UpdateDialogOnlineStatusById(0, pObject->GetUserId());
 				}
@@ -303,11 +322,32 @@ LongPollConnection::OnSuccessN(RestResponse *result) {
 				case LP_CHAT_UPDATED:
 
 						break;
-				case LP_USER_PRINT_MSG:
+				case LP_USER_PRINT_MSG: {
+						UiChatForm* pChatForm = static_cast< UiChatForm* >(pFrame->GetControl("UiChatForm", true));
+						if (pChatForm) {
+							pArgs = new LinkedList();
+							pArgs->Add(new Integer(pObject->GetUserId()));
 
+							pChatForm->SendUserEvent(UPDATE_USER_PRINTING, pArgs);
+							Tizen::App::UiApp::GetInstance()->SendUserEvent(UPDATE_USER_PRINTING, 0);
+							pArgs = null;
+						}
+				}
 						break;
-				case LP_USER_PRINT_MSG_CHAT:
+				case LP_USER_PRINT_MSG_CHAT: {
+						UiChatForm* pChatForm = static_cast< UiChatForm* >(pFrame->GetControl("UiChatForm", true));
+						if (pChatForm) {
+							pArgs = new LinkedList();
+							pArgs->Add(new Integer(pObject->GetUserId()));
+							if (pObject->GetChatId() != -1) {
+								pArgs->Add(new Integer(pObject->GetChatId()));
+							}
 
+							pChatForm->SendUserEvent(UPDATE_USER_PRINTING_IN_CONVERSATION, pArgs);
+							Tizen::App::UiApp::GetInstance()->SendUserEvent(UPDATE_USER_PRINTING_IN_CONVERSATION, 0);
+							pArgs = null;
+						}
+				}
 						break;
 				}
 		}

@@ -13,8 +13,7 @@
 using namespace Tizen::Web::Json;
 
 LongPollObject::LongPollObject() {
-	// TODO Auto-generated constructor stub
-
+	__chatId = -1;
 }
 
 LongPollObject::~LongPollObject() {
@@ -41,14 +40,26 @@ LongPollObject::GetUserId() {
 	return __userId;
 }
 
+void
+LongPollObject::SetChatId(int chatId) {
+	__chatId = chatId;
+}
+
+int
+LongPollObject::GetChatId() {
+	return __chatId;
+}
+
 LongPollObject*
 LongPollObject::CreateFromJsonN(const Tizen::Web::Json::JsonArray &jsonArray) {
 
 	LongPollObject *resultObject = new LongPollObject();
 	IJsonValue* pValType;
 	IJsonValue* pValUserId;
+	IJsonValue* pValChatId;
 
 	JsonNumber *pUserId;
+	JsonNumber *pChatId;
 
 	jsonArray.GetAt(0, pValType);
 	JsonNumber *pType = static_cast<JsonNumber *>(pValType);
@@ -128,9 +139,18 @@ LongPollObject::CreateFromJsonN(const Tizen::Web::Json::JsonArray &jsonArray) {
 
 			break;
 	case LP_USER_PRINT_MSG:
-
+			jsonArray.GetAt(1, pValUserId);
+			pUserId = static_cast<JsonNumber *>(pValUserId);
+			resultObject->SetUserId(abs(pUserId->ToInt()));
 			break;
 	case LP_USER_PRINT_MSG_CHAT:
+			jsonArray.GetAt(1, pValUserId);
+			pUserId = static_cast<JsonNumber *>(pValUserId);
+			resultObject->SetUserId(abs(pUserId->ToInt()));
+
+			jsonArray.GetAt(2, pValChatId);
+			pChatId = static_cast<JsonNumber *>(pValChatId);
+			resultObject->SetChatId(abs(pChatId->ToInt()));
 
 			break;
 	}

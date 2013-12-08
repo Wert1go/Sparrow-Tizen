@@ -34,6 +34,11 @@ static const long ATTACHMENT_IMAGE_GET_SERVER = 100999115;
 static const long ATTACHMENT_IMAGE_UPLOAD = 100999116;
 static const long ATTACHMENT_IMAGE_SAVE = 100999117;
 
+
+
+
+static const long NOTIFY_USER_PRINTING = 100999118;
+
 extern const wchar_t* USER_FILEDS;
 
 #include <FNet.h>

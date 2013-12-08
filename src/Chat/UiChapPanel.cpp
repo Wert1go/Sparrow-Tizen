@@ -13,6 +13,7 @@
 #include "Resources.h"
 #include "ImageCache.h"
 #include "MDialog.h"
+#include "MUser.h"
 
 using namespace Tizen::App;
 using namespace Tizen::Base;
@@ -28,10 +29,22 @@ UiChapPanel::UiChapPanel() {
 	__pDialog = null;
 	__IsOinline = false;
 	__ChatIcon = null;
+	__pPrintingTimer = null;
+	this->__isUserPrinting = false;
+	__pPrintingMessage = null;
 }
 
 UiChapPanel::~UiChapPanel() {
 	ImageCache::getInstance().CancelLoadingForTarget(this);
+	if (__pPrintingMessage) {
+		delete __pPrintingMessage;
+	}
+
+	if (this->__pPrintingTimer) {
+		this->__pPrintingTimer->Cancel();
+		delete this->__pPrintingTimer;
+		this->__pPrintingTimer = null;
+	}
 }
 
 bool
@@ -82,6 +95,7 @@ UiChapPanel::OnDraw() {
 
 	int imgSize = 84;
 	int offset = 15;
+	int textWidth = this->GetBounds().width - 100 - imgSize;
 
 	if (pCanvas != null)
 	{
@@ -116,7 +130,7 @@ UiChapPanel::OnDraw() {
 			TextElement* pUsetNameText = null;
 
 			pUserName = new EnrichedText();
-			r = pUserName->Construct(Dimension(300, 60));
+			r = pUserName->Construct(Dimension(textWidth, 60));
 
 			pUserName->SetHorizontalAlignment(TEXT_ALIGNMENT_LEFT);
 			pUserName->SetVerticalAlignment(TEXT_ALIGNMENT_BOTTOM);
@@ -188,7 +202,7 @@ UiChapPanel::OnDraw() {
 			TextElement* pDescriptionText = null;
 
 			pDescriptionLabel = new EnrichedText();
-			pDescriptionLabel->Construct(Dimension(300, 60));
+			pDescriptionLabel->Construct(Dimension(textWidth, 60));
 
 			pDescriptionLabel->SetHorizontalAlignment(TEXT_ALIGNMENT_LEFT);
 			pDescriptionLabel->SetVerticalAlignment(TEXT_ALIGNMENT_BOTTOM);
@@ -200,17 +214,26 @@ UiChapPanel::OnDraw() {
 			String *dialogText = new String();
 
 			if (isChat) {
-				int count = this->__pDialog->GetUsers()->GetCount() + 1;
-				String countString;
-				countString.Format(10, L"%d", count);
-
-				dialogText->Append(countString.GetPointer());
-				dialogText->Append(L" участников");
-			} else {
-				if (this->__IsOinline) {
-					dialogText = new String(L"Online");
+				if (this->__isUserPrinting) {
+					dialogText = new String(__pPrintingMessage->GetPointer());
 				} else {
-					dialogText = new String(L"Offline");
+					int count = this->__pDialog->GetUsers()->GetCount() + 1;
+					String countString;
+					countString.Format(10, L"%d", count);
+
+					dialogText->Append(countString.GetPointer());
+					dialogText->Append(L" участников");
+				}
+			} else {
+
+				if (this->__isUserPrinting) {
+					dialogText = new String(__pPrintingMessage->GetPointer());
+				} else {
+					if (this->__IsOinline) {
+						dialogText = new String(L"Online");
+					} else {
+						dialogText = new String(L"Offline");
+					}
 				}
 			}
 
@@ -220,6 +243,8 @@ UiChapPanel::OnDraw() {
 
 			r = pDescriptionText->Construct(dialogText->GetPointer());
 			GetErrorMessage(r);
+
+			delete dialogText;
 
 			pDescriptionText->SetTextColor(Color(255, 255, 255, 255));
 			{
@@ -248,4 +273,63 @@ UiChapPanel::OnDraw() {
 	delete pCanvas;
 
 	return r;
+}
+
+void
+UiChapPanel::SetUserPrinting(int userId) {
+	this->__isUserPrinting = true;
+
+	if (this->__pDialog->GetUid() > isChatValue) {
+
+		if (this->__pDialog->GetUsers()) {
+			if (__pPrintingMessage) {
+				delete __pPrintingMessage;
+				__pPrintingMessage = null;
+			}
+
+			for (int index = 0; index < this->__pDialog->GetUsers()->GetCount(); index++) {
+				MUser *pUser = static_cast<MUser *>(this->__pDialog->GetUsers()->GetAt(index));
+
+				if (userId == pUser->GetUid()) {
+
+					String *fullName = new String();
+					fullName->Append(pUser->GetFirstName()->GetPointer());
+					fullName->Append(L" ");
+					fullName->Append(pUser->GetLastName()->GetPointer());
+
+					__pPrintingMessage = new String(fullName->GetPointer());
+					__pPrintingMessage->Append(L" набирает сообщение...");
+					break;
+				}
+			}
+		}
+
+	}
+
+	if (!__pPrintingMessage) {
+		__pPrintingMessage = new String(L"Набирает сообщение...");
+	}
+
+	this->Invalidate(true);
+
+	if (this->__pPrintingTimer) {
+		this->__pPrintingTimer->Cancel();
+		delete this->__pPrintingTimer;
+		this->__pPrintingTimer = null;
+	}
+
+	this->__pPrintingTimer = new Timer();
+	this->__pPrintingTimer->Construct(*this);
+	this->__pPrintingTimer->Start(3000);
+}
+
+void
+UiChapPanel::OnTimerExpired (Timer &timer) {
+	this->__isUserPrinting = false;
+	__IsOinline = true;
+
+	this->Invalidate(true);
+
+	delete this->__pPrintingTimer;
+	this->__pPrintingTimer = null;
 }

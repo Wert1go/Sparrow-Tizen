@@ -29,6 +29,7 @@ using namespace Tizen::App;
 using namespace Tizen::Ui;
 using namespace Tizen::Ui::Controls;
 using namespace Tizen::Base::Collection;
+using namespace Tizen::Base::Runtime;
 
 class MMessage;
 class UiChapPanel;
@@ -54,6 +55,7 @@ class UiChatForm
  , public IAppControlResponseListener
  , public IRequestAttachmentDelete
  , public IPopupHandler
+ , public ITimerEventListener
 
 {
 public:
@@ -138,6 +140,10 @@ public:
 	void EnlargeMessengerPanel();
 	//
 
+	//User typing
+	virtual void OnTimerExpired (Timer &timer);
+	void NotifyUserTyping();
+
 	//Popup
 	virtual void DidSelectItemInPopup(int itemIndex, int popupId);
 
@@ -160,6 +166,7 @@ private:
 
 	RestRequestOperation *__pMessagesRequestOperation;
 	RestRequestOperation *__pMarkAsReadRequestOperation;
+	RestRequestOperation *__pNotifyUserPrintingOperation;
 
 	LinkedList *__pMessages;
 	ListView *__pListView;
@@ -179,6 +186,10 @@ private:
 	MDialog *__pDialog;
 
 	bool __isActive;
+
+	//
+	Timer *__pPrintingTimer;
+	bool __isUserPrinting;
 
 };
 

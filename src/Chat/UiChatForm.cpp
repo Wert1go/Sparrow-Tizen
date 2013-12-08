@@ -58,8 +58,13 @@ UiChatForm::UiChatForm() {
 	SetFormBackEventListener(this);
 	__pMessagesRequestOperation = null;
 	__pMarkAsReadRequestOperation = null;
+	__pNotifyUserPrintingOperation = null;
+
 	__pMessages = new LinkedList();
 	__pListView = null;
+
+	__pPrintingTimer = null;
+	__isUserPrinting = false;
 }
 
 UiChatForm::~UiChatForm() {
@@ -72,6 +77,8 @@ UiChatForm::~UiChatForm() {
 		__pMarkAsReadRequestOperation->AddEventListener(null);
 		__pMarkAsReadRequestOperation = null;
 	}
+
+
 }
 
 result
@@ -137,6 +144,12 @@ UiChatForm::OnTerminating() {
 	PostMan::getInstance().RemoveListenerForUser(__userId);
 	__pPosterPanel->__pAttachmentOwner = null;
 	__pAttachmentPopup->Destroy();
+
+	if (this->__pPrintingTimer) {
+		this->__pPrintingTimer->Cancel();
+		delete this->__pPrintingTimer;
+		this->__pPrintingTimer = null;
+	}
 
 	return r;
 }
@@ -424,6 +437,10 @@ UiChatForm::OnSuccessN(RestResponse *result) {
 			}
 		}
 
+	} else if (NOTIFY_USER_PRINTING == result->GetOperationCode()) {
+		__pNotifyUserPrintingOperation->AddEventListener(null);
+		__pNotifyUserPrintingOperation = null;
+		needUpdate = false;
 	} else {
 		if (__pMessagesRequestOperation) {
 			__pMessagesRequestOperation->AddEventListener(null);
@@ -562,6 +579,25 @@ UiChatForm::OnUserEventReceivedN(RequestId requestId, Tizen::Base::Collection::I
 
 		this->SetReadStateWithMessageId(msgId->ToInt());
 		delete msgId;
+	} else if (requestId == UPDATE_USER_PRINTING) {
+		AppAssert(pArgs->GetCount() > 0);
+		Integer *userId = static_cast<Integer*>(pArgs->GetAt(0));
+		if (this->__userId == userId->ToInt()) {
+			this->__pChatPanel->SetUserPrinting(0);
+		}
+		delete userId;
+
+	} else if (requestId == UPDATE_USER_PRINTING_IN_CONVERSATION) {
+		AppAssert(pArgs->GetCount() > 1);
+		Integer *userId = static_cast<Integer*>(pArgs->GetAt(0));
+		Integer *chatId = static_cast<Integer*>(pArgs->GetAt(1));
+
+		if (this->__userId == (chatId->ToInt() + isChatValue)) {
+			this->__pChatPanel->SetUserPrinting(userId->ToInt());
+		}
+
+		delete userId;
+		delete chatId;
 	}
 
 	delete pArgs;
@@ -618,7 +654,9 @@ UiChatForm::IsAlreadyAdded(MMessage *message) {
 
 void
 UiChatForm::OnTextValueChanged(const Tizen::Ui::Control& source) {
-
+	if (!__isUserPrinting) {
+		this->NotifyUserTyping();
+	}
 }
 
 void
@@ -1117,4 +1155,51 @@ UiChatForm::OnProgressChanged(MAttachment *attachment, int progress, int uid) {
 			this->__pPosterPanel->UpdateAttachmentProgress(progress, index, attachment);
 		}
 	}
+}
+
+void
+UiChatForm::OnTimerExpired (Timer &timer) {
+	this->__isUserPrinting = false;
+
+	delete this->__pPrintingTimer;
+	this->__pPrintingTimer = null;
+}
+
+void
+UiChatForm::NotifyUserTyping() {
+	if (__userId > isChatValue) {
+		return;
+	}
+
+	this->__isUserPrinting = true;
+	if (this->__pPrintingTimer) {
+		this->__pPrintingTimer->Cancel();
+		delete this->__pPrintingTimer;
+		this->__pPrintingTimer = null;
+	}
+
+	HashMap *params = new HashMap();
+	String uidString;
+
+	if (__userId < isChatValue) {
+		uidString.Format(25, L"%d", __userId);
+	} else {
+		uidString = AuthManager::getInstance().UserId()->GetPointer();
+	}
+
+	params->Construct();
+	params->Add(new String(L"user_id"), new String(uidString));
+	params->Add(new String(L"type"), new String(L"typing"));
+	params->Add(new String(L"access_token"), AuthManager::getInstance().AccessToken());
+
+	if (!__pNotifyUserPrintingOperation) {
+		__pNotifyUserPrintingOperation = new RestRequestOperation(NOTIFY_USER_PRINTING, new String(L"messages.setActivity"), params);
+		__pNotifyUserPrintingOperation->AddEventListener(this);
+		__pNotifyUserPrintingOperation->SetResponseDescriptor(new RMessageSendDescriptor());
+		RestClient::getInstance().PerformOperation(__pNotifyUserPrintingOperation);
+	}
+
+	this->__pPrintingTimer = new Timer();
+	this->__pPrintingTimer->Construct(*this);
+	this->__pPrintingTimer->Start(5000);
 }
