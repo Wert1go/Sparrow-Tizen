@@ -376,6 +376,7 @@ MMessage::CreateFromJsonLPN(const Tizen::Web::Json::JsonObject &pObject) {
 	message->SetFromUid(uid->ToInt());
 	message->SetDate(date->ToLong());
 	message->SetOut(out->ToInt());
+
 	if (out->ToInt() == 1) {
 		message->SetDelivered(1);
 	} else {

@@ -16,6 +16,8 @@
 #include "AuthManager.h"
 #include "SceneRegister.h"
 
+#include "UiChatForm.h"
+
 #include <FBase.h>
 #include <FShell.h>
 
@@ -55,7 +57,7 @@ SparrowApp::OnAppInitializing(AppRegistry& appRegistry)
 
 	// Uncomment the following statement to listen to the screen on/off events.
 	//PowerManager::SetScreenEventListener(*this);
-
+	AppControlProviderManager::GetInstance()->SetAppControlProviderEventListener(this);
 	// Create a Frame
 	SparrowFrame* pSparrowFrame = new SparrowFrame;
 	pSparrowFrame->Construct();
@@ -163,6 +165,8 @@ SparrowApp::OnUserEventReceivedN(RequestId requestId, Tizen::Base::Collection::I
 		this->Logout();
 	} else if (requestId == 666) {
 		AuthManager::getInstance().UpdateImage();
+	} else if (requestId == LONGPOLL_RECONNECTION) {
+		LongPollConnection::getInstance().RunTimer();
 	}
 
 	delete pArgs;
@@ -183,8 +187,46 @@ void
 SparrowApp::PostNotification(String *text) {
 	 int badgeNumber;
 	 Tizen::Shell::NotificationManager notiMgr;
-	notiMgr.Construct();
-	badgeNumber = notiMgr.GetBadgeNumber();
-	badgeNumber++;
-	notiMgr.Notify(L"tetrtet erw re ");
+	 notiMgr.Construct();
+	 badgeNumber = notiMgr.GetBadgeNumber();
+	 badgeNumber++;
+	 notiMgr.Notify(L"tetrtet erw re ");
+}
+
+void
+SparrowApp::OnAppControlRequestReceived(
+		RequestId reqId,
+		const Tizen::Base::String& operationId,
+		const Tizen::Base::String* pUriData,
+		const Tizen::Base::String* pMimeType,
+		const Tizen::Base::Collection::IMap* pExtraData) {
+
+	AppLog("OnAppControlRequestReceived");
+
+	if (pExtraData) {
+		AppLog("!OnAppControlRequestReceived");
+		String notificationAppMessage(L"http://tizen.org/appcontrol/data/notification");
+		const String* pMessage = dynamic_cast<const String*>(pExtraData->GetValue(notificationAppMessage));
+		if (pMessage) {
+			Tizen::Ui::Controls::Frame* pFrame = Tizen::App::UiApp::GetInstance()->GetAppFrame()->GetFrame();
+			UiChatForm* pChatForm = static_cast< UiChatForm* >(pFrame->GetControl("UiChatForm", true));
+			AppLog("!!OnAppControlRequestReceived");
+			int uid;
+			Integer::Parse(pMessage->GetPointer(), uid);
+			AppLog(":::::: %d || %S", uid, pMessage->GetPointer());
+			if (!pChatForm || (pChatForm && pChatForm->__userId != uid)) {
+				AppLog("!!!OnAppControlRequestReceived");
+				SceneManager* pSceneManager = SceneManager::GetInstance();
+				AppAssert(pSceneManager);
+
+				ArrayList *paramsList = new (std::nothrow) ArrayList();
+				paramsList->Construct();
+
+				paramsList->Add(new Integer(uid));
+				pSceneManager->GoForward(ForwardSceneTransition(SCENE_CHAT, SCENE_TRANSITION_ANIMATION_TYPE_LEFT), paramsList);
+			}
+
+		}
+	}
+
 }

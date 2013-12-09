@@ -24,12 +24,15 @@ MMessageDao::~MMessageDao() {
 }
 
 void
-MMessageDao::Save(MMessage *message) {
+MMessageDao::Save(MMessage *pMessage) {
 	DbStatement *compiledSaveStatment = CreateSaveStatement();
 	DbEnumerator* pEnum = null;
 
-	compiledSaveStatment = BindMessageToSQLStatement(message, compiledSaveStatment);
+	compiledSaveStatment = BindMessageToSQLStatement(pMessage, compiledSaveStatment);
 	pEnum = MDatabaseManager::getInstance().GetDatabase()->ExecuteStatementN(*compiledSaveStatment);
+	if (pMessage->__pAttachments && pMessage->__pAttachments->GetCount() > 0) {
+		MAttachmentDao::getInstance().SaveAttachments(pMessage->__pAttachments, pMessage->GetMid());
+	}
 
 	delete compiledSaveStatment;
 	delete pEnum;

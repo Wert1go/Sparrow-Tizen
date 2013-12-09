@@ -775,6 +775,10 @@ UiChatForm::OnKeypadOpened(Control& source)
 void
 UiChatForm::OnKeypadWillOpen(Control& source)
 {
+//	int index = this->__pListView->GetItemIndexFromPosition(100, this->__pListView->GetBounds().y + this->__pListView->GetBounds().height - 50);
+
+//	AppLog("INDEX: %d", index);
+
 	FloatRectangle editBounds = source.GetBoundsF();
 	FloatRectangle prevBounds = source.GetParent()->GetBoundsF();
 
@@ -787,6 +791,8 @@ UiChatForm::OnKeypadWillOpen(Control& source)
 	__pPosterPanel->SetRectangle(FloatRectangle(panelBounds.x, yOffset - panelBounds.height, panelBounds.width, panelBounds.height));
 
 	this->Invalidate(true);
+
+	this->ScrollToFirstMessage();
 }
 
 void

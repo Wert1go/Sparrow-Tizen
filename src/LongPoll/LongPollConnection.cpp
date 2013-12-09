@@ -282,9 +282,11 @@ LongPollConnection::OnSuccessN(RestResponse *result) {
 						Tizen::App::UiApp::GetInstance()->SendUserEvent(UPDATE_READ_STATE, 0);
 					}
 
-					if (!pChatForm ||
+					if ((!pChatForm ||
 							Tizen::App::UiApp::GetInstance()->GetAppUiState() != APP_UI_STATE_FOREGROUND ||
-							(pChatForm && pChatForm->__userId != pObject->GetMessage()->GetUid())) {
+							(pChatForm && pChatForm->__userId != pObject->GetMessage()->GetUid())) &&
+							pObject->GetMessage()->GetOut() != 1
+							) {
 
 						MUser *pUser = null;
 
@@ -294,6 +296,7 @@ LongPollConnection::OnSuccessN(RestResponse *result) {
 								pUser = user;
 							}
 						}
+
 
 						ShowNotification(pObject->GetMessage(), pUser);
 					}
@@ -412,7 +415,9 @@ LongPollConnection::OnErrorN(Error *error) {
 		AppLog("!!!LongPollConnection::OnErrorN");
 
 		__pendingRestart = true;
-		this->RunTimer();
+
+		App::GetInstance()->SendUserEvent(LONGPOLL_RECONNECTION, 0);
+
 	}
 
 	delete error;
@@ -461,6 +466,7 @@ LongPollConnection::OnTimerExpired (Timer &timer) {
 
 void
 LongPollConnection::ShowNotification(MMessage *pMessage, MUser *pUser) {
+	result r;
 	String *title = null;
 
 	AppLog("ShowNotification");
@@ -481,12 +487,16 @@ LongPollConnection::ShowNotification(MMessage *pMessage, MUser *pUser) {
 	NotificationRequest request;
 	request.SetAlertText(pMessage->GetText()->GetPointer());
 	request.SetTitleText(title->GetPointer());
-	request.SetAppMessage(L"AppMessage");
+
+	String uid;
+	uid.Format(20, L"%d", pUser->GetUid());
+	request.SetAppMessage(uid);
+
 	request.SetNotificationStyle(NOTIFICATION_STYLE_NORMAL);
 	//Добавить проверку на отсутствие иконки!
 	if (pUser) {
-		request.SetIconFilePath(ImageCache::getInstance().PathForUrl(pUser->GetMiniPhoto()));
+		request.SetIconFilePath(ImageCache::getInstance().PathForUrl(pUser->GetPhoto()));
 	}
 
-	result r = __pNotificationManager->Notify(request);
+	r = __pNotificationManager->Notify(request);
 }

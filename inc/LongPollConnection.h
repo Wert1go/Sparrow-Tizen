@@ -53,7 +53,7 @@ public:
 	void SendRequestToLongPollServer(String *key, String *server, String *ts);
 
 	void Reconnect();
-
+	void RunTimer();
 	bool PendingRestart();
 
 	//сохранение TS
@@ -64,7 +64,7 @@ private:
 	void OnErrorN(Error *error);
 	virtual void OnTimerExpired (Timer &timer);
 
-	void RunTimer();
+
 	void CancelTimer();
 
 	void ShowNotification(MMessage *pMessage, MUser *pUser);

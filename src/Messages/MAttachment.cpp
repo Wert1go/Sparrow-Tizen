@@ -193,7 +193,6 @@ MAttachment::CreateFromJsonLPN(const Tizen::Web::Json::JsonObject &jsonObject) {
 				photo->__ownerId = pOwner->ToInt();
 				photo->__pType = new String(typeString->GetPointer());
 
-
 				if (pValSizes) {
 					JsonArray *pSizes = static_cast<JsonArray *>(pValSizes);
 
@@ -221,9 +220,9 @@ MAttachment::CreateFromJsonLPN(const Tizen::Web::Json::JsonObject &jsonObject) {
 						photo->__width = width->ToInt();
 						photo->__height = height->ToInt();
 
-						if (height->ToInt() == 130) {
+						if (height->ToInt() == 130 || width->ToInt() == 130) {
 							photo->__pPhoto130 = new String(src->GetPointer());
-						} else if (height->ToInt() == 604) {
+						} else if (height->ToInt() == 604 || width->ToInt() == 604) {
 							photo->__pPhoto604 = new String(src->GetPointer());
 						}
 					}
