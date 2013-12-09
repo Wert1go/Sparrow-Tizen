@@ -11,6 +11,9 @@
 #include "Bean.h"
 
 extern const wchar_t* PHOTO;
+extern const wchar_t* AUDIO;
+extern const wchar_t* VIDEO;
+extern const wchar_t* DOC;
 
 using namespace Tizen::Graphics;
 
@@ -20,33 +23,70 @@ public:
 	MAttachment();
 	virtual ~MAttachment();
 
-	String *__pType;
+public:
+	//util
 	int __tempId;
+	String *__pFilePath;
+	float ratio;
+	FloatPoint imageSize;
+	int __mid;
+
+	//common
+	String *__pType;
 	int __id;
 	int __ownerId;
+
+	//image, video
 	int __date;
+	int __album_id;
+
+	//image, video, doc
 	String *__pAccessKey;
+
+	//image, video
 	String *__pPhoto130;
+
+	//video
+	String *__pVideoPhoto320;
+
+	//image
 	String *__pPhoto604;
-
-	String *__pFilePath;
-
 	int __width;
 	int __height;
 
-	float ratio;
-	FloatPoint imageSize;
+	//video, audio, doc
+	String *__pTitle;
 
-	int __mid;
+	//video, audio
+	int __duration;
 
+	//video
+	int __views;
+	String *__pDescription;
+
+	//audio
+	String *__pArtist;
+
+	//audio, doc
+	String *__pUrl;
+
+	//doc
+	int __size;
+	String *__pExt;
+
+public:
 	static MAttachment* CreateFromJsonN(const Tizen::Web::Json::JsonObject &jsonObject);
 
 	static MAttachment * CreatePhotoFromJsonN(Tizen::Web::Json::JsonObject *pPhotoObject);
+	static MAttachment * CreateVideoFromJsonN(Tizen::Web::Json::JsonObject *pVideoObject);
+
+//	static MAttachment * CreateAudioFromJsonN(Tizen::Web::Json::JsonObject *pPhotoObject);
+//	static MAttachment * CreateDocFromJsonN(Tizen::Web::Json::JsonObject *pPhotoObject);
+
+
 	static MAttachment* CreateFromJsonLPN(const Tizen::Web::Json::JsonObject &jsonObject);
 	static String* TableDescription();
 
-
-	int album_id;
 };
 
 #endif /* MATTACHMENT_H_ */

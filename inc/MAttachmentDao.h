@@ -31,12 +31,13 @@ private:
 public:
 	DbStatement * CreateSavePhotoStatement();
 	DbStatement * BindPhotoToSQLStatement(MAttachment *photo, DbStatement *statement);
-
 	MAttachment * LoadPhotoFromDBN(DbEnumerator* pEnum);
 
-	void SaveAttachments(IList *pAttachments, int mid);
-	void SavePhoto(MAttachment *photo, int mid);
+	DbStatement * CreateSaveVideoStatement();
+	DbStatement * BindVideoToSQLStatement(MAttachment *attach, DbStatement *statement);
+	MAttachment * LoadVideoFromDBN(DbEnumerator* pEnum);
 
+	void SaveAttachments(IList *pAttachments, int mid);
 	LinkedList * GetAttachments(int mid);
 };
 
