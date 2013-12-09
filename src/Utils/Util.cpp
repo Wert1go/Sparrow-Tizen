@@ -161,17 +161,15 @@ Util::CalculateDimensionForMessage(MMessage *message) {
 
 		pTimeLabel->Add(*pTImeText);
 
-
-
 		FloatDimension size;
 		int actualLength;
 		pTimeLabel->GetTextExtent(0, text->GetLength(), size, actualLength);
+		Dimension normalSize = pTimeLabel->GetTextExtent();
 
-		if (size.width <= limitSize) {
+		if (size.width <= limitSize && normalSize.height <= size.height) {
 			resultSize.width = size.width;
 			resultSize.height = size.height;
 		} else {
-			Dimension normalSize = pTimeLabel->GetTextExtent();
 			resultSize = normalSize;
 		}
 

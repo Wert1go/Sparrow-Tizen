@@ -179,7 +179,6 @@ MMessage::CreateFromJsonN(const Tizen::Web::Json::JsonObject &pObject) {
 		chatId = static_cast< JsonNumber* >(pValChatId);
 		message->SetChatId(chatId->ToInt());
 	}
-
 	if (pValChatActive) {
 		userCount = static_cast< JsonNumber* >(pValUserCount);
 		adminId = static_cast< JsonNumber* >(pValAdminId);
@@ -209,7 +208,6 @@ MMessage::CreateFromJsonN(const Tizen::Web::Json::JsonObject &pObject) {
 		message->userCount = userCount->ToInt();
 
 	}
-
 	JsonNumber *mid = static_cast< JsonNumber* >(pValMessageId);
 	JsonNumber *fromId = static_cast< JsonNumber* >(pValFromId);
 	JsonNumber *uid = static_cast< JsonNumber* >(pValUserId);
@@ -220,8 +218,17 @@ MMessage::CreateFromJsonN(const Tizen::Web::Json::JsonObject &pObject) {
 
 	String *pText = new String(text->GetPointer());
 
+	if (pText) {
+		pText->Replace(L"<br>", L"\n");
+	}
+
 	message->SetMid(mid->ToInt());
-	message->SetFromUid(fromId->ToInt());
+	//костыль для отправки сообщений
+	if (fromId) {
+		message->SetFromUid(fromId->ToInt());
+	} else {
+		message->SetFromUid(uid->ToInt());
+	}
 
 	if (message->GetChatId() != 0) {
 		message->SetUid(message->GetChatId() + 2000000000);
@@ -363,6 +370,10 @@ MMessage::CreateFromJsonLPN(const Tizen::Web::Json::JsonObject &pObject) {
 
 
 	String *pText = new String(text->GetPointer());
+
+	if (pText) {
+		pText->Replace(L"<br>", L"\n");
+	}
 
 	message->SetMid(mid->ToInt());
 

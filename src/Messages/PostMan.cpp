@@ -181,7 +181,6 @@ PostMan::SendMessageFromUserWithListener(MMessage *pMessage, int userId, IMessag
 		LinkedList *attachmentList = null;
 		LinkedList *attachmentOperationList = null;
 
-
 		if (key) {
 			this->__pUidToAttachmentsMap->GetValue(key, attachmentList);
 
@@ -191,7 +190,6 @@ PostMan::SendMessageFromUserWithListener(MMessage *pMessage, int userId, IMessag
 				readyToRun = false;
 			}
 		}
-
 
 		if (readyToRun) {
 

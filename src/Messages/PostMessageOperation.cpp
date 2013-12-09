@@ -14,7 +14,7 @@
 #include "AuthManager.h"
 #include "RMessageSendResponse.h"
 #include "MMessageDao.h"
-#include "RMessageSendDescriptor.h"
+#include "RMessageSendExecuteDescriptor.h"
 #include "IMessageOwner.h"
 #include "IMessageDeliveryListener.h"
 
@@ -59,6 +59,11 @@ PostMessageOperation::OnSuccessN(RestResponse *result) {
 		} else {
 			this->__pMessage->SetMid(response->__mid);
 			this->__pMessage->SetDelivered(1);
+
+			if (response->__pMessage) {
+				this->__pMessage->SetDate(response->__pMessage->GetDate());
+			}
+
 			MMessageDao::getInstance().Save(__pMessage);
 
 			if (__pDeliveryListener) {
@@ -85,19 +90,31 @@ PostMessageOperation::SendMessage() {
 		String uid;
 		uid.Format(25, L"%d", rawUid);
 
-		if (__pMessage->GetUid() < 2000000000) {
+		String sendMessageRequest(L"var a = API.messages.send({");
 
-			params->Add(new String(L"user_id"), new String(uid));
+		if (__pMessage->GetUid() < 2000000000) {
+			sendMessageRequest.Append("\"user_id\" :");
+			sendMessageRequest.Append(uid);
 		} else {
-			params->Add(new String(L"chat_id"), new String(uid));
+			sendMessageRequest.Append("\"chat_id\" :");
+			sendMessageRequest.Append(uid);
 		}
-		params->Add(new String(L"access_token"), AuthManager::getInstance().AccessToken());
 
 		if (__pMessage->GetText()) {
-			params->Add(new String(L"message"), __pMessage->GetText());
+			sendMessageRequest.Append(",");
+			sendMessageRequest.Append("\"message\" :\"");
+
+			__pMessage->GetText()->Replace(L"\n", L"<br>");
+
+			sendMessageRequest.Append(__pMessage->GetText()->GetPointer());
+			sendMessageRequest.Append("\"");
+
+			__pMessage->GetText()->Replace(L"<br>", L"\n");
 		}
 
 		if (__pMessage->__pAttachments) {
+			sendMessageRequest.Append(",");
+
 			String *attachmentString = new String();
 			for (int i = 0; i < __pMessage->__pAttachments->GetCount(); i++) {
 				MAttachment *attachment = static_cast<MAttachment *>(__pMessage->__pAttachments->GetAt(i));
@@ -120,14 +137,26 @@ PostMessageOperation::SendMessage() {
 				}
 			}
 
-			params->Add(new String(L"attachment"), attachmentString);
-
+			sendMessageRequest.Append("\"attachment\" : \"");
+			sendMessageRequest.Append(attachmentString->GetPointer());
+			sendMessageRequest.Append("\"");
 			AppLog("ATTACHMENT COUNT: %d :: %S", __pMessage->__pAttachments->GetCount(), attachmentString->GetPointer());
 		}
 
-		__pSendMessageOperation = new RestRequestOperation(SEND_MESSAGE, new String(L"messages.send"), params);
+
+		sendMessageRequest.Append(L"});");
+		sendMessageRequest.Append(L"var m = API.messages.getById({\"message_ids\" : a});");
+		sendMessageRequest.Append(L"var result = m.items[0];");
+		sendMessageRequest.Append(L"return {\"message_id\" : a, \"message\" : result};");
+
+		params->Add(new String(L"code"), new String(sendMessageRequest));
+		params->Add(new String(L"access_token"), AuthManager::getInstance().AccessToken());
+
+		AppLog("sendMessageRequest: %S", sendMessageRequest.GetPointer());
+
+		__pSendMessageOperation = new RestRequestOperation(SEND_MESSAGE, new String(L"execute"), params);
 		__pSendMessageOperation->AddEventListener(this);
-		__pSendMessageOperation->SetResponseDescriptor(new RMessageSendDescriptor());
+		__pSendMessageOperation->SetResponseDescriptor(new RMessageSendExecuteDescriptor());
 		RestClient::getInstance().PerformOperation(__pSendMessageOperation);
 	}
 }

@@ -10,6 +10,8 @@
 
 #include "RestResponse.h"
 
+class MMessage;
+
 class RMessageSendResponse
  : public RestResponse
 {
@@ -18,6 +20,7 @@ public:
 	virtual ~RMessageSendResponse();
 
 	int __mid;
+	MMessage *__pMessage;
 };
 
 #endif /* RMESSAGESENDRESPONSE_H_ */

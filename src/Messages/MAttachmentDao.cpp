@@ -64,7 +64,11 @@ MAttachmentDao::BindPhotoToSQLStatement(MAttachment *photo, DbStatement *stateme
 	statement->BindString(2, photo->__pType->GetPointer());
 	statement->BindInt(3, photo->__ownerId);
 	statement->BindInt(4, photo->__date);
-	statement->BindString(5, photo->__pAccessKey->GetPointer());
+	if (photo->__pAccessKey) {
+		statement->BindString(5, photo->__pAccessKey->GetPointer());
+	} else {
+		statement->BindString(5, string);
+	}
 	statement->BindInt(6, photo->__width);
 	statement->BindInt(7, photo->__height);
 	if (photo->__pPhoto130) {

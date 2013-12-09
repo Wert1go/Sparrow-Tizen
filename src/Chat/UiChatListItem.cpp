@@ -266,11 +266,12 @@ UiChatListItem::Initalize() {
 		int actualLength;
 		pMessageLabel->GetTextExtent(0, text->GetLength(), size, actualLength);
 
-		if (size.width <= limitSize) {
+		Dimension normalSize = pMessageLabel->GetTextExtent();
+
+		if (size.width <= limitSize && normalSize.height <= size.height) {
 			resultSize.width = size.width;
 			resultSize.height = size.height;
 		} else {
-			Dimension normalSize = pMessageLabel->GetTextExtent();
 			resultSize = normalSize;
 		}
 

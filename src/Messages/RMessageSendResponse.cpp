@@ -8,11 +8,10 @@
 #include "RMessageSendResponse.h"
 
 RMessageSendResponse::RMessageSendResponse() {
-	// TODO Auto-generated constructor stub
-
+	__pMessage = null;
 }
 
 RMessageSendResponse::~RMessageSendResponse() {
-	// TODO Auto-generated destructor stub
+
 }
 
