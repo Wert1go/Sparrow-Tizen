@@ -32,6 +32,7 @@ private:
 	virtual void OnTransactionCompleted(Tizen::Net::Http::HttpSession& httpSession, Tizen::Net::Http::HttpTransaction& httpTransaction);
 	virtual void OnTransactionCertVerificationRequiredN(Tizen::Net::Http::HttpSession& httpSession, Tizen::Net::Http::HttpTransaction& httpTransaction, Tizen::Base::String* pCert);
 
+	void CreateHttpRequest();
 public:
 	void SetRequestOwner(IRestRequestOwner *owner);
 	void AddImageRequestListener(IImageRequestListener *pImageRequestListener);

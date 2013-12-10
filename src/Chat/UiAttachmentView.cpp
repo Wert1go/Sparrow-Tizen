@@ -71,6 +71,10 @@ UiAttachmentView::OnDraw(Tizen::Graphics::Canvas &canvas, const Tizen::Graphics:
 			canvas.DrawText(__durationDrawPoint, *__pDurationLabel);
 		}
 
+	} else if (__pAttachment->__pType->Equals(AUDIO, false)) {
+
+	} else if (__pAttachment->__pType->Equals(DOC, false)) {
+		canvas.FillRoundRectangle(Color(0, 0, 0, 150), rect, Dimension(8, 8));
 	}
 
 //	AppLog("OnDraw::END");

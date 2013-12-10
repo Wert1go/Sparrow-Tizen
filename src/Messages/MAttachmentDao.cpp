@@ -234,14 +234,237 @@ MAttachmentDao::LoadVideoFromDBN(DbEnumerator* pEnum) {
 	return attachment;
 }
 
+/************************* AUDIO ****************************/
+
+DbStatement *
+MAttachmentDao::CreateSaveAudioStatement() {
+	DbStatement *compiledSaveStatment = null;
+
+	String statement;
+
+	statement.Append(L"INSERT OR REPLACE INTO attachments ("
+							"identifier, "
+							"mid, "
+							"type, "
+
+							"owner_id, "
+
+							"artist, "
+							"title, "
+							"duration, "
+							"url "
+
+			") VALUES ("
+			" ?, ?, ?, ?, ?,"
+			" ?, ?, ?"
+			")");
+
+	result r = E_SUCCESS;
+	compiledSaveStatment = MDatabaseManager::getInstance().GetDatabase()->CreateStatementN(statement);
+
+	r = GetLastResult();
+	if (IsFailed(r))
+	{
+	   AppLog(GetErrorMessage(r));
+	}
+	return compiledSaveStatment;
+}
+
+DbStatement *
+MAttachmentDao::BindAudioToSQLStatement(MAttachment *pAttach, DbStatement *statement) {
+
+	String string(L"");
+
+	statement->BindInt(0, pAttach->__id);
+	statement->BindInt(1, pAttach->__mid);
+	statement->BindString(2, pAttach->__pType->GetPointer());
+	statement->BindInt(3, pAttach->__ownerId);
+
+
+	if (pAttach->__pArtist) {
+		statement->BindString(4, pAttach->__pArtist->GetPointer());
+	} else {
+		statement->BindString(4, string);
+	}
+
+	if (pAttach->__pTitle) {
+		statement->BindString(5, pAttach->__pTitle->GetPointer());
+	} else {
+		statement->BindString(5, string);
+	}
+
+	statement->BindInt(6, pAttach->__duration);
+
+
+	if (pAttach->__pUrl) {
+		statement->BindString(7, pAttach->__pUrl->GetPointer());
+	} else {
+		statement->BindString(7, string);
+	}
+
+	return statement;
+}
+
+MAttachment *
+MAttachmentDao::LoadAudioFromDBN(DbEnumerator* pEnum) {
+	MAttachment *attachment = new MAttachment();
+
+	attachment->__pType = new String(L"");
+	attachment->__pTitle = new String(L"");
+	attachment->__pUrl = new String(L"");
+	attachment->__pArtist = new String(L"");
+
+	pEnum->GetIntAt(0, attachment->__id);
+	pEnum->GetIntAt(1, attachment->__mid);
+	pEnum->GetStringAt(2, *attachment->__pType);
+	pEnum->GetIntAt(3, attachment->__ownerId);
+
+	pEnum->GetStringAt(12, *attachment->__pTitle);
+	pEnum->GetIntAt(13, attachment->__duration);
+
+	pEnum->GetStringAt(16, *attachment->__pArtist);
+	pEnum->GetStringAt(17, *attachment->__pUrl);
+
+	return attachment;
+}
+
+/************************* DOC ****************************/
+
+DbStatement *
+MAttachmentDao::CreateSaveDocStatement() {
+	DbStatement *compiledSaveStatment = null;
+
+	String statement;
+
+	statement.Append(L"INSERT OR REPLACE INTO attachments ("
+							"identifier, "
+							"mid, "
+							"type, "
+							"access_key, "
+
+							"owner_id, "
+
+							"ext, "
+							"title, "
+							"size, "
+							"url "
+
+			") VALUES ("
+			" ?, ?, ?, ?, ?,"
+			" ?, ?, ?, ?"
+			")");
+
+	result r = E_SUCCESS;
+	compiledSaveStatment = MDatabaseManager::getInstance().GetDatabase()->CreateStatementN(statement);
+
+	r = GetLastResult();
+	if (IsFailed(r))
+	{
+	   AppLog(GetErrorMessage(r));
+	}
+	return compiledSaveStatment;
+}
+
+DbStatement *
+MAttachmentDao::BindDocToSQLStatement(MAttachment *pAttach, DbStatement *statement) {
+
+	String string(L"");
+
+	statement->BindInt(0, pAttach->__id);
+	statement->BindInt(1, pAttach->__mid);
+	statement->BindString(2, pAttach->__pType->GetPointer());
+
+
+	if (pAttach->__pAccessKey) {
+		statement->BindString(3, pAttach->__pAccessKey->GetPointer());
+	} else {
+		statement->BindString(3, string);
+	}
+
+	statement->BindInt(4, pAttach->__ownerId);
+
+	if (pAttach->__pExt) {
+		statement->BindString(5, pAttach->__pExt->GetPointer());
+	} else {
+		statement->BindString(5, string);
+	}
+
+	if (pAttach->__pTitle) {
+		statement->BindString(6, pAttach->__pTitle->GetPointer());
+	} else {
+		statement->BindString(6, string);
+	}
+
+	statement->BindInt(7, pAttach->__size);
+
+
+	if (pAttach->__pUrl) {
+		statement->BindString(8, pAttach->__pUrl->GetPointer());
+	} else {
+		statement->BindString(8, string);
+	}
+
+	return statement;
+}
+
+MAttachment *
+MAttachmentDao::LoadDocFromDBN(DbEnumerator* pEnum) {
+	MAttachment *attachment = new MAttachment();
+
+	attachment->__pType = new String(L"");
+	attachment->__pTitle = new String(L"");
+	attachment->__pUrl = new String(L"");
+	attachment->__pExt = new String(L"");
+	attachment->__pAccessKey = new String(L"");
+
+	pEnum->GetIntAt(0, attachment->__id);
+	pEnum->GetIntAt(1, attachment->__mid);
+	pEnum->GetStringAt(2, *attachment->__pType);
+	pEnum->GetIntAt(3, attachment->__ownerId);
+
+	pEnum->GetStringAt(5, *attachment->__pAccessKey);
+
+	pEnum->GetStringAt(12, *attachment->__pTitle);
+	pEnum->GetIntAt(18, attachment->__size);
+
+	pEnum->GetStringAt(19, *attachment->__pExt);
+	pEnum->GetStringAt(17, *attachment->__pUrl);
+
+	return attachment;
+}
+
 /************************ COMMON METHODS **************************/
+
+DbStatement *
+MAttachmentDao::CreateSaveRelationStatement() {
+	DbStatement *compiledSaveStatment = null;
+
+	String statement;
+
+	statement.Append(L"INSERT OR REPLACE INTO m_to_a_relations (mid, aid) VALUES (?, ?)");
+	result r = E_SUCCESS;
+	compiledSaveStatment = MDatabaseManager::getInstance().GetDatabase()->CreateStatementN(statement);
+
+	r = GetLastResult();
+
+	if (IsFailed(r))
+	{
+	   AppLog(GetErrorMessage(r));
+	}
+	return compiledSaveStatment;
+}
 
 void
 MAttachmentDao::SaveAttachments(IList *pAttachments, int mid) {
 	AppLog("SaveAttachments %d :: count %d", mid, pAttachments->GetCount());
 
+	DbStatement *compiledSaveRelationStatment = CreateSaveRelationStatement();
+
 	DbStatement *compiledSavePhotoStatment = CreateSavePhotoStatement();
 	DbStatement *compiledSaveVideoStatment = CreateSaveVideoStatement();
+	DbStatement *compiledSaveAudioStatment = CreateSaveAudioStatement();
+	DbStatement *compiledSaveDocStatment = CreateSaveDocStatement();
+
 	DbEnumerator* pEnum = null;
 
 	IEnumerator* pAttachEnum = pAttachments->GetEnumeratorN();
@@ -258,6 +481,10 @@ MAttachmentDao::SaveAttachments(IList *pAttachments, int mid) {
 			compiledSaveStatment = BindPhotoToSQLStatement(pAttachment, compiledSavePhotoStatment);
 		} else if (pAttachment->__pType->Equals(VIDEO, false)) {
 			compiledSaveStatment = BindVideoToSQLStatement(pAttachment, compiledSaveVideoStatment);
+		} else if (pAttachment->__pType->Equals(AUDIO, false)) {
+			compiledSaveStatment = BindAudioToSQLStatement(pAttachment, compiledSaveAudioStatment);
+		} else if (pAttachment->__pType->Equals(DOC, false)) {
+			compiledSaveStatment = BindDocToSQLStatement(pAttachment, compiledSaveDocStatment);
 		}
 
 		if (compiledSaveStatment) {
@@ -265,11 +492,20 @@ MAttachmentDao::SaveAttachments(IList *pAttachments, int mid) {
 			delete pEnum;
 		}
 
+		compiledSaveRelationStatment->BindInt(0, mid);
+		compiledSaveRelationStatment->BindInt(1, pAttachment->__id);
+
+		pEnum = MDatabaseManager::getInstance().GetDatabase()->ExecuteStatementN(*compiledSaveRelationStatment);
+		delete pEnum;
+
 	}
 
 	delete pAttachEnum;
+
 	delete compiledSavePhotoStatment;
 	delete compiledSaveVideoStatment;
+	delete compiledSaveAudioStatment;
+	delete compiledSaveDocStatment;
 }
 
 LinkedList *
@@ -283,33 +519,34 @@ MAttachmentDao::GetAttachments(int mid) {
 
 
 	sql.Append(L"SELECT "
-			"identifier, " //0
-			"mid, "			//1
-			"type, "		//2
-			"owner_id, "	//3
-			"date, "		//4
-			"access_key, "	//4
-			"width, "		//6
-			"height, "		//7
-			"photo_130, "	//8
-			"photo_604, "	//9
+			"a.identifier, " //0
+			"a.mid, "			//1
+			"a.type, "		//2
+			"a.owner_id, "	//3
+			"a.date, "		//4
+			"a.access_key, "	//5
+			"a.width, "		//6
+			"a.height, "		//7
+			"a.photo_130, "	//8
+			"a.photo_604, "	//9
 
-			"album_id,"		//10
+			"a.album_id,"		//10
 
-			"photo_320, "	//11
-			"title, "		//12
-			"duration, "	//13
-			"views, "		//14
-			"description, "	//15
+			"a.photo_320, "	//11
+			"a.title, "		//12
+			"a.duration, "	//13
+			"a.views, "		//14
+			"a.description, "	//15
 
-			"artist, "		//16
-			"url, "			//17
-			"size, "		//18
-			"ext "			//19
+			"a.artist, "		//16
+			"a.url, "			//17
+			"a.size, "		//18
+			"a.ext "			//19
 
-			"FROM attachments "
-
-			"WHERE mid = ?");
+			"FROM attachments as a "
+			"INNER JOIN m_to_a_relations as d "
+			"ON d.mid = ? AND a.identifier = d.aid"
+			);
 
 	compiledSaveStatment = MDatabaseManager::getInstance().GetDatabase()->CreateStatementN(sql);
 
@@ -337,6 +574,10 @@ MAttachmentDao::GetAttachments(int mid) {
 			pAttachment = LoadPhotoFromDBN(pEnum);
 		} else if (pType->Equals(VIDEO, false)) {
 			pAttachment = LoadVideoFromDBN(pEnum);
+		} else if (pType->Equals(AUDIO, false)) {
+			pAttachment = LoadAudioFromDBN(pEnum);
+		} else if (pType->Equals(DOC, false)) {
+			pAttachment = LoadDocFromDBN(pEnum);
 		}
 
 		if (pAttachment) {

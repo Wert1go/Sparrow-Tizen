@@ -181,6 +181,8 @@ Util::CalculateDimensionForMessage(MMessage *message) {
 		for (int i = 0; i < message->__pAttachments->GetCount(); i++) {
 			MAttachment *attachment = static_cast<MAttachment *>( message->__pAttachments->GetAt(i));
 
+			AppLog("attachment: %S", attachment->__pType->GetPointer());
+
 			attachment->ratio = (float)attachment->__width/attachment->__height;
 
 			float imgWidth;
@@ -206,7 +208,7 @@ Util::CalculateDimensionForMessage(MMessage *message) {
 					}
 				}
 
-			} else {
+			} else if (attachment->__pType->Equals(VIDEO, false)) {
 				if (attachment->__pVideoPhoto320) {
 					imgWidth = 320;
 					imgHeight = 240;
@@ -214,6 +216,12 @@ Util::CalculateDimensionForMessage(MMessage *message) {
 					imgWidth = 130;
 					imgHeight = 98;
 				}
+			} else if (attachment->__pType->Equals(AUDIO, false)) {
+				imgWidth = 420;
+				imgHeight = 120;
+			} else if (attachment->__pType->Equals(DOC, false)) {
+				imgWidth = 320;
+				imgHeight = 80;
 			}
 
 			if (resultSize.width < imgWidth) {

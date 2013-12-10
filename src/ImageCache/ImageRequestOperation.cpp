@@ -23,23 +23,38 @@ using namespace Tizen::Graphics;
 
 ImageRequestOperation::ImageRequestOperation(const Tizen::Base::String *url) {
 
-	HttpHeader* pHeader = null;
 	__pUrl = new String(url->GetPointer());
-	__pHttpTransaction = RestClient::getInstance().GetActiveSession()->OpenTransactionN();
-	__pHttpTransaction->AddHttpTransactionListener(*this);
 
-	HttpRequest* pHttpRequest = __pHttpTransaction->GetRequest();
-
-	pHttpRequest->SetMethod(NET_HTTP_METHOD_GET);
-	pHttpRequest->SetUri(url->GetPointer());
-	pHeader = pHttpRequest->GetHeader();
-	pHeader->AddField(L"Accept", L"image/*");
+	CreateHttpRequest();
 
 	__pRequestOwner = null;
 	__pByteBuffer = null;
 	__isComplited = false;
 	__isError = false;
 	__pByteBuffer = null;
+}
+
+void
+ImageRequestOperation::CreateHttpRequest() {
+	HttpHeader* pHeader = null;
+
+	__pHttpTransaction = RestClient::getInstance().GetActiveSession()->OpenTransactionN();
+
+	result r = GetLastResult();
+	if (r != E_SUCCESS) {
+		RestClient::getInstance().RecreateSession();
+		this->CreateHttpRequest();
+		return;
+	}
+
+	__pHttpTransaction->AddHttpTransactionListener(*this);
+
+	HttpRequest* pHttpRequest = __pHttpTransaction->GetRequest();
+
+	pHttpRequest->SetMethod(NET_HTTP_METHOD_GET);
+	pHttpRequest->SetUri(__pUrl->GetPointer());
+	pHeader = pHttpRequest->GetHeader();
+	pHeader->AddField(L"Accept", L"image/*");
 }
 
 ImageRequestOperation::~ImageRequestOperation() {
@@ -54,6 +69,12 @@ ImageRequestOperation::~ImageRequestOperation() {
 void ImageRequestOperation::perform() {
 	if (__pHttpTransaction != null) {
 		__pHttpTransaction->Submit();
+		result r = GetLastResult();
+		if (r != E_SUCCESS) {
+			RestClient::getInstance().RecreateSession();
+			this->CreateHttpRequest();
+			this->perform();
+		}
 	} else {
 		AppLogDebug("ImageRequestOperation::Ошибка при попытке выполнить HTTP запрос");
 	}

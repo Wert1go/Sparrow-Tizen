@@ -37,6 +37,15 @@ public:
 	DbStatement * BindVideoToSQLStatement(MAttachment *attach, DbStatement *statement);
 	MAttachment * LoadVideoFromDBN(DbEnumerator* pEnum);
 
+	DbStatement * CreateSaveAudioStatement();
+	DbStatement * BindAudioToSQLStatement(MAttachment *attach, DbStatement *statement);
+	MAttachment * LoadAudioFromDBN(DbEnumerator* pEnum);
+
+	DbStatement * CreateSaveDocStatement();
+	DbStatement * BindDocToSQLStatement(MAttachment *attach, DbStatement *statement);
+	MAttachment * LoadDocFromDBN(DbEnumerator* pEnum);
+
+	DbStatement * CreateSaveRelationStatement();
 	void SaveAttachments(IList *pAttachments, int mid);
 	LinkedList * GetAttachments(int mid);
 };

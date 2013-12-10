@@ -118,6 +118,13 @@ RestRequestOperation::CreateHttpRequest() {
 
 	__pHttpTransaction = RestClient::getInstance().GetActiveSession()->OpenTransactionN();
 
+	result r = GetLastResult();
+	if (r != E_SUCCESS) {
+		RestClient::getInstance().RecreateSession();
+		this->CreateHttpRequest();
+		return;
+	}
+
 	__pHttpTransaction->AddHttpTransactionListener(*this);
 
 	HttpRequest* pHttpRequest = __pHttpTransaction->GetRequest();

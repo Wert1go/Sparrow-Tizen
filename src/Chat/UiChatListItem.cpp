@@ -117,7 +117,7 @@ UiChatListItem::OnDraw(Tizen::Graphics::Canvas& canvas, const Tizen::Graphics::R
 				} else {
 					imgUrl = attachment->__pPhoto130;
 				}
-			} else {
+			} else if (attachment->__pType->Equals(VIDEO, false)) {
 				if (attachment->__pVideoPhoto320) {
 					imgUrl = attachment->__pVideoPhoto320;
 				} else {

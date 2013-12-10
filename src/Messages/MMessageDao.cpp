@@ -250,8 +250,6 @@ MMessageDao::SaveReaded(int messageId) {
 	DbEnumerator* pEnum = null;
 	DbStatement* pStmt = null;
 
-	MDatabaseManager::getInstance().GetDatabase()->BeginTransaction();
-
 	pStmt = MDatabaseManager::getInstance().GetDatabase()->CreateStatementN(statement);
 
 	pStmt->BindInt(0, 1);
@@ -260,8 +258,6 @@ MMessageDao::SaveReaded(int messageId) {
 	pEnum = MDatabaseManager::getInstance().GetDatabase()->ExecuteStatementN(*pStmt);
 
 	AppAssert(!pEnum);
-
-	MDatabaseManager::getInstance().GetDatabase()->CommitTransaction();
 
 	delete pEnum;
 	delete pStmt;
@@ -276,8 +272,6 @@ MMessageDao::markAsReaded(int userId, int chatId) {
 	DbEnumerator* pEnum = null;
 	DbStatement* pStmt = null;
 
-	MDatabaseManager::getInstance().GetDatabase()->BeginTransaction();
-
 	pStmt = MDatabaseManager::getInstance().GetDatabase()->CreateStatementN(statement);
 
 	pStmt->BindInt(0, 1);
@@ -287,8 +281,6 @@ MMessageDao::markAsReaded(int userId, int chatId) {
 	pEnum = MDatabaseManager::getInstance().GetDatabase()->ExecuteStatementN(*pStmt);
 
 	AppAssert(!pEnum);
-
-	MDatabaseManager::getInstance().GetDatabase()->CommitTransaction();
 
 	delete pEnum;
 	delete pStmt;

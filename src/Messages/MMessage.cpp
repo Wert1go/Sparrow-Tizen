@@ -42,6 +42,20 @@ MMessage::TableDescription() {
 	return sql;
 }
 
+String*
+MMessage::RelationTableDescription() {
+	String *sql = new String();
+	sql->Append(L"CREATE TABLE IF NOT EXISTS "
+			"m_to_a_relations ("
+			"_id INTEGER PRIMARY KEY,"
+			"mid INTEGER,"
+			"aid INTEGER,"
+			" UNIQUE (mid,"
+			" aid) "
+			")");
+	return sql;
+}
+
 /***************** GETTERS ******************/
 
 int

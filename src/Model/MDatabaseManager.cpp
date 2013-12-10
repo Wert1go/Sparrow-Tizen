@@ -38,6 +38,11 @@ MDatabaseManager::MDatabaseManager() {
 	r = __database->ExecuteSql(sqlMessage->GetPointer(), true);
 	delete sqlMessage;
 
+	String *sqlMtoARelation = MMessage::RelationTableDescription();
+	r = __database->ExecuteSql(sqlMtoARelation->GetPointer(), true);
+	AppLog(GetErrorMessage(r));
+	delete sqlMtoARelation;
+
 	String *sqlAttachment = MAttachment::TableDescription();
 	r = __database->ExecuteSql(sqlAttachment->GetPointer(), true);
 	delete sqlAttachment;

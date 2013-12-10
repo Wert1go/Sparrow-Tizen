@@ -47,6 +47,7 @@ public:
 
 public:
 	static String* TableDescription();
+	static String* RelationTableDescription();
 
 	int GetMid();
 	int GetUid();

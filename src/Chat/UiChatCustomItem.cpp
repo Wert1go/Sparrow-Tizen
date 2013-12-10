@@ -118,25 +118,30 @@ UiChatCustomItem::DrawImageFromUrlInRect(String *imageUrl, Rectangle rect) {
 
 void
 UiChatCustomItem::DrawAttachmentFromUrlInRect(String *imageUrl, Rectangle rect, MAttachment *attachment) {
-	bool exist = false;
-	this->__pUrtToIndexMap->ContainsKey(imageUrl, exist);
-	if (exist) {
-		return;
-	}
 
-	if (!imageUrl) {
-		return;
+	if (imageUrl) {
+		bool exist = false;
+		this->__pUrtToIndexMap->ContainsKey(imageUrl, exist);
+		if (exist) {
+			return;
+		}
 	}
 
 	int index = this->__pImageViews->GetCount();
 
 	UiAttachmentView *pImageView = new (std::nothrow) UiAttachmentView();
 	pImageView->SetAttachment(attachment);
-	__pUrtToIndexMap->Add(imageUrl, new Integer(index));
+
+	if (imageUrl) {
+		__pUrtToIndexMap->Add(imageUrl, new Integer(index));
+	}
 
 	this->AddElement(rect, index, *pImageView);
 	this->__pImageViews->Add(pImageView);
-	this->SetImageUrl(imageUrl, index);
+
+	if (imageUrl) {
+		this->SetImageUrl(imageUrl, index);
+	}
 }
 
 void
