@@ -80,9 +80,8 @@ public:
 	static MAttachment * CreatePhotoFromJsonN(Tizen::Web::Json::JsonObject *pPhotoObject);
 	static MAttachment * CreateVideoFromJsonN(Tizen::Web::Json::JsonObject *pVideoObject);
 
-//	static MAttachment * CreateAudioFromJsonN(Tizen::Web::Json::JsonObject *pPhotoObject);
-//	static MAttachment * CreateDocFromJsonN(Tizen::Web::Json::JsonObject *pPhotoObject);
-
+	static MAttachment * CreateAudioFromJsonN(Tizen::Web::Json::JsonObject *pAttachObject);
+	static MAttachment * CreateDocFromJsonN(Tizen::Web::Json::JsonObject *pAttachObject);
 
 	static MAttachment* CreateFromJsonLPN(const Tizen::Web::Json::JsonObject &jsonObject);
 	static String* TableDescription();

@@ -127,6 +127,38 @@ MAttachment::CreateFromJsonN(const Tizen::Web::Json::JsonObject &jsonObject) {
 			delete pKeyAttach;
 
 			return pAttach;
+		} else if (typeString->Equals(AUDIO, false)) {
+			MAttachment *pAttach = null;
+
+			JsonString* pKeyAttach = new JsonString(AUDIO);
+			IJsonValue *pValAttach = null;
+
+			jsonObject.GetValue(pKeyAttach, pValAttach);
+
+			if (pValAttach) {
+				JsonObject *pAttachObject = static_cast<JsonObject *>(pValAttach);
+				pAttach = MAttachment::CreateAudioFromJsonN(pAttachObject);
+			}
+
+			delete pKeyAttach;
+
+			return pAttach;
+		} else if (typeString->Equals(DOC, false)) {
+			MAttachment *pAttach = null;
+
+			JsonString* pKeyAttach = new JsonString(DOC);
+			IJsonValue *pValAttach = null;
+
+			jsonObject.GetValue(pKeyAttach, pValAttach);
+
+			if (pValAttach) {
+				JsonObject *pAttachObject = static_cast<JsonObject *>(pValAttach);
+				pAttach = MAttachment::CreateDocFromJsonN(pAttachObject);
+			}
+
+			delete pKeyAttach;
+
+			return pAttach;
 		}
 	}
 
@@ -341,7 +373,163 @@ MAttachment::CreateVideoFromJsonN(JsonObject *pVideoObject) {
 	return pAttach;
 }
 
+MAttachment *
+MAttachment::CreateAudioFromJsonN(Tizen::Web::Json::JsonObject *pAttachObject) {
+	MAttachment *pAttach = new MAttachment();
 
+	JsonString* pKeyId = new JsonString(L"id");
+	JsonString* pKeyAudioId = new JsonString(L"aid");
+	IJsonValue *pValId = null;
+	JsonString* pKeyOwnerId = new JsonString(L"owner_id");
+	IJsonValue *pValOwnerId = null;
+
+	JsonString* pKeyTitle = new JsonString(L"title");
+	IJsonValue *pValTitle = null;
+	JsonString* pKeyDuration = new JsonString(L"duration");
+	IJsonValue *pValDuration = null;
+
+	JsonString* pKeyArtist = new JsonString(L"artist");
+	IJsonValue *pValArtist = null;
+	JsonString* pKeyUrl = new JsonString(L"url");
+	IJsonValue *pValUrl = null;
+
+	pAttachObject->GetValue(pKeyId, pValId);
+	if (!pValId) {
+		pAttachObject->GetValue(pKeyAudioId, pValId);
+	}
+
+	pAttachObject->GetValue(pKeyOwnerId, pValOwnerId);
+
+	pAttachObject->GetValue(pKeyTitle, pValTitle);
+	pAttachObject->GetValue(pKeyDuration, pValDuration);
+
+	pAttachObject->GetValue(pKeyArtist, pValArtist);
+	pAttachObject->GetValue(pKeyUrl, pValUrl);
+
+
+	JsonNumber *pKey = static_cast<JsonNumber *>(pValId);
+	JsonNumber *pOwner = static_cast<JsonNumber *>(pValOwnerId);
+
+	JsonString *pTitle = static_cast<JsonString *>(pValTitle);
+	JsonNumber *pDuration = static_cast<JsonNumber *>(pValDuration);
+
+	JsonString *pArtist = static_cast<JsonString *>(pValArtist);
+	JsonString *pUrl = static_cast<JsonString *>(pValUrl);
+
+	pAttach->__pType = new String(AUDIO);
+	pAttach->__id = pKey->ToInt();
+	pAttach->__ownerId = pOwner->ToInt();
+
+	if (pTitle) {
+		pAttach->__pTitle = new String(pTitle->GetPointer());
+	}
+
+	if (pArtist) {
+		pAttach->__pArtist = new String(pArtist->GetPointer());
+	}
+
+	if (pUrl) {
+		pAttach->__pUrl = new String(pUrl->GetPointer());
+	}
+
+	pAttach->__duration = pDuration->ToInt();
+
+	delete pKeyId;
+	delete pKeyAudioId;
+	delete pKeyOwnerId;
+
+	delete pKeyTitle;
+	delete pKeyDuration;
+
+	delete pKeyArtist;
+	delete pKeyUrl;
+
+	return pAttach;
+}
+
+MAttachment *
+MAttachment::CreateDocFromJsonN(Tizen::Web::Json::JsonObject *pAttachObject) {
+	MAttachment *pAttach = new MAttachment();
+
+	JsonString* pKeyId = new JsonString(L"id");
+	JsonString* pKeyAudioId = new JsonString(L"did");
+	IJsonValue *pValId = null;
+	JsonString* pKeyOwnerId = new JsonString(L"owner_id");
+	IJsonValue *pValOwnerId = null;
+
+	JsonString* pKeyAccess = new JsonString(L"access_key");
+	IJsonValue *pValAccess = null;
+	JsonString* pKeyTitle = new JsonString(L"title");
+	IJsonValue *pValTitle = null;
+
+	JsonString* pKeySize = new JsonString(L"size");
+	IJsonValue *pValSize = null;
+	JsonString* pKeyExt = new JsonString(L"ext");
+	IJsonValue *pValExt = null;
+
+	JsonString* pKeyUrl = new JsonString(L"url");
+	IJsonValue *pValUrl = null;
+
+	pAttachObject->GetValue(pKeyId, pValId);
+	if (!pValId) {
+		pAttachObject->GetValue(pKeyAudioId, pValId);
+	}
+
+	pAttachObject->GetValue(pKeyAccess, pValAccess);
+	pAttachObject->GetValue(pKeyOwnerId, pValOwnerId);
+
+	pAttachObject->GetValue(pKeyTitle, pValTitle);
+	pAttachObject->GetValue(pKeySize, pValSize);
+
+	pAttachObject->GetValue(pKeyExt, pValExt);
+	pAttachObject->GetValue(pKeyUrl, pValUrl);
+
+	JsonNumber *pKey = static_cast<JsonNumber *>(pValId);
+	JsonNumber *pOwner = static_cast<JsonNumber *>(pValOwnerId);
+	JsonString *pAccess = static_cast<JsonString *>(pValAccess);
+
+	JsonString *pTitle = static_cast<JsonString *>(pValTitle);
+	JsonNumber *pSize = static_cast<JsonNumber *>(pValSize);
+
+	JsonString *pExt = static_cast<JsonString *>(pValExt);
+	JsonString *pUrl = static_cast<JsonString *>(pValUrl);
+
+	pAttach->__pType = new String(DOC);
+	pAttach->__id = pKey->ToInt();
+	pAttach->__ownerId = pOwner->ToInt();
+
+	if (pTitle) {
+		pAttach->__pTitle = new String(pTitle->GetPointer());
+	}
+
+	if (pAccess) {
+		pAttach->__pAccessKey = new String(pAccess->GetPointer());
+	}
+
+	if (pExt) {
+		pAttach->__pExt = new String(pExt->GetPointer());
+	}
+
+	if (pUrl) {
+		pAttach->__pUrl = new String(pUrl->GetPointer());
+	}
+
+	pAttach->__size = pSize->ToInt();
+
+	delete pKeyId;
+	delete pKeyAudioId;
+
+	delete pKeyOwnerId;
+	delete pKeyAccess;
+
+	delete pKeyTitle;
+	delete pKeySize;
+
+	delete pKeyExt;
+	delete pKeyUrl;
+
+	return pAttach;
+}
 
 
 /******************************* CREATE LP OBJECTS ***************************/
@@ -436,6 +624,38 @@ MAttachment::CreateFromJsonLPN(const Tizen::Web::Json::JsonObject &jsonObject) {
 					JsonObject *pAttachObject = static_cast<JsonObject *>(pValAttach);
 
 					pAttach = MAttachment::CreateVideoFromJsonN(pAttachObject);
+				}
+
+				delete pKeyAttach;
+
+				return pAttach;
+			} else if (typeString->Equals(AUDIO, false)) {
+				MAttachment *pAttach = null;
+
+				JsonString* pKeyAttach = new JsonString(AUDIO);
+				IJsonValue *pValAttach = null;
+
+				jsonObject.GetValue(pKeyAttach, pValAttach);
+
+				if (pValAttach) {
+					JsonObject *pAttachObject = static_cast<JsonObject *>(pValAttach);
+					pAttach = MAttachment::CreateAudioFromJsonN(pAttachObject);
+				}
+
+				delete pKeyAttach;
+
+				return pAttach;
+			} else if (typeString->Equals(DOC, false)) {
+				MAttachment *pAttach = null;
+
+				JsonString* pKeyAttach = new JsonString(DOC);
+				IJsonValue *pValAttach = null;
+
+				jsonObject.GetValue(pKeyAttach, pValAttach);
+
+				if (pValAttach) {
+					JsonObject *pAttachObject = static_cast<JsonObject *>(pValAttach);
+					pAttach = MAttachment::CreateDocFromJsonN(pAttachObject);
 				}
 
 				delete pKeyAttach;
