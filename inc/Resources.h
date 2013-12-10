@@ -39,6 +39,13 @@ public:
 	Bitmap *GetGroupPressedIcon();
 
 	Bitmap *GetVideoPlayIcon();
+	Bitmap *GetDocumentIcon();
+
+	Bitmap *GetAudioPlayIcon();
+	Bitmap *GetAudioPlayPressedIcon();
+
+	Bitmap *GetAudioPauseIcon();
+	Bitmap *GetAudioPausePressedIcon();
 
 	Bitmap *GetUserAvatar();
 
@@ -56,7 +63,15 @@ private:
 
 	Bitmap *__pVideoPlayIcon;
 
+	Bitmap *__pDocumentIcon;
+
 	Bitmap *__pUserAvatar;
+
+	Bitmap *__pAudioPlayIcon;
+	Bitmap *__pAudioPlayPressedIcon;
+
+	Bitmap *__pAudioPauseIcon;
+	Bitmap *__pAudioPausePressedIcon;
 
 };
 

@@ -25,6 +25,8 @@ UiAttachmentView::UiAttachmentView() {
 
 	__pDurationLabel = null;
 	__pDurationText = null;
+
+	__playing = false;
 }
 
 UiAttachmentView::~UiAttachmentView() {
@@ -73,8 +75,37 @@ UiAttachmentView::OnDraw(Tizen::Graphics::Canvas &canvas, const Tizen::Graphics:
 
 	} else if (__pAttachment->__pType->Equals(AUDIO, false)) {
 
+		Bitmap *pButton = null;
+
+		if (this->__playing) {
+			if (status == LIST_ITEM_DRAWING_STATUS_NORMAL) {
+				pButton = Resources::getInstance().GetAudioPauseIcon();
+			} else {
+				pButton = Resources::getInstance().GetAudioPausePressedIcon();
+			}
+		} else {
+			if (status == LIST_ITEM_DRAWING_STATUS_NORMAL) {
+				pButton = Resources::getInstance().GetAudioPlayIcon();
+			} else {
+				pButton = Resources::getInstance().GetAudioPlayPressedIcon();
+			}
+		}
+
+		canvas.DrawBitmap(Rectangle(5, rect.height/2 - 71/2, 71, 71), *pButton);
+
+		if (__pTitleLabel && __pDurationLabel) {
+			canvas.DrawText(__titleDrawPoint, *__pTitleLabel);
+			canvas.DrawText(__durationDrawPoint, *__pDurationLabel);
+		}
+
+
 	} else if (__pAttachment->__pType->Equals(DOC, false)) {
-		canvas.FillRoundRectangle(Color(0, 0, 0, 150), rect, Dimension(8, 8));
+		canvas.FillRoundRectangle(Color(0, 0, 0, 100), rect, Dimension(8, 8));
+		canvas.DrawBitmap(Rectangle(5, rect.height/2 - 72/2, 72, 72), *Resources::getInstance().GetDocumentIcon());
+
+		if (__pTitleLabel) {
+			canvas.DrawText(__titleDrawPoint, *__pTitleLabel);
+		}
 	}
 
 //	AppLog("OnDraw::END");
@@ -94,6 +125,11 @@ UiAttachmentView::SetAttachment(MAttachment *pAttachment) {
 	int titleHeight = 54;
 	int durationLabelSize = 80;
 	int offset = 10;
+
+	int docOffset = 80;
+	int audioOffset = 85;
+
+	int audioHeight = height/2;
 
 	if (__pAttachment->__pType->Equals(VIDEO, false)) {
 		EnrichedText* pMessageLabel = null;
@@ -144,8 +180,6 @@ UiAttachmentView::SetAttachment(MAttachment *pAttachment) {
 		pMessageLabel->SetSize(resultSize);
 
 		Point drawPoint;
-
-		AppLog("resultSize.height %d", resultSize.height);
 
 		drawPoint = Point(offset, height - labelHeight/2 - resultSize.height/2);
 
@@ -233,6 +267,178 @@ UiAttachmentView::SetAttachment(MAttachment *pAttachment) {
 		__pDurationText = pDurationText;
 
 		delete pDuration;
+		delete pTitleString;
+	} else if (__pAttachment->__pType->Equals(DOC, false)){
+		EnrichedText* pMessageLabel = null;
+		TextElement* pMessageText = null;
+
+		pMessageLabel = new EnrichedText();
+		pMessageLabel->Construct(Dimension(width - docOffset - offset, height));
+
+		pMessageLabel->SetHorizontalAlignment(TEXT_ALIGNMENT_LEFT);
+		pMessageLabel->SetVerticalAlignment(TEXT_ALIGNMENT_MIDDLE);
+		pMessageLabel->SetTextWrapStyle(TEXT_WRAP_WORD_WRAP);
+		pMessageLabel->SetTextAbbreviationEnabled(true);
+
+		String *pTitleString = null;
+
+		if (__pAttachment->__pTitle) {
+			pTitleString = new String(__pAttachment->__pTitle->GetPointer());
+		} else {
+			pTitleString = new String(L"");
+		}
+
+		pMessageText = new TextElement();
+		pMessageText->Construct(*pTitleString);
+		pMessageText->SetTextColor(Color(255, 255, 255, 255));
+		{
+			Font font;
+			font.Construct(FONT_STYLE_BOLD, 22);
+			pMessageText->SetFont(font);
+		}
+
+		pMessageLabel->Add(*pMessageText);
+
+		Dimension resultSize;
+
+		FloatDimension size;
+		int actualLength;
+		pMessageLabel->GetTextExtent(0, pTitleString->GetLength(), size, actualLength);
+
+		if (size.width <= width - durationLabelSize) {
+			resultSize.width = size.width;
+			resultSize.height = size.height;
+		}
+
+		if (resultSize.height == 0) {
+			resultSize.height = titleHeight;
+		}
+
+		pMessageLabel->SetSize(resultSize);
+
+		Point drawPoint;
+
+		drawPoint = Point(docOffset, height/2 - resultSize.height/2);
+
+		__titleDrawPoint = drawPoint;
+		__pTitleLabel = pMessageLabel;
+		__pTitleText = pMessageText;
+
+		delete pTitleString;
+
+	} else if (__pAttachment->__pType->Equals(AUDIO, false)){
+		EnrichedText* pMessageLabel = null;
+		TextElement* pMessageText = null;
+
+		pMessageLabel = new EnrichedText();
+		pMessageLabel->Construct(Dimension(width - audioOffset - offset, audioHeight));
+
+		pMessageLabel->SetHorizontalAlignment(TEXT_ALIGNMENT_LEFT);
+		pMessageLabel->SetVerticalAlignment(TEXT_ALIGNMENT_MIDDLE);
+		pMessageLabel->SetTextWrapStyle(TEXT_WRAP_WORD_WRAP);
+		pMessageLabel->SetTextAbbreviationEnabled(true);
+
+		String *pTitleString = null;
+
+		if (__pAttachment->__pArtist) {
+			pTitleString = new String(__pAttachment->__pArtist->GetPointer());
+		} else {
+			pTitleString = new String(L"");
+		}
+
+		pMessageText = new TextElement();
+		pMessageText->Construct(*pTitleString);
+		pMessageText->SetTextColor(Color(255, 255, 255, 255));
+		{
+			Font font;
+			font.Construct(FONT_STYLE_BOLD, 32);
+			pMessageText->SetFont(font);
+		}
+
+		pMessageLabel->Add(*pMessageText);
+
+		Dimension resultSize;
+
+		FloatDimension size;
+		int actualLength;
+		pMessageLabel->GetTextExtent(0, pTitleString->GetLength(), size, actualLength);
+
+		if (size.width <= width - durationLabelSize) {
+			resultSize.width = size.width;
+			resultSize.height = size.height;
+		}
+
+		if (resultSize.height == 0) {
+			resultSize.height = audioHeight;
+		}
+
+		pMessageLabel->SetSize(resultSize);
+
+		Point drawPoint;
+
+		drawPoint = Point(offset + audioOffset, audioHeight/2 - resultSize.height/2);
+
+		__titleDrawPoint = drawPoint;
+		__pTitleLabel = pMessageLabel;
+		__pTitleText = pMessageText;
+
+/************** SUBTITLE ***************/
+
+		EnrichedText* pDurationLabel = null;
+		TextElement* pDurationText = null;
+
+		pDurationLabel = new EnrichedText();
+		pDurationLabel->Construct(Dimension(width - audioOffset - offset, audioHeight));
+
+		pDurationLabel->SetHorizontalAlignment(TEXT_ALIGNMENT_LEFT);
+		pDurationLabel->SetVerticalAlignment(TEXT_ALIGNMENT_MIDDLE);
+		pDurationLabel->SetTextWrapStyle(TEXT_WRAP_WORD_WRAP);
+		pDurationLabel->SetTextAbbreviationEnabled(true);
+
+		pDurationText = new TextElement();
+
+		String *pSongString = null;
+
+		if (this->__pAttachment->__pTitle) {
+			pSongString = new String(this->__pAttachment->__pTitle->GetPointer());
+		} else {
+			pSongString = new String(L"");
+		}
+
+		pDurationText->Construct(*pSongString);
+
+		pDurationText->SetTextColor(Color(255, 255, 255, 255));
+		{
+			Font font;
+			font.Construct(FONT_STYLE_BOLD, 26);
+			pDurationText->SetFont(font);
+		}
+
+		pDurationLabel->Add(*pDurationText);
+
+		Dimension resultSizeDuration;
+		size = FloatDimension(0,0);
+		actualLength = 0;
+
+		pDurationLabel->GetTextExtent(0, pSongString->GetLength(), size, actualLength);
+
+		if (size.width <= durationLabelSize) {
+			resultSizeDuration.width = size.width;
+			resultSizeDuration.height = size.height;
+		}
+		if (resultSizeDuration.height == 0) {
+			resultSizeDuration.height = audioHeight;
+		}
+
+		pDurationLabel->SetSize(resultSizeDuration);
+
+		drawPoint = Point(offset + audioOffset, audioHeight + audioHeight/2 - resultSize.height/2);
+
+		__durationDrawPoint = drawPoint;
+		__pDurationLabel = pDurationLabel;
+		__pDurationText = pDurationText;
+
+		delete pSongString;
 		delete pTitleString;
 	}
 }

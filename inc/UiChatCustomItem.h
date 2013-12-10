@@ -70,6 +70,7 @@ private:
 
 	HashMapT<String *, Integer *> *__pUrtToIndexMap;
 	LinkedList *__pImageViews;
+	LinkedList *__pDrawedAttachments;
 	IRefreshableListView *__pRefreshListener;
 
 };

@@ -32,6 +32,11 @@ Resources::Resources() {
 	__pGroupPressedIcon = null;
 
 	__pVideoPlayIcon = null;
+
+	__pAudioPlayIcon = null;
+	__pAudioPlayPressedIcon = null;
+	__pAudioPauseIcon = null;
+	__pAudioPausePressedIcon = null;
 }
 
 Resources::~Resources() {
@@ -74,6 +79,26 @@ Resources::~Resources() {
 	if (__pGroupPressedIcon) {
 		delete __pGroupPressedIcon;
 		__pGroupPressedIcon = null;
+	}
+
+	if (__pAudioPlayPressedIcon) {
+		delete __pAudioPlayPressedIcon;
+		__pAudioPlayPressedIcon = null;
+	}
+
+	if (__pAudioPlayIcon) {
+		delete __pAudioPlayIcon;
+		__pAudioPlayIcon = null;
+	}
+
+	if (__pAudioPauseIcon) {
+		delete __pAudioPauseIcon;
+		__pAudioPauseIcon = null;
+	}
+
+	if (__pAudioPausePressedIcon) {
+		delete __pAudioPausePressedIcon;
+		__pAudioPausePressedIcon = null;
 	}
 
 }
@@ -145,6 +170,46 @@ Resources::GetVideoPlayIcon() {
 		this->__pVideoPlayIcon = this->LoadBitmapNamed(L"btn_play_video.png");
 	}
 	return __pVideoPlayIcon;
+}
+
+Bitmap *
+Resources::GetDocumentIcon() {
+	if (!__pDocumentIcon) {
+		this->__pDocumentIcon = this->LoadBitmapNamed(L"icon_document.png");
+	}
+	return __pDocumentIcon;
+}
+
+Bitmap *
+Resources::GetAudioPlayIcon() {
+	if (!__pAudioPlayIcon) {
+		this->__pAudioPlayIcon = this->LoadBitmapNamed(L"btn_play_normal.png");
+	}
+	return __pAudioPlayIcon;
+}
+
+Bitmap *
+Resources::GetAudioPlayPressedIcon() {
+	if (!__pAudioPlayPressedIcon) {
+		this->__pAudioPlayPressedIcon = this->LoadBitmapNamed(L"btn_play_press.png");
+	}
+	return __pAudioPlayPressedIcon;
+}
+
+Bitmap *
+Resources::GetAudioPauseIcon() {
+	if (!__pAudioPauseIcon) {
+		this->__pAudioPauseIcon = this->LoadBitmapNamed(L"btn_pause_normal.png");
+	}
+	return __pAudioPauseIcon;
+}
+
+Bitmap *
+Resources::GetAudioPausePressedIcon() {
+	if (!__pAudioPausePressedIcon) {
+		this->__pAudioPausePressedIcon = this->LoadBitmapNamed(L"btn_pause_press.png");
+	}
+	return __pAudioPausePressedIcon;
 }
 
 /************************** UTILS ***************************/

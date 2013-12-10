@@ -12,6 +12,7 @@
 #include "UiImageView.h"
 #include "UiAttachmentView.h"
 #include "ImageCache.h"
+#include "MAttachment.h"
 
 using namespace Tizen::Ui;
 using namespace Tizen::Base;
@@ -22,6 +23,7 @@ using namespace Tizen::Ui::Controls;
 UiChatCustomItem::UiChatCustomItem() {
 	__pChatListItem = new UiChatListItem();
 	__pImageViews = new LinkedList(SingleObjectDeleter);
+	__pDrawedAttachments  = new LinkedList();
 	__pRefreshListener = null;
 	__pUrtToIndexMap = new HashMapT<String *, Integer *>();
 	__pUrtToIndexMap->Construct(100, 0.75);
@@ -46,6 +48,8 @@ UiChatCustomItem::~UiChatCustomItem() {
 		__pUrtToIndexMap->RemoveAll();
 		delete __pUrtToIndexMap;
 	}
+
+	delete __pDrawedAttachments;
 }
 
 void
@@ -125,12 +129,15 @@ UiChatCustomItem::DrawAttachmentFromUrlInRect(String *imageUrl, Rectangle rect, 
 		if (exist) {
 			return;
 		}
+	} else if (__pDrawedAttachments->Contains(*attachment)) {
+		return;
 	}
 
 	int index = this->__pImageViews->GetCount();
 
 	UiAttachmentView *pImageView = new (std::nothrow) UiAttachmentView();
 	pImageView->SetAttachment(attachment);
+	__pDrawedAttachments->Add(attachment);
 
 	if (imageUrl) {
 		__pUrtToIndexMap->Add(imageUrl, new Integer(index));

@@ -41,6 +41,8 @@ public:
 	TextElement* __pDurationText;
 	Point __durationDrawPoint;
 
+	bool __playing;
+
 };
 
 #endif /* UIATTACHMENTVIEW_H_ */

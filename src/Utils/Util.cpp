@@ -218,7 +218,7 @@ Util::CalculateDimensionForMessage(MMessage *message) {
 				}
 			} else if (attachment->__pType->Equals(AUDIO, false)) {
 				imgWidth = 420;
-				imgHeight = 120;
+				imgHeight = 80;
 			} else if (attachment->__pType->Equals(DOC, false)) {
 				imgWidth = 320;
 				imgHeight = 80;
