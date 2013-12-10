@@ -144,7 +144,7 @@ void
 ImageRequestOperation::OnTransactionCompleted(HttpSession& httpSession, HttpTransaction& httpTransaction)
 {
 //	AppLog("ImageRequestOperation::OnTransactionCompleted");
-
+	__pHttpTransaction = null;
 	delete &httpTransaction;
 
 	dispatch_async(dispatch_get_global_queue( DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{

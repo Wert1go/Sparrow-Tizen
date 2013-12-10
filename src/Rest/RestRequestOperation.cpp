@@ -104,8 +104,6 @@ RestRequestOperation::~RestRequestOperation() {
 //	AppLogDebug("RestRequestOperation::~RestRequestOperation");
 	delete __method;
 	__method = null;
-	delete __pHttpTransaction;
-	__pHttpTransaction = null;
 	delete __pByteBuffer;
 
 	delete __pRequestUrl;
@@ -225,6 +223,8 @@ void
 RestRequestOperation::OnTransactionAborted(HttpSession& httpSession, HttpTransaction& httpTransaction, result r)
 {
 	AppLog("RestRequestOperation::OnTransactionAborted(%s)", GetErrorMessage(r));
+	__pHttpTransaction = null;
+	delete &httpTransaction;
 
 	if (this->__restRequestListener) {
 		Error *pError;
@@ -256,11 +256,16 @@ RestRequestOperation::OnTransactionHeaderCompleted(HttpSession& httpSession, Htt
 void
 RestRequestOperation::OnTransactionCompleted(HttpSession& httpSession, HttpTransaction& httpTransaction)
 {
+
+
 //	AppLog("RestRequestOperation::OnTransactionCompleted");
 	HttpMultipartEntity* pMultipartEntity = static_cast< HttpMultipartEntity* >(httpTransaction.GetUserObject());
 	if (pMultipartEntity) {
 		delete pMultipartEntity;
 	}
+
+	__pHttpTransaction = null;
+	delete &httpTransaction;
 
 	if (__isSync) {
 		Execute();
