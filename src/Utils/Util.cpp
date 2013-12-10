@@ -186,29 +186,41 @@ Util::CalculateDimensionForMessage(MMessage *message) {
 			float imgWidth;
 			float imgHeight;
 
-			if (attachment->__pPhoto604) {
-				if (attachment->__width > attachment->__height) {
-					imgWidth = imageSizeMedium;
-					imgHeight = imageSizeMedium / attachment->ratio;
+			if (attachment->__pType->Equals(PHOTO, false)) {
+
+				if (attachment->__pPhoto604) {
+					if (attachment->__width > attachment->__height) {
+						imgWidth = imageSizeMedium;
+						imgHeight = imageSizeMedium / attachment->ratio;
+					} else {
+						imgHeight = imageSizeMedium;
+						imgWidth = imageSizeMedium * attachment->ratio;
+					}
 				} else {
-					imgHeight = imageSizeMedium;
-					imgWidth = imageSizeMedium * attachment->ratio;
+					if (attachment->__width > attachment->__height) {
+						imgWidth = imageSizeSmall;
+						imgHeight = imageSizeSmall / attachment->ratio;
+					} else {
+						imgHeight = imageSizeSmall;
+						imgWidth = imageSizeSmall * attachment->ratio;
+					}
 				}
+
 			} else {
-				if (attachment->__width > attachment->__height) {
-					imgWidth = imageSizeSmall;
-					imgHeight = imageSizeSmall / attachment->ratio;
+				if (attachment->__pVideoPhoto320) {
+					imgWidth = 320;
+					imgHeight = 240;
 				} else {
-					imgHeight = imageSizeSmall;
-					imgWidth = imageSizeSmall * attachment->ratio;
+					imgWidth = 130;
+					imgHeight = 98;
 				}
 			}
-
-			attachment->imageSize = FloatPoint(imgWidth, imgHeight);
 
 			if (resultSize.width < imgWidth) {
 				resultSize.width = imgWidth;
 			}
+
+			attachment->imageSize = FloatPoint(imgWidth, imgHeight);
 
 			resultSize.height += imgHeight;
 			if (i != message->__pAttachments->GetCount() - 1) {
@@ -216,7 +228,6 @@ Util::CalculateDimensionForMessage(MMessage *message) {
 			}
 		}
 	}
-
 
 	return resultSize;
 }

@@ -131,7 +131,7 @@ UiChatCustomItem::DrawAttachmentFromUrlInRect(String *imageUrl, Rectangle rect, 
 	int index = this->__pImageViews->GetCount();
 
 	UiAttachmentView *pImageView = new (std::nothrow) UiAttachmentView();
-	pImageView->__pAttachment = attachment;
+	pImageView->SetAttachment(attachment);
 	__pUrtToIndexMap->Add(imageUrl, new Integer(index));
 
 	this->AddElement(rect, index, *pImageView);

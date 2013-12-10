@@ -30,6 +30,8 @@ Resources::Resources() {
 	__pSelectedRoundImageForm = null;
 	__pGroupNormalIcon = null;
 	__pGroupPressedIcon = null;
+
+	__pVideoPlayIcon = null;
 }
 
 Resources::~Resources() {
@@ -136,6 +138,16 @@ Resources::GetGroupPressedIcon() {
 	}
 	return __pGroupPressedIcon;
 }
+
+Bitmap *
+Resources::GetVideoPlayIcon() {
+	if (!__pVideoPlayIcon) {
+		this->__pVideoPlayIcon = this->LoadBitmapNamed(L"btn_play_video.png");
+	}
+	return __pVideoPlayIcon;
+}
+
+/************************** UTILS ***************************/
 
 
 

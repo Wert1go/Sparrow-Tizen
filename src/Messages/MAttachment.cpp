@@ -248,6 +248,8 @@ MAttachment::CreateVideoFromJsonN(JsonObject *pVideoObject) {
 	JsonString* pKeyDescription = new JsonString(L"description");
 	IJsonValue *pValDescription = null;
 
+	AppLog("testttt");
+
 	pVideoObject->GetValue(pKeyId, pValId);
 	pVideoObject->GetValue(pKeyOwnerId, pValOwnerId);
 	pVideoObject->GetValue(pKeyAccess, pValAccess);
@@ -285,7 +287,9 @@ MAttachment::CreateVideoFromJsonN(JsonObject *pVideoObject) {
 	}
 
 	pAttach->__date = pDate->ToInt();
-	pAttach->__album_id = pAlbumId->ToInt();
+	if (pAlbumId) {
+		pAttach->__album_id = pAlbumId->ToInt();
+	}
 
 	if (pPhoto130) {
 		pAttach->__pPhoto130 = new String(pPhoto130->GetPointer());

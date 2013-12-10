@@ -111,11 +111,20 @@ UiChatListItem::OnDraw(Tizen::Graphics::Canvas& canvas, const Tizen::Graphics::R
 
 			String *imgUrl = null;
 
-			if (attachment->__pPhoto604) {
-				imgUrl = attachment->__pPhoto604;
+			if (attachment->__pType->Equals(PHOTO, false)) {
+				if (attachment->__pPhoto604) {
+					imgUrl = attachment->__pPhoto604;
+				} else {
+					imgUrl = attachment->__pPhoto130;
+				}
 			} else {
-				imgUrl = attachment->__pPhoto130;
+				if (attachment->__pVideoPhoto320) {
+					imgUrl = attachment->__pVideoPhoto320;
+				} else {
+					imgUrl = attachment->__pPhoto130;
+				}
 			}
+
 
 			this->GetDrawer()->DrawAttachmentFromUrlInRect(
 					imgUrl,

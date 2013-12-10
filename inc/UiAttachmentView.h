@@ -25,11 +25,21 @@ public:
 	UiAttachmentView();
 	virtual ~UiAttachmentView();
 
+	void SetAttachment(MAttachment *pAttachment);
+
 	virtual bool OnDraw (Tizen::Graphics::Canvas &canvas, const Tizen::Graphics::Rectangle &rect, Tizen::Ui::Controls::ListItemDrawingStatus status);
 
 public:
 	Bitmap *__pBitmapImage;
 	MAttachment *__pAttachment;
+
+	EnrichedText* __pTitleLabel;
+	TextElement* __pTitleText;
+	Point __titleDrawPoint;
+
+	EnrichedText* __pDurationLabel;
+	TextElement* __pDurationText;
+	Point __durationDrawPoint;
 
 };
 

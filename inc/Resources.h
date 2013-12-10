@@ -38,6 +38,8 @@ public:
 	Bitmap *GetGroupNormalIcon();
 	Bitmap *GetGroupPressedIcon();
 
+	Bitmap *GetVideoPlayIcon();
+
 	Bitmap *GetUserAvatar();
 
 	Bitmap *LoadBitmapNamed(String name);
@@ -51,6 +53,8 @@ private:
 
 	Bitmap *__pGroupNormalIcon;
 	Bitmap *__pGroupPressedIcon;
+
+	Bitmap *__pVideoPlayIcon;
 
 	Bitmap *__pUserAvatar;
 
