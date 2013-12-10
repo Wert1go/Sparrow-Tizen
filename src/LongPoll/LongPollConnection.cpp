@@ -488,9 +488,11 @@ LongPollConnection::ShowNotification(MMessage *pMessage, MUser *pUser) {
 	request.SetAlertText(pMessage->GetText()->GetPointer());
 	request.SetTitleText(title->GetPointer());
 
-	String uid;
-	uid.Format(20, L"%d", pUser->GetUid());
-	request.SetAppMessage(uid);
+	if (pUser) {
+		String uid;
+		uid.Format(20, L"%d", pUser->GetUid());
+		request.SetAppMessage(uid);
+	}
 
 	request.SetNotificationStyle(NOTIFICATION_STYLE_NORMAL);
 	//Добавить проверку на отсутствие иконки!

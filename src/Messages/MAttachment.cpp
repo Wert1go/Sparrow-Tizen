@@ -223,6 +223,7 @@ MAttachment::CreateVideoFromJsonN(JsonObject *pVideoObject) {
 	MAttachment *pAttach = new MAttachment();
 
 	JsonString* pKeyId = new JsonString(L"id");
+	JsonString* pKeyVideoId = new JsonString(L"vid");
 	IJsonValue *pValId = null;
 	JsonString* pKeyOwnerId = new JsonString(L"owner_id");
 	IJsonValue *pValOwnerId = null;
@@ -235,8 +236,10 @@ MAttachment::CreateVideoFromJsonN(JsonObject *pVideoObject) {
 	IJsonValue *pValAlbumId = null;
 
 	JsonString* pKeyPhoto130 = new JsonString(L"photo_130");
+	JsonString* pKeyImageSmall = new JsonString(L"image_small");
 	IJsonValue *pValPhoto130 = null;
 	JsonString* pKeyPhoto320 = new JsonString(L"photo_320");
+	JsonString* pKeyImage = new JsonString(L"image");
 	IJsonValue *pValPhoto320 = null;
 
 	JsonString* pKeyTitle = new JsonString(L"title");
@@ -251,6 +254,9 @@ MAttachment::CreateVideoFromJsonN(JsonObject *pVideoObject) {
 	AppLog("testttt");
 
 	pVideoObject->GetValue(pKeyId, pValId);
+	if (!pValId) {
+		pVideoObject->GetValue(pKeyVideoId, pValId);
+	}
 	pVideoObject->GetValue(pKeyOwnerId, pValOwnerId);
 	pVideoObject->GetValue(pKeyAccess, pValAccess);
 
@@ -258,7 +264,14 @@ MAttachment::CreateVideoFromJsonN(JsonObject *pVideoObject) {
 	pVideoObject->GetValue(pKeyAlbumId, pValAlbumId);
 
 	pVideoObject->GetValue(pKeyPhoto130, pValPhoto130);
+	if (!pValPhoto130) {
+		pVideoObject->GetValue(pKeyImageSmall, pValPhoto130);
+	}
+
 	pVideoObject->GetValue(pKeyPhoto320, pValPhoto320);
+	if (!pValPhoto320) {
+		pVideoObject->GetValue(pKeyImage, pValPhoto320);
+	}
 
 	pVideoObject->GetValue(pKeyTitle, pValTitle);
 	pVideoObject->GetValue(pKeyDuration, pValDuration);
@@ -310,10 +323,14 @@ MAttachment::CreateVideoFromJsonN(JsonObject *pVideoObject) {
 	}
 
 	delete pKeyId;
+	delete pKeyVideoId;
 	delete pKeyOwnerId;
 	delete pKeyDate;
 	delete pKeyAccess;
 	delete pKeyPhoto130;
+	delete pKeyPhoto320;
+	delete pKeyImageSmall;
+	delete pKeyImage;
 	delete pKeyAlbumId;
 
 	delete pKeyTitle;
@@ -407,6 +424,23 @@ MAttachment::CreateFromJsonLPN(const Tizen::Web::Json::JsonObject &jsonObject) {
 				delete pKeyOwnerId;
 
 				return photo;
+			} else if(typeString->Equals(VIDEO, false)) {
+				MAttachment *pAttach = null;
+
+				JsonString* pKeyAttach = new JsonString(VIDEO);
+				IJsonValue *pValAttach = null;
+
+				jsonObject.GetValue(pKeyAttach, pValAttach);
+
+				if (pValAttach) {
+					JsonObject *pAttachObject = static_cast<JsonObject *>(pValAttach);
+
+					pAttach = MAttachment::CreateVideoFromJsonN(pAttachObject);
+				}
+
+				delete pKeyAttach;
+
+				return pAttach;
 			}
 		}
 
