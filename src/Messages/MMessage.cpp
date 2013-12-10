@@ -142,6 +142,7 @@ MMessage::CreateFromJsonN(const Tizen::Web::Json::JsonObject &pObject) {
 	JsonString* pKeyChatId = new JsonString(L"chat_id");
 	JsonString* pKeyChatActive = new JsonString(L"chat_active");
 	JsonString* pKeyUserCount = new JsonString(L"user_count");
+	JsonString* pKeyUsersCount = new JsonString(L"users_count");
 	JsonString* pKeyAdminId = new JsonString(L"admin_id");
 
 	IJsonValue* pValMessageId = null;
@@ -168,6 +169,11 @@ MMessage::CreateFromJsonN(const Tizen::Web::Json::JsonObject &pObject) {
 	pObject.GetValue(pKeyChatId, pValChatId);
 	pObject.GetValue(pKeyChatActive, pValChatActive);
 	pObject.GetValue(pKeyUserCount, pValUserCount);
+
+	if (!pValUserCount) {
+		pObject.GetValue(pKeyUsersCount, pValUserCount);
+	}
+
 	pObject.GetValue(pKeyAdminId, pValAdminId);
 
 	JsonNumber* chatId;
@@ -179,7 +185,7 @@ MMessage::CreateFromJsonN(const Tizen::Web::Json::JsonObject &pObject) {
 		chatId = static_cast< JsonNumber* >(pValChatId);
 		message->SetChatId(chatId->ToInt());
 	}
-	if (pValChatActive) {
+	if (pValChatActive && pValUserCount && pValAdminId && pValChatActive) {
 		userCount = static_cast< JsonNumber* >(pValUserCount);
 		adminId = static_cast< JsonNumber* >(pValAdminId);
 		uids = static_cast< JsonArray* >(pValChatActive);
@@ -288,6 +294,7 @@ MMessage::CreateFromJsonN(const Tizen::Web::Json::JsonObject &pObject) {
 	delete pKeyChatId;
 	delete pKeyAdminId;
 	delete pKeyUserCount;
+	delete pKeyUsersCount;
 	delete pKeyChatActive;
 
 	return message;

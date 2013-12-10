@@ -397,7 +397,7 @@ MAttachment::CreateFromJsonLPN(const Tizen::Web::Json::JsonObject &jsonObject) {
 
 						if (height->ToInt() == 130 || width->ToInt() == 130) {
 							photo->__pPhoto130 = new String(src->GetPointer());
-						} else if (height->ToInt() == 604 || width->ToInt() == 604) {
+						} else if (height->ToInt() <= 604 || width->ToInt() <= 604) {
 							photo->__pPhoto604 = new String(src->GetPointer());
 						}
 					}

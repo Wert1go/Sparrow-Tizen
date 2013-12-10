@@ -28,6 +28,7 @@ LongPollDescriptor::performObjectMappingN(JsonObject* pObject) {
 
 	JsonString* pKeyTS = new JsonString(L"ts");
 	JsonString* pKeyUpdates = new JsonString(L"updates");
+	JsonString* pKeyFailed = new JsonString(L"failed");
 
 	IJsonValue* pValKey = null;
 	IJsonValue* pValUpdates = null;
@@ -36,7 +37,16 @@ LongPollDescriptor::performObjectMappingN(JsonObject* pObject) {
 	pObject->GetValue(pKeyUpdates, pValUpdates);
 
 	if (!pValKey) {
-		response->SetError(new Error());
+		IJsonValue* pValFailed = null;
+		pObject->GetValue(pKeyFailed, pValFailed);
+
+		if (pValFailed) {
+			response->SetError(new Error(LONG_POLL_REQUEST_RECONNECT));
+		} else {
+			response->SetError(new Error());
+		}
+
+		delete pKeyFailed;
 		return response;
 	}
 
