@@ -66,10 +66,10 @@ UiAttachmentView::OnDraw(Tizen::Graphics::Canvas &canvas, const Tizen::Graphics:
 
 		canvas.FillRectangle(Color(0, 0, 0, 150), Rectangle(0, 240 - 60, 320, 60));
 
-//		if (__pTitleLabel) {
-//			canvas.DrawText(__titleDrawPoint, *__pTitleLabel);
-//			canvas.DrawText(__durationDrawPoint, *__pDurationLabel);
-//		}
+		if (__pTitleLabel && __pDurationLabel) {
+			canvas.DrawText(__titleDrawPoint, *__pTitleLabel);
+			canvas.DrawText(__durationDrawPoint, *__pDurationLabel);
+		}
 
 	}
 
@@ -83,13 +83,12 @@ UiAttachmentView::SetAttachment(MAttachment *pAttachment) {
 
 	AppLog("UiAttachmentView::SetAttachment");
 
-	return;
-
 	int width = __pAttachment->imageSize.x;
 	int height = __pAttachment->imageSize.y;
 
 	int labelHeight = 60;
-	int durationLabelSize = 60;
+	int titleHeight = 54;
+	int durationLabelSize = 80;
 	int offset = 10;
 
 	if (__pAttachment->__pType->Equals(VIDEO, false)) {
@@ -97,15 +96,23 @@ UiAttachmentView::SetAttachment(MAttachment *pAttachment) {
 		TextElement* pMessageText = null;
 
 		pMessageLabel = new EnrichedText();
-		pMessageLabel->Construct(Dimension(width - durationLabelSize - offset, 50));
+		pMessageLabel->Construct(Dimension(width - durationLabelSize - offset, titleHeight));
 
 		pMessageLabel->SetHorizontalAlignment(TEXT_ALIGNMENT_LEFT);
 		pMessageLabel->SetVerticalAlignment(TEXT_ALIGNMENT_MIDDLE);
 		pMessageLabel->SetTextWrapStyle(TEXT_WRAP_WORD_WRAP);
+		pMessageLabel->SetTextAbbreviationEnabled(true);
+
+		String *pTitleString = null;
+
+		if (__pAttachment->__pTitle) {
+			pTitleString = new String(__pAttachment->__pTitle->GetPointer());
+		} else {
+			pTitleString = new String(L"");
+		}
 
 		pMessageText = new TextElement();
-
-		pMessageText->Construct(*__pAttachment->__pTitle);
+		pMessageText->Construct(*pTitleString);
 		pMessageText->SetTextColor(Color(255, 255, 255, 255));
 		{
 			Font font;
@@ -119,18 +126,24 @@ UiAttachmentView::SetAttachment(MAttachment *pAttachment) {
 
 		FloatDimension size;
 		int actualLength;
-		pMessageLabel->GetTextExtent(0, __pAttachment->__pTitle->GetLength(), size, actualLength);
+		pMessageLabel->GetTextExtent(0, pTitleString->GetLength(), size, actualLength);
 
 		if (size.width <= width - durationLabelSize) {
 			resultSize.width = size.width;
 			resultSize.height = size.height;
 		}
 
+		if (resultSize.height == 0) {
+			resultSize.height = titleHeight;
+		}
+
 		pMessageLabel->SetSize(resultSize);
 
 		Point drawPoint;
 
-		drawPoint = Point(offset, height - 40);
+		AppLog("resultSize.height %d", resultSize.height);
+
+		drawPoint = Point(offset, height - labelHeight/2 - resultSize.height/2);
 
 		__titleDrawPoint = drawPoint;
 		__pTitleLabel = pMessageLabel;
@@ -144,7 +157,7 @@ UiAttachmentView::SetAttachment(MAttachment *pAttachment) {
 		pDurationLabel = new EnrichedText();
 		pDurationLabel->Construct(Dimension(durationLabelSize, 50));
 
-		pDurationLabel->SetHorizontalAlignment(TEXT_ALIGNMENT_LEFT);
+		pDurationLabel->SetHorizontalAlignment(TEXT_ALIGNMENT_RIGHT);
 		pDurationLabel->SetVerticalAlignment(TEXT_ALIGNMENT_MIDDLE);
 		pDurationLabel->SetTextWrapStyle(TEXT_WRAP_WORD_WRAP);
 
@@ -156,12 +169,12 @@ UiAttachmentView::SetAttachment(MAttachment *pAttachment) {
 		int minutes = (int)(__pAttachment->__duration/60);
 		int seconds = __pAttachment->__duration % 60;
 
-		String hoursString;
+		String hoursString(L"");
 		String minutesString;
 		String secondsString;
 
 		if (hours != 0) {
-
+			hoursString.Format(10, L"%d:", hours);
 		}
 
 		if (minutes < 10) {
@@ -174,6 +187,10 @@ UiAttachmentView::SetAttachment(MAttachment *pAttachment) {
 			secondsString.Format(10, L"0%d", seconds);
 		} else {
 			secondsString.Format(10, L"%d", seconds);
+		}
+
+		if (hoursString.GetLength() != 0) {
+			pDuration->Append(hoursString);
 		}
 
 		pDuration->Append(minutesString);
@@ -205,12 +222,13 @@ UiAttachmentView::SetAttachment(MAttachment *pAttachment) {
 
 		pDurationLabel->SetSize(resultSizeDuration);
 
-		drawPoint = Point(width - durationLabelSize, height - 50);
+		drawPoint = Point(width - resultSizeDuration.width - 5, height - labelHeight/2 - resultSizeDuration.height/2);
 
 		__durationDrawPoint = drawPoint;
 		__pDurationLabel = pDurationLabel;
-		__pDurationText = pMessageText;
+		__pDurationText = pDurationText;
 
 		delete pDuration;
+		delete pTitleString;
 	}
 }
