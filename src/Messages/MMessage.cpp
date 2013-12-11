@@ -8,6 +8,7 @@
 #include "MMessage.h"
 #include "MDialog.h"
 #include "MAttachment.h"
+#include "MGeo.h"
 
 using namespace Tizen::Base;
 using namespace Tizen::Web::Json;
@@ -18,6 +19,7 @@ MMessage::MMessage() {
 	__title = null;
 	__chatId = 0;
 	__pAttachments = null;
+	__pGeo = null;
 }
 
 MMessage::~MMessage() {
@@ -296,6 +298,22 @@ MMessage::CreateFromJsonN(const Tizen::Web::Json::JsonObject &pObject) {
 		message->__pAttachments->AddItems(*pAttachmentsList);
 	}
 
+	JsonString* pKeyGeo = new JsonString(L"geo");
+	IJsonValue* pValGeo = null;
+
+	pObject.GetValue(pKeyGeo, pValGeo);
+
+	if (pValGeo) {
+		JsonObject *pGaoObject = static_cast<JsonObject*>(pValGeo);
+		MGeo *pGeo = MGeo::CreateFromJsonN(*pGaoObject);
+		pGeo->__mid = mid->ToInt();
+		if (pGeo) {
+			message->__pGeo = pGeo;
+		}
+	}
+
+	delete pKeyGeo;
+
 	delete pKeyAttachments;
 	delete pKeyId;
 	delete pKeyUserId;
@@ -310,6 +328,8 @@ MMessage::CreateFromJsonN(const Tizen::Web::Json::JsonObject &pObject) {
 	delete pKeyUserCount;
 	delete pKeyUsersCount;
 	delete pKeyChatActive;
+
+
 
 	return message;
 }
@@ -459,6 +479,24 @@ MMessage::CreateFromJsonLPN(const Tizen::Web::Json::JsonObject &pObject) {
 		message->__pAttachments = new LinkedList();
 		message->__pAttachments->AddItems(*pAttachmentsList);
 	}
+
+	delete pKeyAttachments;
+
+	JsonString* pKeyGeo = new JsonString(L"geo");
+	IJsonValue* pValGeo = null;
+
+	pObject.GetValue(pKeyGeo, pValGeo);
+
+	if (pValGeo) {
+		JsonObject *pGaoObject = static_cast<JsonObject*>(pValGeo);
+		MGeo *pGeo = MGeo::CreateFromJsonN(*pGaoObject);
+		pGeo->__mid = mid->ToInt();
+		if (pGeo) {
+			message->__pGeo = pGeo;
+		}
+	}
+
+	delete pKeyGeo;
 
 	AppLog("1111test");
 

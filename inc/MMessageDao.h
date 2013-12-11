@@ -14,6 +14,8 @@
 using namespace Tizen::Base::Collection;
 using namespace Tizen::Io;
 
+class MGeo;
+
 class MMessageDao {
 public:
 	static MMessageDao& getInstance()
@@ -37,8 +39,15 @@ public:
 
 	DbStatement * CreateSaveStatement();
 	DbStatement * BindMessageToSQLStatement(MMessage *dialog, DbStatement *statement);
-
 	MMessage * LoadMessageFromDBN(DbEnumerator* pEnum);
+
+	DbStatement * CreateSaveGeoStatement();
+	DbStatement * BindGeoToSQLStatement(MGeo *geo, DbStatement *statement);
+
+	void SaveGeo(MGeo *geo);
+	MGeo *GetGeo(int mid);
+
+	MGeo * LoadGeoFromDBN(DbEnumerator* pEnum);
 
 	void SaveReaded(int messageId);
 	void markAsReaded(int userId, int chatId);

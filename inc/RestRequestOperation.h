@@ -39,7 +39,9 @@ static const long LONGPOLL_RECONNECTION = 100999118;
 
 
 
-static const long NOTIFY_USER_PRINTING = 100999118;
+static const long NOTIFY_USER_PRINTING = 100999119;
+
+static const long LONGPOLL_RE_REQUEST_DATA = 100999120;
 
 extern const wchar_t* USER_FILEDS;
 

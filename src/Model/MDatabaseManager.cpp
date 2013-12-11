@@ -14,6 +14,7 @@
 #include "MDialog.h"
 #include "MMessage.h"
 #include "MAttachment.h"
+#include "MGeo.h"
 
 using namespace Tizen::App;
 using namespace Tizen::Base;
@@ -42,6 +43,10 @@ MDatabaseManager::MDatabaseManager() {
 	r = __database->ExecuteSql(sqlMtoARelation->GetPointer(), true);
 	AppLog(GetErrorMessage(r));
 	delete sqlMtoARelation;
+
+	String *sqlGeo = MGeo::TableDescription();
+	r = __database->ExecuteSql(sqlGeo->GetPointer(), true);
+	delete sqlGeo;
 
 	String *sqlAttachment = MAttachment::TableDescription();
 	r = __database->ExecuteSql(sqlAttachment->GetPointer(), true);

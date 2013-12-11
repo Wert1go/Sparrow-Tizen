@@ -313,7 +313,7 @@ UiMessagesPanel::UpdateItemListWithUserId(int userId, int value) {
 		}
 	}
 
-	if (indexToUpdate >= 0) {
+	if (indexToUpdate >= 0 && indexToUpdate < this->GetDialogsList()->GetCount()) {
 		this->__pListView->RefreshList(indexToUpdate, 23);
 	}
 }
@@ -345,15 +345,20 @@ UiMessagesPanel::SetReadStateWithMessageId(int msgId) {
 void
 UiMessagesPanel::SetDialogsList(LinkedList *list) {
 
-//	if (this->__pDialogsList) {
-//		delete this->__pDialogsList;
-//	}
+	if (this->__pDialogsList) {
+		delete this->__pDialogsList;
+		__pDialogsList = null;
+	}
 
 	__pDialogsList = list;
 }
 
 LinkedList *
 UiMessagesPanel::GetDialogsList() {
+	if (!__pDialogsList) {
+		__pDialogsList = new LinkedList();
+	}
+
 	return __pDialogsList;
 }
 

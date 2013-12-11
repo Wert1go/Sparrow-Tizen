@@ -167,6 +167,8 @@ SparrowApp::OnUserEventReceivedN(RequestId requestId, Tizen::Base::Collection::I
 		AuthManager::getInstance().UpdateImage();
 	} else if (requestId == LONGPOLL_RECONNECTION) {
 		LongPollConnection::getInstance().RunTimer();
+	} else if (requestId == LONGPOLL_RE_REQUEST_DATA) {
+		LongPollConnection::getInstance().GetLongPollServerData();
 	}
 
 	delete pArgs;

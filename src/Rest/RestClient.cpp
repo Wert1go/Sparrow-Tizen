@@ -48,6 +48,7 @@ void RestClient::OnCompliteN(IRequestOperation *operation) {
 void
 RestClient::RecreateSession() {
 	if (__pHttpSession) {
+		__pHttpSession->CloseAllTransactions();
 		delete __pHttpSession;
 		__pHttpSession = null;
 	}

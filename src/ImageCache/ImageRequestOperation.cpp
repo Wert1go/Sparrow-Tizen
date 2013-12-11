@@ -40,8 +40,14 @@ ImageRequestOperation::CreateHttpRequest() {
 
 	__pHttpTransaction = RestClient::getInstance().GetActiveSession()->OpenTransactionN();
 
+
 	result r = GetLastResult();
 	if (r != E_SUCCESS) {
+		if (__pHttpTransaction) {
+			delete __pHttpTransaction;
+			__pHttpTransaction = null;
+		}
+
 		RestClient::getInstance().RecreateSession();
 		this->CreateHttpRequest();
 		return;
@@ -71,6 +77,8 @@ void ImageRequestOperation::perform() {
 		__pHttpTransaction->Submit();
 		result r = GetLastResult();
 		if (r != E_SUCCESS) {
+			delete __pHttpTransaction;
+			__pHttpTransaction = null;
 			RestClient::getInstance().RecreateSession();
 			this->CreateHttpRequest();
 			this->perform();

@@ -14,6 +14,8 @@
 using namespace Tizen::Base;
 using namespace Tizen::Base::Collection;
 
+class MGeo;
+
 class MMessage
  : public Bean
 {
@@ -42,6 +44,8 @@ public:
 	String *__title;
 	int userCount;
 	int adminId;
+
+	MGeo *__pGeo;
 
 	LinkedList *__pAttachments;
 

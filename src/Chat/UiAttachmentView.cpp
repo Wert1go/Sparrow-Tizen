@@ -11,6 +11,7 @@
 #include <FGraphics.h>
 #include "MAttachment.h"
 #include "Resources.h"
+#include "MGeo.h"
 
 using namespace Tizen::Ui::Controls;
 using namespace Tizen::Graphics;
@@ -106,6 +107,12 @@ UiAttachmentView::OnDraw(Tizen::Graphics::Canvas &canvas, const Tizen::Graphics:
 		if (__pTitleLabel) {
 			canvas.DrawText(__titleDrawPoint, *__pTitleLabel);
 		}
+	} else if (__pAttachment->__pType->Equals(L"point", false)) {
+		canvas.FillRectangle(Color(0, 0, 0, 150), Rectangle(0, 0, 320, 60));
+
+		if (__pTitleLabel) {
+			canvas.DrawText(__titleDrawPoint, *__pTitleLabel);
+		}
 	}
 
 //	AppLog("OnDraw::END");
@@ -116,7 +123,7 @@ void
 UiAttachmentView::SetAttachment(MAttachment *pAttachment) {
 	__pAttachment = pAttachment;
 
-	AppLog("UiAttachmentView::SetAttachment");
+	AppLog("UiAttachmentView::SetAttachment %S", __pAttachment->__pType->GetPointer());
 
 	int width = __pAttachment->imageSize.x;
 	int height = __pAttachment->imageSize.y;
@@ -130,6 +137,7 @@ UiAttachmentView::SetAttachment(MAttachment *pAttachment) {
 	int audioOffset = 85;
 
 	int audioHeight = height/2;
+	AppLog("!!!UiAttachmentView::SetAttachment");
 
 	if (__pAttachment->__pType->Equals(VIDEO, false)) {
 		EnrichedText* pMessageLabel = null;
@@ -440,5 +448,60 @@ UiAttachmentView::SetAttachment(MAttachment *pAttachment) {
 
 		delete pSongString;
 		delete pTitleString;
+	} else if (__pAttachment->__pType->Equals("point", false)) {
+		EnrichedText* pMessageLabel = null;
+		TextElement* pMessageText = null;
+
+		pMessageLabel = new EnrichedText();
+		pMessageLabel->Construct(Dimension(width - durationLabelSize - offset, titleHeight));
+
+		pMessageLabel->SetHorizontalAlignment(TEXT_ALIGNMENT_LEFT);
+		pMessageLabel->SetVerticalAlignment(TEXT_ALIGNMENT_MIDDLE);
+		pMessageLabel->SetTextWrapStyle(TEXT_WRAP_WORD_WRAP);
+		pMessageLabel->SetTextAbbreviationEnabled(true);
+
+		String *pTitleString = null;
+
+		if (__pAttachment->__pTitle) {
+			pTitleString = new String(__pAttachment->__pTitle->GetPointer());
+		} else {
+			pTitleString = new String(L"");
+		}
+
+		pMessageText = new TextElement();
+		pMessageText->Construct(*pTitleString);
+		pMessageText->SetTextColor(Color(255, 255, 255, 255));
+		{
+			Font font;
+			font.Construct(FONT_STYLE_BOLD, 22);
+			pMessageText->SetFont(font);
+		}
+
+		pMessageLabel->Add(*pMessageText);
+
+		Dimension resultSize;
+
+		FloatDimension size;
+		int actualLength;
+		pMessageLabel->GetTextExtent(0, pTitleString->GetLength(), size, actualLength);
+
+		if (size.width <= width - durationLabelSize) {
+			resultSize.width = size.width;
+			resultSize.height = size.height;
+		}
+
+		if (resultSize.height == 0) {
+			resultSize.height = titleHeight;
+		}
+
+		pMessageLabel->SetSize(resultSize);
+
+		Point drawPoint;
+
+		drawPoint = Point(offset,  labelHeight/2 - resultSize.height/2);
+
+		__titleDrawPoint = drawPoint;
+		__pTitleLabel = pMessageLabel;
+		__pTitleText = pMessageText;
 	}
 }

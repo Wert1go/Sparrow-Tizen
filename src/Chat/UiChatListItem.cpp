@@ -13,6 +13,7 @@
 #include "Resources.h"
 #include "IImageDrawer.h"
 #include "MAttachment.h"
+#include "MGeo.h"
 
 using namespace Tizen::Media;
 using namespace Tizen::Graphics;
@@ -94,8 +95,9 @@ UiChatListItem::OnDraw(Tizen::Graphics::Canvas& canvas, const Tizen::Graphics::R
 		this->GetDrawer()->DrawImageFromUrlInRect(url, Rectangle(20, 30, avatarSize, avatarSize));
 	}
 
+	float drawOffset = __textOffset;
+
 	if (this->GetMessage()->__pAttachments && this->GetMessage()->__pAttachments->GetCount() > 0) {
-		float drawOffset = __textOffset;
 
 		for (int i = 0; i < this->GetMessage()->__pAttachments->GetCount(); i++) {
 			MAttachment *attachment = static_cast<MAttachment *>( GetMessage()->__pAttachments->GetAt(i));
@@ -125,7 +127,6 @@ UiChatListItem::OnDraw(Tizen::Graphics::Canvas& canvas, const Tizen::Graphics::R
 				}
 			}
 
-
 			this->GetDrawer()->DrawAttachmentFromUrlInRect(
 					imgUrl,
 					Rectangle(
@@ -142,6 +143,29 @@ UiChatListItem::OnDraw(Tizen::Graphics::Canvas& canvas, const Tizen::Graphics::R
 				drawOffset += msgImageOffset;
 			}
 		}
+	}
+
+	if (this->GetMessage()->__pGeo) {
+		Point drawPoint;
+		float width = __pBubbleDimension.width;
+
+		if (this->GetMessage()->GetOut() == 1) {
+			drawPoint = Point(rect.width - __sideOffset - width + __offset, drawOffset);
+		} else {
+			drawPoint = Point(__leftOffset + __offset, drawOffset);
+		}
+
+		this->GetDrawer()->DrawAttachmentFromUrlInRect(
+					this->GetMessage()->__pGeo->GetImageUrl(),
+							Rectangle(
+									drawPoint.x,
+									drawPoint.y,
+									this->GetMessage()->__pGeo->imageSize.x,
+									this->GetMessage()->__pGeo->imageSize.y),
+							this->GetMessage()->__pGeo
+					);
+
+		drawOffset += this->GetMessage()->__pGeo->imageSize.y;
 	}
 
 	return true;

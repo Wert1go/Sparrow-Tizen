@@ -15,6 +15,7 @@
 #include <sys/time.h>
 #include "MMessage.h"
 #include "MAttachment.h"
+#include "MGeo.h"
 
 using namespace Tizen::Base;
 using namespace Tizen::Base::Utility;
@@ -235,6 +236,18 @@ Util::CalculateDimensionForMessage(MMessage *message) {
 				resultSize.height += msgImageOffset;
 			}
 		}
+	}
+
+	if (message->__pGeo) {
+		float imgWidth = 320;
+		float imgHeight = 240;
+
+		if (resultSize.width < imgWidth) {
+			resultSize.width = imgWidth;
+		}
+
+		message->__pGeo->imageSize = FloatPoint(imgWidth, imgHeight);
+		resultSize.height += imgHeight;
 	}
 
 	return resultSize;

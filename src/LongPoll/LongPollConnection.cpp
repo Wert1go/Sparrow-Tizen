@@ -409,7 +409,9 @@ LongPollConnection::OnErrorN(Error *error) {
 	AppLog("LongPollConnection::OnErrorN");
 	if (error && error->GetCode() == LONG_POLL_REQUEST_RECONNECT) {
 		if (__IsRunning) {
-			GetLongPollServerData();
+
+
+			App::GetInstance()->SendUserEvent(LONGPOLL_RE_REQUEST_DATA, 0);
 		}
 	} else {
 		AppLog("!!!LongPollConnection::OnErrorN");

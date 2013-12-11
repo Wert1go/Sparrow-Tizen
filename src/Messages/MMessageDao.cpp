@@ -10,6 +10,7 @@
 #include "MessageComparer.h"
 #include "MDatabaseManager.h"
 #include "MAttachmentDao.h"
+#include "MGeo.h"
 
 using namespace Tizen::Io;
 using namespace Tizen::Base::Collection;
@@ -32,6 +33,10 @@ MMessageDao::Save(MMessage *pMessage) {
 	pEnum = MDatabaseManager::getInstance().GetDatabase()->ExecuteStatementN(*compiledSaveStatment);
 	if (pMessage->__pAttachments && pMessage->__pAttachments->GetCount() > 0) {
 		MAttachmentDao::getInstance().SaveAttachments(pMessage->__pAttachments, pMessage->GetMid());
+	}
+
+	if (pMessage->__pGeo) {
+		this->SaveGeo(pMessage->__pGeo);
 	}
 
 	delete compiledSaveStatment;
@@ -58,6 +63,10 @@ MMessageDao::Save(IList *messages) {
 		delete pEnum;
 		if (pMessage->__pAttachments && pMessage->__pAttachments->GetCount() > 0) {
 			MAttachmentDao::getInstance().SaveAttachments(pMessage->__pAttachments, pMessage->GetMid());
+		}
+
+		if (pMessage->__pGeo) {
+			this->SaveGeo(pMessage->__pGeo);
 		}
 	}
 
@@ -238,6 +247,12 @@ MMessageDao::LoadMessageFromDBN(DbEnumerator* pEnum) {
 		AppLog("coun %d", message->__pAttachments->GetCount());
 	}
 
+	message->__pGeo = this->GetGeo(mid);
+
+	if (message->__pGeo) {
+		AppLog("%S", message->__pGeo->__pPlaceTitle->GetPointer());
+	}
+
 	return message;
 }
 
@@ -361,3 +376,153 @@ MMessageDao::GetUnreadCount() {
 
 	return count;
 }
+
+/*************************** GEO ***************************/
+
+DbStatement *
+MMessageDao::CreateSaveGeoStatement() {
+	DbStatement *compiledSaveStatment = null;
+
+	String statement;
+
+	statement.Append(L"INSERT OR REPLACE INTO geo ("
+				"mid, "
+				"type, "
+				"coordinates, "
+				"place_title, "
+				"place_country, "
+				"place_city "
+			") VALUES ("
+				" ?, ?, ?, ?, ?, ?"
+			")");
+
+	result r = E_SUCCESS;
+	compiledSaveStatment = MDatabaseManager::getInstance().GetDatabase()->CreateStatementN(statement);
+
+	r = GetLastResult();
+
+	if (IsFailed(r))
+	{
+	   AppLog(GetErrorMessage(r));
+	}
+	return compiledSaveStatment;
+}
+
+DbStatement *
+MMessageDao::BindGeoToSQLStatement(MGeo *geo, DbStatement *statement) {
+
+	String string(L"");
+
+	statement->BindInt(0, geo->__mid);
+
+	if (geo->__pType) {
+		statement->BindString(1, geo->__pType->GetPointer());
+	} else {
+		statement->BindString(1, string);
+	}
+
+	if (geo->__pCoordinates) {
+		statement->BindString(2, geo->__pCoordinates->GetPointer());
+	} else {
+		statement->BindString(2, string);
+	}
+
+	if (geo->__pPlaceTitle) {
+		statement->BindString(3, geo->__pPlaceTitle->GetPointer());
+	} else {
+		statement->BindString(3, string);
+	}
+
+	if (geo->__pPlaceCountry) {
+		statement->BindString(4, geo->__pPlaceCountry->GetPointer());
+	} else {
+		statement->BindString(4, string);
+	}
+
+	if (geo->__pPlaceCity) {
+		statement->BindString(5, geo->__pPlaceCity->GetPointer());
+	} else {
+		statement->BindString(5, string);
+	}
+
+	return statement;
+}
+
+MGeo *
+MMessageDao::GetGeo(int mid) {
+	DbEnumerator* pEnum = null;
+	String sql;
+	MGeo *pGeo = null;
+
+	sql.Append(L"SELECT "
+				"mid, "
+				"type, "
+				"coordinates, "
+				"place_title, "
+				"place_country, "
+				"place_city "
+			"FROM geo "
+			"WHERE mid = ?");
+
+	DbStatement *compiledSaveStatment = MDatabaseManager::getInstance().GetDatabase()->CreateStatementN(sql);
+	compiledSaveStatment->BindInt(0, mid);
+
+	pEnum = MDatabaseManager::getInstance().GetDatabase()->ExecuteStatementN(*compiledSaveStatment);
+
+	if (!pEnum) {
+		return pGeo;
+	}
+
+	while (pEnum->MoveNext() == E_SUCCESS)
+	{
+		pGeo = LoadGeoFromDBN(pEnum);
+	}
+
+	delete compiledSaveStatment;
+	delete pEnum;
+
+	return pGeo;
+}
+
+MGeo *
+MMessageDao::LoadGeoFromDBN(DbEnumerator* pEnum) {
+	MGeo *geo = new MGeo();
+
+	String *pType = new String(L"");
+	String *pCoordinates = new String(L"");
+
+	String *pPlaceTitle = new String(L"");
+	String *pPlaceCity = new String(L"");
+	String *pPlaceCountry = new String(L"");
+
+	pEnum->GetIntAt(0, geo->__mid);
+
+	pEnum->GetStringAt(1, *pType);
+	pEnum->GetStringAt(2, *pCoordinates);
+
+	pEnum->GetStringAt(3, *pPlaceTitle);
+	pEnum->GetStringAt(4, *pPlaceCountry);
+	pEnum->GetStringAt(5, *pPlaceCity);
+
+	geo->__pType = pType;
+	geo->__pCoordinates = pCoordinates;
+
+	geo->SetPlaceTitle(pPlaceTitle);
+	geo->__pPlaceCity = pPlaceCity;
+	geo->__pPlaceCountry = pPlaceCountry;
+
+	return geo;
+}
+
+void
+MMessageDao::SaveGeo(MGeo *geo) {
+	DbStatement *compiledSaveStatment = CreateSaveGeoStatement();
+	DbEnumerator* pEnum = null;
+
+	compiledSaveStatment = BindGeoToSQLStatement(geo, compiledSaveStatment);
+	pEnum = MDatabaseManager::getInstance().GetDatabase()->ExecuteStatementN(*compiledSaveStatment);
+
+	delete compiledSaveStatment;
+	delete pEnum;
+}
+
