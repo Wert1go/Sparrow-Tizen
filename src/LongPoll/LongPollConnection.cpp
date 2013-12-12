@@ -206,6 +206,9 @@ LongPollConnection::OnSuccessN(RestResponse *result) {
 		LinkedList *pArgs;
 		AppAssert(longPollResponse->GetUpdates());
 
+		String *pLastText = null;
+		int lastMid = -1;
+
 		for (int index = 0; index < longPollResponse->GetUpdates()->GetCount(); index ++) {
 			LongPollObject *pObject = static_cast<LongPollObject*>(longPollResponse->GetUpdates()->GetAt(index));
 
@@ -251,7 +254,16 @@ LongPollConnection::OnSuccessN(RestResponse *result) {
 
 				}
 						break;
+				case LP_MESSAGE_ADD: {
+					pLastText = pObject->__pText;
+					lastMid = pObject->__messageId;
+				}
+					break;
 				case LP_MESSAGE_ADD_FULL: {
+
+					if (lastMid != -1 && lastMid == pObject->GetMessage()->GetMid()) {
+						pObject->GetMessage()->SetText(pLastText);
+					}
 
 					MMessageDao::getInstance().Save(pObject->GetMessage());
 					MUserDao::getInstance().Save(pObject->GetUsers());
@@ -297,8 +309,10 @@ LongPollConnection::OnSuccessN(RestResponse *result) {
 							}
 						}
 
-
 						ShowNotification(pObject->GetMessage(), pUser);
+
+						pLastText = null;
+						lastMid = -1;
 					}
 				}
 						break;

@@ -175,6 +175,7 @@ MAttachment::CreatePhotoFromJsonN(JsonObject *pPhotoObject) {
 
 	JsonString* pKeyId = new JsonString(L"id");
 	IJsonValue *pValId = null;
+	JsonString* pKeyPId = new JsonString(L"pid");
 	JsonString* pKeyOwnerId = new JsonString(L"owner_id");
 	IJsonValue *pValOwnerId = null;
 	JsonString* pKeyDate = new JsonString(L"date");
@@ -189,11 +190,17 @@ MAttachment::CreatePhotoFromJsonN(JsonObject *pPhotoObject) {
 	IJsonValue *pValPhoto130 = null;
 	JsonString* pKeyPhoto604 = new JsonString(L"photo_604");
 	IJsonValue *pValPhoto604 = null;
+	JsonString* pKeySizes = new JsonString(L"sizes");
+	IJsonValue *pValSizes = null;
 
 	JsonString* pKeyAlbumId = new JsonString(L"album_id");
 	IJsonValue *pValAlbumId = null;
 
 	pPhotoObject->GetValue(pKeyId, pValId);
+	if (!pValId) {
+		pPhotoObject->GetValue(pKeyPId, pValId);
+	}
+
 	pPhotoObject->GetValue(pKeyOwnerId, pValOwnerId);
 	pPhotoObject->GetValue(pKeyDate, pValDate);
 	pPhotoObject->GetValue(pKeyAccess, pValAccess);
@@ -205,39 +212,81 @@ MAttachment::CreatePhotoFromJsonN(JsonObject *pPhotoObject) {
 
 	JsonNumber *pKey = static_cast<JsonNumber *>(pValId);
 	JsonNumber *pOwner = static_cast<JsonNumber *>(pValOwnerId);
-	JsonNumber *pDate = static_cast<JsonNumber *>(pValDate);
-	JsonString *pAccess = static_cast<JsonString *>(pValAccess);
+	photo->__id = pKey->ToInt();
+	photo->__ownerId = pOwner->ToInt();
+	photo->__pType = new String("photo");
 
 	JsonNumber *pWidth = static_cast<JsonNumber *>(pValWidth);
 	JsonNumber *pHeight = static_cast<JsonNumber *>(pValHeight);
 
-	JsonString *pPhoto130 = static_cast<JsonString *>(pValPhoto130);
-	JsonString *pPhoto604 = static_cast<JsonString *>(pValPhoto604);
-	JsonNumber *pAlbumId = static_cast<JsonNumber *>(pValAlbumId);
+	if (pWidth) {
+		JsonNumber *pDate = static_cast<JsonNumber *>(pValDate);
+		JsonString *pAccess = static_cast<JsonString *>(pValAccess);
 
-	photo->__id = pKey->ToInt();
-	photo->__ownerId = pOwner->ToInt();
-	photo->__date = pDate->ToInt();
+		JsonString *pPhoto130 = static_cast<JsonString *>(pValPhoto130);
+		JsonString *pPhoto604 = static_cast<JsonString *>(pValPhoto604);
+		JsonNumber *pAlbumId = static_cast<JsonNumber *>(pValAlbumId);
 
-	photo->__pType = new String("photo");
+		photo->__date = pDate->ToInt();
 
-	if (pAccess) {
-		photo->__pAccessKey = new String(pAccess->GetPointer());
+		if (pAccess) {
+			photo->__pAccessKey = new String(pAccess->GetPointer());
+		}
+
+		photo->__width = pWidth->ToInt();
+		photo->__height = pHeight->ToInt();
+
+		if (pPhoto130) {
+			photo->__pPhoto130 = new String(pPhoto130->GetPointer());
+		}
+		if (pPhoto604) {
+			photo->__pPhoto604 = new String(pPhoto604->GetPointer());
+		}
+
+		photo->__album_id = pAlbumId->ToInt();
+	} else {
+		pPhotoObject->GetValue(pKeySizes, pValSizes);
+
+		if (pValSizes) {
+			JsonArray *pSizes = static_cast<JsonArray *>(pValSizes);
+
+			JsonString* pKeySrc = new JsonString(L"src");
+			IJsonValue *pValSrc = null;
+			JsonString* pKeyWidth = new JsonString(L"width");
+			IJsonValue *pValWidth = null;
+			JsonString* pKeyHeight = new JsonString(L"height");
+			IJsonValue *pValHeight = null;
+
+			for (int i = 0; i < pSizes->GetCount(); i++) {
+				JsonObject *pSize;
+				IJsonValue *pValSize = null;
+				pSizes->GetAt(i, pValSize);
+				pSize = static_cast<JsonObject *>(pValSize);
+
+				pSize->GetValue(pKeySrc, pValSrc);
+				pSize->GetValue(pKeyWidth, pValWidth);
+				pSize->GetValue(pKeyHeight, pValHeight);
+
+				JsonNumber *width = static_cast<JsonNumber *>(pValWidth);
+				JsonNumber *height = static_cast<JsonNumber *>(pValHeight);
+				JsonString *src = static_cast<JsonString *>(pValSrc);
+
+				photo->__width = width->ToInt();
+				photo->__height = height->ToInt();
+
+				if (height->ToInt() == 130 || width->ToInt() == 130) {
+					photo->__pPhoto130 = new String(src->GetPointer());
+				} else if (height->ToInt() <= 604 || width->ToInt() <= 604) {
+					photo->__pPhoto604 = new String(src->GetPointer());
+				}
+			}
+		}
+
 	}
-
-	photo->__width = pWidth->ToInt();
-	photo->__height = pHeight->ToInt();
-
-	if (pPhoto130) {
-		photo->__pPhoto130 = new String(pPhoto130->GetPointer());
-	}
-	if (pPhoto604) {
-		photo->__pPhoto604 = new String(pPhoto604->GetPointer());
-	}
-
-	photo->__album_id = pAlbumId->ToInt();
 
 	delete pKeyId;
+	delete pKeyPId;
+	delete pKeySizes;
 	delete pKeyOwnerId;
 	delete pKeyDate;
 	delete pKeyAccess;
@@ -545,7 +594,7 @@ MAttachment::CreateFromJsonLPN(const Tizen::Web::Json::JsonObject &jsonObject) {
 			JsonString *typeString = static_cast<JsonString *>(pValType);
 
 			if(typeString->Equals(PHOTO, false)) {
-				MAttachment *photo = new MAttachment();
+				MAttachment *photo = null;
 
 				JsonString* pKeyPhoto = new JsonString(PHOTO);
 				IJsonValue *pValPhoto = null;
@@ -554,62 +603,7 @@ MAttachment::CreateFromJsonLPN(const Tizen::Web::Json::JsonObject &jsonObject) {
 
 				JsonObject *pPhotoObject = static_cast<JsonObject *>(pValPhoto);
 
-				JsonString* pKeyId = new JsonString(L"pid");
-				IJsonValue *pValId = null;
-				JsonString* pKeyOwnerId = new JsonString(L"owner_id");
-				IJsonValue *pValOwnerId = null;
-				JsonString* pKeySizes = new JsonString(L"sizes");
-				IJsonValue *pValSizes = null;
-
-				pPhotoObject->GetValue(pKeySizes, pValSizes);
-
-				pPhotoObject->GetValue(pKeyId, pValId);
-				pPhotoObject->GetValue(pKeyOwnerId, pValOwnerId);
-
-				JsonNumber *pKey = static_cast<JsonNumber *>(pValId);
-				JsonNumber *pOwner = static_cast<JsonNumber *>(pValOwnerId);
-
-				photo->__id = pKey->ToInt();
-				photo->__ownerId = pOwner->ToInt();
-				photo->__pType = new String(typeString->GetPointer());
-
-				if (pValSizes) {
-					JsonArray *pSizes = static_cast<JsonArray *>(pValSizes);
-
-					JsonString* pKeySrc = new JsonString(L"src");
-					IJsonValue *pValSrc = null;
-					JsonString* pKeyWidth = new JsonString(L"width");
-					IJsonValue *pValWidth = null;
-					JsonString* pKeyHeight = new JsonString(L"height");
-					IJsonValue *pValHeight = null;
-
-					for (int i = 0; i < pSizes->GetCount(); i++) {
-						JsonObject *pSize;
-						IJsonValue *pValSize = null;
-						pSizes->GetAt(i, pValSize);
-						pSize = static_cast<JsonObject *>(pValSize);
-
-						pSize->GetValue(pKeySrc, pValSrc);
-						pSize->GetValue(pKeyWidth, pValWidth);
-						pSize->GetValue(pKeyHeight, pValHeight);
-
-						JsonNumber *width = static_cast<JsonNumber *>(pValWidth);
-						JsonNumber *height = static_cast<JsonNumber *>(pValHeight);
-						JsonString *src = static_cast<JsonString *>(pValSrc);
-
-						photo->__width = width->ToInt();
-						photo->__height = height->ToInt();
-
-						if (height->ToInt() == 130 || width->ToInt() == 130) {
-							photo->__pPhoto130 = new String(src->GetPointer());
-						} else if (height->ToInt() <= 604 || width->ToInt() <= 604) {
-							photo->__pPhoto604 = new String(src->GetPointer());
-						}
-					}
-				}
-
-				delete pKeyId;
-				delete pKeyOwnerId;
+				photo = MAttachment::CreatePhotoFromJsonN(pPhotoObject);
 
 				return photo;
 			} else if(typeString->Equals(VIDEO, false)) {

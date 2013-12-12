@@ -213,7 +213,7 @@ UiMessagesPanel::CreateItem(int index, int itemWidth)
     int height = 136;
 
     pItem->Construct(Dimension(itemWidth, height), style);
-    pItem->SetContextItem(__pItemContext);
+//    pItem->SetContextItem(__pItemContext);
     pItem->SetDimension(new Dimension(itemWidth, height));
     pItem->SetIndex(index);
     pItem->AddRefreshListener(this);

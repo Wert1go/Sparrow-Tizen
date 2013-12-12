@@ -276,7 +276,6 @@ CreateChatForm::CreateItem(int groupIndex, int itemIndex, int itemWidth)
 		int height = 150;
 
 		pItem->Construct(Dimension(itemWidth, height), style);
-		pItem->SetContextItem(__pItemContextCommon);
 
 		String createChat(L"Создать беседу");
 
@@ -301,7 +300,6 @@ CreateChatForm::CreateItem(int groupIndex, int itemIndex, int itemWidth)
 		int height = 136;
 
 		pItem->Construct(Dimension(itemWidth, height), style);
-		pItem->SetContextItem(__pItemContext);
 		pItem->SetDimension(new Dimension(itemWidth, height));
 		pItem->SetIndex(itemIndex);
 		pItem->SetSection(groupIndex);

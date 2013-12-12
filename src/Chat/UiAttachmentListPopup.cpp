@@ -148,7 +148,6 @@ UiAttachmentListPopup::CreateItem(int index, int itemWidth)
 	int height = (this->GetBounds().height - 80)/this->GetItemCount();
 
 	pItem->Construct(Dimension(itemWidth, height), style);
-	pItem->SetContextItem(__pItemContext);
 	pItem->SetBackgroundColor(LIST_ITEM_DRAWING_STATUS_NORMAL, Color(31, 52, 71, 255));
 	pItem->SetBackgroundColor(LIST_ITEM_DRAWING_STATUS_PRESSED, Color(33, 63, 99, 255));
 	pItem->SetBackgroundColor(LIST_ITEM_DRAWING_STATUS_HIGHLIGHTED, Color(33, 63, 99, 255));

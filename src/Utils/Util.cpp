@@ -247,7 +247,7 @@ Util::CalculateDimensionForMessage(MMessage *message) {
 		}
 
 		message->__pGeo->imageSize = FloatPoint(imgWidth, imgHeight);
-		resultSize.height += imgHeight;
+		resultSize.height += imgHeight + 20;
 	}
 
 	return resultSize;

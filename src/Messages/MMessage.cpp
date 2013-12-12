@@ -11,6 +11,7 @@
 #include "MGeo.h"
 
 using namespace Tizen::Base;
+using namespace Tizen::Base::Utility;
 using namespace Tizen::Web::Json;
 
 MMessage::MMessage() {
@@ -138,6 +139,10 @@ MMessage::SetReadState(int state) {
 
 void
 MMessage::SetText(String *text) {
+	if (__text) {
+		delete __text;
+		__text = null;
+	}
 	__text = text;
 }
 
@@ -242,6 +247,8 @@ MMessage::CreateFromJsonN(const Tizen::Web::Json::JsonObject &pObject) {
 
 	if (pText) {
 		pText->Replace(L"<br>", L"\n");
+
+
 	}
 
 	message->SetMid(mid->ToInt());

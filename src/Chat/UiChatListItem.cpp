@@ -159,7 +159,7 @@ UiChatListItem::OnDraw(Tizen::Graphics::Canvas& canvas, const Tizen::Graphics::R
 					this->GetMessage()->__pGeo->GetImageUrl(),
 							Rectangle(
 									drawPoint.x,
-									drawPoint.y,
+									drawPoint.y + 20,
 									this->GetMessage()->__pGeo->imageSize.x,
 									this->GetMessage()->__pGeo->imageSize.y),
 							this->GetMessage()->__pGeo

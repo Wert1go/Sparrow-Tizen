@@ -119,7 +119,6 @@ BaseUserController::CreateItem(int groupIndex, int itemIndex, int itemWidth)
     int height = 136;
 
     pItem->Construct(Dimension(itemWidth, height), style);
-	pItem->SetContextItem(__pItemContext);
 
 	float annexWidth = pItem->GetAnnexWidth(style);
 

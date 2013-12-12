@@ -144,7 +144,6 @@ SelectChatUsersForm::CreateItem(int groupIndex, int itemIndex, int itemWidth)
     int height = 136;
 
     pItem->Construct(Dimension(itemWidth - 63, height), style);
-	pItem->SetContextItem(__pItemContext);
 
 	pItem->SetDimension(new Dimension(itemWidth - 63, height));
 	pItem->SetIndex(itemIndex);

@@ -114,7 +114,7 @@ UiChatForm::OnInitializing(void)
 	AddControl(__pChatPanel);
 
 	__pListView = new ListView();
-	__pListView->Construct(Rectangle(0, 100, clientRect.width, clientRect.height - editAreaHeight - 100), true, false);
+	__pListView->Construct(Rectangle(0, 100, clientRect.width, clientRect.height - editAreaHeight - 100), true, SCROLL_STYLE_FADE_OUT);
 	__pListView->SetItemProvider(*this);
 	__pListView->AddListViewItemEventListener(*this);
 	__pListView->AddScrollEventListener(*this);
@@ -122,6 +122,7 @@ UiChatForm::OnInitializing(void)
 	__pListView->SetItemDividerColor(Color(0, 0, 0, 0));
 	__pListView->SetSweepEnabled(false);
 	__pListView->SetShowState(false);
+
 	AddControl(__pListView);
 
 	__pItemContext = new ListContextItem();
@@ -344,7 +345,7 @@ UiChatForm::OnListViewItemStateChanged(Tizen::Ui::Controls::ListView &listView, 
 
 void
 UiChatForm::OnListViewItemSwept(Tizen::Ui::Controls::ListView &listView, int index, Tizen::Ui::Controls::SweepDirection direction) {
-
+	AppLog("tttttt");
 }
 
 		// IListViewItemProvider
@@ -366,7 +367,6 @@ UiChatForm::CreateItem(int index, int itemWidth) {
     }
 
     pItem->Construct(Dimension(itemWidth, height), style);
-    pItem->SetContextItem(__pItemContext);
 
     pItem->SetBubbleDimension(dmns);
     pItem->SetMessage(message);
