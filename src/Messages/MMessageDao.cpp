@@ -10,6 +10,7 @@
 #include "MessageComparer.h"
 #include "MDatabaseManager.h"
 #include "MAttachmentDao.h"
+#include "MUserDao.h"
 #include "MGeo.h"
 
 using namespace Tizen::Io;
@@ -28,6 +29,8 @@ void
 MMessageDao::Save(MMessage *pMessage) {
 	DbStatement *compiledSaveStatment = CreateSaveStatement();
 	DbEnumerator* pEnum = null;
+	DbStatement *compiledSaveFwdStatment = CreateSaveFwdMessageStatement();
+	DbStatement *compiledSaveFwsRelationStatment = CreateSaveRelationStatement();
 
 	compiledSaveStatment = BindMessageToSQLStatement(pMessage, compiledSaveStatment);
 	pEnum = MDatabaseManager::getInstance().GetDatabase()->ExecuteStatementN(*compiledSaveStatment);
@@ -39,6 +42,27 @@ MMessageDao::Save(MMessage *pMessage) {
 		this->SaveGeo(pMessage->__pGeo);
 	}
 
+	if (pMessage->__pFwd && pMessage->__pFwd->GetCount() > 0) {
+
+		this->DeleteFwdMessageForMessage(pMessage->GetMid());
+
+		for (int i = 0; i < pMessage->__pFwd->GetCount(); i++) {
+			MMessage *pFwdMessage = static_cast<MMessage *>(pMessage->__pFwd->GetAt(i));
+			pFwdMessage->__owner = pMessage->GetMid();
+			compiledSaveFwdStatment = BindFwdMessageToSQLStatement(pFwdMessage, compiledSaveFwdStatment);
+			pEnum = MDatabaseManager::getInstance().GetDatabase()->ExecuteStatementN(*compiledSaveFwdStatment);
+			delete pEnum;
+
+			int id = MDatabaseManager::getInstance().GetDatabase()->GetLastInsertRowId();
+
+			AppLog("MDatabaseManager::getInstance().GetDatabase() %d", id);
+			pFwdMessage->SetMid(id);
+			if (pFwdMessage->__pAttachments && pFwdMessage->__pAttachments->GetCount() > 0) {
+				MAttachmentDao::getInstance().SaveAttachments(pFwdMessage->__pAttachments, pFwdMessage->GetMid(), true);
+			}
+		}
+	}
+
 	delete compiledSaveStatment;
 	delete pEnum;
 }
@@ -47,6 +71,9 @@ void
 MMessageDao::Save(IList *messages) {
 	AppLog("about to save :: %d", messages->GetCount());
 	DbStatement *compiledSaveStatment = CreateSaveStatement();
+
+	DbStatement *compiledSaveFwdStatment = CreateSaveFwdMessageStatement();
+	DbStatement *compiledSaveFwsRelationStatment = CreateSaveRelationStatement();
 	DbEnumerator* pEnum = null;
 
 	IEnumerator* pMessageEnum = messages->GetEnumeratorN();
@@ -68,11 +95,40 @@ MMessageDao::Save(IList *messages) {
 		if (pMessage->__pGeo) {
 			this->SaveGeo(pMessage->__pGeo);
 		}
+
+		if (pMessage->__pFwd && pMessage->__pFwd->GetCount() > 0) {
+			AppLog("pMessage->__pFwd->GetCount() %d", pMessage->__pFwd->GetCount());
+
+			this->DeleteFwdMessageForMessage(pMessage->GetMid());
+
+			for (int i = 0; i < pMessage->__pFwd->GetCount(); i++) {
+				MMessage *pFwdMessage = static_cast<MMessage *>(pMessage->__pFwd->GetAt(i));
+
+				pFwdMessage->__owner = pMessage->GetMid();
+
+				compiledSaveFwdStatment = BindFwdMessageToSQLStatement(pFwdMessage, compiledSaveFwdStatment);
+				pEnum = MDatabaseManager::getInstance().GetDatabase()->ExecuteStatementN(*compiledSaveFwdStatment);
+				delete pEnum;
+
+				int id = MDatabaseManager::getInstance().GetDatabase()->GetLastInsertRowId();
+
+				AppLog("MDatabaseManager::getInstance().GetDatabase() %d", id);
+				pFwdMessage->SetMid(id);
+
+				if (pFwdMessage->__pAttachments && pFwdMessage->__pAttachments->GetCount() > 0) {
+					MAttachmentDao::getInstance().SaveAttachments(pFwdMessage->__pAttachments, pFwdMessage->GetMid(), true);
+				}
+			}
+		}
 	}
 
 	MDatabaseManager::getInstance().GetDatabase()->CommitTransaction();
 
 	delete pMessageEnum;
+
+	delete compiledSaveStatment;
+	delete compiledSaveFwdStatment;
+	delete compiledSaveFwsRelationStatment;
 }
 
 MMessage *
@@ -253,8 +309,179 @@ MMessageDao::LoadMessageFromDBN(DbEnumerator* pEnum) {
 		AppLog("%S", message->__pGeo->__pPlaceTitle->GetPointer());
 	}
 
+	message->__pFwd = this->GetFwdMessages(mid);
+
 	return message;
 }
+
+LinkedList *
+MMessageDao::GetFwdMessages(int mid) {
+	DbEnumerator* pEnum = null;
+	String sql;
+	LinkedList *pFwdMessage = new LinkedList();
+
+	result r;
+	DbStatement *compiledSaveStatment;
+
+
+	sql.Append(L"SELECT "
+			"mid, " //0
+			"uid, "			//1
+			"date, "		//2
+			"text, "	//3
+			"owner "	//3
+
+			"FROM fwd_messages WHERE owner = ?");
+
+	compiledSaveStatment = MDatabaseManager::getInstance().GetDatabase()->CreateStatementN(sql);
+
+	r = GetLastResult();
+	if (IsFailed(r)) {
+	   AppLog(GetErrorMessage(r));
+	}
+
+	compiledSaveStatment->BindInt(0, mid);
+
+	pEnum = MDatabaseManager::getInstance().GetDatabase()->ExecuteStatementN(*compiledSaveStatment);
+	if (!pEnum) {
+		return pFwdMessage;
+	}
+
+	MMessage *pMessage = null;
+
+	while (pEnum->MoveNext() == E_SUCCESS)
+	{
+		pMessage = LoadFwdMessageFromDBN(pEnum);
+
+		if (pMessage) {
+			pFwdMessage->Add(pMessage);
+		}
+	}
+
+	delete compiledSaveStatment;
+	delete pEnum;
+
+	return pFwdMessage;
+}
+
+void
+MMessageDao::DeleteFwdMessageForMessage(int mid) {
+	DbEnumerator* pEnum = null;
+	String sql;
+
+	result r;
+	DbStatement *compiledSaveStatment;
+
+
+	sql.Append(L"DELETE "
+
+			"FROM fwd_messages WHERE owner = ?");
+
+	compiledSaveStatment = MDatabaseManager::getInstance().GetDatabase()->CreateStatementN(sql);
+
+	r = GetLastResult();
+	if (IsFailed(r)) {
+	   AppLog(GetErrorMessage(r));
+	}
+
+	compiledSaveStatment->BindInt(0, mid);
+
+	pEnum = MDatabaseManager::getInstance().GetDatabase()->ExecuteStatementN(*compiledSaveStatment);
+
+	delete compiledSaveStatment;
+	delete pEnum;
+}
+
+DbStatement *
+MMessageDao::CreateSaveFwdMessageStatement() {
+	DbStatement *compiledSaveStatment = null;
+
+	String statement;
+
+	statement.Append(L"INSERT OR REPLACE INTO fwd_messages (uid, date, text, owner) VALUES ( ?, ?, ?, ?)");
+	result r = E_SUCCESS;
+	compiledSaveStatment = MDatabaseManager::getInstance().GetDatabase()->CreateStatementN(statement);
+
+	r = GetLastResult();
+
+	if (IsFailed(r))
+	{
+	   AppLog(GetErrorMessage(r));
+	}
+	return compiledSaveStatment;
+}
+
+DbStatement *
+MMessageDao::BindFwdMessageToSQLStatement(MMessage *message, DbStatement *statement) {
+
+//	statement->BindInt(0, message->GetMid());
+	statement->BindInt(0, message->GetUid());
+	statement->BindInt64(1, message->GetDate());
+	statement->BindString(2, message->GetText()->GetPointer());
+	statement->BindInt(3, message->__owner);
+
+	return statement;
+}
+
+MMessage *
+MMessageDao::LoadFwdMessageFromDBN(DbEnumerator* pEnum) {
+	MMessage *message = new MMessage();
+	int mid;
+	int uid;
+	int date;
+	String *text = new String();
+	int owner;
+
+	pEnum->GetIntAt(0, mid);
+	pEnum->GetIntAt(1, uid);
+	pEnum->GetIntAt(2, date);
+	pEnum->GetStringAt(3, *text);
+	pEnum->GetIntAt(4, owner);
+
+	message->SetMid(mid);
+	message->SetUid(uid);
+	message->SetDate(date);
+	message->SetText(text);
+	message->__owner = owner;
+
+	message->__pType = new String(L"fwd");
+
+	message->__pAttachments = MAttachmentDao::getInstance().GetAttachments(mid, true);
+	if (message->__pAttachments && message->__pAttachments->GetCount()) {
+		AppLog("coun %d", message->__pAttachments->GetCount());
+	}
+
+	message->__pGeo = this->GetGeo(mid);
+
+	if (message->__pGeo) {
+		AppLog("%S", message->__pGeo->__pPlaceTitle->GetPointer());
+	}
+
+	message->__pUser = MUserDao::getInstance().GetUserN(message->GetUid());
+
+	return message;
+}
+
+DbStatement *
+MMessageDao::CreateSaveRelationStatement() {
+	DbStatement *compiledSaveStatment = null;
+
+	String statement;
+
+	statement.Append(L"INSERT OR REPLACE INTO m_to_fm_relations (fmid, aid) VALUES (?, ?)");
+	result r = E_SUCCESS;
+	compiledSaveStatment = MDatabaseManager::getInstance().GetDatabase()->CreateStatementN(statement);
+
+	r = GetLastResult();
+
+	if (IsFailed(r))
+	{
+	   AppLog(GetErrorMessage(r));
+	}
+	return compiledSaveStatment;
+}
+
+/*************************** UTILS **********************/
 
 void
 MMessageDao::SaveReaded(int messageId) {

@@ -115,8 +115,6 @@ SettingsForm::SettingsForm() {
 
 	AddControl(__pExitButton);
 
-	ImageAttachmentOperation *operation = new ImageAttachmentOperation();
-	operation->Perform();
 }
 
 SettingsForm::~SettingsForm() {

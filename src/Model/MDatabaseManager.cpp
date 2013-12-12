@@ -44,6 +44,16 @@ MDatabaseManager::MDatabaseManager() {
 	AppLog(GetErrorMessage(r));
 	delete sqlMtoARelation;
 
+	String *sqlFwdMessage = MMessage::FwdTableDescription();
+	r = __database->ExecuteSql(sqlFwdMessage->GetPointer(), true);
+	AppLog(GetErrorMessage(r));
+	delete sqlFwdMessage;
+
+	String *sqlMtoFMRelation = MMessage::FwdRelationTableDescription();
+	r = __database->ExecuteSql(sqlMtoFMRelation->GetPointer(), true);
+	AppLog(GetErrorMessage(r));
+	delete sqlMtoFMRelation;
+
 	String *sqlGeo = MGeo::TableDescription();
 	r = __database->ExecuteSql(sqlGeo->GetPointer(), true);
 	delete sqlGeo;

@@ -74,6 +74,8 @@ private:
 	void SearchUserWithString(String string);
 	void GetUserRequests();
 	void GetSuggests();
+
+	virtual result OnDraw(void);
 };
 
 #endif /* SEARCHUSERPANEL_H_ */

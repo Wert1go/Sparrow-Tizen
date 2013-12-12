@@ -20,7 +20,10 @@ MMessage::MMessage() {
 	__title = null;
 	__chatId = 0;
 	__pAttachments = null;
+	__pFwd = null;
 	__pGeo = null;
+	__owner = 0;
+	__pUser = null;
 }
 
 MMessage::~MMessage() {
@@ -41,6 +44,34 @@ MMessage::TableDescription() {
 			" read_state INTEGER,"
 			" text TEXT,"
 			" delivered INTEGER"
+			")");
+	return sql;
+}
+
+String*
+MMessage::FwdTableDescription() {
+	String *sql = new String();
+	sql->Append(L"CREATE TABLE IF NOT EXISTS "
+			"fwd_messages ("
+			" mid INTEGER PRIMARY KEY,"
+			" uid INTEGER,"
+			" date INTEGER,"
+			" text TEXT, "
+			" owner INTEGER"
+			")");
+	return sql;
+}
+
+String*
+MMessage::FwdRelationTableDescription() {
+	String *sql = new String();
+	sql->Append(L"CREATE TABLE IF NOT EXISTS "
+			"m_to_fm_relations ("
+			"_id INTEGER PRIMARY KEY,"
+			"fmid INTEGER,"
+			"aid INTEGER,"
+			" UNIQUE (fmid,"
+			" aid) "
 			")");
 	return sql;
 }
@@ -149,7 +180,7 @@ MMessage::SetText(String *text) {
 /***************** SETTERS ******************/
 
 MMessage *
-MMessage::CreateFromJsonN(const Tizen::Web::Json::JsonObject &pObject) {
+MMessage::CreateFromJsonN(const Tizen::Web::Json::JsonObject &pObject, bool fwd) {
 	MMessage *message = new (std::nothrow) MMessage();
 
 	JsonString* pKeyId = new JsonString(L"id");
@@ -166,6 +197,8 @@ MMessage::CreateFromJsonN(const Tizen::Web::Json::JsonObject &pObject) {
 	JsonString* pKeyUsersCount = new JsonString(L"users_count");
 	JsonString* pKeyAdminId = new JsonString(L"admin_id");
 
+
+
 	IJsonValue* pValMessageId = null;
 	IJsonValue* pValFromId = null;
 	IJsonValue* pValUserId = null;
@@ -179,23 +212,28 @@ MMessage::CreateFromJsonN(const Tizen::Web::Json::JsonObject &pObject) {
 	IJsonValue* pValUserCount = null;
 	IJsonValue* pValAdminId = null;
 
-	pObject.GetValue(pKeyId, pValMessageId);
-	pObject.GetValue(pKeyFromId, pValFromId);
-	pObject.GetValue(pKeyUserId, pValUserId);
-	pObject.GetValue(pKeyDate, pValDate);
-	pObject.GetValue(pKeyOut, pValOut);
-	pObject.GetValue(pKeyReadState, pValReadState);
-	pObject.GetValue(pKeyText, pValText);
-
-	pObject.GetValue(pKeyChatId, pValChatId);
-	pObject.GetValue(pKeyChatActive, pValChatActive);
-	pObject.GetValue(pKeyUserCount, pValUserCount);
-
-	if (!pValUserCount) {
-		pObject.GetValue(pKeyUsersCount, pValUserCount);
+	if (!fwd) {
+		pObject.GetValue(pKeyId, pValMessageId);
+		pObject.GetValue(pKeyFromId, pValFromId);
+		pObject.GetValue(pKeyOut, pValOut);
+		pObject.GetValue(pKeyReadState, pValReadState);
 	}
 
-	pObject.GetValue(pKeyAdminId, pValAdminId);
+	pObject.GetValue(pKeyUserId, pValUserId);
+	pObject.GetValue(pKeyDate, pValDate);
+	pObject.GetValue(pKeyText, pValText);
+
+	if (!fwd) {
+		pObject.GetValue(pKeyChatId, pValChatId);
+		pObject.GetValue(pKeyChatActive, pValChatActive);
+		pObject.GetValue(pKeyUserCount, pValUserCount);
+
+		if (!pValUserCount) {
+			pObject.GetValue(pKeyUsersCount, pValUserCount);
+		}
+
+		pObject.GetValue(pKeyAdminId, pValAdminId);
+	}
 
 	JsonNumber* chatId;
 	JsonNumber* userCount;
@@ -206,6 +244,7 @@ MMessage::CreateFromJsonN(const Tizen::Web::Json::JsonObject &pObject) {
 		chatId = static_cast< JsonNumber* >(pValChatId);
 		message->SetChatId(chatId->ToInt());
 	}
+
 	if (pValChatActive && pValUserCount && pValAdminId && pValChatActive) {
 		userCount = static_cast< JsonNumber* >(pValUserCount);
 		adminId = static_cast< JsonNumber* >(pValAdminId);
@@ -235,28 +274,40 @@ MMessage::CreateFromJsonN(const Tizen::Web::Json::JsonObject &pObject) {
 		message->userCount = userCount->ToInt();
 
 	}
-	JsonNumber *mid = static_cast< JsonNumber* >(pValMessageId);
-	JsonNumber *fromId = static_cast< JsonNumber* >(pValFromId);
-	JsonNumber *uid = static_cast< JsonNumber* >(pValUserId);
-	JsonNumber *date = static_cast< JsonNumber* >(pValDate);
-	JsonNumber *out = static_cast< JsonNumber* >(pValOut);
-	JsonNumber *readState = static_cast< JsonNumber* >(pValReadState);
-	JsonString *text = static_cast< JsonString* >(pValText);
+
+	JsonNumber *mid = null;
+	JsonNumber *fromId = null;
+	JsonNumber *uid = null;
+	JsonNumber *date = null;
+	JsonNumber *out = null;
+	JsonNumber *readState = null;
+	JsonString *text = null;
+
+	uid = static_cast< JsonNumber* >(pValUserId);
+	date = static_cast< JsonNumber* >(pValDate);
+	text = static_cast< JsonString* >(pValText);
+
+	if (!fwd) {
+		mid = static_cast< JsonNumber* >(pValMessageId);
+		fromId = static_cast< JsonNumber* >(pValFromId);
+		out = static_cast< JsonNumber* >(pValOut);
+		readState = static_cast< JsonNumber* >(pValReadState);
+	}
 
 	String *pText = new String(text->GetPointer());
 
-	if (pText) {
+	if (pText && pText->GetLength() > 0) {
 		pText->Replace(L"<br>", L"\n");
-
-
 	}
 
-	message->SetMid(mid->ToInt());
-	//костыль для отправки сообщений
-	if (fromId) {
-		message->SetFromUid(fromId->ToInt());
-	} else {
-		message->SetFromUid(uid->ToInt());
+	if (!fwd) {
+		message->SetMid(mid->ToInt());
+		//костыль для отправки сообщений
+		if (fromId) {
+			message->SetFromUid(fromId->ToInt());
+		} else {
+			message->SetFromUid(uid->ToInt());
+		}
 	}
 
 	if (message->GetChatId() != 0) {
@@ -266,14 +317,17 @@ MMessage::CreateFromJsonN(const Tizen::Web::Json::JsonObject &pObject) {
 	}
 
 	message->SetDate(date->ToLong());
-	message->SetOut(out->ToInt());
-	if (out->ToInt() == 1) {
-		message->SetDelivered(1);
-	} else {
-		message->SetDelivered(0);
-	}
-	message->SetReadState(readState->ToInt());
 	message->SetText(pText);
+
+	if (!fwd) {
+		message->SetOut(out->ToInt());
+		if (out->ToInt() == 1) {
+			message->SetDelivered(1);
+		} else {
+			message->SetDelivered(0);
+		}
+		message->SetReadState(readState->ToInt());
+	}
 
 	JsonString *pKeyAttachments = new JsonString(L"attachments");
 	IJsonValue* pValAttachments = null;
@@ -295,7 +349,9 @@ MMessage::CreateFromJsonN(const Tizen::Web::Json::JsonObject &pObject) {
 				MAttachment *attachment = MAttachment::CreateFromJsonN(*pAttachment);
 
 				if (attachment) {
-					attachment->__mid = mid->ToInt();
+					if (mid) {
+						attachment->__mid = mid->ToInt();
+					}
 					pAttachmentsList->Add(attachment);
 				}
 			}
@@ -313,13 +369,49 @@ MMessage::CreateFromJsonN(const Tizen::Web::Json::JsonObject &pObject) {
 	if (pValGeo) {
 		JsonObject *pGaoObject = static_cast<JsonObject*>(pValGeo);
 		MGeo *pGeo = MGeo::CreateFromJsonN(*pGaoObject);
-		pGeo->__mid = mid->ToInt();
+		if (mid) {
+			pGeo->__mid = mid->ToInt();
+		}
+
 		if (pGeo) {
 			message->__pGeo = pGeo;
 		}
 	}
 
 	delete pKeyGeo;
+
+	if (fwd) {
+		message->__pType = new String(L"fwd");
+	}
+
+	JsonString* pKeyFwdMessages = new JsonString(L"fwd_messages");
+	IJsonValue* pValFwds = null;
+
+	pObject.GetValue(pKeyFwdMessages, pValFwds);
+
+	if (pValFwds) {
+
+		AppLog("+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++");
+
+		JsonArray *pFwds = static_cast<JsonArray *>(pValFwds);
+		for (int i = 0; i < pFwds->GetCount(); i++) {
+			IJsonValue* pValFwd = null;
+			pFwds->GetAt(i, pValFwd);
+
+			JsonObject *pFwdObject = static_cast<JsonObject *>(pValFwd);
+
+			MMessage *pFwdMessage = MMessage::CreateFromJsonN(*pFwdObject, true);
+
+			if (!message->__pFwd) {
+				message->__pFwd = new LinkedList();
+			}
+
+			message->__pFwd->Add(pFwdMessage);
+		}
+	}
+
+	delete pKeyFwdMessages;
+
 
 	delete pKeyAttachments;
 	delete pKeyId;
@@ -342,7 +434,7 @@ MMessage::CreateFromJsonN(const Tizen::Web::Json::JsonObject &pObject) {
 }
 
 MMessage *
-MMessage::CreateFromJsonLPN(const Tizen::Web::Json::JsonObject &pObject) {
+MMessage::CreateFromJsonLPN(const Tizen::Web::Json::JsonObject &pObject, bool fwd) {
 	MMessage *message = new (std::nothrow) MMessage();
 
 	JsonString* pKeyId = new JsonString(L"mid");
@@ -371,25 +463,29 @@ MMessage::CreateFromJsonLPN(const Tizen::Web::Json::JsonObject &pObject) {
 	IJsonValue* pValAdminId = null;
 	IJsonValue* pValTitleId = null;
 
-	pObject.GetValue(pKeyId, pValMessageId);
 	pObject.GetValue(pKeyUserId, pValUserId);
 	pObject.GetValue(pKeyDate, pValDate);
-	pObject.GetValue(pKeyOut, pValOut);
-	pObject.GetValue(pKeyReadState, pValReadState);
 	pObject.GetValue(pKeyText, pValText);
 
-	pObject.GetValue(pKeyChatId, pValChatId);
-	pObject.GetValue(pKeyChatActive, pValChatActive);
-	pObject.GetValue(pKeyUserCount, pValUserCount);
-	pObject.GetValue(pKeyAdminId, pValAdminId);
-	pObject.GetValue(pKeyTitle, pValTitleId);
+	if (!fwd) {
+		pObject.GetValue(pKeyId, pValMessageId);
 
-	JsonNumber *mid = static_cast< JsonNumber* >(pValMessageId);
-	JsonNumber *uid = static_cast< JsonNumber* >(pValUserId);
-	JsonNumber *date = static_cast< JsonNumber* >(pValDate);
-	JsonNumber *out = static_cast< JsonNumber* >(pValOut);
-	JsonNumber *readState = static_cast< JsonNumber* >(pValReadState);
-	JsonString *text = static_cast< JsonString* >(pValText);
+		pObject.GetValue(pKeyOut, pValOut);
+		pObject.GetValue(pKeyReadState, pValReadState);
+
+		pObject.GetValue(pKeyChatId, pValChatId);
+		pObject.GetValue(pKeyChatActive, pValChatActive);
+		pObject.GetValue(pKeyUserCount, pValUserCount);
+		pObject.GetValue(pKeyAdminId, pValAdminId);
+		pObject.GetValue(pKeyTitle, pValTitleId);
+	}
+
+	JsonNumber *mid = null;
+	JsonNumber *uid = null;
+	JsonNumber *date = null;
+	JsonNumber *out = null;
+	JsonNumber *readState = null;
+	JsonString *text = null;
 
 	JsonNumber* chatId;
 	JsonNumber* userCount;
@@ -397,33 +493,55 @@ MMessage::CreateFromJsonLPN(const Tizen::Web::Json::JsonObject &pObject) {
 	JsonString* uids;
 	JsonString* title;
 
-	if (pValChatId) {
-		chatId = static_cast< JsonNumber* >(pValChatId);
-		message->SetChatId(chatId->ToInt());
+
+	uid = static_cast< JsonNumber* >(pValUserId);
+	date = static_cast< JsonNumber* >(pValDate);
+	text = static_cast< JsonString* >(pValText);
+
+	if (!fwd) {
+		mid = static_cast< JsonNumber* >(pValMessageId);
+
+		out = static_cast< JsonNumber* >(pValOut);
+		readState = static_cast< JsonNumber* >(pValReadState);
+
+		if (pValChatId) {
+			chatId = static_cast< JsonNumber* >(pValChatId);
+			message->SetChatId(chatId->ToInt());
+		}
+
+		if (pValUserCount) {
+			userCount = static_cast< JsonNumber* >(pValUserCount);
+			adminId = static_cast< JsonNumber* >(pValAdminId);
+			uids = static_cast< JsonString* >(pValChatActive);
+			title = static_cast< JsonString* >(pValTitleId);
+
+			message->uids = new String(uids->GetPointer());
+
+			message->adminId = adminId->ToInt();
+
+			message->userCount = userCount->ToInt();
+			message->__title = new String(title->GetPointer());
+		}
 	}
-
-	if (pValUserCount) {
-		userCount = static_cast< JsonNumber* >(pValUserCount);
-		adminId = static_cast< JsonNumber* >(pValAdminId);
-		uids = static_cast< JsonString* >(pValChatActive);
-		title = static_cast< JsonString* >(pValTitleId);
-
-		message->uids = new String(uids->GetPointer());
-
-		message->adminId = adminId->ToInt();
-
-		message->userCount = userCount->ToInt();
-		message->__title = new String(title->GetPointer());
-	}
-
 
 	String *pText = new String(text->GetPointer());
 
-	if (pText) {
+	if (pText && pText->GetLength() > 0) {
 		pText->Replace(L"<br>", L"\n");
 	}
 
-	message->SetMid(mid->ToInt());
+	if (!fwd) {
+		message->SetMid(mid->ToInt());
+		message->SetFromUid(uid->ToInt());
+		message->SetOut(out->ToInt());
+
+		if (out->ToInt() == 1) {
+			message->SetDelivered(1);
+		} else {
+			message->SetDelivered(0);
+		}
+		message->SetReadState(readState->ToInt());
+	}
 
 	if (message->GetChatId() != 0) {
 		AppLog("1111trttttttttt");
@@ -432,16 +550,7 @@ MMessage::CreateFromJsonLPN(const Tizen::Web::Json::JsonObject &pObject) {
 		message->SetUid(uid->ToInt());
 	}
 
-	message->SetFromUid(uid->ToInt());
 	message->SetDate(date->ToLong());
-	message->SetOut(out->ToInt());
-
-	if (out->ToInt() == 1) {
-		message->SetDelivered(1);
-	} else {
-		message->SetDelivered(0);
-	}
-	message->SetReadState(readState->ToInt());
 	message->SetText(pText);
 
 	delete pKeyId;
@@ -477,7 +586,9 @@ MMessage::CreateFromJsonLPN(const Tizen::Web::Json::JsonObject &pObject) {
 				MAttachment *attachment = MAttachment::CreateFromJsonLPN(*pAttachment);
 
 				if (attachment) {
-					attachment->__mid = mid->ToInt();
+					if (mid) {
+						attachment->__mid = mid->ToInt();
+					}
 					pAttachmentsList->Add(attachment);
 				}
 			}
@@ -497,13 +608,44 @@ MMessage::CreateFromJsonLPN(const Tizen::Web::Json::JsonObject &pObject) {
 	if (pValGeo) {
 		JsonObject *pGaoObject = static_cast<JsonObject*>(pValGeo);
 		MGeo *pGeo = MGeo::CreateFromJsonN(*pGaoObject);
-		pGeo->__mid = mid->ToInt();
+		if (mid) {
+			pGeo->__mid = mid->ToInt();
+		}
 		if (pGeo) {
 			message->__pGeo = pGeo;
 		}
 	}
 
 	delete pKeyGeo;
+
+	if (fwd) {
+		message->__pType = new String(L"fwd");
+	}
+
+	JsonString* pKeyFwdMessages = new JsonString(L"fwd_messages");
+	IJsonValue* pValFwds = null;
+
+	pObject.GetValue(pKeyFwdMessages, pValFwds);
+
+	if (pValFwds) {
+		JsonArray *pFwds = static_cast<JsonArray *>(pValFwds);
+		for (int i = 0; i < pFwds->GetCount(); i++) {
+			IJsonValue* pValFwd = null;
+			pFwds->GetAt(i, pValFwd);
+
+			JsonObject *pFwdObject = static_cast<JsonObject *>(pValFwd);
+
+			MMessage *pFwdMessage = MMessage::CreateFromJsonLPN(*pFwdObject, true);
+
+			if (!message->__pFwd) {
+				message->__pFwd = new LinkedList();
+			}
+
+			message->__pFwd->Add(pFwdMessage);
+		}
+	}
+
+	delete pKeyFwdMessages;
 
 	AppLog("1111test");
 

@@ -16,6 +16,7 @@ using namespace Tizen::Ui::Controls;
 using namespace Tizen::Graphics;
 
 class MAttachment;
+class IImageDrawer;
 
 class UiAttachmentView
  : public Tizen::Ui::Controls::ICustomElement
@@ -42,6 +43,8 @@ public:
 	Point __durationDrawPoint;
 
 	bool __playing;
+
+	IImageDrawer *__pImageDrawer;
 
 };
 

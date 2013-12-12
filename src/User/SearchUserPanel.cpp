@@ -18,7 +18,7 @@
 #include "BaseUserController.h"
 
 #include "SceneRegister.h"
-
+#include "AppResourceId.h"
 #include "UiDialogCustomItem.h"
 
 using namespace Tizen::App;
@@ -392,4 +392,14 @@ SearchUserPanel::OnGroupedListViewItemStateChanged(GroupedListView &listView, in
 	paramsList->Add(user);
 
 	pSceneManager->GoForward(ForwardSceneTransition(SCENE_PROFILE, SCENE_TRANSITION_ANIMATION_TYPE_LEFT), paramsList);
+}
+
+result
+SearchUserPanel::OnDraw() {
+
+	String importantString;
+	Application::GetInstance()->GetAppResource()->GetString(IDS_SEARCH, importantString);
+	__pSearchBar->SetGuideText(importantString);
+
+	return E_SUCCESS;
 }

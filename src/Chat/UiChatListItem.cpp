@@ -168,6 +168,38 @@ UiChatListItem::OnDraw(Tizen::Graphics::Canvas& canvas, const Tizen::Graphics::R
 		drawOffset += this->GetMessage()->__pGeo->imageSize.y;
 	}
 
+	if (this->GetMessage()->__pFwd) {
+		for(int i = 0; i < this->GetMessage()->__pFwd->GetCount(); i++) {
+			MMessage *pFwdMessage = static_cast<MMessage *>(this->GetMessage()->__pFwd->GetAt(i));
+
+			Point drawPoint;
+			float width = __pBubbleDimension.width;
+
+			if (this->GetMessage()->GetOut() == 1) {
+				drawPoint = Point(rect.width - __sideOffset - width + __offset, drawOffset);
+			} else {
+				drawPoint = Point(__leftOffset + __offset, drawOffset);
+			}
+
+			AppLog("drawPoint: %d, %d", drawPoint.x, drawPoint.y);
+
+			pFwdMessage->__absolutePosition = drawPoint;
+
+			this->GetDrawer()->DrawAttachmentFromUrlInRect(
+								null,
+								Rectangle(
+										drawPoint.x,
+										drawPoint.y + 20,
+										pFwdMessage->imageSize.x,
+										pFwdMessage->imageSize.y),
+										pFwdMessage
+						);
+
+			drawOffset += pFwdMessage->imageSize.y;
+		}
+	}
+
+
 	return true;
 }
 

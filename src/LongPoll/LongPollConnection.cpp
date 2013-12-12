@@ -120,7 +120,7 @@ LongPollConnection::SendRequestToLongPollServer(IList *pArgs) {
 	this->__pKey = key;
 	this->__pServer = server;
 	this->__pTS = ts;
-
+	AppLog("SendRequestToLongPollServer");
 	this->SendRequestToLongPollServer(key, server, ts);
 }
 

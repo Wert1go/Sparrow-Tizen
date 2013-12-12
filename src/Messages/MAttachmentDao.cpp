@@ -454,11 +454,37 @@ MAttachmentDao::CreateSaveRelationStatement() {
 	return compiledSaveStatment;
 }
 
+DbStatement *
+MAttachmentDao::CreateSaveFwdRelationStatement() {
+	DbStatement *compiledSaveStatment = null;
+
+	String statement;
+
+	statement.Append(L"INSERT OR REPLACE INTO m_to_fm_relations (fmid, aid) VALUES (?, ?)");
+	result r = E_SUCCESS;
+	compiledSaveStatment = MDatabaseManager::getInstance().GetDatabase()->CreateStatementN(statement);
+
+	r = GetLastResult();
+
+	if (IsFailed(r))
+	{
+	   AppLog(GetErrorMessage(r));
+	}
+	return compiledSaveStatment;
+}
+
 void
-MAttachmentDao::SaveAttachments(IList *pAttachments, int mid) {
+MAttachmentDao::SaveAttachments(IList *pAttachments, int mid, bool fwd) {
 	AppLog("SaveAttachments %d :: count %d", mid, pAttachments->GetCount());
 
-	DbStatement *compiledSaveRelationStatment = CreateSaveRelationStatement();
+	DbStatement *compiledSaveRelationStatment;
+
+	if (fwd) {
+		compiledSaveRelationStatment = CreateSaveFwdRelationStatement();
+	} else {
+		compiledSaveRelationStatment = CreateSaveRelationStatement();
+
+	}
 
 	DbStatement *compiledSavePhotoStatment = CreateSavePhotoStatement();
 	DbStatement *compiledSaveVideoStatment = CreateSaveVideoStatement();
@@ -509,7 +535,7 @@ MAttachmentDao::SaveAttachments(IList *pAttachments, int mid) {
 }
 
 LinkedList *
-MAttachmentDao::GetAttachments(int mid) {
+MAttachmentDao::GetAttachments(int mid, bool fwd) {
 	DbEnumerator* pEnum = null;
 	String sql;
 	LinkedList *pAttachments = new LinkedList();
@@ -543,10 +569,17 @@ MAttachmentDao::GetAttachments(int mid) {
 			"a.size, "		//18
 			"a.ext "			//19
 
-			"FROM attachments as a "
-			"INNER JOIN m_to_a_relations as d "
-			"ON d.mid = ? AND a.identifier = d.aid"
-			);
+			"FROM attachments as a ");
+
+	if(!fwd) {
+		sql.Append("INNER JOIN m_to_a_relations as d ");
+		sql.Append("ON d.mid = ? AND a.identifier = d.aid"
+					);
+	} else {
+		sql.Append("INNER JOIN m_to_fm_relations as d ");
+		sql.Append("ON d.fmid = ? AND a.identifier = d.aid"
+					);
+	}
 
 	compiledSaveStatment = MDatabaseManager::getInstance().GetDatabase()->CreateStatementN(sql);
 

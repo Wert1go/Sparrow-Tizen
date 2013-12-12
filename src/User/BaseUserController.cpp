@@ -7,6 +7,7 @@
 
 #include "BaseUserController.h"
 
+#include <FApp.h>
 #include "MUser.h"
 #include "MUserDao.h"
 #include "UsersComparer.h"
@@ -15,13 +16,14 @@
 #include "SceneRegister.h"
 #include "UiDialogCustomItem.h"
 
+#include "AppResourceId.h"
+
 using namespace Tizen::Base;
 using namespace Tizen::Base::Collection;
 using namespace Tizen::App;
 using namespace Tizen::Graphics;
 using namespace Tizen::Ui::Controls;
 using namespace Tizen::Ui::Scenes;
-
 
 BaseUserController::BaseUserController() {
 	// TODO Auto-generated constructor stub
@@ -160,7 +162,9 @@ BaseUserController::SplitUsersToSections() {
 	__pSectionItemsList->RemoveAll();
 	__pSectionTitlesList->RemoveAll();
 
-	__pSectionTitlesList->Add(new String(L"Важные"));
+	String importantString;
+	Application::GetInstance()->GetAppResource()->GetString(IDS_USERS_IMPORTANT, importantString);
+	__pSectionTitlesList->Add(new String(importantString));
 
 	int importantCount = 5;
 
@@ -201,13 +205,11 @@ BaseUserController::SplitUsersToSectionsByAlphabet() {
 		for(int userIndex = 0; userIndex < __pUsersList->GetCount(); userIndex++) {
 
 			MUser *user = static_cast<MUser *>(__pUsersList->GetAt(userIndex));
-//			AppLog("userIndex %d %S", userIndex, user->GetFirstName()->GetPointer());
 			wchar_t ltr;
 			user->GetFirstName()->GetCharAt(0, ltr);
 			String firstLetter(ltr);
 
 			if (letter.Equals(firstLetter, false)) {
-//				AppLog("compare:: %S == %S", firstLetter.GetPointer(), user->GetFirstName()->GetPointer());
 
 				if (begin) {
 					AppAssert(listToAdd);
@@ -273,3 +275,4 @@ ListAnnexStyle
 BaseUserController::GetCurrentAnnexStyle() {
 	return LIST_ANNEX_STYLE_NORMAL;
 }
+

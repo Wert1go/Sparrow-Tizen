@@ -38,6 +38,8 @@ MAttachment::MAttachment() {
 	__tempId = 0;
 	ratio = 0;
 	imageSize = FloatPoint(0,0);
+
+	this->__pUser = null;
 }
 
 MAttachment::~MAttachment() {

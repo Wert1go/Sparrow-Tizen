@@ -41,8 +41,16 @@ public:
 	DbStatement * BindMessageToSQLStatement(MMessage *dialog, DbStatement *statement);
 	MMessage * LoadMessageFromDBN(DbEnumerator* pEnum);
 
+	DbStatement * CreateSaveFwdMessageStatement();
+	DbStatement * BindFwdMessageToSQLStatement(MMessage *dialog, DbStatement *statement);
+	MMessage * LoadFwdMessageFromDBN(DbEnumerator* pEnum);
+	DbStatement * CreateSaveRelationStatement();
+	LinkedList * GetFwdMessages(int mid);
+
 	DbStatement * CreateSaveGeoStatement();
 	DbStatement * BindGeoToSQLStatement(MGeo *geo, DbStatement *statement);
+
+	void DeleteFwdMessageForMessage(int mid);
 
 	void SaveGeo(MGeo *geo);
 	MGeo *GetGeo(int mid);

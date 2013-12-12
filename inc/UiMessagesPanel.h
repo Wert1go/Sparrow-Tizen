@@ -88,6 +88,7 @@ private:
 
 	SearchBar *__pSearchBar;
 	void SendRequest(int offset = 0);
+	virtual result OnDraw(void);
 };
 
 #endif /* UIMESSAGESPANEL_H_ */

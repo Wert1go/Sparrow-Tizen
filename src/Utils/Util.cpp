@@ -133,11 +133,20 @@ Util::formatDateN(long date) {
 }
 
 Dimension
-Util::CalculateDimensionForMessage(MMessage *message) {
+Util::CalculateDimensionForMessage(MMessage *message, bool fwd) {
 
+
+	if(message->__pFwd) {
+		AppLog("message:: %d", message->__pFwd->GetCount());
+	}
 
 	String *text = message->GetText();
 	Dimension resultSize;
+
+	if (fwd) {
+		resultSize.width = limitSize;
+		resultSize.height += 80;
+	}
 
 	if (text->GetLength() != 0) {
 		EnrichedText* pTimeLabel = null;
@@ -248,6 +257,30 @@ Util::CalculateDimensionForMessage(MMessage *message) {
 
 		message->__pGeo->imageSize = FloatPoint(imgWidth, imgHeight);
 		resultSize.height += imgHeight + 20;
+	}
+
+	if (message->__pFwd) {
+		for(int i = 0; i < message->__pFwd->GetCount(); i++) {
+			MMessage *pFwdMessage = static_cast<MMessage *>(message->__pFwd->GetAt(i));
+
+			if (pFwdMessage->__pType) {
+				AppLog("+++++++=======================++++++++++++++++++++++++++++++++++++++++++++++++++++++");
+			}
+
+			Dimension fwdDimension = Util::CalculateDimensionForMessage(pFwdMessage, true);
+
+			AppLog("%d :: %d", fwdDimension.width, fwdDimension.height);
+
+			if (resultSize.width < fwdDimension.width) {
+				resultSize.width = fwdDimension.width;
+			}
+
+			resultSize.width += 20; // под оступ!
+
+			pFwdMessage->imageSize = FloatPoint(fwdDimension.width, fwdDimension.height);
+
+			resultSize.height += fwdDimension.height + 20;
+		}
 	}
 
 	return resultSize;

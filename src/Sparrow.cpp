@@ -156,6 +156,7 @@ SparrowApp::OnScreenOff(void)
 void
 SparrowApp::OnUserEventReceivedN(RequestId requestId, Tizen::Base::Collection::IList* pArgs) {
 	if (requestId == LONGPOLL_GET_SERVER) {
+		AppLog("TTTTEES");
 		LongPollConnection::getInstance().SendRequestToLongPollServer(pArgs);
 	} else if (requestId == LONGPOLL_CONNECTION) {
 		LongPollConnection::getInstance().Reconnect();
@@ -231,4 +232,10 @@ SparrowApp::OnAppControlRequestReceived(
 		}
 	}
 
+}
+
+void
+SparrowApp::OnSettingChanged(Tizen::Base::String& key) {
+	Tizen::Ui::Controls::Frame* pFrame = Tizen::App::UiApp::GetInstance()->GetAppFrame()->GetFrame();
+	pFrame->Invalidate(true);
 }

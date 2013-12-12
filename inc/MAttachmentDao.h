@@ -46,8 +46,9 @@ public:
 	MAttachment * LoadDocFromDBN(DbEnumerator* pEnum);
 
 	DbStatement * CreateSaveRelationStatement();
-	void SaveAttachments(IList *pAttachments, int mid);
-	LinkedList * GetAttachments(int mid);
+	DbStatement * CreateSaveFwdRelationStatement();
+	void SaveAttachments(IList *pAttachments, int mid, bool fwd = false);
+	LinkedList * GetAttachments(int mid, bool fwd = false);
 };
 
 #endif /* MATTACHMENTDAO_H_ */

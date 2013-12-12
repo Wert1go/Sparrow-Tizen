@@ -15,7 +15,15 @@ extern const wchar_t* AUDIO;
 extern const wchar_t* VIDEO;
 extern const wchar_t* DOC;
 
+
 using namespace Tizen::Graphics;
+using namespace Tizen::Base;
+using namespace Tizen::Base::Collection;
+
+class MGeo;
+class MUser;
+
+class MUser;
 
 class MAttachment
 : public Bean {
@@ -85,6 +93,15 @@ public:
 
 	static MAttachment* CreateFromJsonLPN(const Tizen::Web::Json::JsonObject &jsonObject);
 	static String* TableDescription();
+
+	MUser *__pUser;
+
+	Point __absolutePosition;
+
+	MGeo *__pGeo;
+
+	LinkedList *__pAttachments;
+	LinkedList *__pFwd;
 
 };
 

@@ -26,6 +26,8 @@
 #include "MainForm.h"
 #include "Resources.h"
 
+#include "AppResourceId.h"
+
 using namespace Tizen::App;
 using namespace Tizen::Graphics;
 using namespace Tizen::Ui::Controls;
@@ -475,4 +477,14 @@ UiMessagesPanel::OnScrollEndReached(Tizen::Ui::Control& source, Tizen::Ui::Contr
 			this->SendRequest(this->__pDialogsList->GetCount());
 		}
 	}
+}
+
+result
+UiMessagesPanel::OnDraw() {
+
+	String importantString;
+	Application::GetInstance()->GetAppResource()->GetString(IDS_SEARCH, importantString);
+	__pSearchBar->SetGuideText(importantString);
+
+	return E_SUCCESS;
 }

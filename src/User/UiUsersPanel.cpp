@@ -6,6 +6,7 @@
  */
 
 #include <FBase.h>
+#include <FApp.h>
 
 #include "UiUsersPanel.h"
 #include "AuthManager.h"
@@ -21,6 +22,7 @@
 #include "SceneRegister.h"
 
 #include "UiDialogCustomItem.h"
+#include "AppResourceId.h"
 
 using namespace Tizen::App;
 using namespace Tizen::Graphics;
@@ -251,3 +253,14 @@ UiUsersPanel::SetCurrentDisplayMode(int mode) {
 	SplitUsersToSections();
 	this->__pListView->UpdateList();
 }
+
+result
+UiUsersPanel::OnDraw() {
+
+	String importantString;
+	Application::GetInstance()->GetAppResource()->GetString(IDS_SEARCH, importantString);
+	__pSearchBar->SetGuideText(importantString);
+
+	return E_SUCCESS;
+}
+

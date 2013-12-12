@@ -12,6 +12,7 @@
 #include <FGraphics.h>
 #include "FMedia.h"
 #include "SceneRegister.h"
+#include "AppResourceId.h"
 
 #define ID_BUTTON_LOGIN 			101
 #define ID_BUTTON_REGISTRATION	 	102
@@ -45,7 +46,7 @@ AuthForm::AuthForm() {
 
 	pAuthButton = new (std::nothrow) Button();
 	pAuthButton->Construct(Rectangle(rect.width/2 - buttonWidth/2, yOffset, buttonWidth, 80));
-	pAuthButton->SetText(L"Войти через VK");
+
 	pAuthButton->SetActionId(ID_BUTTON_LOGIN);
 	pAuthButton->AddActionEventListener(*this);
 	pAuthButton->SetTextColor(*textNormalColor);
@@ -63,14 +64,14 @@ AuthForm::AuthForm() {
 	buttonWidth = (rect.width * 58)/100;
 	yOffset = (rect.height * 75)/100;
 
-	textNormalColor = new (std::nothrow) Color(60, 117, 186, 255);
+	textNormalColor = new (std::nothrow) Color(70, 117, 186, 255);//Color(60, 117, 186, 255);
 	textSelectedColor = new (std::nothrow) Color(255, 255, 255, 255);
 	buttonNormalColor = new (std::nothrow) Color(0, 0, 0, 0);
 	buttonSelectedColor = new (std::nothrow) Color(0, 0, 0, 0);
 
 	pRegButton = new (std::nothrow) Button();
 	pRegButton->Construct(Rectangle(rect.width/2 - buttonWidth/2, yOffset, buttonWidth, 70));
-	pRegButton->SetText(L"Зарегистрироваться");
+
 	pRegButton->SetActionId(ID_BUTTON_REGISTRATION);
 	pRegButton->AddActionEventListener(*this);
 	pRegButton->SetTextColor(*textNormalColor);
@@ -100,11 +101,15 @@ AuthForm::AuthForm() {
 
 	pInfoLabel = new (std::nothrow) TextBox();
 	pInfoLabel->Construct(Rectangle(rect.width/2 - buttonWidth/2, yOffset, buttonWidth, 160), TEXT_BOX_BORDER_NONE);
-	pInfoLabel->SetText(L"Вы сможете бесплатно обмениваться мгновенными сообщениями с друзьями");
+
 	pInfoLabel->SetTextAlignment(ALIGNMENT_CENTER);
 	pInfoLabel->SetTextColor(TEXT_BOX_TEXT_COLOR_NORMAL, *labelTextColor);
+	pInfoLabel->SetTextColor(TEXT_BOX_TEXT_COLOR_DISABLED, *labelTextColor);
 	pInfoLabel->SetTextSize(28);
 	pInfoLabel->SetFocusable(false);
+	pInfoLabel->SetEnabled(false);
+	pInfoLabel->SetDragEnabled(false);
+	pInfoLabel->SetDropEnabled(false);
 
 	pInfoLabel->SetBackgroundBitmap(TEXT_BOX_STATUS_NORMAL, *pBackgroundBitmap);
 	pInfoLabel->SetBackgroundBitmap(TEXT_BOX_STATUS_HIGHLIGHTED, *pBackgroundBitmap);
@@ -140,6 +145,19 @@ result AuthForm::OnDraw(void) {
 	}
 
 	delete pCanvas;
+
+	String loginString;
+	Application::GetInstance()->GetAppResource()->GetString(IDS_BUTTON_LOGIN, loginString);
+	pAuthButton->SetText(loginString);
+
+	String registerString;
+	Application::GetInstance()->GetAppResource()->GetString(IDS_BUTTON_REG, registerString);
+	pRegButton->SetText(registerString);
+
+	String descrString;
+	Application::GetInstance()->GetAppResource()->GetString(IDS_START_SCREEN_DESCR, descrString);
+	pInfoLabel->SetText(descrString);
+
 	return r;
 }
 

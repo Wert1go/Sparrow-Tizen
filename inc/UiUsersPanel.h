@@ -69,6 +69,7 @@ private:
 	SearchBar *__pSearchBar;
 
 	void RequestUsers();
+	virtual result OnDraw(void);
 
 };
 

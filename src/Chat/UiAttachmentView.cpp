@@ -12,6 +12,8 @@
 #include "MAttachment.h"
 #include "Resources.h"
 #include "MGeo.h"
+#include "MUser.h"
+#include "IImageDrawer.h"
 
 using namespace Tizen::Ui::Controls;
 using namespace Tizen::Graphics;
@@ -28,6 +30,7 @@ UiAttachmentView::UiAttachmentView() {
 	__pDurationText = null;
 
 	__playing = false;
+	__pImageDrawer = null;
 }
 
 UiAttachmentView::~UiAttachmentView() {
@@ -58,6 +61,8 @@ UiAttachmentView::~UiAttachmentView() {
 bool
 UiAttachmentView::OnDraw(Tizen::Graphics::Canvas &canvas, const Tizen::Graphics::Rectangle &rect, Tizen::Ui::Controls::ListItemDrawingStatus status) {
 	result r;
+
+	AppLog("UiAttachmentView %d, %d", rect.x, rect.y);
 
 	if (__pBitmapImage != null)
 	{
@@ -113,6 +118,64 @@ UiAttachmentView::OnDraw(Tizen::Graphics::Canvas &canvas, const Tizen::Graphics:
 		if (__pTitleLabel) {
 			canvas.DrawText(__titleDrawPoint, *__pTitleLabel);
 		}
+	} else if (__pAttachment->__pType->Equals(L"fwd", false)) {
+		canvas.FillRectangle(Color(86, 156, 218, 255), Rectangle(10, 0, 5, rect.height - 10));
+
+		if (__pImageDrawer && __pAttachment->__pUser) {
+			AppLog("%d, %d", rect.x, rect.y);
+			__pImageDrawer->DrawImageFromUrlInRect(__pAttachment->__pUser->GetPhoto(),
+					Rectangle(__pAttachment->__absolutePosition.x + 10, __pAttachment->__absolutePosition.y + 10, 72, 72));
+		}
+
+		float drawOffset = 80;
+
+		if (__pAttachment->__pAttachments && __pAttachment->__pAttachments->GetCount() > 0) {
+
+			for (int i = 0; i < __pAttachment->__pAttachments->GetCount(); i++) {
+				MAttachment *attachment = static_cast<MAttachment *>( __pAttachment->__pAttachments->GetAt(i));
+
+				Point drawPoint = Point(__pAttachment->__absolutePosition.x + 20, __pAttachment->__absolutePosition.y + drawOffset);
+
+
+				String *imgUrl = null;
+
+				if (attachment->__pType->Equals(PHOTO, false)) {
+					if (attachment->__pPhoto604) {
+						imgUrl = attachment->__pPhoto604;
+					} else {
+						imgUrl = attachment->__pPhoto130;
+					}
+				} else if (attachment->__pType->Equals(VIDEO, false)) {
+					if (attachment->__pVideoPhoto320) {
+						imgUrl = attachment->__pVideoPhoto320;
+					} else {
+						imgUrl = attachment->__pPhoto130;
+					}
+				}
+
+				if (__pImageDrawer) {
+					__pImageDrawer->DrawAttachmentFromUrlInRect(
+							imgUrl,
+							Rectangle(
+									drawPoint.x,
+									drawPoint.y,
+									attachment->imageSize.x,
+									attachment->imageSize.y),
+							attachment
+					);
+
+					drawOffset += attachment->imageSize.y;
+
+					if (i != __pAttachment->__pAttachments->GetCount() - 1) {
+						drawOffset += 30;
+					}
+				}
+			}
+		}
+	}
+
+	if (status == LIST_ITEM_DRAWING_STATUS_PRESSED) {
+		canvas.FillRoundRectangle(Color(0, 0, 0, 80), rect, Dimension(8, 8));
 	}
 
 //	AppLog("OnDraw::END");

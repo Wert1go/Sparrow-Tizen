@@ -15,6 +15,7 @@ using namespace Tizen::Base;
 class SparrowApp
 	: public Tizen::App::UiApp
 	, public Tizen::System::IScreenEventListener
+	, public Tizen::System::ISettingEventListener
 	, public virtual Tizen::App::IAppControlProviderEventListener
 {
 public:
@@ -65,6 +66,7 @@ public:
 
 	virtual void OnAppControlRequestReceived(RequestId reqId, const Tizen::Base::String& operationId, const Tizen::Base::String* pUriData, const Tizen::Base::String* pMimeType, const Tizen::Base::Collection::IMap* pExtraData);
 
+	virtual void OnSettingChanged(Tizen::Base::String& key);
 };
 
 #endif // _SPARROW_H_

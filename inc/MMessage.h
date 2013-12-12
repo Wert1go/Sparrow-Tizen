@@ -9,15 +9,16 @@
 #define MMESSAGE_H_
 
 #include <FBase.h>
-#include "Bean.h"
+#include "MAttachment.h"
 
 using namespace Tizen::Base;
 using namespace Tizen::Base::Collection;
 
 class MGeo;
+class MUser;
 
 class MMessage
- : public Bean
+ : public MAttachment
 {
 public:
 	MMessage();
@@ -45,12 +46,16 @@ public:
 	int userCount;
 	int adminId;
 
-	MGeo *__pGeo;
 
-	LinkedList *__pAttachments;
+
+	int __owner;
+
+
 
 public:
 	static String* TableDescription();
+	static String* FwdTableDescription();
+	static String* FwdRelationTableDescription();
 	static String* RelationTableDescription();
 
 	int GetMid();
@@ -74,8 +79,8 @@ public:
 	void SetText(String *text);
 	void SetChatId(int chatId);
 
-	static MMessage * CreateFromJsonN(const Tizen::Web::Json::JsonObject &pObject);
-	static MMessage * CreateFromJsonLPN(const Tizen::Web::Json::JsonObject &pObject);
+	static MMessage * CreateFromJsonN(const Tizen::Web::Json::JsonObject &pObject, bool fwd = false);
+	static MMessage * CreateFromJsonLPN(const Tizen::Web::Json::JsonObject &pObject, bool fwd = false);
 
 
 };

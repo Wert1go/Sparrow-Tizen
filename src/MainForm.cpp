@@ -16,6 +16,8 @@
 #include "UiUpdateConstants.h"
 #include "LongPollConnection.h"
 
+#include "AppResourceId.h"
+
 using namespace Tizen::App;
 using namespace Tizen::Base;
 using namespace Tizen::Ui;
@@ -37,6 +39,8 @@ using namespace Tizen::Media;
 MainForm::MainForm() {
 	Form::Construct(FORM_STYLE_HEADER | FORM_STYLE_FOOTER);
 	SetFormBackEventListener(this);
+
+	messageItem = null;
 
 	this->SetName(L"MainForm");
 	Color *pFormBackgroundColor = new (std::nothrow) Color(0, 0, 0, 255);
@@ -63,50 +67,7 @@ MainForm::MainForm() {
 	delete pHeaderTextColor;
 	delete pFormBackgroundColor;
 
-	Image messageIcon;
-	result r = messageIcon.Construct();
-	String filepath = App::GetInstance()->GetAppResourcePath() + L"Images/tab_icon_message.png";
-	Bitmap *pMessagesIconBitmap = messageIcon.DecodeN(filepath, BITMAP_PIXEL_FORMAT_ARGB8888);
 
-	HeaderItem headerMessageItem;
-	headerMessageItem.Construct(ID_MESSAGES);
-	headerMessageItem.SetText("Сообщения");
-	headerMessageItem.SetIcon(HEADER_ITEM_STATUS_NORMAL, pMessagesIconBitmap);
-
-	pHeader->AddItem(headerMessageItem);
-
-	Image contactsIcon;
-	r = contactsIcon.Construct();
-	filepath = App::GetInstance()->GetAppResourcePath() + L"Images/tab_icon_contacts.png";
-	Bitmap *pContactsIconBitmap = contactsIcon.DecodeN(filepath, BITMAP_PIXEL_FORMAT_ARGB8888);
-
-	HeaderItem headerContactsItem;
-	headerContactsItem.Construct(ID_CONTACTS);
-	headerContactsItem.SetText("Контакты");
-	headerContactsItem.SetIcon(HEADER_ITEM_STATUS_NORMAL, pContactsIconBitmap);
-	pHeader->AddItem(headerContactsItem);
-
-	Image searchIcon;
-	r = searchIcon.Construct();
-	filepath = App::GetInstance()->GetAppResourcePath() + L"Images/tab_icon_search.png";
-	Bitmap *pSearchIconBitmap = searchIcon.DecodeN(filepath, BITMAP_PIXEL_FORMAT_ARGB8888);
-
-	HeaderItem headerSearchItem;
-	headerSearchItem.Construct(ID_SEARCH);
-	headerSearchItem.SetText("Поиск");
-	headerSearchItem.SetIcon(HEADER_ITEM_STATUS_NORMAL, pSearchIconBitmap);
-	pHeader->AddItem(headerSearchItem);
-
-	Image settingsIcon;
-	r = settingsIcon.Construct();
-	filepath = App::GetInstance()->GetAppResourcePath() + L"Images/tab_icon_gear.png";
-	Bitmap *pSettingsIconBitmap = settingsIcon.DecodeN(filepath, BITMAP_PIXEL_FORMAT_ARGB8888);
-
-	HeaderItem headerSettingsItem;
-	headerSettingsItem.Construct(ID_SETTINGS);
-	headerSettingsItem.SetText("Настройки");
-	headerSettingsItem.SetIcon(HEADER_ITEM_STATUS_NORMAL, pSettingsIconBitmap);
-	pHeader->AddItem(headerSettingsItem);
 
 	Footer *pFooter = this->GetFooter();
 	pFooter->AddActionEventListener(*this);
@@ -118,20 +79,20 @@ MainForm::MainForm() {
 	pFooter->SetItemTextColor(FOOTER_ITEM_STATUS_NORMAL, Color(255, 255, 255, 255));
 	pFooter->SetItemTextColor(FOOTER_ITEM_STATUS_SELECTED, Color(255, 255, 255, 255));
 
-	FooterItem friendsItem;
-	friendsItem.Construct(ID_USERS_FRIENDS);
-	friendsItem.SetText("Все друзья");
-	pFooter->AddItem(friendsItem);
+	FooterItem *friendsItem = new FooterItem();
+	friendsItem->Construct(ID_USERS_FRIENDS);
+	this->friendsItem = friendsItem;
+	pFooter->AddItem(*friendsItem);
 
-	FooterItem friendsOnlineItem;
-	friendsOnlineItem.Construct(ID_USERS_FRIENDS_ONLINE);
-	friendsOnlineItem.SetText("Онлайн");
-	pFooter->AddItem(friendsOnlineItem);
+	FooterItem *friendsOnlineItem = new FooterItem();
+	friendsOnlineItem->Construct(ID_USERS_FRIENDS_ONLINE);
+	this->friendsOnlineItem = friendsOnlineItem;
+	pFooter->AddItem(*friendsOnlineItem);
 
-	FooterItem contactsItem;
-	contactsItem.Construct(ID_USERS_CONTACTS);
-	contactsItem.SetText("Контакты");
-	pFooter->AddItem(contactsItem);
+	FooterItem *contactsItem = new FooterItem();
+	contactsItem->Construct(ID_USERS_CONTACTS);
+	this->footerContactsItem = contactsItem;
+	pFooter->AddItem(*contactsItem);
 
 
 //	Image image;
@@ -142,16 +103,15 @@ MainForm::MainForm() {
 
 	this->SetActionBarsVisible(FORM_ACTION_BAR_FOOTER, false);
 
-	delete pMessagesIconBitmap;
-	delete pContactsIconBitmap;
-	delete pSearchIconBitmap;
-	delete pSettingsIconBitmap;
+
+
+//	this->Invalidate(true);
 
 	LongPollConnection::getInstance().Run();
 }
 
 MainForm::~MainForm() {
-	// TODO Auto-generated destructor stub
+	messageItem = null;
 }
 
 void
@@ -223,7 +183,6 @@ MainForm::OnActionPerformed(const Tizen::Ui::Control& source, int actionId)
 void
 MainForm::OnUserEventReceivedN(RequestId requestId, Tizen::Base::Collection::IList* pArgs) {
 	if (requestId == UPDATE_MESSAGE_ARRIVED || requestId == UPDATE_READ_STATE) {
-		AppLogDebug("!OnUserEventReceivedN");
 		UpdateUnreadCount();
 	}
 }
@@ -240,4 +199,124 @@ MainForm::UpdateUnreadCount() {
 		__pHeader->SetItemNumberedBadgeIcon(0, 0);
 	}
 
+}
+
+result
+MainForm::OnDraw() {
+	this->RecreateItems();
+	return E_SUCCESS;
+}
+
+void
+MainForm::RecreateItems() {
+
+	Header* pHeader = this->GetHeader();
+	Footer *pFooter = this->GetFooter();
+
+	int headerIndex = 0;
+	int footerIndex = 0;
+
+	if (messageItem) {
+		headerIndex = pHeader->GetSelectedItemIndex();
+		footerIndex = pFooter->GetSelectedItemIndex();
+
+		pHeader->RemoveAllItems();
+		pFooter->RemoveAllItems();
+
+		//delete
+	}
+
+	Image messageIcon;
+	result r = messageIcon.Construct();
+	String filepath = App::GetInstance()->GetAppResourcePath() + L"Images/tab_icon_message.png";
+	Bitmap *pMessagesIconBitmap = messageIcon.DecodeN(filepath, BITMAP_PIXEL_FORMAT_ARGB8888);
+
+	HeaderItem *headerMessageItem = new HeaderItem();
+	headerMessageItem->Construct(ID_MESSAGES);
+	headerMessageItem->SetIcon(HEADER_ITEM_STATUS_NORMAL, pMessagesIconBitmap);
+	messageItem = headerMessageItem;
+	String messageString;
+	Application::GetInstance()->GetAppResource()->GetString(IDS_MAIN_FORM_MSG, messageString);
+	this->messageItem->SetText(messageString);
+	pHeader->AddItem(*headerMessageItem);
+
+	Image contactsIcon;
+	r = contactsIcon.Construct();
+	filepath = App::GetInstance()->GetAppResourcePath() + L"Images/tab_icon_contacts.png";
+	Bitmap *pContactsIconBitmap = contactsIcon.DecodeN(filepath, BITMAP_PIXEL_FORMAT_ARGB8888);
+
+	HeaderItem *headerContactsItem = new HeaderItem();
+	headerContactsItem->Construct(ID_CONTACTS);
+	headerContactsItem->SetIcon(HEADER_ITEM_STATUS_NORMAL, pContactsIconBitmap);
+	contactsItem = headerContactsItem;
+
+	String contactsString;
+	Application::GetInstance()->GetAppResource()->GetString(IDS_MAIN_FORM_CONTACTS, contactsString);
+	this->contactsItem->SetText(contactsString);
+
+	pHeader->AddItem(*headerContactsItem);
+
+	Image searchIcon;
+	r = searchIcon.Construct();
+	filepath = App::GetInstance()->GetAppResourcePath() + L"Images/tab_icon_search.png";
+	Bitmap *pSearchIconBitmap = searchIcon.DecodeN(filepath, BITMAP_PIXEL_FORMAT_ARGB8888);
+
+	HeaderItem *headerSearchItem = new HeaderItem();
+	headerSearchItem->Construct(ID_SEARCH);
+	headerSearchItem->SetIcon(HEADER_ITEM_STATUS_NORMAL, pSearchIconBitmap);
+	searchItem = headerSearchItem;
+	String searchString;
+	Application::GetInstance()->GetAppResource()->GetString(IDS_MAIN_FORM_SEARCH, searchString);
+	this->searchItem->SetText(searchString);
+	pHeader->AddItem(*headerSearchItem);
+
+	Image settingsIcon;
+	r = settingsIcon.Construct();
+	filepath = App::GetInstance()->GetAppResourcePath() + L"Images/tab_icon_gear.png";
+	Bitmap *pSettingsIconBitmap = settingsIcon.DecodeN(filepath, BITMAP_PIXEL_FORMAT_ARGB8888);
+
+	HeaderItem *headerSettingsItem = new HeaderItem();
+	headerSettingsItem->Construct(ID_SETTINGS);
+	headerSettingsItem->SetIcon(HEADER_ITEM_STATUS_NORMAL, pSettingsIconBitmap);
+	settingsItem = headerSettingsItem;
+	String settingsString;
+	Application::GetInstance()->GetAppResource()->GetString(IDS_MAIN_FORM_SETTINGS, settingsString);
+	this->settingsItem->SetText(settingsString);
+	pHeader->AddItem(*headerSettingsItem);
+
+	delete pMessagesIconBitmap;
+	delete pContactsIconBitmap;
+	delete pSearchIconBitmap;
+	delete pSettingsIconBitmap;
+
+	FooterItem *friendsItem = new FooterItem();
+	friendsItem->Construct(ID_USERS_FRIENDS);
+	this->friendsItem = friendsItem;
+	String allFriendsString;
+	Application::GetInstance()->GetAppResource()->GetString(IDS_MAIN_FORM_FRIENDS, allFriendsString);
+	this->friendsItem->SetText(allFriendsString);
+
+	pFooter->AddItem(*friendsItem);
+
+	FooterItem *friendsOnlineItem = new FooterItem();
+	friendsOnlineItem->Construct(ID_USERS_FRIENDS_ONLINE);
+	this->friendsOnlineItem = friendsOnlineItem;
+	String onlineString;
+	Application::GetInstance()->GetAppResource()->GetString(IDS_MAIN_FORM_FRIENDS_ONLINE, onlineString);
+	this->friendsOnlineItem->SetText(onlineString);
+	pFooter->AddItem(*friendsOnlineItem);
+
+	FooterItem *contactsItem = new FooterItem();
+	contactsItem->Construct(ID_USERS_CONTACTS);
+	this->footerContactsItem = contactsItem;
+	String importContactsString;
+	Application::GetInstance()->GetAppResource()->GetString(IDS_MAIN_FORM_I_CONTACTS, importContactsString);
+	this->footerContactsItem->SetText(importContactsString);
+
+	pFooter->AddItem(*contactsItem);
+
+	AppLog("headerIndex %d footerIndex %d", headerIndex, footerIndex);
+
+	pHeader->SetItemSelected(headerIndex);
+	pFooter->SetItemSelected(footerIndex);
 }

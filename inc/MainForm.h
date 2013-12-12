@@ -28,6 +28,18 @@ public:
 	void UpdateUnreadCount();
 	virtual void OnUserEventReceivedN(RequestId requestId, Tizen::Base::Collection::IList* pArgs);
 
+	void RecreateItems();
+	virtual result OnDraw(void);
+
+	HeaderItem *messageItem;
+	HeaderItem *contactsItem;
+	HeaderItem *searchItem;
+	HeaderItem *settingsItem;
+
+	FooterItem *friendsItem;
+	FooterItem *friendsOnlineItem;
+	FooterItem *footerContactsItem;
+
 private:
 	Header* __pHeader;
 };
