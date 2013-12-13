@@ -206,6 +206,10 @@ SparrowApp::OnAppControlRequestReceived(
 
 	AppLog("OnAppControlRequestReceived");
 
+	if (!AuthManager::getInstance().IsAuthorized()) {
+		return;
+	}
+
 	if (pExtraData) {
 		AppLog("!OnAppControlRequestReceived");
 		String notificationAppMessage(L"http://tizen.org/appcontrol/data/notification");

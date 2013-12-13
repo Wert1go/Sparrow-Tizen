@@ -14,7 +14,8 @@ extern const wchar_t* PHOTO;
 extern const wchar_t* AUDIO;
 extern const wchar_t* VIDEO;
 extern const wchar_t* DOC;
-
+extern const wchar_t* POINT;
+extern const wchar_t* FWD;
 
 using namespace Tizen::Graphics;
 using namespace Tizen::Base;
@@ -77,6 +78,8 @@ public:
 
 	//audio, doc
 	String *__pUrl;
+
+	String *__text;
 
 	//doc
 	int __size;

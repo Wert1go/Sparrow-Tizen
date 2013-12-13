@@ -135,18 +135,8 @@ Util::formatDateN(long date) {
 Dimension
 Util::CalculateDimensionForMessage(MMessage *message, bool fwd) {
 
-
-	if(message->__pFwd) {
-		AppLog("message:: %d", message->__pFwd->GetCount());
-	}
-
 	String *text = message->GetText();
 	Dimension resultSize;
-
-	if (fwd) {
-		resultSize.width = limitSize;
-		resultSize.height += 80;
-	}
 
 	if (text->GetLength() != 0) {
 		EnrichedText* pTimeLabel = null;
@@ -187,11 +177,15 @@ Util::CalculateDimensionForMessage(MMessage *message, bool fwd) {
 		resultSize = Dimension(0, 0);
 	}
 
+	if (fwd) {
+		resultSize.width = limitSize;
+	}
+
 	if (message->__pAttachments && message->__pAttachments->GetCount()) {
 		for (int i = 0; i < message->__pAttachments->GetCount(); i++) {
 			MAttachment *attachment = static_cast<MAttachment *>( message->__pAttachments->GetAt(i));
 
-			AppLog("attachment: %S", attachment->__pType->GetPointer());
+//			AppLog("attachment: %S", attachment->__pType->GetPointer());
 
 			attachment->ratio = (float)attachment->__width/attachment->__height;
 
@@ -269,17 +263,24 @@ Util::CalculateDimensionForMessage(MMessage *message, bool fwd) {
 
 			Dimension fwdDimension = Util::CalculateDimensionForMessage(pFwdMessage, true);
 
-			AppLog("%d :: %d", fwdDimension.width, fwdDimension.height);
+			AppLog("CalculateDimensionForMessage %d :: %d", fwdDimension.width, fwdDimension.height);
+
+//			resultSize.width += 20; // под оступ!
+
+			fwdDimension.width += 20;
+			fwdDimension.height += 80;
+
+			pFwdMessage->imageSize = FloatPoint(fwdDimension.width, fwdDimension.height);
 
 			if (resultSize.width < fwdDimension.width) {
 				resultSize.width = fwdDimension.width;
 			}
 
-			resultSize.width += 20; // под оступ!
+			resultSize.height += fwdDimension.height;
 
-			pFwdMessage->imageSize = FloatPoint(fwdDimension.width, fwdDimension.height);
-
-			resultSize.height += fwdDimension.height + 20;
+			if (i != message->__pFwd->GetCount() - 1) {
+				resultSize.height += 10;
+			}
 		}
 	}
 

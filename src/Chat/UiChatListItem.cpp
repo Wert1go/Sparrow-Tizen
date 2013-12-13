@@ -181,7 +181,7 @@ UiChatListItem::OnDraw(Tizen::Graphics::Canvas& canvas, const Tizen::Graphics::R
 				drawPoint = Point(__leftOffset + __offset, drawOffset);
 			}
 
-			AppLog("drawPoint: %d, %d", drawPoint.x, drawPoint.y);
+//			AppLog("drawPoint: %d, %d", drawPoint.x, drawPoint.y);
 
 			pFwdMessage->__absolutePosition = drawPoint;
 
@@ -189,13 +189,17 @@ UiChatListItem::OnDraw(Tizen::Graphics::Canvas& canvas, const Tizen::Graphics::R
 								null,
 								Rectangle(
 										drawPoint.x,
-										drawPoint.y + 20,
+										drawPoint.y ,
 										pFwdMessage->imageSize.x,
 										pFwdMessage->imageSize.y),
 										pFwdMessage
 						);
 
 			drawOffset += pFwdMessage->imageSize.y;
+
+			if (i != this->GetMessage()->__pFwd->GetCount() - 1) {
+				drawOffset += 10;
+			}
 		}
 	}
 

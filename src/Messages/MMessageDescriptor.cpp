@@ -9,6 +9,8 @@
 #include "RMessagesResponse.h"
 #include "MMessage.h"
 #include "MMessageDao.h"
+#include "MUser.h"
+#include "MUserDao.h"
 
 MMessageDescriptor::MMessageDescriptor() {
 	// TODO Auto-generated constructor stub
@@ -52,13 +54,60 @@ MMessageDescriptor::performObjectMappingN(JsonObject* pObject) {
 
 		MMessage *message = MMessage::CreateFromJsonN(*pMessageObject);
 		AppAssert(message);
-
-//		if (message->__pAttachments) {
-//			AppLog("message->__pAttachments:: %d", message->__pAttachments->GetCount());
-//		}
-
 		pMessages->Add(message);
 	}
+
+	JsonString* pKeyUsersArray = new JsonString(L"users");
+	IJsonValue* pValUsersArray = null;
+
+	pResponseObject->GetValue(pKeyUsersArray, pValUsersArray);
+
+	JsonArray *pUsersArray = null;
+
+	if (pValUsersArray) {
+		pUsersArray = static_cast<JsonArray*>(pValUsersArray);
+	}
+
+	LinkedList *pUsers = new LinkedList();
+
+	if (pUsersArray && pUsersArray->GetCount() > 0) {
+
+		for (int i = 0; i < pUsersArray->GetCount(); i++) {
+			IJsonValue* pValUser = null;
+			pUsersArray->GetAt(i, pValUser);
+
+			JsonObject *pUserObject = static_cast<JsonObject *>(pValUser);
+			MUser *pUser = MUser::CreateFromJsonN(*pUserObject);
+
+			pUsers->Add(pUser);
+		}
+		MUserDao::getInstance().Save(pUsers);
+
+	}
+
+	for(int i = 0; i < pMessages->GetCount(); i++) {
+		MMessage *pMessage = static_cast<MMessage *>(pMessages->GetAt(i));
+		if (pMessage->__pFwd && pMessage->__pFwd->GetCount() > 0) {
+			for(int j = 0; j < pMessage->__pFwd->GetCount(); j++) {
+				MMessage *pFwd = static_cast<MMessage *>(pMessage->__pFwd->GetAt(j));
+
+				for(int k = 0; k < pUsers->GetCount(); k++) {
+					MUser *pUser = static_cast<MUser *>(pUsers->GetAt(k));
+					if (pFwd->GetUid() == pUser->GetUid()) {
+						pFwd->__pUser = pUser;
+						break;
+					}
+				}
+
+				if (!pFwd->__pUser) {
+					pFwd->__pUser = MUserDao::getInstance().GetUserN(pFwd->GetUid());
+				}
+
+			}
+		}
+	}
+
+	delete pUsers;
 
 	response->SetMessages(pMessages);
 
@@ -66,6 +115,7 @@ MMessageDescriptor::performObjectMappingN(JsonObject* pObject) {
 
 	delete pKeyResponse;
 	delete pKeyMessagesArray;
+	delete pKeyUsersArray;
 
 	return response;
 }

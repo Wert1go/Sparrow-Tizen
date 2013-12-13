@@ -258,11 +258,38 @@ UiChatForm::RequestMessagesForUser(int userId) {
 	uidString.Format(25, L"%d", userId);
 
 	params->Construct();
-	params->Add(new String(L"user_id"), new String(uidString));
+
 	params->Add(new String(L"access_token"), AuthManager::getInstance().AccessToken());
 
+	String historyRequest(L"");
+
+	historyRequest.Append(L"var a = API.messages.getHistory({\"user_id\" : ");
+	historyRequest.Append(uidString);
+	historyRequest.Append(L"});");
+	historyRequest.Append(L""
+	"var l = a.items@.fwd_messages;"
+	"var i = 0;"
+	"var uids = [];"
+	"var j;"
+
+	"while (i < l.length) {"
+		"i = i+ 1;"
+
+		"var fwd = l[i]@.user_id;"
+		"uids = uids + fwd;"
+	"};"
+
+	"var b = [];"
+	"if (uids.length > 0) {"
+		"var b = API.users.get({\"user_ids\": uids, \"fields\": \"photo_100,photo_50,online,is_friend,photo_200\"});"
+	"}"
+
+	"return {\"users\": b, \"count\" : a.count, \"items\" : a.items};");
+
+	params->Add(new String(L"code"), new String(historyRequest));
+
 	if (!__pMessagesRequestOperation) {
-		__pMessagesRequestOperation = new RestRequestOperation(GET_MESSAGES_HISTORY, new String(L"messages.getHistory"), params);
+		__pMessagesRequestOperation = new RestRequestOperation(GET_MESSAGES_HISTORY, new String(L"execute"), params);
 		__pMessagesRequestOperation->AddEventListener(this);
 		__pMessagesRequestOperation->SetResponseDescriptor(new MMessageDescriptor());
 		AppLog("PerformOperation");
@@ -281,13 +308,43 @@ UiChatForm::RequestMoreMessagesFromMid(int mid) {
 	midString.Format(25, L"%d", mid);
 
 	params->Construct();
-	params->Add(new String(L"user_id"), new String(uidString));
-	params->Add(new String(L"rev"), new String(L"1"));
-	params->Add(new String(L"start_message_id"), new String(midString));
+//	params->Add(new String(L"user_id"), new String(uidString));
+//	params->Add(new String(L"rev"), new String(L"1"));
+//	params->Add(new String(L"start_message_id"), new String(midString));
 	params->Add(new String(L"access_token"), AuthManager::getInstance().AccessToken());
 
+	String historyRequest(L"");
+
+	historyRequest.Append(L"var a = API.messages.getHistory({\"user_id\" : ");
+	historyRequest.Append(uidString);
+	historyRequest.Append(L", \"rev\" : 1, ");
+	historyRequest.Append(L"\"start_message_id\" :");
+	historyRequest.Append(midString);
+	historyRequest.Append(L"});");
+	historyRequest.Append(L""
+	"var l = a.items@.fwd_messages;"
+	"var i = 0;"
+	"var uids = [];"
+	"var j;"
+
+	"while (i < l.length) {"
+		"i = i+ 1;"
+
+		"var fwd = l[i]@.user_id;"
+		"uids = uids + fwd;"
+	"};"
+
+	"var b = [];"
+	"if (uids.length > 0) {"
+		"var b = API.users.get({\"user_ids\": uids, \"fields\": \"photo_100,photo_50,online,is_friend,photo_200\"});"
+	"}"
+
+	"return {\"users\": b, \"count\" : a.count, \"items\" : a.items};");
+
+		params->Add(new String(L"code"), new String(historyRequest));
+
 	if (!__pMessagesRequestOperation) {
-		__pMessagesRequestOperation = new RestRequestOperation(GET_MESSAGES_HISTORY_BACKWARD, new String(L"messages.getHistory"), params);
+		__pMessagesRequestOperation = new RestRequestOperation(GET_MESSAGES_HISTORY_BACKWARD, new String(L"execute"), params);
 		__pMessagesRequestOperation->AddEventListener(this);
 		__pMessagesRequestOperation->SetResponseDescriptor(new MMessageDescriptor());
 

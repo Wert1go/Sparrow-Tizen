@@ -14,6 +14,8 @@ const wchar_t* PHOTO = L"photo";
 const wchar_t* AUDIO = L"audio";
 const wchar_t* VIDEO = L"video";
 const wchar_t* DOC = L"doc";
+const wchar_t* POINT = L"point";
+const wchar_t* FWD = L"fwd";
 
 MAttachment::MAttachment() {
 	__pType = null;
@@ -40,6 +42,7 @@ MAttachment::MAttachment() {
 	imageSize = FloatPoint(0,0);
 
 	this->__pUser = null;
+	__text = new String(L"");
 }
 
 MAttachment::~MAttachment() {

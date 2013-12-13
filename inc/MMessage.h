@@ -33,24 +33,20 @@ private:
 	int __fromUid;
 	int __out;
 	int __readState;
-	String *__text;
+//	String *__text;
 
 	int __delivered;
 
 	int __chatId;
 
 public:
-	long __date;
+//	long __date;
 	String *uids;
 	String *__title;
 	int userCount;
 	int adminId;
 
-
-
 	int __owner;
-
-
 
 public:
 	static String* TableDescription();

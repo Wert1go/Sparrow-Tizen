@@ -9,6 +9,7 @@
 
 #include "MMessage.h"
 #include "MUser.h"
+#include "MUserDao.h"
 
 using namespace Tizen::Web::Json;
 
@@ -134,6 +135,17 @@ LongPollObject::CreateFromJsonN(const Tizen::Web::Json::JsonArray &jsonArray) {
 
 		MMessage *pMessage = MMessage::CreateFromJsonLPN(*pMessageJson);
 		AppAssert(pMessage);
+
+		if (pMessage->__pFwd && pMessage->__pFwd->GetCount() > 0) {
+			for(int j = 0; j < pMessage->__pFwd->GetCount(); j++) {
+				MMessage *pFwd = static_cast<MMessage *>(pMessage->__pFwd->GetAt(j));
+
+				if (!pFwd->__pUser) {
+					pFwd->__pUser = MUserDao::getInstance().GetUserN(pFwd->GetUid());
+				}
+			}
+		}
+
 		resultObject->SetMessage(pMessage);
 
 		JsonString *pKeyUsers = new JsonString(L"profiles");

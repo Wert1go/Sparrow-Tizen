@@ -42,6 +42,10 @@ public:
 	TextElement* __pDurationText;
 	Point __durationDrawPoint;
 
+	EnrichedText* __pTextLabel;
+	TextElement* __pTextText;
+	Point __textDrawPoint;
+
 	bool __playing;
 
 	IImageDrawer *__pImageDrawer;

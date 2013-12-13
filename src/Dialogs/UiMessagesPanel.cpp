@@ -396,6 +396,7 @@ UiMessagesPanel::SendRequest(int offset) {
 	offsetString.Format(10, L"%d", offset);
 
 	String requestBegin = L"var a = API.messages.getDialogs({\"offset\" : ";
+
 	requestBegin.Append(offsetString);
 
 	String requestEnd = L", \"count\":20});"

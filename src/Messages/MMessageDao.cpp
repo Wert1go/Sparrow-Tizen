@@ -329,7 +329,7 @@ MMessageDao::GetFwdMessages(int mid) {
 			"uid, "			//1
 			"date, "		//2
 			"text, "	//3
-			"owner "	//3
+			"owner "	//4
 
 			"FROM fwd_messages WHERE owner = ?");
 
