@@ -44,6 +44,9 @@ public:
 	virtual void OnImageLoadedN(Bitmap *result, Integer *code);
 	void UpdateImage();
 
+	void SetUserOnline();
+	void SetUserOffline();
+
 private:
 	AuthManager();
 	virtual ~AuthManager();
@@ -59,6 +62,9 @@ private:
 	Tizen::Base::String* __userId;
 	Tizen::Base::String* __expiresIn;
 	RestRequestOperation *__userRequestOperation;
+
+	RestRequestOperation *__userOnlineOperation;
+	RestRequestOperation *__userOfflineOperation;
 
 	MUser *__pUser;
 

@@ -106,6 +106,12 @@ SparrowApp::OnForeground(void)
 	if (LongPollConnection::getInstance().PendingRestart()) {
 		LongPollConnection::getInstance().Reconnect();
 	}
+
+	try {
+		AuthManager::getInstance().SetUserOnline();
+	} catch(...) {
+
+	}
 }
 
 void
@@ -177,6 +183,12 @@ SparrowApp::OnUserEventReceivedN(RequestId requestId, Tizen::Base::Collection::I
 
 void
 SparrowApp::Logout() {
+	try {
+		AuthManager::getInstance().SetUserOffline();
+	} catch(...) {
+
+	}
+
 	LongPollConnection::getInstance().Stop();
 	AuthManager::getInstance().Clear();
 	MDatabaseManager::getInstance().Clear();

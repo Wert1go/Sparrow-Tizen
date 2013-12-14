@@ -12,9 +12,12 @@
 #include "ImageCache.h"
 #include "UserDescriptor.h"
 #include "UserRestResponse.h"
+#include "RMessageSendDescriptor.h"
 
 #include <FApp.h>
 #include <FGraphics.h>
+
+#include "Helper.h"
 
 using namespace Tizen::App;
 using namespace Tizen::Base;
@@ -29,10 +32,21 @@ using namespace Tizen::Graphics;
 AuthManager::AuthManager() {
 	LoadAccessDataFromStore();
 	__pUser = null;
+
+	__userOnlineOperation = null;
+	__userOfflineOperation = null;
 }
 
 AuthManager::~AuthManager() {
+	if (__userOnlineOperation) {
+		__userOnlineOperation->AddEventListener(null);
+	}
+	if (__userOfflineOperation) {
+		__userOfflineOperation->AddEventListener(null);
+	}
 
+	SAFE_DELETE(__userOnlineOperation);
+	SAFE_DELETE(__userOfflineOperation);
 }
 
 void AuthManager::SaveAccessData(Tizen::Base::String &token, Tizen::Base::String &user_id, Tizen::Base::String &expires_in) {
@@ -170,9 +184,16 @@ AuthManager::OnSuccessN(RestResponse *response) {
 		if (user != null && user->GetFirstName() != null) {
 			__pUser = user;
 		}
+
+		Tizen::App::App::GetInstance()->SendUserEvent(666, 0);
+	} else if (response->GetOperationCode() == SET_USER_ONLINE) {
+		__userOnlineOperation->AddEventListener(null);
+		__userOnlineOperation = null;
+	} else if (response->GetOperationCode() == SET_USER_OFFLINE) {
+		__userOfflineOperation->AddEventListener(null);
+		__userOfflineOperation = null;
 	}
 
-	Tizen::App::App::GetInstance()->SendUserEvent(666, 0);
 }
 
 
@@ -195,5 +216,41 @@ void
 AuthManager::UpdateImage() {
 	if (this->__pUser) {
 		ImageCache::getInstance().LoadImageForTarget(this->__pUser->GetPhoto(), this);
+	}
+}
+
+void
+AuthManager::SetUserOnline() {
+	if (!this->IsAuthorized()) {
+		return;
+	}
+
+	HashMap *params = new HashMap();
+	params->Construct();
+	params->Add(new String(L"access_token"), AuthManager::getInstance().AccessToken());
+
+	if (!__userOnlineOperation) {
+		__userOnlineOperation = new RestRequestOperation(SET_USER_ONLINE, new String(L"account.setOnline"), params);
+		__userOnlineOperation->AddEventListener(this);
+		__userOnlineOperation->SetResponseDescriptor(new RMessageSendDescriptor());
+		RestClient::getInstance().PerformOperation(__userOnlineOperation);
+	}
+}
+
+void
+AuthManager::SetUserOffline() {
+	if (!this->IsAuthorized()) {
+		return;
+	}
+
+	HashMap *params = new HashMap();
+	params->Construct();
+	params->Add(new String(L"access_token"), AuthManager::getInstance().AccessToken());
+
+	if (!__userOfflineOperation) {
+		__userOfflineOperation = new RestRequestOperation(SET_USER_OFFLINE, new String(L"account.setOffline"), params);
+		__userOfflineOperation->AddEventListener(this);
+		__userOfflineOperation->SetResponseDescriptor(new RMessageSendDescriptor());
+		RestClient::getInstance().PerformOperation(__userOfflineOperation);
 	}
 }

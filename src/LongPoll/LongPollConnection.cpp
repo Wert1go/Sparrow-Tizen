@@ -153,6 +153,11 @@ void
 LongPollConnection::OnSuccessN(RestResponse *result) {
 
 	if (result->GetOperationCode() == LONGPOLL_GET_SERVER) {
+
+		if (!__IsRunning) {
+			return;
+		}
+
 		__pLongPollServerDataOperation->AddEventListener(null);
 		__pLongPollServerDataOperation = null;
 		LongPollServerDataResponse *longPollServerDataResponse = static_cast<LongPollServerDataResponse *>(result);
@@ -167,6 +172,11 @@ LongPollConnection::OnSuccessN(RestResponse *result) {
 	} else if (result->GetOperationCode() == LONGPOLL_CONNECTION) {
 		__pLongPollConnectionOperation->AddEventListener(null);
 		__pLongPollConnectionOperation = null;
+
+		if (!__IsRunning) {
+			return;
+		}
+
 		LongPollResponse *longPollResponse = static_cast<LongPollResponse *>(result);
 
 		//*** test ***//

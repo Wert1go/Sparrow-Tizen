@@ -303,6 +303,13 @@ AuthWebForm::OnLoadingCompleted(void)
 			SceneManager* pSceneManager = SceneManager::GetInstance();
 			AppAssert(pSceneManager);
 			pSceneManager->GoForward(ForwardSceneTransition(SCENE_MAIN_MESSAGES_TAB, SCENE_TRANSITION_ANIMATION_TYPE_LEFT));
+
+			try {
+				AuthManager::getInstance().SetUserOnline();
+			} catch(...) {
+
+			}
+
 		} else {
 			SceneManager* pSceneManager = SceneManager::GetInstance();
 			AppAssert(pSceneManager);
