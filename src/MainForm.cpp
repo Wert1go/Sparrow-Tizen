@@ -69,7 +69,7 @@ MainForm::MainForm() {
 	pHeader->SetItemColor(HEADER_ITEM_STATUS_SELECTED, *pHeaderBackgroundColor);
 
 	pHeader->SetColor(*pHeaderBackgroundColor);
-
+	pHeader->SetTabEditModeEnabled(false);
 	pHeader->AddActionEventListener(*this);
 
 	delete pHeaderBackgroundColor;
