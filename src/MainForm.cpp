@@ -272,10 +272,10 @@ MainForm::RequestUnreadCount() {
 			"var count = 0;"
 			"var i = 0;"
 			"while (i < c.length) { "
-			"	i=i+1; "
 			"	if (parseInt(c[i]) == 0) {"
 			"		count = count + 1;"
 			"	}"
+			"	i=i+1; "
 			"};"
 			"return {\"count\" : count};"
 				);

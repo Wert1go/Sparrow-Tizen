@@ -49,7 +49,7 @@ UiUserListItem::SetUser(MUser *pUser) {
 	EnrichedText* pUserName = null;
 	TextElement* pUsetNameText = null;
 
-	int rightOffset = 25;
+	int rightOffset = 125;
 
 	//WARNING
 	pUserName = new EnrichedText();
@@ -87,6 +87,10 @@ UiUserListItem::SetUser(MUser *pUser) {
 		size.height = 41;
 	}
 
+	if (size.width > 720 - baseListItemOffset - rightOffset) {
+		size.width = 720 - baseListItemOffset - rightOffset;
+	}
+
 	pUserName->SetSize(size);
 
 	__pUserName = pUserName;
@@ -103,7 +107,7 @@ UiUserListItem::OnDraw (Tizen::Graphics::Canvas &canvas, const Tizen::Graphics::
 
 	int shift = 0;
 
-	int height = rect.height;
+//	int height = rect.height;
 
 	//AppLog("UiUserListItem::OnDraw  %d", width);
 

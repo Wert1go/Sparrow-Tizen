@@ -215,7 +215,7 @@ UiDialogListItem::SetDialog(MDialog *pDialog) {
 	int height = this->__pDimension.height;
 	int halfHeight = height/2;
 
-	int rightOffset = 25;
+	int rightOffset = 15;
 
 	int onlineStatusSize = 44;
 
@@ -223,7 +223,7 @@ UiDialogListItem::SetDialog(MDialog *pDialog) {
 	TextElement* pTImeText = null;
 
 	pTimeLabel = new EnrichedText();
-	r = pTimeLabel->Construct(Dimension(180, 60));
+	r = pTimeLabel->Construct(Dimension(140, 60));
 
 	pTimeLabel->SetHorizontalAlignment(TEXT_ALIGNMENT_RIGHT);
 	pTimeLabel->SetVerticalAlignment(TEXT_ALIGNMENT_BOTTOM);
@@ -269,12 +269,15 @@ UiDialogListItem::SetDialog(MDialog *pDialog) {
 	TextElement* pUsetNameText = null;
 
 	float leftOffset = 0;
+
 	if (this->GetDialog()->GetUid() > isChatValue) {
 		leftOffset = 50;
 	}
 
+	float titleWidth = width - baseListItemOffset - rightOffset - timeSize.width - leftOffset;
+
 	pUserName = new EnrichedText();
-	r = pUserName->Construct(Dimension(width - baseListItemOffset - rightOffset - timeSize.width - leftOffset, 60));
+	r = pUserName->Construct(Dimension(titleWidth, 60));
 
 	pUserName->SetHorizontalAlignment(TEXT_ALIGNMENT_LEFT);
 	pUserName->SetVerticalAlignment(TEXT_ALIGNMENT_BOTTOM);
@@ -312,6 +315,10 @@ UiDialogListItem::SetDialog(MDialog *pDialog) {
 
 	if (size.height > 68) {
 		size.height = 41;
+	}
+
+	if (size.width > titleWidth) {
+		size.width = titleWidth;
 	}
 
 	pUserName->SetSize(size);
