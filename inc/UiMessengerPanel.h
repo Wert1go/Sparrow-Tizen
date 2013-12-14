@@ -59,7 +59,7 @@ protected:
 	Point	__PointLastTouch;
 	Panel *__pScrollPanel;
 
-
+	virtual result OnDraw(void);
 
 	int GetCount();
 	void ReloadData();

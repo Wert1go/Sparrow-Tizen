@@ -395,12 +395,18 @@ UiChatForm::OnListViewItemStateChanged(Tizen::Ui::Controls::ListView &listView, 
 
 				paramsList->Add(new String(imgUrl->GetPointer()));
 				pSceneManager->GoForward(ForwardSceneTransition(SCENE_IMAGE_VIEWER, SCENE_TRANSITION_ANIMATION_TYPE_LEFT), paramsList);
+			} else if (attach->__pType->Equals(VIDEO, false)) {
+				SceneManager* pSceneManager = SceneManager::GetInstance();
+				AppAssert(pSceneManager);
+
+				ArrayList *paramsList = new (std::nothrow) ArrayList();
+				paramsList->Construct();
+
+				paramsList->Add(attach);
+				pSceneManager->GoForward(ForwardSceneTransition(SCENE_VIDEO_VIEWER, SCENE_TRANSITION_ANIMATION_TYPE_LEFT), paramsList);
 			}
 		}
 	}
-
-	//Здесь можно обрабатывать нажатия на элементы сообщения. Важно вынести за пределы 100 все основные элементы
-	//и исключить отрисовку аватаров!
 }
 
 MAttachment *

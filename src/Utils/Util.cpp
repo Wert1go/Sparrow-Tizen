@@ -16,10 +16,13 @@
 #include "MMessage.h"
 #include "MAttachment.h"
 #include "MGeo.h"
+#include <FApp.h>
+#include "AppResourceId.h"
 
 using namespace Tizen::Base;
 using namespace Tizen::Base::Utility;
 using namespace Tizen::Security::Crypto;
+using namespace Tizen::App;
 
 using namespace Tizen::Locales;
 using namespace Tizen::System;
@@ -121,7 +124,9 @@ Util::formatDateN(long date) {
 		 pTimeFormatter->ApplyPattern(cutomizedPattern);
 		 pTimeFormatter->Format(after, *stringDate);
 	 } else if (delta > 0 && delta < 2) {
-		 stringDate = new String (L"вчера");
+		 String titleString;
+		 Application::GetInstance()->GetAppResource()->GetString(IDS_TIME_YESTERDAY, titleString);
+		 stringDate = new String (titleString);
 	 } else {
 		 DateTimeFormatter* pTimeFormatter = DateTimeFormatter::CreateTimeFormatterN(locale, DATE_TIME_STYLE_DEFAULT);
 		 String cutomizedPattern = L"dd.MM";

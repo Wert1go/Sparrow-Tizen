@@ -26,6 +26,9 @@ const wchar_t* SCENE_CREATE_CONV = L"SCENE_CREATE_CONV";
 const wchar_t* SCENE_PROFILE = L"SCENE_PROFILE";
 
 const wchar_t* SCENE_IMAGE_VIEWER = L"SCENE_IMAGE_VIEWER";
+const wchar_t* SCENE_VIDEO_VIEWER = L"SCENE_VIDEO_VIEWER";
+
+
 
 SceneRegister::SceneRegister() {
 	// TODO Auto-generated constructor stub
@@ -60,6 +63,7 @@ SceneRegister::RegisterAllScenes(void)
 	pSceneManager->RegisterScene(SCENE_CREATE_CONV, FORM_CREATE_CONV, PANEL_BLANK);
 	pSceneManager->RegisterScene(SCENE_PROFILE,FORM_PROFILE, PANEL_BLANK);
 	pSceneManager->RegisterScene(SCENE_IMAGE_VIEWER, FORM_IMAGE_VIEWER, PANEL_BLANK);
+	pSceneManager->RegisterScene(SCENE_VIDEO_VIEWER, FORM_VIDEO_VIEWER, PANEL_BLANK);
 
 
 }

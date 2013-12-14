@@ -8,10 +8,13 @@
 #include "UiAttachmentListPopup.h"
 #include "Resources.h"
 #include "IPopupHandler.h"
+#include <FApp.h>
+#include "AppResourceId.h"
 
 using namespace Tizen::Ui;
 using namespace Tizen::Ui::Controls;
 using namespace Tizen::Graphics;
+using namespace Tizen::App;
 
 UiAttachmentListPopup::UiAttachmentListPopup() {
 	__pListView = null;
@@ -36,8 +39,10 @@ result
 UiAttachmentListPopup::OnInitializing(void) {
 	result r = E_SUCCESS;
 
-	SetTitleText(L"Вложить");
 	SetPropagatedKeyEventListener(this);
+	String titleString;
+	Application::GetInstance()->GetAppResource()->GetString(IDS_ATTACH, titleString);
+	this->SetTitleText(titleString);
 
 	this->SetColor(Color(52, 87, 119, 255));
 	this->SetTitleTextColor(Color(0, 0, 0, 255));
@@ -156,23 +161,23 @@ UiAttachmentListPopup::CreateItem(int index, int itemWidth)
 	String text;
 
 	if (index == 0) {
-		text = L"Фото";
+		Application::GetInstance()->GetAppResource()->GetString(IDS_ATTACH_PHOTO, text);
 		pIcon = Resources::getInstance().LoadBitmapNamed(L"icon_photo.png");
 		this->pPhotoIcon = pIcon;
 	} else if (index == 1) {
-		text = L"Видео";
+		Application::GetInstance()->GetAppResource()->GetString(IDS_ATTACH_VIDEO, text);
 		pIcon = Resources::getInstance().LoadBitmapNamed(L"icon_video.png");
 		this->pVideoIcon = pIcon;
 	} else if (index == 2) {
-		text = L"Аудио";
+		Application::GetInstance()->GetAppResource()->GetString(IDS_ATTACH_AUDIO, text);
 		pIcon = Resources::getInstance().LoadBitmapNamed(L"icon_audio.png");
 		this->pAudioIcon = pIcon;
 	} else if (index == 3) {
-		text = L"Документ";
+		Application::GetInstance()->GetAppResource()->GetString(IDS_ATTACH_DOC, text);
 		pIcon = Resources::getInstance().LoadBitmapNamed(L"icon_document.png");
 		this->pDocIcon = pIcon;
 	} else if (index == 4) {
-		text = L"Местоположение";
+		Application::GetInstance()->GetAppResource()->GetString(IDS_ATTACH_MAP, text);
 		pIcon = Resources::getInstance().LoadBitmapNamed(L"icon_location.png");
 		this->pMapIcon = pIcon;
 	}
@@ -210,4 +215,15 @@ UiAttachmentListPopup::GetItemCount(void)
 	return 5;
 }
 
+result
+UiAttachmentListPopup::OnDraw(void) {
 
+	Popup::OnDraw();
+	String titleString;
+	Application::GetInstance()->GetAppResource()->GetString(IDS_ATTACH, titleString);
+	this->SetTitleText(titleString);
+	if (this->__pListView) {
+		this->__pListView->UpdateList();
+	}
+	return E_SUCCESS;
+}

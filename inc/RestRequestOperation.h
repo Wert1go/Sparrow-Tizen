@@ -43,6 +43,8 @@ static const long NOTIFY_USER_PRINTING = 100999119;
 
 static const long LONGPOLL_RE_REQUEST_DATA = 100999120;
 
+static const long VIDEO_INFO_LOADING = 100999121;
+
 extern const wchar_t* USER_FILEDS;
 
 #include <FNet.h>

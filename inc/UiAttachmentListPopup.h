@@ -60,6 +60,8 @@ private:
 	Bitmap *pDocIcon;
 	Bitmap *pMapIcon;
 
+	virtual result OnDraw(void);
+
 };
 
 #endif /* UIATTACHMENTLISTPOPUP_H_ */

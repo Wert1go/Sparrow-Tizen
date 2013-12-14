@@ -20,6 +20,7 @@ extern const wchar_t* FORM_CREATE_CONV;
 extern const wchar_t* FORM_PROFILE;
 
 extern const wchar_t* FORM_IMAGE_VIEWER;
+extern const wchar_t* FORM_VIDEO_VIEWER;
 
 #include <FUi.h>
 

@@ -14,6 +14,7 @@
 #include "ImageCache.h"
 #include "MDialog.h"
 #include "MUser.h"
+#include "AppResourceId.h"
 
 using namespace Tizen::App;
 using namespace Tizen::Base;
@@ -222,7 +223,26 @@ UiChapPanel::OnDraw() {
 					countString.Format(10, L"%d", count);
 
 					dialogText->Append(countString.GetPointer());
-					dialogText->Append(L" участников");
+
+					String memberString;
+					Application::GetInstance()->GetAppResource()->GetString(IDS_MEMBER, memberString);
+
+					String suffix1;
+					String suffex2;
+					String suffix;
+					Application::GetInstance()->GetAppResource()->GetString(IDS_MEMBER_SUFFIX_1, suffix1);
+					Application::GetInstance()->GetAppResource()->GetString(IDS_MEMBER_SUFFIX_2, suffex2);
+
+					suffix = suffix1;
+					if(count == 1 || (count%10 == 1 && count != 11)) {
+						suffix = L"";
+					} else if((count >= 2 && count <= 4) || (count > 21 && (count%10 >= 2 && count%10 <= 4))) {
+						suffix = suffex2;
+					}
+
+					dialogText->Append(L" ");
+					dialogText->Append(memberString);
+					dialogText->Append(suffix);
 				}
 			} else {
 
@@ -230,9 +250,13 @@ UiChapPanel::OnDraw() {
 					dialogText = new String(__pPrintingMessage->GetPointer());
 				} else {
 					if (this->__IsOinline) {
-						dialogText = new String(L"Online");
+						String statusString;
+						Application::GetInstance()->GetAppResource()->GetString(IDS_ONLINE, statusString);
+						dialogText = new String(statusString);
 					} else {
-						dialogText = new String(L"Offline");
+						String statusString;
+						Application::GetInstance()->GetAppResource()->GetString(IDS_OFFLINE, statusString);
+						dialogText = new String(statusString);
 					}
 				}
 			}
@@ -298,7 +322,10 @@ UiChapPanel::SetUserPrinting(int userId) {
 					fullName->Append(pUser->GetLastName()->GetPointer());
 
 					__pPrintingMessage = new String(fullName->GetPointer());
-					__pPrintingMessage->Append(L" набирает сообщение...");
+					String statusString;
+					Application::GetInstance()->GetAppResource()->GetString(IDS_PRINTING, statusString);
+					__pPrintingMessage->Append(L" ");
+					__pPrintingMessage->Append(statusString);
 					break;
 				}
 			}
@@ -307,7 +334,9 @@ UiChapPanel::SetUserPrinting(int userId) {
 	}
 
 	if (!__pPrintingMessage) {
-		__pPrintingMessage = new String(L"Набирает сообщение...");
+		String statusString;
+		Application::GetInstance()->GetAppResource()->GetString(IDS_PRINTING, statusString);
+		__pPrintingMessage = new String(statusString);
 	}
 
 	this->Invalidate(true);

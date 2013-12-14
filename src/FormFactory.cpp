@@ -17,6 +17,7 @@
 #include "ProfileForm.h"
 
 #include "UiImageViewer.h"
+#include "UiVideoViewer.h"
 
 using namespace Tizen::Ui::Scenes;
 
@@ -31,6 +32,7 @@ const wchar_t* FORM_CREATE_CONV = L"FORM_CREATE_CONV";
 const wchar_t* FORM_PROFILE = L"FORM_PROFILE";
 
 const wchar_t* FORM_IMAGE_VIEWER = L"FORM_IMAGE_VIEWER";
+const wchar_t* FORM_VIDEO_VIEWER = L"FORM_VIDEO_VIEWER";
 
 
 const wchar_t* FORM_TAB_STYLE_BASE = L"FromTabStyleBase";
@@ -96,6 +98,11 @@ FormFactory::CreateFormN(const Tizen::Base::String& formId, const Tizen::Ui::Sce
 		pNewForm = pForm;
 	} else if (formId == FORM_IMAGE_VIEWER) {
 		UiImageViewer *pForm = new (std::nothrow) UiImageViewer();
+		pForm->Initialize();
+		pSceneManager->AddSceneEventListener(sceneId, *pForm);
+		pNewForm = pForm;
+	} else if (formId == FORM_VIDEO_VIEWER) {
+		UiVideoViewer *pForm = new (std::nothrow) UiVideoViewer();
 		pForm->Initialize();
 		pSceneManager->AddSceneEventListener(sceneId, *pForm);
 		pNewForm = pForm;

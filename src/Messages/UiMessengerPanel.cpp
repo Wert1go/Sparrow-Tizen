@@ -15,6 +15,7 @@
 #include "IRequestAttachmentDelete.h"
 #include "AttachmentItem.h"
 #include "MAttachment.h"
+#include "AppResourceId.h"
 
 static int itemSize = 170;
 static int itemOffset = 20;
@@ -77,7 +78,6 @@ UiMessengerPanel::Initialize(void)
 	__pEditArea->SetColor(EDIT_STATUS_NORMAL, Color(0,0,0,255));
 	__pEditArea->SetColor(EDIT_STATUS_HIGHLIGHTED, Color(0,0,0,255));
 	__pEditArea->SetColor(EDIT_STATUS_PRESSED, Color(0,0,0,255));
-	__pEditArea->SetGuideText(L"Введите сообщение");
 	AddControl(__pEditArea);
 
 	__pSendButton = new (std::nothrow) Button();
@@ -363,5 +363,15 @@ UiMessengerPanel::AddAttachments(LinkedList *pAttachments) {
 	}
 
 	this->ReloadData();
+}
+
+result
+UiMessengerPanel::OnDraw(void) {
+
+	String guideString;
+	Application::GetInstance()->GetAppResource()->GetString(IDS_WRITE_MESSAGE, guideString);
+	__pEditArea->SetGuideText(guideString);
+
+	return E_SUCCESS;
 }
 

@@ -32,7 +32,7 @@ using namespace Tizen::System;
 #define VK_LOGIN_AFTER_REG L"act=login"
 
 #define VK_APP_ID	L"3995016"
-#define VK_SCOPE	L"messages,friends,photos,audio,video,notifications"
+#define VK_SCOPE	L"messages,friends,photos,audio,video,notifications,files"
 
 AuthWebForm::AuthWebForm() {
 	result r = E_SUCCESS;

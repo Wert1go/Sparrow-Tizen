@@ -1,5 +1,11 @@
 #include "AppResourceId.h"
 
+const wchar_t* IDS_ATTACH = L"IDS_ATTACH";
+const wchar_t* IDS_ATTACH_AUDIO = L"IDS_ATTACH_AUDIO";
+const wchar_t* IDS_ATTACH_DOC = L"IDS_ATTACH_DOC";
+const wchar_t* IDS_ATTACH_MAP = L"IDS_ATTACH_MAP";
+const wchar_t* IDS_ATTACH_PHOTO = L"IDS_ATTACH_PHOTO";
+const wchar_t* IDS_ATTACH_VIDEO = L"IDS_ATTACH_VIDEO";
 const wchar_t* IDS_BUTTON_ = L"IDS_BUTTON_";
 const wchar_t* IDS_BUTTON_LOGIN = L"IDS_BUTTON_LOGIN";
 const wchar_t* IDS_BUTTON_REG = L"IDS_BUTTON_REG";
@@ -10,10 +16,18 @@ const wchar_t* IDS_MAIN_FORM_I_CONTACTS = L"IDS_MAIN_FORM_I_CONTACTS";
 const wchar_t* IDS_MAIN_FORM_MSG = L"IDS_MAIN_FORM_MSG";
 const wchar_t* IDS_MAIN_FORM_SEARCH = L"IDS_MAIN_FORM_SEARCH";
 const wchar_t* IDS_MAIN_FORM_SETTINGS = L"IDS_MAIN_FORM_SETTINGS";
+const wchar_t* IDS_MEMBER = L"IDS_MEMBER";
+const wchar_t* IDS_MEMBER_SUFFIX_1 = L"IDS_MEMBER_SUFFIX_1";
+const wchar_t* IDS_MEMBER_SUFFIX_2 = L"IDS_MEMBER_SUFFIX_2";
+const wchar_t* IDS_OFFLINE = L"IDS_OFFLINE";
+const wchar_t* IDS_ONLINE = L"IDS_ONLINE";
+const wchar_t* IDS_PRINTING = L"IDS_PRINTING";
 const wchar_t* IDS_SEARCH = L"IDS_SEARCH";
 const wchar_t* IDS_START_SCREEN_DESCR = L"IDS_START_SCREEN_DESCR";
 const wchar_t* IDS_STRING1 = L"IDS_STRING1";
 const wchar_t* IDS_STRING2 = L"IDS_STRING2";
 const wchar_t* IDS_STRING3 = L"IDS_STRING3";
 const wchar_t* IDS_STRING4 = L"IDS_STRING4";
+const wchar_t* IDS_TIME_YESTERDAY = L"IDS_TIME_YESTERDAY";
 const wchar_t* IDS_USERS_IMPORTANT = L"IDS_USERS_IMPORTANT";
+const wchar_t* IDS_WRITE_MESSAGE = L"IDS_WRITE_MESSAGE";
