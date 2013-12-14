@@ -103,7 +103,7 @@ MainForm::MainForm() {
 
 	this->SetActionBarsVisible(FORM_ACTION_BAR_FOOTER, false);
 
-
+	this->SetContentAreaBounds(this->GetClientAreaBounds());
 
 //	this->Invalidate(true);
 
@@ -133,18 +133,18 @@ MainForm::OnActionPerformed(const Tizen::Ui::Control& source, int actionId)
 		pUserPanel = static_cast< UiUsersPanel* >(pFrame->GetControl("UiUsersPanel", true));
 	}
 
-
 	switch(actionId)
 	{
 	case ID_MESSAGES: {
+		this->SetActionBarsVisible(FORM_ACTION_BAR_FOOTER, false);
 		pSceneManager = SceneManager::GetInstance();
 		AppAssert(pSceneManager);
 		pSceneManager->GoForward(ForwardSceneTransition(SCENE_MAIN_MESSAGES_TAB, SCENE_TRANSITION_ANIMATION_TYPE_NONE,
 					SCENE_HISTORY_OPTION_NO_HISTORY));
-		this->SetActionBarsVisible(FORM_ACTION_BAR_FOOTER, false);
 	}
 		break;
 	case ID_CONTACTS: {
+		this->SetFocus();
 		pSceneManager = SceneManager::GetInstance();
 		AppAssert(pSceneManager);
 		pSceneManager->GoForward(ForwardSceneTransition(SCENE_MAIN_USERS_TAB, SCENE_TRANSITION_ANIMATION_TYPE_NONE,
@@ -153,13 +153,17 @@ MainForm::OnActionPerformed(const Tizen::Ui::Control& source, int actionId)
 	}
 		break;
 	case ID_SEARCH:
+		this->SetFocus();
+		this->SetActionBarsVisible(FORM_ACTION_BAR_FOOTER, false);
+
 		pSceneManager = SceneManager::GetInstance();
 		AppAssert(pSceneManager);
 		pSceneManager->GoForward(ForwardSceneTransition(SCENE_MAIN_SEARCH_TAB, SCENE_TRANSITION_ANIMATION_TYPE_NONE,
 					SCENE_HISTORY_OPTION_NO_HISTORY));
-		this->SetActionBarsVisible(FORM_ACTION_BAR_FOOTER, false);
+
 		break;
 	case ID_SETTINGS:
+		this->SetFocus();
 		pSceneManager = SceneManager::GetInstance();
 		AppAssert(pSceneManager);
 		pSceneManager->GoForward(ForwardSceneTransition(SCENE_SETTINGS, SCENE_TRANSITION_ANIMATION_TYPE_LEFT));

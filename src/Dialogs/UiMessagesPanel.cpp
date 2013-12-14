@@ -169,8 +169,12 @@ UiMessagesPanel::OnSceneDeactivated(const Tizen::Ui::Scenes::SceneId& currentSce
 	if (__pDialogRequestOperation) {
 		__pDialogRequestOperation->AddEventListener(null);
 		__pDialogRequestOperation = null;
-
 	}
+
+	this->__pSearchBar->HideKeypad();
+	 Form* pForm = dynamic_cast<Form*>(GetParent());
+	pForm->Invalidate(true);
+	AppLog("+++++++++++++++++++++ HEIGHT: %d",pForm->GetClientAreaBounds().height);
 }
 
 void

@@ -64,7 +64,7 @@ SearchUserPanel::OnInitializing(void) {
 	// Resize
 	const Form* pForm = dynamic_cast<Form*>(GetParent());
 	AppAssert(pForm);
-	clientRect = pForm->GetClientAreaBounds();
+	clientRect = pForm->GetContentAreaBounds();
 	SetBounds(Rectangle(0, 0, clientRect.width, clientRect.height));
 
 	__pSearchBar = new SearchBar();
