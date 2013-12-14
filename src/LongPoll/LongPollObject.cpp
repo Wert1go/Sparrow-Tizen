@@ -136,15 +136,7 @@ LongPollObject::CreateFromJsonN(const Tizen::Web::Json::JsonArray &jsonArray) {
 		MMessage *pMessage = MMessage::CreateFromJsonLPN(*pMessageJson);
 		AppAssert(pMessage);
 
-		if (pMessage->__pFwd && pMessage->__pFwd->GetCount() > 0) {
-			for(int j = 0; j < pMessage->__pFwd->GetCount(); j++) {
-				MMessage *pFwd = static_cast<MMessage *>(pMessage->__pFwd->GetAt(j));
-
-				if (!pFwd->__pUser) {
-					pFwd->__pUser = MUserDao::getInstance().GetUserN(pFwd->GetUid());
-				}
-			}
-		}
+		LongPollObject::LoadUsers(pMessage->__pFwd);
 
 		resultObject->SetMessage(pMessage);
 
@@ -200,6 +192,21 @@ LongPollObject::CreateFromJsonN(const Tizen::Web::Json::JsonArray &jsonArray) {
 	}
 
 	return resultObject;
+}
+
+void
+LongPollObject::LoadUsers(IList *pFwdMessages) {
+	if (pFwdMessages && pFwdMessages->GetCount() > 0) {
+		for(int j = 0; j < pFwdMessages->GetCount(); j++) {
+			MMessage *pFwd = static_cast<MMessage *>(pFwdMessages->GetAt(j));
+
+			if (!pFwd->__pUser) {
+				pFwd->__pUser = MUserDao::getInstance().GetUserN(pFwd->GetUid());
+			}
+
+			LongPollObject::LoadUsers(pFwd->__pFwd);
+		}
+	}
 }
 
 void

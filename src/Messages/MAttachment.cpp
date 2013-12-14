@@ -39,10 +39,13 @@ MAttachment::MAttachment() {
 	__pFilePath = null;
 	__tempId = 0;
 	ratio = 0;
+	cut = 0;
+	__nesting = 0;
 	imageSize = FloatPoint(0,0);
 
 	this->__pUser = null;
 	__text = new String(L"");
+	__pGeo = null;
 }
 
 MAttachment::~MAttachment() {
@@ -336,8 +339,6 @@ MAttachment::CreateVideoFromJsonN(JsonObject *pVideoObject) {
 	IJsonValue *pValViews = null;
 	JsonString* pKeyDescription = new JsonString(L"description");
 	IJsonValue *pValDescription = null;
-
-	AppLog("testttt");
 
 	pVideoObject->GetValue(pKeyId, pValId);
 	if (!pValId) {

@@ -15,6 +15,7 @@
 #include "MUser.h"
 #include "IImageDrawer.h"
 #include "Util.h"
+#include "MMessage.h"
 
 using namespace Tizen::Ui::Controls;
 using namespace Tizen::Graphics;
@@ -72,8 +73,16 @@ UiAttachmentView::~UiAttachmentView() {
 }
 
 bool
-UiAttachmentView::OnDraw(Tizen::Graphics::Canvas &canvas, const Tizen::Graphics::Rectangle &rect, Tizen::Ui::Controls::ListItemDrawingStatus status) {
+UiAttachmentView::OnDraw(
+		Tizen::Graphics::Canvas &canvas,
+		const Tizen::Graphics::Rectangle &rect,
+		Tizen::Ui::Controls::ListItemDrawingStatus status) {
+
 	result r;
+
+	if (!__pAttachment) {
+		return true;
+	}
 
 	if (__pBitmapImage != null)
 	{
@@ -81,9 +90,15 @@ UiAttachmentView::OnDraw(Tizen::Graphics::Canvas &canvas, const Tizen::Graphics:
 	}
 
 	if (__pAttachment->__pType->Equals(VIDEO, false)) {
-		canvas.DrawBitmap(Rectangle(320/2 - 94/2, 240/2 - 94/2, 94, 94), *Resources::getInstance().GetVideoPlayIcon());
 
-		canvas.FillRectangle(Color(0, 0, 0, 150), Rectangle(0, 240 - 60, 320, 60));
+/*************************** VIDEO ******************************************/
+
+		canvas.DrawBitmap(
+				Rectangle(__pAttachment->imageSize.x/2 - 94/2, __pAttachment->imageSize.y/2 - 94/2, 94, 94),
+				*Resources::getInstance().GetVideoPlayIcon());
+
+		canvas.FillRectangle(Color(0, 0, 0, 150),
+				Rectangle(0, __pAttachment->imageSize.y - 60, __pAttachment->imageSize.x, 60));
 
 		if (__pTitleLabel && __pDurationLabel) {
 			canvas.DrawText(__titleDrawPoint, *__pTitleLabel);
@@ -91,6 +106,8 @@ UiAttachmentView::OnDraw(Tizen::Graphics::Canvas &canvas, const Tizen::Graphics:
 		}
 
 	} else if (__pAttachment->__pType->Equals(AUDIO, false)) {
+
+/*************************** AUDIO ******************************************/
 
 		Bitmap *pButton = null;
 
@@ -117,6 +134,9 @@ UiAttachmentView::OnDraw(Tizen::Graphics::Canvas &canvas, const Tizen::Graphics:
 
 
 	} else if (__pAttachment->__pType->Equals(DOC, false)) {
+
+/*************************** DOC ******************************************/
+
 		canvas.FillRoundRectangle(Color(0, 0, 0, 100), rect, Dimension(8, 8));
 		canvas.DrawBitmap(Rectangle(5, rect.height/2 - 72/2, 72, 72), *Resources::getInstance().GetDocumentIcon());
 
@@ -124,12 +144,18 @@ UiAttachmentView::OnDraw(Tizen::Graphics::Canvas &canvas, const Tizen::Graphics:
 			canvas.DrawText(__titleDrawPoint, *__pTitleLabel);
 		}
 	} else if (__pAttachment->__pType->Equals(POINT, false)) {
-		canvas.FillRectangle(Color(0, 0, 0, 150), Rectangle(0, 0, 320, 60));
+
+/*************************** MAP ******************************************/
 
 		if (__pTitleLabel) {
+			canvas.FillRectangle(Color(0, 0, 0, 150), Rectangle(0, 0, __pAttachment->imageSize.x, 60));
 			canvas.DrawText(__titleDrawPoint, *__pTitleLabel);
 		}
+
 	} else if (__pAttachment->__pType->Equals(FWD, false)) {
+
+/*************************** FWD ******************************************/
+
 		canvas.FillRectangle(Color(86, 156, 218, 255), Rectangle(5, 0, 5, rect.height));
 
 		if (__pImageDrawer && __pAttachment->__pUser) {
@@ -193,11 +219,55 @@ UiAttachmentView::OnDraw(Tizen::Graphics::Canvas &canvas, const Tizen::Graphics:
 					}
 				}
 			}
+
+			if (__pImageDrawer && this->__pAttachment->__pGeo) {
+				drawOffset += 20;
+			}
 		}
 
 		if (__pTitleLabel && __pDurationLabel) {
 			canvas.DrawText(__titleDrawPoint, *__pTitleLabel);
 			canvas.DrawText(__durationDrawPoint, *__pDurationLabel);
+		}
+
+		if (this->__pAttachment->__pFwd && this->__pAttachment->__pFwd->GetCount() > 0) {
+			for(int i = 0; i < this->__pAttachment->__pFwd->GetCount(); i++) {
+				MMessage *pFwdMessage = static_cast<MMessage *>(this->__pAttachment->__pFwd->GetAt(i));
+
+				if (pFwdMessage->imageSize.x == 0 && pFwdMessage->imageSize.y == 0) {
+					continue;
+				}
+
+				Point drawPoint = Point(__pAttachment->__absolutePosition.x + 40, __pAttachment->__absolutePosition.y + drawOffset);
+
+				pFwdMessage->__absolutePosition = drawPoint;
+
+				__pImageDrawer->DrawAttachmentFromUrlInRect(
+					null,
+					Rectangle(
+							drawPoint.x,
+							drawPoint.y,
+							pFwdMessage->imageSize.x,
+							pFwdMessage->imageSize.y),
+							pFwdMessage);
+
+				drawOffset += pFwdMessage->imageSize.y;
+			}
+
+		}
+
+		if (__pImageDrawer && this->__pAttachment->__pGeo) {
+
+					__pImageDrawer->DrawAttachmentFromUrlInRect(
+							this->__pAttachment->__pGeo->GetImageUrl(),
+							Rectangle(
+									__pAttachment->__absolutePosition.x + 20,
+									__pAttachment->__absolutePosition.y + drawOffset,
+									this->__pAttachment->__pGeo->imageSize.x,
+									this->__pAttachment->__pGeo->imageSize.y),
+							this->__pAttachment->__pGeo);
+
+			drawOffset += this->__pAttachment->__pGeo->imageSize.y;
 		}
 	}
 
@@ -211,8 +281,12 @@ UiAttachmentView::OnDraw(Tizen::Graphics::Canvas &canvas, const Tizen::Graphics:
 
 void
 UiAttachmentView::SetAttachment(MAttachment *pAttachment) {
+	AppLog("++++++++++++++++++++++++++++++++++++++++++++++++ 1 : %f %f ", pAttachment->imageSize.x, pAttachment->imageSize.y);
+	if (pAttachment->__nesting >= 5) {
+		return;
+	}
+	AppLog("++++++++++++++++++++++++++++++++++++++++++++++++ 2");
 	__pAttachment = pAttachment;
-
 //	AppLog("UiAttachmentView::SetAttachment %S", __pAttachment->__pType->GetPointer());
 
 	int width = __pAttachment->imageSize.x;
@@ -539,6 +613,7 @@ UiAttachmentView::SetAttachment(MAttachment *pAttachment) {
 		delete pSongString;
 		delete pTitleString;
 	} else if (__pAttachment->__pType->Equals("point", false)) {
+
 		EnrichedText* pMessageLabel = null;
 		TextElement* pMessageText = null;
 
@@ -552,10 +627,10 @@ UiAttachmentView::SetAttachment(MAttachment *pAttachment) {
 
 		String *pTitleString = null;
 
-		if (__pAttachment->__pTitle) {
+		if (__pAttachment->__pTitle && __pAttachment->__pTitle->GetLength() > 0) {
 			pTitleString = new String(__pAttachment->__pTitle->GetPointer());
 		} else {
-			pTitleString = new String(L"");
+			return;
 		}
 
 		pMessageText = new TextElement();
@@ -595,7 +670,6 @@ UiAttachmentView::SetAttachment(MAttachment *pAttachment) {
 		__pTitleText = pMessageText;
 
 	}  else if (__pAttachment->__pType->Equals(FWD, false)) {
-
 		if (!this->__pAttachment->__pUser) {
 			return;
 		}
@@ -659,7 +733,6 @@ UiAttachmentView::SetAttachment(MAttachment *pAttachment) {
 		__pTitleText = pMessageText;
 
 /************** SUBTITLE ***************/
-
 		EnrichedText* pDurationLabel = null;
 		TextElement* pDurationText = null;
 
@@ -713,11 +786,9 @@ UiAttachmentView::SetAttachment(MAttachment *pAttachment) {
 
 
 /******************* MESSAGE *************************/
-
-		int limitSize = 380;
+		int limitSize = 420;
 		String *text = this->__pAttachment->__text;
-AppLog("TTTTTTTTTTTTTTTTTTTT: %d", text->GetLength());
-		AppLog("%S", text->GetPointer());
+
 
 		if (!text || text->GetLength() == 0) {
 			return;
@@ -727,7 +798,14 @@ AppLog("TTTTTTTTTTTTTTTTTTTT: %d", text->GetLength());
 		TextElement* pTextText = null;
 
 		pTexLabel = new EnrichedText();
-		pTexLabel->Construct(Dimension(limitSize - offset * 2, 480));
+
+		int textOffset = 0;
+		if (this->__pAttachment->cut != 0) {
+			textOffset = this->__pAttachment->cut;
+		} else {
+			textOffset = offset * 2;
+		}
+		pTexLabel->Construct(Dimension(limitSize - textOffset, 480));
 
 		pTexLabel->SetHorizontalAlignment(TEXT_ALIGNMENT_LEFT);
 		pTexLabel->SetVerticalAlignment(TEXT_ALIGNMENT_MIDDLE);
@@ -765,7 +843,6 @@ AppLog("TTTTTTTTTTTTTTTTTTTT: %d", text->GetLength());
 		Point textDrawPoint;
 
 		textDrawPoint = Point(offset * 2, infoHeight + 5);
-
 		__textDrawPoint = textDrawPoint;
 		__pTextLabel = pTexLabel;
 		__pTextText = pTextText;

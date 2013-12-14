@@ -143,6 +143,10 @@ UiChatListItem::OnDraw(Tizen::Graphics::Canvas& canvas, const Tizen::Graphics::R
 				drawOffset += msgImageOffset;
 			}
 		}
+
+		if (this->GetMessage()->__pGeo) {
+			drawOffset += 20;
+		}
 	}
 
 	if (this->GetMessage()->__pGeo) {
@@ -159,7 +163,7 @@ UiChatListItem::OnDraw(Tizen::Graphics::Canvas& canvas, const Tizen::Graphics::R
 					this->GetMessage()->__pGeo->GetImageUrl(),
 							Rectangle(
 									drawPoint.x,
-									drawPoint.y + 20,
+									drawPoint.y,
 									this->GetMessage()->__pGeo->imageSize.x,
 									this->GetMessage()->__pGeo->imageSize.y),
 							this->GetMessage()->__pGeo
@@ -171,6 +175,10 @@ UiChatListItem::OnDraw(Tizen::Graphics::Canvas& canvas, const Tizen::Graphics::R
 	if (this->GetMessage()->__pFwd) {
 		for(int i = 0; i < this->GetMessage()->__pFwd->GetCount(); i++) {
 			MMessage *pFwdMessage = static_cast<MMessage *>(this->GetMessage()->__pFwd->GetAt(i));
+
+			if (pFwdMessage->imageSize.x == 0 && pFwdMessage->imageSize.y == 0) {
+				continue;
+			}
 
 			Point drawPoint;
 			float width = __pBubbleDimension.width;

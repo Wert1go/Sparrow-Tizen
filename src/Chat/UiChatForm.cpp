@@ -414,6 +414,7 @@ UiChatForm::CreateItem(int index, int itemWidth) {
     ListAnnexStyle style = LIST_ANNEX_STYLE_NORMAL;
     MMessage *message = static_cast<MMessage *>(this->GetMessages()->GetAt(index));
     Dimension dmns = Util::CalculateDimensionForMessage(message);
+
     dmns.height = dmns.height +  20*4;
     dmns.width = dmns.width +  20*2;
 

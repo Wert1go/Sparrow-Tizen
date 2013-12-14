@@ -26,7 +26,6 @@ UiImageViewer::UiImageViewer() {
 	__pImageUrl = null;
 	__pPresentingImage = null;
 }
-
 UiImageViewer::~UiImageViewer() {
 	if (this->__pPresentingImage) {
 		delete this->__pPresentingImage;

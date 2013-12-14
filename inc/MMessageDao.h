@@ -33,6 +33,7 @@ private:
 public:
 	void Save(MMessage *message);
 	void Save(IList *messages);
+	void SaveFwd(IList *fwdMessages, int mid);
 
 	MMessage *GetMessageN(int mid);
 	LinkedList *GetMessagesForUser(int userId, int lastMessageId = -1);

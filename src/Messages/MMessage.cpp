@@ -392,8 +392,6 @@ MMessage::CreateFromJsonN(const Tizen::Web::Json::JsonObject &pObject, bool fwd)
 
 	if (pValFwds) {
 
-		AppLog("+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++");
-
 		JsonArray *pFwds = static_cast<JsonArray *>(pValFwds);
 		for (int i = 0; i < pFwds->GetCount(); i++) {
 			IJsonValue* pValFwd = null;
@@ -545,7 +543,6 @@ MMessage::CreateFromJsonLPN(const Tizen::Web::Json::JsonObject &pObject, bool fw
 	}
 
 	if (message->GetChatId() != 0) {
-		AppLog("1111trttttttttt");
 		message->SetUid(message->GetChatId() + isChatValue);
 	} else {
 		message->SetUid(uid->ToInt());
@@ -647,8 +644,6 @@ MMessage::CreateFromJsonLPN(const Tizen::Web::Json::JsonObject &pObject, bool fw
 	}
 
 	delete pKeyFwdMessages;
-
-	AppLog("1111test");
 
 	return message;
 }

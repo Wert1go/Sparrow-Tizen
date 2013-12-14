@@ -29,8 +29,6 @@ void
 MMessageDao::Save(MMessage *pMessage) {
 	DbStatement *compiledSaveStatment = CreateSaveStatement();
 	DbEnumerator* pEnum = null;
-	DbStatement *compiledSaveFwdStatment = CreateSaveFwdMessageStatement();
-	DbStatement *compiledSaveFwsRelationStatment = CreateSaveRelationStatement();
 
 	compiledSaveStatment = BindMessageToSQLStatement(pMessage, compiledSaveStatment);
 	pEnum = MDatabaseManager::getInstance().GetDatabase()->ExecuteStatementN(*compiledSaveStatment);
@@ -43,24 +41,7 @@ MMessageDao::Save(MMessage *pMessage) {
 	}
 
 	if (pMessage->__pFwd && pMessage->__pFwd->GetCount() > 0) {
-
-		this->DeleteFwdMessageForMessage(pMessage->GetMid());
-
-		for (int i = 0; i < pMessage->__pFwd->GetCount(); i++) {
-			MMessage *pFwdMessage = static_cast<MMessage *>(pMessage->__pFwd->GetAt(i));
-			pFwdMessage->__owner = pMessage->GetMid();
-			compiledSaveFwdStatment = BindFwdMessageToSQLStatement(pFwdMessage, compiledSaveFwdStatment);
-			pEnum = MDatabaseManager::getInstance().GetDatabase()->ExecuteStatementN(*compiledSaveFwdStatment);
-			delete pEnum;
-
-			int id = MDatabaseManager::getInstance().GetDatabase()->GetLastInsertRowId();
-
-			AppLog("MDatabaseManager::getInstance().GetDatabase() %d", id);
-			pFwdMessage->SetMid(id);
-			if (pFwdMessage->__pAttachments && pFwdMessage->__pAttachments->GetCount() > 0) {
-				MAttachmentDao::getInstance().SaveAttachments(pFwdMessage->__pAttachments, pFwdMessage->GetMid(), true);
-			}
-		}
+		this->SaveFwd(pMessage->__pFwd, pMessage->GetMid());
 	}
 
 	delete compiledSaveStatment;
@@ -71,9 +52,6 @@ void
 MMessageDao::Save(IList *messages) {
 	AppLog("about to save :: %d", messages->GetCount());
 	DbStatement *compiledSaveStatment = CreateSaveStatement();
-
-	DbStatement *compiledSaveFwdStatment = CreateSaveFwdMessageStatement();
-	DbStatement *compiledSaveFwsRelationStatment = CreateSaveRelationStatement();
 	DbEnumerator* pEnum = null;
 
 	IEnumerator* pMessageEnum = messages->GetEnumeratorN();
@@ -83,7 +61,6 @@ MMessageDao::Save(IList *messages) {
 
 	while (pMessageEnum->MoveNext() == E_SUCCESS)
 	{
-
 		pMessage = dynamic_cast<MMessage *>(pMessageEnum->GetCurrent());
 		compiledSaveStatment = BindMessageToSQLStatement(pMessage, compiledSaveStatment);
 		pEnum = MDatabaseManager::getInstance().GetDatabase()->ExecuteStatementN(*compiledSaveStatment);
@@ -97,28 +74,7 @@ MMessageDao::Save(IList *messages) {
 		}
 
 		if (pMessage->__pFwd && pMessage->__pFwd->GetCount() > 0) {
-			AppLog("pMessage->__pFwd->GetCount() %d", pMessage->__pFwd->GetCount());
-
-			this->DeleteFwdMessageForMessage(pMessage->GetMid());
-
-			for (int i = 0; i < pMessage->__pFwd->GetCount(); i++) {
-				MMessage *pFwdMessage = static_cast<MMessage *>(pMessage->__pFwd->GetAt(i));
-
-				pFwdMessage->__owner = pMessage->GetMid();
-
-				compiledSaveFwdStatment = BindFwdMessageToSQLStatement(pFwdMessage, compiledSaveFwdStatment);
-				pEnum = MDatabaseManager::getInstance().GetDatabase()->ExecuteStatementN(*compiledSaveFwdStatment);
-				delete pEnum;
-
-				int id = MDatabaseManager::getInstance().GetDatabase()->GetLastInsertRowId();
-
-				AppLog("MDatabaseManager::getInstance().GetDatabase() %d", id);
-				pFwdMessage->SetMid(id);
-
-				if (pFwdMessage->__pAttachments && pFwdMessage->__pAttachments->GetCount() > 0) {
-					MAttachmentDao::getInstance().SaveAttachments(pFwdMessage->__pAttachments, pFwdMessage->GetMid(), true);
-				}
-			}
+			this->SaveFwd(pMessage->__pFwd, pMessage->GetMid());
 		}
 	}
 
@@ -127,6 +83,43 @@ MMessageDao::Save(IList *messages) {
 	delete pMessageEnum;
 
 	delete compiledSaveStatment;
+}
+
+void
+MMessageDao::SaveFwd(IList *pFwdMessages, int mid) {
+	DbStatement *compiledSaveFwdStatment = CreateSaveFwdMessageStatement();
+	DbStatement *compiledSaveFwsRelationStatment = CreateSaveRelationStatement();
+	DbEnumerator* pEnum = null;
+
+	this->DeleteFwdMessageForMessage(mid);
+
+	for (int i = 0; i < pFwdMessages->GetCount(); i++) {
+		MMessage *pFwdMessage = static_cast<MMessage *>(pFwdMessages->GetAt(i));
+
+		pFwdMessage->__owner = mid;
+
+		compiledSaveFwdStatment = BindFwdMessageToSQLStatement(pFwdMessage, compiledSaveFwdStatment);
+		pEnum = MDatabaseManager::getInstance().GetDatabase()->ExecuteStatementN(*compiledSaveFwdStatment);
+		delete pEnum;
+
+		int id = MDatabaseManager::getInstance().GetDatabase()->GetLastInsertRowId();
+
+		pFwdMessage->SetMid(id);
+
+		if (pFwdMessage->__pAttachments && pFwdMessage->__pAttachments->GetCount() > 0) {
+			MAttachmentDao::getInstance().SaveAttachments(pFwdMessage->__pAttachments, pFwdMessage->GetMid(), true);
+		}
+
+		if (pFwdMessage->__pGeo) {
+			pFwdMessage->__pGeo->__mid = id;
+			this->SaveGeo(pFwdMessage->__pGeo);
+		}
+
+		if (pFwdMessage->__pFwd && pFwdMessage->__pFwd->GetCount() > 0) {
+			this->SaveFwd(pFwdMessage->__pFwd, pFwdMessage->GetMid());
+		}
+	}
+
 	delete compiledSaveFwdStatment;
 	delete compiledSaveFwsRelationStatment;
 }
@@ -458,6 +451,8 @@ MMessageDao::LoadFwdMessageFromDBN(DbEnumerator* pEnum) {
 	}
 
 	message->__pUser = MUserDao::getInstance().GetUserN(message->GetUid());
+
+	message->__pFwd = this->GetFwdMessages(message->GetMid());
 
 	return message;
 }

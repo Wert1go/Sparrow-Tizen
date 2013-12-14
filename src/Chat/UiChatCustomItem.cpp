@@ -144,8 +144,6 @@ UiChatCustomItem::DrawAttachmentFromUrlInRect(String *imageUrl, Rectangle rect, 
 		__pUrtToIndexMap->Add(imageUrl, new Integer(index));
 	}
 
-	AppLog("%d, %d", rect.x, rect.y);
-
 	this->AddElement(rect, index, *pImageView);
 	this->__pImageViews->Add(pImageView);
 

@@ -26,7 +26,7 @@ using namespace Tizen::System;
 
 using namespace Tizen::Graphics;
 
-const int limitSize = 400;//720 - 190 - 130
+const int limitSize = 420;//720 - 190 - 110
 const int msgImageOffset = 20;
 const int imageSizeMedium = 480;
 const int imageSizeSmall = 130;
@@ -133,17 +133,40 @@ Util::formatDateN(long date) {
 }
 
 Dimension
-Util::CalculateDimensionForMessage(MMessage *message, bool fwd) {
+Util::CalculateDimensionForMessage(MMessage *message, bool fwd, int nesting) {
+
+	if (nesting > 5) {
+		message->__nesting = nesting;
+		message->imageSize = FloatPoint(0,0);
+		return Dimension(0,0);
+	}
 
 	String *text = message->GetText();
 	Dimension resultSize;
+	int imageCut = 0;
+	int itemCut = 0;
+
+	if (nesting > 0) {
+		for (int i = 1; i < nesting + 1; i++) {
+			if (i == 1) {
+				imageCut += 60;
+				itemCut += 20;
+			} else {
+				imageCut += 40;
+				itemCut += 40;
+			}
+		}
+
+		imageCut += 20;
+		message->cut = imageCut;
+	}
 
 	if (text->GetLength() != 0) {
 		EnrichedText* pTimeLabel = null;
 		TextElement* pTImeText = null;
 
 		pTimeLabel = new EnrichedText();
-		pTimeLabel->Construct(Dimension(limitSize, 480));
+		pTimeLabel->Construct(Dimension(limitSize - imageCut, 480));
 
 		pTimeLabel->SetHorizontalAlignment(TEXT_ALIGNMENT_LEFT);
 		pTimeLabel->SetVerticalAlignment(TEXT_ALIGNMENT_MIDDLE);
@@ -178,7 +201,7 @@ Util::CalculateDimensionForMessage(MMessage *message, bool fwd) {
 	}
 
 	if (fwd) {
-		resultSize.width = limitSize;
+		resultSize.width = limitSize - imageCut;
 	}
 
 	if (message->__pAttachments && message->__pAttachments->GetCount()) {
@@ -194,38 +217,83 @@ Util::CalculateDimensionForMessage(MMessage *message, bool fwd) {
 
 			if (attachment->__pType->Equals(PHOTO, false)) {
 
+				int imgSize = 0;
+
 				if (attachment->__pPhoto604) {
-					if (attachment->__width > attachment->__height) {
-						imgWidth = imageSizeMedium;
-						imgHeight = imageSizeMedium / attachment->ratio;
+					if (fwd) {
+						imgSize = imageSizeMedium - imageCut;
 					} else {
-						imgHeight = imageSizeMedium;
-						imgWidth = imageSizeMedium * attachment->ratio;
+						imgSize = imageSizeMedium;
+					}
+
+					if (attachment->__width > attachment->__height) {
+						imgWidth = imgSize;
+						imgHeight = imgSize / attachment->ratio;
+					} else {
+						imgHeight = imgSize;
+						imgWidth = imgSize * attachment->ratio;
 					}
 				} else {
-					if (attachment->__width > attachment->__height) {
-						imgWidth = imageSizeSmall;
-						imgHeight = imageSizeSmall / attachment->ratio;
+					if (fwd) {
+						imgSize = imageSizeSmall - imageCut;
 					} else {
-						imgHeight = imageSizeSmall;
-						imgWidth = imageSizeSmall * attachment->ratio;
+						imgSize = imageSizeSmall;
+					}
+
+					if (attachment->__width > attachment->__height) {
+						imgWidth = imgSize;
+						imgHeight = imgSize / attachment->ratio;
+					} else {
+						imgHeight = imgSize;
+						imgWidth = imgSize * attachment->ratio;
 					}
 				}
 
 			} else if (attachment->__pType->Equals(VIDEO, false)) {
-				if (attachment->__pVideoPhoto320) {
-					imgWidth = 320;
-					imgHeight = 240;
+
+				if (fwd) {
+					if (attachment->__pVideoPhoto320) {
+						float ratio = (float)320/240;
+						imgWidth = 320;
+						if (imgWidth > (float)limitSize - itemCut) {
+							imgWidth = (float)limitSize - itemCut;
+						}
+
+						imgHeight = imgWidth / ratio;
+						AppLog("attachment->__pType->Equals(VIDEO, false) %f %f || %f", imgWidth, imgHeight, ratio);
+					} else {
+						float ratio = (float)130/98;
+						imgWidth = 130 - itemCut;
+						imgHeight = imgWidth / ratio;
+					}
 				} else {
-					imgWidth = 130;
-					imgHeight = 98;
+					if (attachment->__pVideoPhoto320) {
+						imgWidth = 320;
+						imgHeight = 240;
+					} else {
+						imgWidth = 130;
+						imgHeight = 98;
+					}
 				}
+
 			} else if (attachment->__pType->Equals(AUDIO, false)) {
-				imgWidth = 420;
+				imgWidth =  420;
+
+				if (imgWidth > (float)limitSize - itemCut) {
+					imgWidth = (float)limitSize - itemCut;
+				}
+
 				imgHeight = 80;
 			} else if (attachment->__pType->Equals(DOC, false)) {
 				imgWidth = 320;
+
+				if (imgWidth > (float)limitSize - itemCut) {
+					imgWidth = (float)limitSize - itemCut;
+				}
+
 				imgHeight = 80;
+
+				AppLog("DOC ++++++++++++++++++ %f, %f || %f", imgWidth, imgHeight, (float)limitSize - itemCut);
 			}
 
 			if (resultSize.width < imgWidth) {
@@ -239,18 +307,32 @@ Util::CalculateDimensionForMessage(MMessage *message, bool fwd) {
 				resultSize.height += msgImageOffset;
 			}
 		}
+
+		if (message->__pGeo) {
+			resultSize.height += 20;
+		}
 	}
 
 	if (message->__pGeo) {
+
 		float imgWidth = 320;
 		float imgHeight = 240;
+
+		if (fwd) {
+			float ratio = (float)320/240;
+			imgWidth = 320;
+			if (imgWidth > (float)limitSize - itemCut) {
+				imgWidth = (float)limitSize - itemCut;
+			}
+			imgHeight = imgWidth / ratio;
+		}
 
 		if (resultSize.width < imgWidth) {
 			resultSize.width = imgWidth;
 		}
 
 		message->__pGeo->imageSize = FloatPoint(imgWidth, imgHeight);
-		resultSize.height += imgHeight + 20;
+		resultSize.height += imgHeight;
 	}
 
 	if (message->__pFwd) {
@@ -261,10 +343,14 @@ Util::CalculateDimensionForMessage(MMessage *message, bool fwd) {
 				AppLog("+++++++=======================++++++++++++++++++++++++++++++++++++++++++++++++++++++");
 			}
 
-			Dimension fwdDimension = Util::CalculateDimensionForMessage(pFwdMessage, true);
+			Dimension fwdDimension = Util::CalculateDimensionForMessage(pFwdMessage, true, nesting + 1);
 
 			AppLog("CalculateDimensionForMessage %d :: %d", fwdDimension.width, fwdDimension.height);
 
+			if (fwdDimension.height == 0) {
+				resultSize.height = 1;
+				return resultSize;
+			}
 //			resultSize.width += 20; // под оступ!
 
 			fwdDimension.width += 20;
@@ -272,8 +358,8 @@ Util::CalculateDimensionForMessage(MMessage *message, bool fwd) {
 
 			pFwdMessage->imageSize = FloatPoint(fwdDimension.width, fwdDimension.height);
 
-			if (resultSize.width < fwdDimension.width) {
-				resultSize.width = fwdDimension.width;
+			if (resultSize.width < limitSize - imageCut) {
+				resultSize.width = limitSize - imageCut;
 			}
 
 			resultSize.height += fwdDimension.height;

@@ -85,6 +85,8 @@ public:
 	int __size;
 	String *__pExt;
 
+	int __nesting;
+
 public:
 	static MAttachment* CreateFromJsonN(const Tizen::Web::Json::JsonObject &jsonObject);
 
@@ -105,6 +107,8 @@ public:
 
 	LinkedList *__pAttachments;
 	LinkedList *__pFwd;
+
+	int cut;
 
 };
 

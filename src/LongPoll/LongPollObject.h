@@ -68,6 +68,8 @@ private:
 	MMessage *__pMessage;
 	LinkedList *__pUsers;
 
+	static void LoadUsers(IList *pFwdMessages);
+
 
 };
 
