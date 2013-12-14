@@ -645,6 +645,7 @@ MMessage::CreateFromJsonLPN(const Tizen::Web::Json::JsonObject &pObject, bool fw
 
 	delete pKeyFwdMessages;
 
+
 	return message;
 }
 

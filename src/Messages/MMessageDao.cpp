@@ -104,6 +104,7 @@ MMessageDao::SaveFwd(IList *pFwdMessages, int mid) {
 
 		int id = MDatabaseManager::getInstance().GetDatabase()->GetLastInsertRowId();
 
+		id += 1000000000;
 		pFwdMessage->SetMid(id);
 
 		if (pFwdMessage->__pAttachments && pFwdMessage->__pAttachments->GetCount() > 0) {
@@ -431,7 +432,7 @@ MMessageDao::LoadFwdMessageFromDBN(DbEnumerator* pEnum) {
 	pEnum->GetStringAt(3, *text);
 	pEnum->GetIntAt(4, owner);
 
-	message->SetMid(mid);
+	message->SetMid(mid + 1000000000);
 	message->SetUid(uid);
 	message->SetDate(date);
 	message->SetText(text);
@@ -439,12 +440,12 @@ MMessageDao::LoadFwdMessageFromDBN(DbEnumerator* pEnum) {
 
 	message->__pType = new String(L"fwd");
 
-	message->__pAttachments = MAttachmentDao::getInstance().GetAttachments(mid, true);
+	message->__pAttachments = MAttachmentDao::getInstance().GetAttachments(message->GetMid(), true);
 	if (message->__pAttachments && message->__pAttachments->GetCount()) {
 		AppLog("coun %d", message->__pAttachments->GetCount());
 	}
 
-	message->__pGeo = this->GetGeo(mid);
+	message->__pGeo = this->GetGeo(message->GetMid());
 
 	if (message->__pGeo) {
 		AppLog("%S", message->__pGeo->__pPlaceTitle->GetPointer());
