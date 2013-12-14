@@ -10,6 +10,8 @@
 
 #include "ResponseDescriptor.h"
 
+using namespace Tizen::Base::Collection;
+
 class MMessageDescriptor
  : public ResponseDescriptor
 {
@@ -18,6 +20,7 @@ public:
 	virtual ~MMessageDescriptor();
 
 	virtual RestResponse *performObjectMappingN(JsonObject* pObject);
+	void LoadUsers(IList * pFwdMessages, IList *pUsers);
 };
 
 #endif /* MMESSAGEDESCRIPTOR_H_ */

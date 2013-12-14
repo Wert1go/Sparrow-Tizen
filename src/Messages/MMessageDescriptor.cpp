@@ -87,24 +87,7 @@ MMessageDescriptor::performObjectMappingN(JsonObject* pObject) {
 
 	for(int i = 0; i < pMessages->GetCount(); i++) {
 		MMessage *pMessage = static_cast<MMessage *>(pMessages->GetAt(i));
-		if (pMessage->__pFwd && pMessage->__pFwd->GetCount() > 0) {
-			for(int j = 0; j < pMessage->__pFwd->GetCount(); j++) {
-				MMessage *pFwd = static_cast<MMessage *>(pMessage->__pFwd->GetAt(j));
-
-				for(int k = 0; k < pUsers->GetCount(); k++) {
-					MUser *pUser = static_cast<MUser *>(pUsers->GetAt(k));
-					if (pFwd->GetUid() == pUser->GetUid()) {
-						pFwd->__pUser = pUser;
-						break;
-					}
-				}
-
-				if (!pFwd->__pUser) {
-					pFwd->__pUser = MUserDao::getInstance().GetUserN(pFwd->GetUid());
-				}
-
-			}
-		}
+		this->LoadUsers(pMessage->__pFwd, pUsers);
 	}
 
 	delete pUsers;
@@ -118,4 +101,30 @@ MMessageDescriptor::performObjectMappingN(JsonObject* pObject) {
 	delete pKeyUsersArray;
 
 	return response;
+}
+
+
+void
+MMessageDescriptor::LoadUsers(IList * pFwdMessages, IList *pUsers) {
+	if (pFwdMessages && pFwdMessages->GetCount() > 0) {
+		for(int j = 0; j < pFwdMessages->GetCount(); j++) {
+			MMessage *pFwd = static_cast<MMessage *>(pFwdMessages->GetAt(j));
+
+			for(int k = 0; k < pUsers->GetCount(); k++) {
+				MUser *pUser = static_cast<MUser *>(pUsers->GetAt(k));
+				if (pFwd->GetUid() == pUser->GetUid()) {
+					pFwd->__pUser = pUser;
+					break;
+				}
+			}
+
+			if (!pFwd->__pUser) {
+				pFwd->__pUser = MUserDao::getInstance().GetUserN(pFwd->GetUid());
+			}
+
+			if (pFwd->__pFwd) {
+				this->LoadUsers(pFwd->__pFwd, pUsers);
+			}
+		}
+	}
 }
