@@ -941,6 +941,7 @@ UiChatForm::OnActionPerformed(const Tizen::Ui::Control& source, int actionId) {
 
 	} else if (actionId == 46) {
 		__pAttachmentPopup->ShowPopup();
+		__pAttachmentPopup->__pPopupHandler = this;
 	}
 }
 

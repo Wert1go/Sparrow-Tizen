@@ -132,7 +132,9 @@ UiAttachmentListPopup::OnListViewContextItemStateChanged(Tizen::Ui::Controls::Li
 
 void
 UiAttachmentListPopup::OnListViewItemStateChanged(Tizen::Ui::Controls::ListView &listView, int index, int elementId, Tizen::Ui::Controls::ListItemStatus status) {
+	AppLog("sfdfd");
 	if (status == LIST_ITEM_STATUS_SELECTED && __pPopupHandler) {
+		AppLog("sfdfd111111111111");
 		__pPopupHandler->DidSelectItemInPopup(index, 0);
 	}
 }
