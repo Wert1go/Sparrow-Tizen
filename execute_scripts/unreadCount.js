@@ -1,4 +1,4 @@
-var a = API.messages.get({"offset" : 0, "count":200, "out":1});
+var a = API.messages.get({"offset" : 0, "count":200, "out":0});
 var c = a.items@.read_state;
 var count = 0;
 var i = 0;
@@ -9,4 +9,4 @@ while (i < c.length) {
 	}
 };
 
-return {"response" : count};
+return {"count" : count};

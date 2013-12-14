@@ -732,7 +732,7 @@ UiChatForm::UpdateCurrentUserOnlineWithValue(int value) {
 void
 UiChatForm::SetReadStateWithMessageId(int msgId) {
 	int indexToUpdate = -1;
-	AppLogDebug("MMessage %d", msgId);
+
 	for (int index = 0; index < this->GetMessages()->GetCount(); index++) {
 		MMessage *message = static_cast<MMessage*>(this->GetMessages()->GetAt(index));
 		if (message->GetMid() == msgId) {
@@ -741,6 +741,8 @@ UiChatForm::SetReadStateWithMessageId(int msgId) {
 			break;
 		}
 	}
+
+//	AppLogDebug("MMessage %d :: indexToUpdate %d", msgId, indexToUpdate);
 
 	if (indexToUpdate >= 0) {
 		this->__pListView->RefreshList(indexToUpdate, 23);

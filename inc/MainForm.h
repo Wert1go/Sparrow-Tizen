@@ -13,10 +13,17 @@
 using namespace Tizen::Ui::Controls;
 using namespace Tizen::Base::Collection;
 
+#include "IRestRequestListener.h"
+
+class RestRequestOperation;
+class RestResponse;
+class Error;
+
 class MainForm
  : public Tizen::Ui::Controls::Form
  , public Tizen::Ui::Controls::IFormBackEventListener
  , public Tizen::Ui::IActionEventListener
+ , public IRestRequestListener
 
  {
 public:
@@ -25,7 +32,9 @@ public:
 
 	virtual void OnFormBackRequested(Tizen::Ui::Controls::Form& source);
 	virtual void OnActionPerformed(const Tizen::Ui::Control& source, int actionId);
-	void UpdateUnreadCount();
+	void UpdateUnreadCount(int count = 0);
+
+	void RequestUnreadCount();
 	virtual void OnUserEventReceivedN(RequestId requestId, Tizen::Base::Collection::IList* pArgs);
 
 	void RecreateItems();
@@ -42,6 +51,12 @@ public:
 
 private:
 	Header* __pHeader;
+
+	virtual void OnSuccessN(RestResponse *user);
+	virtual void OnErrorN(Error *error);
+
+	RestRequestOperation *__pGetUnreadCountOperation;
+
 };
 
 #endif /* MAINFORM_H_ */

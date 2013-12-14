@@ -48,6 +48,8 @@ static const long VIDEO_INFO_LOADING = 100999121;
 static const long SET_USER_ONLINE = 100999122;
 static const long SET_USER_OFFLINE = 100999123;
 
+static const long GET_UNREAD_COUNT = 100999124;
+
 extern const wchar_t* USER_FILEDS;
 
 #include <FNet.h>

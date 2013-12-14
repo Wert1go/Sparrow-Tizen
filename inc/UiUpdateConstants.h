@@ -21,4 +21,6 @@ static const int LOGOUT = 10000006;
 static const int UPDATE_USER_PRINTING = 10000007;
 static const int UPDATE_USER_PRINTING_IN_CONVERSATION = 10000008;
 
+static const int UPDATE_UNREAD_COUNT = 10000009;
+
 #endif /* UIUPDATECONSTANTS_H_ */

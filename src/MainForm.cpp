@@ -16,6 +16,15 @@
 #include "UiUpdateConstants.h"
 #include "LongPollConnection.h"
 
+#include "AuthManager.h"
+#include "RestClient.h"
+#include "RUnreadCountDescriptor.h"
+#include "RestRequestOperation.h"
+#include "RestResponse.h"
+#include "Error.h"
+#include "Helper.h"
+#include "RMessageSendResponse.h"
+
 #include "AppResourceId.h"
 
 using namespace Tizen::App;
@@ -39,7 +48,7 @@ using namespace Tizen::Media;
 MainForm::MainForm() {
 	Form::Construct(FORM_STYLE_HEADER | FORM_STYLE_FOOTER);
 	SetFormBackEventListener(this);
-
+	__pGetUnreadCountOperation = null;
 	messageItem = null;
 
 	this->SetName(L"MainForm");
@@ -106,12 +115,20 @@ MainForm::MainForm() {
 	this->SetContentAreaBounds(this->GetClientAreaBounds());
 
 //	this->Invalidate(true);
+	try {
+		LongPollConnection::getInstance().Run();
+		this->RequestUnreadCount();
+	} catch (...) {
 
-	LongPollConnection::getInstance().Run();
+	}
 }
 
 MainForm::~MainForm() {
 	messageItem = null;
+	if (__pGetUnreadCountOperation) {
+		__pGetUnreadCountOperation->AddEventListener(null);
+		SAFE_DELETE(__pGetUnreadCountOperation);
+	}
 }
 
 void
@@ -188,13 +205,49 @@ void
 MainForm::OnUserEventReceivedN(RequestId requestId, Tizen::Base::Collection::IList* pArgs) {
 	if (requestId == UPDATE_MESSAGE_ARRIVED || requestId == UPDATE_READ_STATE) {
 		UpdateUnreadCount();
+	} else if (requestId == UPDATE_UNREAD_COUNT) {
+		if (pArgs->GetCount() > 0) {
+			Integer *count = static_cast<Integer *>(pArgs->GetAt(0));
+			this->UpdateUnreadCount(count->ToInt());
+		}
+	}
+
+	delete pArgs;
+}
+
+void
+MainForm::OnSuccessN(RestResponse *user) {
+
+	if (user->GetOperationCode() == GET_UNREAD_COUNT) {
+		__pGetUnreadCountOperation->AddEventListener(null);
+		__pGetUnreadCountOperation = null;
+
+		RMessageSendResponse *result = static_cast<RMessageSendResponse *>(user);
+
+		ArrayList *list = new ArrayList();
+		list->Construct(1);
+
+		list->Add(new Integer(result->__mid));
+
+		this->SendUserEvent(UPDATE_UNREAD_COUNT, list);
+		Tizen::App::App::GetInstance()->SendUserEvent(UPDATE_UNREAD_COUNT, 0);
 	}
 }
 
 void
-MainForm::UpdateUnreadCount() {
+MainForm::OnErrorN(Error *error) {
+
+}
+
+void
+MainForm::UpdateUnreadCount(int unreadCount) {
 
 	int count = MMessageDao::getInstance().GetUnreadCount();
+
+	if (count != unreadCount) {
+		count = unreadCount;
+	}
+
 	AppLogDebug("!UpdateUnreadCount %d", count);
 	if (count > 0) {
 		__pHeader->SetItemNumberedBadgeIcon(0, 0);
@@ -202,7 +255,37 @@ MainForm::UpdateUnreadCount() {
 	} else {
 		__pHeader->SetItemNumberedBadgeIcon(0, 0);
 	}
+}
 
+
+void
+MainForm::RequestUnreadCount() {
+	if (!__pGetUnreadCountOperation) {
+		HashMap *params = new HashMap();
+		params->Construct();
+		params->Add(new String(L"access_token"), AuthManager::getInstance().AccessToken());
+
+		String code;
+		code.Append(""
+			"var a = API.messages.get({\"offset\" : 0, \"count\":200, \"out\":0});"
+			"var c = a.items@.read_state;"
+			"var count = 0;"
+			"var i = 0;"
+			"while (i < c.length) { "
+			"	i=i+1; "
+			"	if (parseInt(c[i]) == 0) {"
+			"		count = count + 1;"
+			"	}"
+			"};"
+			"return {\"count\" : count};"
+				);
+		params->Add(new String(L"code"), new String(code));
+
+		__pGetUnreadCountOperation = new RestRequestOperation(GET_UNREAD_COUNT, new String(L"execute"), params);
+		__pGetUnreadCountOperation->AddEventListener(this);
+		__pGetUnreadCountOperation->SetResponseDescriptor(new RUnreadCountDescriptor());
+		RestClient::getInstance().PerformOperation(__pGetUnreadCountOperation);
+	}
 }
 
 result
