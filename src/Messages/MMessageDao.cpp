@@ -442,7 +442,6 @@ MMessageDao::LoadFwdMessageFromDBN(DbEnumerator* pEnum) {
 
 	message->__pAttachments = MAttachmentDao::getInstance().GetAttachments(message->GetMid(), true);
 	if (message->__pAttachments && message->__pAttachments->GetCount()) {
-		AppLog("coun %d", message->__pAttachments->GetCount());
 	}
 
 	message->__pGeo = this->GetGeo(message->GetMid());

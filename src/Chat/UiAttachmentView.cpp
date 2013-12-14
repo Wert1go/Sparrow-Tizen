@@ -230,6 +230,20 @@ UiAttachmentView::OnDraw(
 			canvas.DrawText(__durationDrawPoint, *__pDurationLabel);
 		}
 
+		if (__pImageDrawer && this->__pAttachment->__pGeo) {
+
+					__pImageDrawer->DrawAttachmentFromUrlInRect(
+							this->__pAttachment->__pGeo->GetImageUrl(),
+							Rectangle(
+									__pAttachment->__absolutePosition.x + 20,
+									__pAttachment->__absolutePosition.y + drawOffset,
+									this->__pAttachment->__pGeo->imageSize.x,
+									this->__pAttachment->__pGeo->imageSize.y),
+							this->__pAttachment->__pGeo);
+
+			drawOffset += this->__pAttachment->__pGeo->imageSize.y;
+		}
+
 		if (this->__pAttachment->__pFwd && this->__pAttachment->__pFwd->GetCount() > 0) {
 			for(int i = 0; i < this->__pAttachment->__pFwd->GetCount(); i++) {
 				MMessage *pFwdMessage = static_cast<MMessage *>(this->__pAttachment->__pFwd->GetAt(i));
@@ -256,19 +270,7 @@ UiAttachmentView::OnDraw(
 
 		}
 
-		if (__pImageDrawer && this->__pAttachment->__pGeo) {
 
-					__pImageDrawer->DrawAttachmentFromUrlInRect(
-							this->__pAttachment->__pGeo->GetImageUrl(),
-							Rectangle(
-									__pAttachment->__absolutePosition.x + 20,
-									__pAttachment->__absolutePosition.y + drawOffset,
-									this->__pAttachment->__pGeo->imageSize.x,
-									this->__pAttachment->__pGeo->imageSize.y),
-							this->__pAttachment->__pGeo);
-
-			drawOffset += this->__pAttachment->__pGeo->imageSize.y;
-		}
 	}
 
 	if (status == LIST_ITEM_DRAWING_STATUS_PRESSED) {

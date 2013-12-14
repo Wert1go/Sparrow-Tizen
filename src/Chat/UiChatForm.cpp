@@ -28,6 +28,7 @@
 #include "MUser.h"
 #include "MDialogDao.h"
 #include "MAttachment.h"
+#include "MGeo.h"
 #include "Util.h"
 #include "UpdateUnit.h"
 #include "UiAttachmentListPopup.h"
@@ -365,39 +366,93 @@ UiChatForm::OnListViewItemStateChanged(Tizen::Ui::Controls::ListView &listView, 
 	if (status == LIST_ITEM_STATUS_SELECTED) {
 		MMessage *message = static_cast<MMessage *>(this->GetMessages()->GetAt(index));
 
-		if (elementId >= 0 && message->__pAttachments && message->__pAttachments->GetCount() > 0) {
+		AppLog("elementId:: %d", elementId);
 
-			if (elementId < message->__pAttachments->GetCount()) {
-				MAttachment *attach = static_cast<MAttachment *>(message->__pAttachments->GetAt(elementId));
+		int pointer = 0;
 
-				if (attach->__pType->Equals(PHOTO, false)) {
-					AppLog("attach: %S", attach->__pType->GetPointer());
 
-					SceneManager* pSceneManager = SceneManager::GetInstance();
-					AppAssert(pSceneManager);
+		MAttachment *attach = this->FindAttachment(message, pointer, elementId);
 
-					ArrayList *paramsList = new (std::nothrow) ArrayList();
-					paramsList->Construct();
+		if (attach) {
+			AppLog("attach: %S", attach->__pType->GetPointer());
 
-					String *imgUrl = null;
+			if (attach->__pType->Equals(PHOTO, false)) {
 
-					if (attach->__pPhoto604) {
-						imgUrl = attach->__pPhoto604;
-					} else {
-						imgUrl = attach->__pPhoto130;
-					}
 
-					paramsList->Add(new String(imgUrl->GetPointer()));
-					pSceneManager->GoForward(ForwardSceneTransition(SCENE_IMAGE_VIEWER, SCENE_TRANSITION_ANIMATION_TYPE_LEFT), paramsList);
+				SceneManager* pSceneManager = SceneManager::GetInstance();
+				AppAssert(pSceneManager);
+
+				ArrayList *paramsList = new (std::nothrow) ArrayList();
+				paramsList->Construct();
+
+				String *imgUrl = null;
+
+				if (attach->__pPhoto604) {
+					imgUrl = attach->__pPhoto604;
+				} else {
+					imgUrl = attach->__pPhoto130;
 				}
 
-
+				paramsList->Add(new String(imgUrl->GetPointer()));
+				pSceneManager->GoForward(ForwardSceneTransition(SCENE_IMAGE_VIEWER, SCENE_TRANSITION_ANIMATION_TYPE_LEFT), paramsList);
 			}
 		}
 	}
 
 	//Здесь можно обрабатывать нажатия на элементы сообщения. Важно вынести за пределы 100 все основные элементы
 	//и исключить отрисовку аватаров!
+}
+
+MAttachment *
+UiChatForm::FindAttachment(MMessage *pMessage, int &pointer, int elementId) {
+	MAttachment *attach = null;
+
+
+
+
+	if (pMessage->__pAttachments) {
+		for (int i = 0; i < pMessage->__pAttachments->GetCount(); i++, pointer++) {
+			if (pointer == elementId) {
+				attach = static_cast<MAttachment *>(pMessage->__pAttachments->GetAt(i));
+				return attach;
+			}
+		}
+	}
+
+	if (pMessage->__pGeo) {
+		if (pointer == elementId) {
+			attach = pMessage->__pGeo;
+			return attach;
+		} else {
+			pointer++;
+		}
+	}
+
+	if (pMessage->__pFwd) {
+//		pointer++
+		int fwdPointer = pointer;
+
+		for (int j = 0; j < pMessage->__pFwd->GetCount(); j++, fwdPointer++) {
+			AppLog("int fwdPointer %d :: elementId %d", fwdPointer, elementId);
+			MMessage *pFwdMessage = static_cast<MMessage *>(pMessage->__pFwd->GetAt(j));
+			if (fwdPointer == elementId) {
+				attach = pFwdMessage;
+				break;
+			} else {
+//				if (j != 0) {
+					pointer = fwdPointer + pMessage->__pFwd->GetCount();
+//				}
+				AppLog("pointer %d", pointer);
+				attach = this->FindAttachment(pFwdMessage, pointer, elementId);
+				if (attach) {
+					break;
+				}
+			}
+
+		}
+	}
+
+	return attach;
 }
 
 void

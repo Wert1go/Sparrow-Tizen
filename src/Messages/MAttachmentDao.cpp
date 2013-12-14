@@ -475,7 +475,7 @@ MAttachmentDao::CreateSaveFwdRelationStatement() {
 
 void
 MAttachmentDao::SaveAttachments(IList *pAttachments, int mid, bool fwd) {
-	AppLog("SaveAttachments %d :: count %d", mid, pAttachments->GetCount());
+//	AppLog("SaveAttachments %d :: count %d", mid, pAttachments->GetCount());
 
 	DbStatement *compiledSaveRelationStatment;
 

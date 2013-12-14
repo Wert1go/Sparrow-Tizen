@@ -160,6 +160,8 @@ public:
 	void OpenGallery();
 	virtual void OnAppControlCompleteResponseReceived(const AppId& appId, const Tizen::Base::String& operationId, AppCtrlResult appControlResult, const Tizen::Base::Collection::IMap* pExtraData);
 
+	MAttachment *FindAttachment(MMessage *pMessage, int &pointer, int elementId);
+
 private:
 	static const int ID_CONTEXT_ITEM_1 = 103;
 	static const int ID_CONTEXT_ITEM_2 = 104;

@@ -23,6 +23,7 @@ using namespace Tizen::Ui::Controls;
 UiChatCustomItem::UiChatCustomItem() {
 	__pChatListItem = new UiChatListItem();
 	__pImageViews = new LinkedList(SingleObjectDeleter);
+	__pAttachmentViews = new LinkedList(SingleObjectDeleter);
 	__pDrawedAttachments  = new LinkedList();
 	__pRefreshListener = null;
 	__pUrtToIndexMap = new HashMapT<String *, Integer *>();
@@ -38,6 +39,9 @@ UiChatCustomItem::~UiChatCustomItem() {
 	this->RemoveAllElements();
 	delete __pImageViews;
 	__pImageViews = null;
+
+	delete __pAttachmentViews;
+	__pAttachmentViews = null;
 
 	delete __pChatListItem;
 	__pChatListItem = null;
@@ -110,6 +114,9 @@ UiChatCustomItem::DrawImageFromUrlInRect(String *imageUrl, Rectangle rect) {
 	}
 
 	int index = this->__pImageViews->GetCount();
+	index += 1000;
+
+	AppLog("DrawImageFromUrlInRect: %d", index);
 
 	UiImageView *pImageView = new (std::nothrow) UiImageView();
 
@@ -133,7 +140,9 @@ UiChatCustomItem::DrawAttachmentFromUrlInRect(String *imageUrl, Rectangle rect, 
 		return;
 	}
 
-	int index = this->__pImageViews->GetCount();
+	int index = this->__pAttachmentViews->GetCount();
+
+	AppLog("index: %d - %S", index, attachment->__pType->GetPointer());
 
 	UiAttachmentView *pImageView = new (std::nothrow) UiAttachmentView();
 	pImageView->__pImageDrawer = this;
@@ -145,7 +154,7 @@ UiChatCustomItem::DrawAttachmentFromUrlInRect(String *imageUrl, Rectangle rect, 
 	}
 
 	this->AddElement(rect, index, *pImageView);
-	this->__pImageViews->Add(pImageView);
+	this->__pAttachmentViews->Add(pImageView);
 
 	if (imageUrl) {
 		this->SetImageUrl(imageUrl, index);
@@ -162,20 +171,44 @@ void
 UiChatCustomItem::OnImageLoadedN(Bitmap *result, Integer *code) {
 	int index = code->ToInt();
 
-	if (index < this->__pImageViews->GetCount() && __pRefreshListener) {
+	AppLog("OnImageLoadedN:: %d", index);
 
-		UiImageView *imageView = static_cast<UiImageView *>(this->__pImageViews->GetAt(index));
+	if (index >= 1000) {
+		index = index - 1000;
 
-		imageView->__pBitmapImage = result;
+		if (index < this->__pImageViews->GetCount() && __pRefreshListener) {
 
-		if (__pRefreshListener) {
-			if (__section != -1) {
-				__pRefreshListener->RequestImageUpdateForIndex(__index, __section, index);
-			} else {
-				__pRefreshListener->RequestUpdateForIndex(__index, index);
+			UiImageView *imageView = static_cast<UiImageView *>(this->__pImageViews->GetAt(index));
+
+			imageView->__pBitmapImage = result;
+			index += 1000;
+
+			if (__pRefreshListener) {
+				if (__section != -1) {
+					__pRefreshListener->RequestImageUpdateForIndex(__index, __section, index);
+				} else {
+					__pRefreshListener->RequestUpdateForIndex(__index, index);
+				}
+			}
+		}
+	} else {
+		if (index < this->__pAttachmentViews->GetCount() && __pRefreshListener) {
+
+			UiImageView *imageView = static_cast<UiImageView *>(this->__pAttachmentViews->GetAt(index));
+
+			imageView->__pBitmapImage = result;
+
+			if (__pRefreshListener) {
+				if (__section != -1) {
+					__pRefreshListener->RequestImageUpdateForIndex(__index, __section, index);
+				} else {
+					__pRefreshListener->RequestUpdateForIndex(__index, index);
+				}
 			}
 		}
 	}
+
+
 }
 
 void
