@@ -57,6 +57,7 @@ public:
 	static LongPollObject* CreateFromJsonN(const Tizen::Web::Json::JsonArray &jsonArray);
 	int __messageId;
 	String *__pText;
+	String *__pTitle;
 
 private:
 	int __type;

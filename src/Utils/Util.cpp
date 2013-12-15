@@ -377,3 +377,15 @@ Util::CalculateDimensionForMessage(MMessage *message, bool fwd, int nesting) {
 
 	return resultSize;
 }
+
+void
+Util::ClearText(String *pText) {
+	if (pText && pText->GetLength() > 0) {
+		pText->Replace(L"<br>", L"\n");
+
+		pText->Replace(L"&quot;", L"\"");
+		pText->Replace(L"&amp;", L"&");
+		pText->Replace(L"&lt;", L"<");
+		pText->Replace(L"&gt;", L">");
+	}
+}

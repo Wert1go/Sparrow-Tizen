@@ -216,6 +216,7 @@ LongPollConnection::OnSuccessN(RestResponse *result) {
 		LinkedList *pArgs;
 		AppAssert(longPollResponse->GetUpdates());
 
+		String *pLastTitle = null;
 		String *pLastText = null;
 		int lastMid = -1;
 
@@ -266,6 +267,7 @@ LongPollConnection::OnSuccessN(RestResponse *result) {
 						break;
 				case LP_MESSAGE_ADD: {
 					pLastText = pObject->__pText;
+					pLastTitle = pObject->__pTitle;
 					lastMid = pObject->__messageId;
 				}
 					break;
@@ -273,6 +275,7 @@ LongPollConnection::OnSuccessN(RestResponse *result) {
 
 					if (lastMid != -1 && lastMid == pObject->GetMessage()->GetMid()) {
 						pObject->GetMessage()->SetText(pLastText);
+						pObject->GetMessage()->__title = pLastTitle;
 					}
 
 					MMessageDao::getInstance().Save(pObject->GetMessage());

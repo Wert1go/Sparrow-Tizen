@@ -10,11 +10,14 @@
 #include "MMessage.h"
 #include "MUser.h"
 #include "MUserDao.h"
+#include "Util.h"
 
 using namespace Tizen::Web::Json;
 
 LongPollObject::LongPollObject() {
 	__chatId = -1;
+	__pTitle = null;
+	__pText = null;
 }
 
 LongPollObject::~LongPollObject() {
@@ -96,6 +99,20 @@ LongPollObject::CreateFromJsonN(const Tizen::Web::Json::JsonArray &jsonArray) {
 
 		resultObject->__messageId = pMsgId->ToInt();
 
+		if (jsonArray.GetCount() >= 6) {
+			IJsonValue *pValMsgText;
+			jsonArray.GetAt(5, pValMsgText);
+
+			if(pValMsgText) {
+				JsonString *pMsgText = static_cast<JsonString *>(pValMsgText);
+				String *pText = new String(pMsgText->GetPointer());
+				Util::ClearText(pText);
+				resultObject->__pTitle = pText;
+			} else {
+				resultObject->__pTitle = new String(L"");
+			}
+		}
+
 		if (jsonArray.GetCount() >= 7) {
 			IJsonValue *pValMsgText;
 			jsonArray.GetAt(6, pValMsgText);
@@ -103,15 +120,7 @@ LongPollObject::CreateFromJsonN(const Tizen::Web::Json::JsonArray &jsonArray) {
 			if(pValMsgText) {
 				JsonString *pMsgText = static_cast<JsonString *>(pValMsgText);
 				String *pText = new String(pMsgText->GetPointer());
-				if (pText && pText->GetLength() > 0) {
-					pText->Replace(L"<br>", L"\n");
-
-					pText->Replace(L"&quot;", L"\"");
-					pText->Replace(L"&amp;", L"&");
-					pText->Replace(L"&lt;", L"<");
-					pText->Replace(L"&gt;", L">");
-				}
-
+				Util::ClearText(pText);
 				resultObject->__pText = pText;
 			} else {
 				resultObject->__pText = new String(L"");

@@ -35,6 +35,8 @@ public:
 	static String* formatDateN(long date);
 	static void LogE();
 
+	static void ClearText(String *pText);
+
 	static Dimension CalculateDimensionForMessage(MMessage *message, bool fwd = false, int nesting = 0);
 
 private:
