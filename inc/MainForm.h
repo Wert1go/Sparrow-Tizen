@@ -32,7 +32,7 @@ public:
 
 	virtual void OnFormBackRequested(Tizen::Ui::Controls::Form& source);
 	virtual void OnActionPerformed(const Tizen::Ui::Control& source, int actionId);
-	void UpdateUnreadCount(int count = 0);
+	void UpdateUnreadCount(int count = -1);
 
 	void RequestUnreadCount();
 	virtual void OnUserEventReceivedN(RequestId requestId, Tizen::Base::Collection::IList* pArgs);

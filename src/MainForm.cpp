@@ -244,7 +244,7 @@ MainForm::UpdateUnreadCount(int unreadCount) {
 
 	int count = MMessageDao::getInstance().GetUnreadCount();
 
-	if (count != unreadCount) {
+	if (unreadCount != -1 && count != unreadCount) {
 		count = unreadCount;
 	}
 
