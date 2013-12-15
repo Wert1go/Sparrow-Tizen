@@ -24,6 +24,7 @@
 #include "Error.h"
 #include "Helper.h"
 #include "RMessageSendResponse.h"
+#include "UiMessagesPanel.h"
 
 #include "AppResourceId.h"
 
@@ -45,8 +46,22 @@ using namespace Tizen::Media;
 #define ID_USERS_FRIENDS_ONLINE 	106
 #define ID_USERS_CONTACTS 107
 
+#define ID_SEARCH_DIALOGS 	108
+#define ID_SEARCH_MESSAGES 	109
+
+const int SEARCH_MESSAGE_MODE = 2343432;
+const int SEARCH_DIALOG_MODE = 12343534;
+
 MainForm::MainForm() {
 	Form::Construct(FORM_STYLE_HEADER | FORM_STYLE_FOOTER);
+
+	__isSearchMode = false;
+	__searchModeCode = SEARCH_DIALOG_MODE;
+
+	__normalIndex = 0;
+	__searchIndex = 0;
+	__footerIndex = 0;
+
 	SetFormBackEventListener(this);
 	__pGetUnreadCountOperation = null;
 	messageItem = null;
@@ -76,8 +91,6 @@ MainForm::MainForm() {
 	delete pHeaderTextColor;
 	delete pFormBackgroundColor;
 
-
-
 	Footer *pFooter = this->GetFooter();
 	pFooter->AddActionEventListener(*this);
 	pFooter->SetItemColor(FOOTER_ITEM_STATUS_NORMAL, Color(23, 30, 38, 255));
@@ -103,7 +116,6 @@ MainForm::MainForm() {
 	this->footerContactsItem = contactsItem;
 	pFooter->AddItem(*contactsItem);
 
-
 //	Image image;
 //	image.Construct();
 //	filepath = App::GetInstance()->GetAppResourcePath() + L"Images/tab_marker.png";
@@ -127,7 +139,6 @@ MainForm::~MainForm() {
 	messageItem = null;
 	if (__pGetUnreadCountOperation) {
 		__pGetUnreadCountOperation->AddEventListener(null);
-		SAFE_DELETE(__pGetUnreadCountOperation);
 	}
 }
 
@@ -137,6 +148,10 @@ MainForm::OnFormBackRequested(Tizen::Ui::Controls::Form& source)
 //	SceneManager* pSceneManager = SceneManager::GetInstance();
 //	AppAssert(pSceneManager);
 //	pSceneManager->GoBackward(BackwardSceneTransition(SCENE_TRANSITION_ANIMATION_TYPE_RIGHT));
+
+	if (this->__isSearchMode) {
+
+	}
 }
 
 void
@@ -198,6 +213,23 @@ MainForm::OnActionPerformed(const Tizen::Ui::Control& source, int actionId)
 		break;
 	case ID_USERS_CONTACTS:
 		break;
+	case ID_SEARCH_DIALOGS: {
+		Tizen::Ui::Controls::Frame* pFrame = Tizen::App::UiApp::GetInstance()->GetAppFrame()->GetFrame();
+		UiMessagesPanel *pDialogsPanel = static_cast< UiMessagesPanel* >(pFrame->GetControl("UiMessagesPanel", true));
+		if (pDialogsPanel) {
+			this->__searchModeCode = SEARCH_DIALOG_MODE;
+			pDialogsPanel->SetSearchModeCode(this->__searchModeCode);
+		}
+	}
+		break;
+	case ID_SEARCH_MESSAGES:
+		Tizen::Ui::Controls::Frame* pFrame = Tizen::App::UiApp::GetInstance()->GetAppFrame()->GetFrame();
+		UiMessagesPanel *pDialogsPanel = static_cast< UiMessagesPanel* >(pFrame->GetControl("UiMessagesPanel", true));
+		if (pDialogsPanel) {
+			this->__searchModeCode = SEARCH_MESSAGE_MODE;
+			pDialogsPanel->SetSearchModeCode(this->__searchModeCode);
+		}
+		break;
 	}
 }
 
@@ -257,7 +289,6 @@ MainForm::UpdateUnreadCount(int unreadCount) {
 	}
 }
 
-
 void
 MainForm::RequestUnreadCount() {
 	if (!__pGetUnreadCountOperation) {
@@ -303,78 +334,114 @@ MainForm::RecreateItems() {
 	int headerIndex = 0;
 	int footerIndex = 0;
 
-	if (messageItem) {
-		headerIndex = pHeader->GetSelectedItemIndex();
-		footerIndex = pFooter->GetSelectedItemIndex();
+	if (this->SearchModeIsActive()) {
+		if (this->__searchIndex  != 0) {
+			headerIndex = pHeader->GetSelectedItemIndex();
+		} else {
+			headerIndex = 0;
+		}
 
-		pHeader->RemoveAllItems();
-		pFooter->RemoveAllItems();
+		this->__searchIndex = 2;
 
-		//delete
+	} else {
+		AppLog("fffffffffffffffffffffff ----------");
+		if (this->__searchIndex != 0) {
+			AppLog("fffffffffffffffffffffff ----------============");
+			this->__searchIndex = 0;
+			this->__normalIndex =  0;
+			this->__footerIndex = 0;
+		} else {
+			AppLog("fffffffffffffffffffffff ----------++++++++++");
+			this->__normalIndex =  pHeader->GetSelectedItemIndex();
+			this->__footerIndex = pFooter->GetSelectedItemIndex();
+		}
+
+
+		headerIndex = this->__normalIndex;
+		footerIndex = this->__footerIndex;
 	}
 
-	Image messageIcon;
-	result r = messageIcon.Construct();
-	String filepath = App::GetInstance()->GetAppResourcePath() + L"Images/tab_icon_message.png";
-	Bitmap *pMessagesIconBitmap = messageIcon.DecodeN(filepath, BITMAP_PIXEL_FORMAT_ARGB8888);
+	pHeader->RemoveAllItems();
+	pFooter->RemoveAllItems();
 
-	HeaderItem *headerMessageItem = new HeaderItem();
-	headerMessageItem->Construct(ID_MESSAGES);
-	headerMessageItem->SetIcon(HEADER_ITEM_STATUS_NORMAL, pMessagesIconBitmap);
-	messageItem = headerMessageItem;
-	String messageString;
-	Application::GetInstance()->GetAppResource()->GetString(IDS_MAIN_FORM_MSG, messageString);
-	this->messageItem->SetText(messageString);
-	pHeader->AddItem(*headerMessageItem);
+	if (this->__isSearchMode) {
+		HeaderItem *headerSearchDialogsItem = new HeaderItem();
+		headerSearchDialogsItem->Construct(ID_SEARCH_DIALOGS);
+		String dialogsString;
+		Application::GetInstance()->GetAppResource()->GetString(IDS_SEARCH_DIALOGS, dialogsString);
+		headerSearchDialogsItem->SetText(dialogsString);
+		pHeader->AddItem(*headerSearchDialogsItem);
 
-	Image contactsIcon;
-	r = contactsIcon.Construct();
-	filepath = App::GetInstance()->GetAppResourcePath() + L"Images/tab_icon_contacts.png";
-	Bitmap *pContactsIconBitmap = contactsIcon.DecodeN(filepath, BITMAP_PIXEL_FORMAT_ARGB8888);
+		HeaderItem *headerSearchMessageItem = new HeaderItem();
+		headerSearchMessageItem->Construct(ID_SEARCH_MESSAGES);
+		String messageString;
+		Application::GetInstance()->GetAppResource()->GetString(IDS_SEARCH_MESSAGES, messageString);
+		headerSearchMessageItem->SetText(messageString);
+		pHeader->AddItem(*headerSearchMessageItem);
+	} else {
+		Image messageIcon;
+		result r = messageIcon.Construct();
+		String filepath = App::GetInstance()->GetAppResourcePath() + L"Images/tab_icon_message.png";
+		Bitmap *pMessagesIconBitmap = messageIcon.DecodeN(filepath, BITMAP_PIXEL_FORMAT_ARGB8888);
 
-	HeaderItem *headerContactsItem = new HeaderItem();
-	headerContactsItem->Construct(ID_CONTACTS);
-	headerContactsItem->SetIcon(HEADER_ITEM_STATUS_NORMAL, pContactsIconBitmap);
-	contactsItem = headerContactsItem;
+		HeaderItem *headerMessageItem = new HeaderItem();
+		headerMessageItem->Construct(ID_MESSAGES);
+		headerMessageItem->SetIcon(HEADER_ITEM_STATUS_NORMAL, pMessagesIconBitmap);
+		messageItem = headerMessageItem;
+		String messageString;
+		Application::GetInstance()->GetAppResource()->GetString(IDS_MAIN_FORM_MSG, messageString);
+		this->messageItem->SetText(messageString);
+		pHeader->AddItem(*headerMessageItem);
 
-	String contactsString;
-	Application::GetInstance()->GetAppResource()->GetString(IDS_MAIN_FORM_CONTACTS, contactsString);
-	this->contactsItem->SetText(contactsString);
+		Image contactsIcon;
+		r = contactsIcon.Construct();
+		filepath = App::GetInstance()->GetAppResourcePath() + L"Images/tab_icon_contacts.png";
+		Bitmap *pContactsIconBitmap = contactsIcon.DecodeN(filepath, BITMAP_PIXEL_FORMAT_ARGB8888);
 
-	pHeader->AddItem(*headerContactsItem);
+		HeaderItem *headerContactsItem = new HeaderItem();
+		headerContactsItem->Construct(ID_CONTACTS);
+		headerContactsItem->SetIcon(HEADER_ITEM_STATUS_NORMAL, pContactsIconBitmap);
+		contactsItem = headerContactsItem;
 
-	Image searchIcon;
-	r = searchIcon.Construct();
-	filepath = App::GetInstance()->GetAppResourcePath() + L"Images/tab_icon_search.png";
-	Bitmap *pSearchIconBitmap = searchIcon.DecodeN(filepath, BITMAP_PIXEL_FORMAT_ARGB8888);
+		String contactsString;
+		Application::GetInstance()->GetAppResource()->GetString(IDS_MAIN_FORM_CONTACTS, contactsString);
+		this->contactsItem->SetText(contactsString);
 
-	HeaderItem *headerSearchItem = new HeaderItem();
-	headerSearchItem->Construct(ID_SEARCH);
-	headerSearchItem->SetIcon(HEADER_ITEM_STATUS_NORMAL, pSearchIconBitmap);
-	searchItem = headerSearchItem;
-	String searchString;
-	Application::GetInstance()->GetAppResource()->GetString(IDS_MAIN_FORM_SEARCH, searchString);
-	this->searchItem->SetText(searchString);
-	pHeader->AddItem(*headerSearchItem);
+		pHeader->AddItem(*headerContactsItem);
 
-	Image settingsIcon;
-	r = settingsIcon.Construct();
-	filepath = App::GetInstance()->GetAppResourcePath() + L"Images/tab_icon_gear.png";
-	Bitmap *pSettingsIconBitmap = settingsIcon.DecodeN(filepath, BITMAP_PIXEL_FORMAT_ARGB8888);
+		Image searchIcon;
+		r = searchIcon.Construct();
+		filepath = App::GetInstance()->GetAppResourcePath() + L"Images/tab_icon_search.png";
+		Bitmap *pSearchIconBitmap = searchIcon.DecodeN(filepath, BITMAP_PIXEL_FORMAT_ARGB8888);
 
-	HeaderItem *headerSettingsItem = new HeaderItem();
-	headerSettingsItem->Construct(ID_SETTINGS);
-	headerSettingsItem->SetIcon(HEADER_ITEM_STATUS_NORMAL, pSettingsIconBitmap);
-	settingsItem = headerSettingsItem;
-	String settingsString;
-	Application::GetInstance()->GetAppResource()->GetString(IDS_MAIN_FORM_SETTINGS, settingsString);
-	this->settingsItem->SetText(settingsString);
-	pHeader->AddItem(*headerSettingsItem);
+		HeaderItem *headerSearchItem = new HeaderItem();
+		headerSearchItem->Construct(ID_SEARCH);
+		headerSearchItem->SetIcon(HEADER_ITEM_STATUS_NORMAL, pSearchIconBitmap);
+		searchItem = headerSearchItem;
+		String searchString;
+		Application::GetInstance()->GetAppResource()->GetString(IDS_MAIN_FORM_SEARCH, searchString);
+		this->searchItem->SetText(searchString);
+		pHeader->AddItem(*headerSearchItem);
 
-	delete pMessagesIconBitmap;
-	delete pContactsIconBitmap;
-	delete pSearchIconBitmap;
-	delete pSettingsIconBitmap;
+		Image settingsIcon;
+		r = settingsIcon.Construct();
+		filepath = App::GetInstance()->GetAppResourcePath() + L"Images/tab_icon_gear.png";
+		Bitmap *pSettingsIconBitmap = settingsIcon.DecodeN(filepath, BITMAP_PIXEL_FORMAT_ARGB8888);
+
+		HeaderItem *headerSettingsItem = new HeaderItem();
+		headerSettingsItem->Construct(ID_SETTINGS);
+		headerSettingsItem->SetIcon(HEADER_ITEM_STATUS_NORMAL, pSettingsIconBitmap);
+		settingsItem = headerSettingsItem;
+		String settingsString;
+		Application::GetInstance()->GetAppResource()->GetString(IDS_MAIN_FORM_SETTINGS, settingsString);
+		this->settingsItem->SetText(settingsString);
+		pHeader->AddItem(*headerSettingsItem);
+
+		delete pMessagesIconBitmap;
+		delete pContactsIconBitmap;
+		delete pSearchIconBitmap;
+		delete pSettingsIconBitmap;
+	}
 
 	FooterItem *friendsItem = new FooterItem();
 	friendsItem->Construct(ID_USERS_FRIENDS);
@@ -406,4 +473,21 @@ MainForm::RecreateItems() {
 
 	pHeader->SetItemSelected(headerIndex);
 	pFooter->SetItemSelected(footerIndex);
+}
+
+void
+MainForm::SetSearchMode(bool state) {
+	__isSearchMode = state;
+
+	this->RequestRedraw(true);
+}
+
+bool
+MainForm::SearchModeIsActive() {
+	return __isSearchMode;
+}
+
+void
+MainForm::SetSearchModeCode(int code) {
+	__searchModeCode = code;
 }

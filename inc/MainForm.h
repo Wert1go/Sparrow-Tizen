@@ -13,6 +13,9 @@
 using namespace Tizen::Ui::Controls;
 using namespace Tizen::Base::Collection;
 
+extern const int SEARCH_MESSAGE_MODE;
+extern const int SEARCH_DIALOG_MODE;
+
 #include "IRestRequestListener.h"
 
 class RestRequestOperation;
@@ -49,6 +52,11 @@ public:
 	FooterItem *friendsOnlineItem;
 	FooterItem *footerContactsItem;
 
+
+	void SetSearchMode(bool state);
+	bool SearchModeIsActive();
+	void SetSearchModeCode(int code);
+
 private:
 	Header* __pHeader;
 
@@ -56,6 +64,13 @@ private:
 	virtual void OnErrorN(Error *error);
 
 	RestRequestOperation *__pGetUnreadCountOperation;
+	bool __isSearchMode;
+	int __searchModeCode;
+
+	int __normalIndex;
+	int __searchIndex;
+
+	int __footerIndex;
 
 };
 

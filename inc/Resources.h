@@ -49,6 +49,9 @@ public:
 
 	Bitmap *GetUserAvatar();
 
+	Bitmap *GetNoUserAvatar();
+	Bitmap *GetNoGroupAvatar();
+
 	Bitmap *LoadBitmapNamed(String name);
 
 private:
@@ -66,6 +69,8 @@ private:
 	Bitmap *__pDocumentIcon;
 
 	Bitmap *__pUserAvatar;
+	Bitmap *__pNoUserAvatar;
+	Bitmap *__pNoGroupAvatar;
 
 	Bitmap *__pAudioPlayIcon;
 	Bitmap *__pAudioPlayPressedIcon;

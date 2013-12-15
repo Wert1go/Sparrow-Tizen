@@ -14,6 +14,7 @@
 
 #include "MUserDao.h"
 #include "ImageCache.h"
+#include "Helper.h"
 
 using namespace Tizen::Io;
 using namespace Tizen::Media;
@@ -37,6 +38,9 @@ Resources::Resources() {
 	__pAudioPlayPressedIcon = null;
 	__pAudioPauseIcon = null;
 	__pAudioPausePressedIcon = null;
+
+	__pNoUserAvatar = null;
+	__pNoGroupAvatar = null;
 }
 
 Resources::~Resources() {
@@ -100,6 +104,9 @@ Resources::~Resources() {
 		delete __pAudioPausePressedIcon;
 		__pAudioPausePressedIcon = null;
 	}
+
+	SAFE_DELETE(__pNoUserAvatar);
+	SAFE_DELETE(__pNoGroupAvatar);
 
 }
 
@@ -238,4 +245,21 @@ Resources::GetUserAvatar() {
 	}
 
 	return __pUserAvatar;
+}
+
+
+Bitmap *
+Resources::GetNoUserAvatar() {
+	if (!__pNoUserAvatar) {
+		this->__pNoUserAvatar = this->LoadBitmapNamed(L"icon_no_photo_user.png");
+	}
+	return __pNoUserAvatar;
+}
+
+Bitmap *
+Resources::GetNoGroupAvatar() {
+	if (!__pNoGroupAvatar) {
+		this->__pNoGroupAvatar = this->LoadBitmapNamed(L"icon_no_photo_group.png");
+	}
+	return __pNoGroupAvatar;
 }

@@ -13,9 +13,8 @@
 #include "MUserDao.h"
 #include <typeinfo>
 
-MDialogsDescriptor::MDialogsDescriptor() {
-	// TODO Auto-generated constructor stub
-
+MDialogsDescriptor::MDialogsDescriptor(bool persist) {
+	__persist = persist;
 }
 
 MDialogsDescriptor::~MDialogsDescriptor() {
@@ -40,14 +39,11 @@ MDialogsDescriptor::performObjectMappingN(JsonObject* pObject) {
 	}
 	JsonObject *pResponseObject = static_cast< JsonObject* >(pValResponseObject);
 
-//	JsonString* pKeyChatIds = new JsonString(L"chat_uids");
 	JsonString* pKeyUsers = new JsonString(L"users");
 	JsonString* pKeyMessages = new JsonString(L"messages");
 
-//	IJsonValue* pValChatIdsArray = null;
 	IJsonValue* pValUsersArray = null;
 	IJsonValue* pValMessagesObject = null;
-//	pResponseObject->GetValue(pKeyChatIds, pValChatIdsArray);
 	pResponseObject->GetValue(pKeyUsers, pValUsersArray);
 	pResponseObject->GetValue(pKeyMessages, pValMessagesObject);
 
@@ -55,9 +51,6 @@ MDialogsDescriptor::performObjectMappingN(JsonObject* pObject) {
 		response->SetError(new Error());
 		return response;
 	}
-//	JsonArray *pChatIds = static_cast<JsonArray *> (pValChatIdsArray);
-	JsonString* pKeyChatId = new JsonString(L"chat_id");
-	JsonString* pKeyUids = new JsonString(L"uids");
 
 	JsonArray *pUsers = static_cast<JsonArray *> (pValUsersArray);
 	JsonObject *pMessages = static_cast<JsonObject *> (pValMessagesObject);
@@ -71,6 +64,7 @@ MDialogsDescriptor::performObjectMappingN(JsonObject* pObject) {
 		response->SetError(new Error());
 		return response;
 	}
+
 	JsonArray *pMessagesArray = dynamic_cast<JsonArray*>(pValMessagesArray);
 	if (dynamic_cast<JsonArray*>(pValMessagesArray) == 0 || !pMessagesArray || pMessagesArray->GetCount() == 0) {
 		response->SetDialogs(pDialogs);
@@ -127,21 +121,20 @@ MDialogsDescriptor::performObjectMappingN(JsonObject* pObject) {
 	AppLog("SAVE");
 	MUserDao::getInstance().Save(users);
 	AppLog("COMPLITE");
-	MDialogDao::getInstance().Save(pDialogs);
+
+	if (__persist) {
+		MDialogDao::getInstance().Save(pDialogs);
+	}
 
 	response->SetDialogs(pDialogs);
 
 	delete pKeyResponse;
-//	delete pKeyChatIds;
 	delete pKeyUsers;
 	delete pKeyMessages;
 	delete pKeyMessagesArray;
 
 	delete pKeyUserId;
 	delete pKeyMessageUserId;
-
-	delete pKeyChatId;
-	delete pKeyUids;
 
 	return response;
 }

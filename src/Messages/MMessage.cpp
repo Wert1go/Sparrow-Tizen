@@ -9,6 +9,7 @@
 #include "MDialog.h"
 #include "MAttachment.h"
 #include "MGeo.h"
+#include "Util.h"
 
 using namespace Tizen::Base;
 using namespace Tizen::Base::Utility;
@@ -525,10 +526,6 @@ MMessage::CreateFromJsonLPN(const Tizen::Web::Json::JsonObject &pObject, bool fw
 
 	String *pText = new String(text->GetPointer());
 
-	if (pText && pText->GetLength() > 0) {
-		pText->Replace(L"<br>", L"\n");
-	}
-
 	if (!fwd) {
 		message->SetMid(mid->ToInt());
 		message->SetFromUid(uid->ToInt());
@@ -549,6 +546,8 @@ MMessage::CreateFromJsonLPN(const Tizen::Web::Json::JsonObject &pObject, bool fw
 	}
 
 	message->SetDate(date->ToLong());
+
+	Util::ClearText(pText);
 	message->SetText(pText);
 
 	delete pKeyId;

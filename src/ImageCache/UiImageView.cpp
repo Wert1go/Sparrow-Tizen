@@ -9,6 +9,7 @@
 
 #include <FUi.h>
 #include <FGraphics.h>
+#include "Resources.h"
 
 using namespace Tizen::Ui::Controls;
 using namespace Tizen::Graphics;
@@ -16,6 +17,7 @@ using namespace Tizen::Graphics;
 
 UiImageView::UiImageView() {
 	__pBitmapImage = null;
+	__id = 0;
 }
 
 UiImageView::~UiImageView() {
@@ -31,6 +33,12 @@ UiImageView::OnDraw(Tizen::Graphics::Canvas &canvas, const Tizen::Graphics::Rect
 	if (__pBitmapImage != null)
 	{
 		r = canvas.DrawBitmap(rect, *__pBitmapImage);
+	} else {
+		if (__id == 1) {
+			r = canvas.DrawBitmap(rect, *Resources::getInstance().GetNoUserAvatar());
+		} else if (__id == 2) {
+			r = canvas.DrawBitmap(rect, *Resources::getInstance().GetNoGroupAvatar());
+		}
 	}
 
 	return true;

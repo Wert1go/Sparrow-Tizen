@@ -47,8 +47,11 @@ private:
 	String *chatUids;
 
 	LinkedList *__pUsers;
+	MUser *__pUser;
 
 public:
+	String *__pType;
+
 	//Getters
 	String * GetFirstName();
 	String * GetLastName();
@@ -89,9 +92,14 @@ public:
 	void SetChatUids(String *uids);
 	//void SetChatUids(int[] uids);
 
+	MUser * GetUser();
+
 	static MDialog * CreateFromJsonN(
 			const Tizen::Web::Json::JsonObject &pUserObject,
 			const Tizen::Web::Json::JsonObject &pMessageObject);
+
+	static MDialog * CreateSearchDialogFromJsonN(
+				const Tizen::Web::Json::JsonObject &pObject);
 
 	static MDialog * CreateFromUserN(MUser *pUser);
 

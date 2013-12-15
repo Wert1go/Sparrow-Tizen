@@ -15,6 +15,7 @@
 
 using namespace Tizen::Ui::Controls;
 using namespace Tizen::Base::Collection;
+using namespace Tizen::Base::Runtime;
 
 class UiMessagesPanel
  : public Panel
@@ -27,6 +28,7 @@ class UiMessagesPanel
  , public Tizen::Ui::Scenes::ISceneEventListener
  , public Tizen::Ui::IActionEventListener
  , public IScrollEventListener
+ , public ITimerEventListener
 {
 public:
 	UiMessagesPanel();
@@ -64,11 +66,30 @@ public:
 
     virtual void OnScrollEndReached(Tizen::Ui::Control& source, Tizen::Ui::Controls::ScrollEndEvent type);
 
+    void SetSearchMode(bool state);
+    bool SearchModeIsActive();
+    void SetSearchModeCode(int code);
+
+    virtual void OnTimerExpired (Timer &timer);
+
+    void ShowNewMessageButton();
+    void HideNewMessageButton();
+
+private:
+    bool __isSearchMode;
+    int __searchModeCode;
+
 private:
     virtual void OnActionPerformed(const Tizen::Ui::Control& source, int actionId);
 
 	void SetDialogsList(LinkedList *list);
 	LinkedList * GetDialogsList();
+
+	void SetSearchDialogsList(LinkedList *list);
+	LinkedList * GetSearchDialogsList();
+
+	void SetSearchMessagesList(LinkedList *list);
+	LinkedList * GetSearchMessagesList();
 
 	virtual void OnSuccessN(RestResponse *result);
 	virtual void OnErrorN(Error *error);
@@ -76,19 +97,31 @@ private:
 	void SetReadStateWithMessageId(int msgId);
 	void UpdateUnreadCount();
 
+	void SearchDialogs(String searchText);
+	void SearchMessages(String searchText);
+
 private:
 	static const int ID_CONTEXT_ITEM_1 = 103;
 	static const int ID_CONTEXT_ITEM_2 = 104;
 
 	Tizen::Ui::Controls::ListView* __pListView;
 	Tizen::Ui::Controls::ListContextItem* __pItemContext;
+	Button *__pAddButton;
 
 	LinkedList *__pDialogsList;
+
+	LinkedList *__pSearchDialogsList;
+	LinkedList *__pSearchMessagesList;
+
 	RestRequestOperation *__pDialogRequestOperation;
+	RestRequestOperation *__pSearchDialogRequestOperation;
+	RestRequestOperation *__pSearchMessageRequestOperation;
 
 	SearchBar *__pSearchBar;
 	void SendRequest(int offset = 0);
 	virtual result OnDraw(void);
+
+	Timer *__pListUpdateTimer;
 };
 
 #endif /* UIMESSAGESPANEL_H_ */

@@ -16,10 +16,12 @@ class MDialogsDescriptor
  : public ResponseDescriptor
 {
 public:
-	MDialogsDescriptor();
+	MDialogsDescriptor(bool persist = true);
 	virtual ~MDialogsDescriptor();
 
 	virtual RestResponse *performObjectMappingN(JsonObject* pObject);
+private:
+	bool __persist;
 };
 
 #endif /* MDIALOGSDESCRIPTOR_H_ */

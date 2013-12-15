@@ -1,0 +1,20 @@
+var a = API.messages.searchDialogs({"q" : "перри", "fields": "photo_100,photo_50,online,is_friend,photo_200"});
+var u = a@.users;
+var r = "";
+var i = 0;
+while (i < u.length) { 
+	
+	var s = u[i] + "";
+	if (s != "") {
+		r = r + u[i];
+		
+		if (i != u.length - 1) {
+			r = r + ",";
+		}
+	}
+
+	i = i + 1;
+
+};
+var b = API.users.get({"user_ids": r, "fields": "photo_100,photo_50,online,is_friend,photo_200"});
+return {"dialogs" : a, "users": b};

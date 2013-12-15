@@ -15,6 +15,8 @@ MUser::MUser() {
 	__isContact = 0;
 	__isPending = 0;
 	__pBigPhoto = null;
+	__lastSeen = 0;
+	__chat = 0;
 }
 
 MUser::~MUser() {
@@ -97,7 +99,6 @@ void MUser::SetIsOnline(int isOnline) {
 void MUser::SetType(int type) {
 	__type = type;
 }
-
 
 
 /***************** SETTERS ******************/
@@ -246,11 +247,19 @@ MUser::CreateFromJsonLPN(const Tizen::Web::Json::JsonObject &pUserObject) {
 	JsonString *miniPhoto = static_cast< JsonString* >(pValMiniPhoto);
 	JsonString *photo = static_cast< JsonString* >(pValPhoto);
 	JsonNumber *isOnline = static_cast< JsonNumber* >(pValOnline);
-	JsonNumber *isFriend = static_cast< JsonNumber* >(pValIsFriend);
+	JsonNumber *isFriend = null;
+	JsonObject *lastSeen = null;
+	JsonNumber *time = null;
 
-	JsonObject *lastSeen = static_cast< JsonObject* >(pValLastSeen);
-	lastSeen->GetValue(pKeyTime, pValTime);
-	JsonNumber *time = static_cast< JsonNumber* >(pValTime);
+	if (isFriend) {
+		isFriend = static_cast< JsonNumber* >(pValIsFriend);
+	}
+
+	if (lastSeen) {
+		lastSeen = static_cast< JsonObject* >(pValLastSeen);
+		lastSeen->GetValue(pKeyTime, pValTime);
+		time = static_cast< JsonNumber* >(pValTime);
+	}
 
 	String *pFirstName = new String(firstName->GetPointer());
 	String *pLastName = new String(lastName->GetPointer());
@@ -264,8 +273,13 @@ MUser::CreateFromJsonLPN(const Tizen::Web::Json::JsonObject &pUserObject) {
 	user->__pBigPhoto = pPhoto;
 	user->SetUid(uid->ToInt());
 	user->SetIsOnline(isOnline->ToInt());
-	user->SetLastSeen(time->ToLong());
-	user->__isFriend = isFriend->ToInt();
+
+	if (time) {
+		user->SetLastSeen(time->ToLong());
+	}
+	if (isFriend) {
+		user->__isFriend = isFriend->ToInt();
+	}
 
 	delete pKeyFirstName;
 	delete pKeyLastName;

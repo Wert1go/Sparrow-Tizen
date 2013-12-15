@@ -172,6 +172,13 @@ UiDialogCustomItem::Init() {
 		} else {
 			UiImageView *pImageView = new (std::nothrow) UiImageView();
 //			pImageView->__pBitmapImage = __pPlaceholder;
+
+			if (this->__pDialog && this->__pDialog->GetUid() > isChatValue) {
+				pImageView->__id = 2;
+			} else {
+				pImageView->__id = 1;
+			}
+
 			this->AddElement(Rectangle(80 - size/2, rect.height/2 - size/2, size, size), 0, *pImageView);
 			this->__pImageViews->Add(pImageView);
 			this->SetImageUrl(this->__pDialog->GetPhoto(), 0);
@@ -183,7 +190,16 @@ UiDialogCustomItem::Init() {
 
 		UiImageView *pImageView = new (std::nothrow) UiImageView();
 //		pImageView->__pBitmapImage = __pPlaceholder;
+
+		if (this->__pUser->GetUid() > isChatValue) {
+			pImageView->__id = 2;
+		} else {
+			pImageView->__id = 1;
+		}
+
 		this->AddElement(Rectangle(80 - size/2, rect.height/2 - size/2, size, size), 0, *pImageView);
+
+
 		this->__pImageViews->Add(pImageView);
 
 		__pUserListItem = new UiUserListItem();

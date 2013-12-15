@@ -45,8 +45,6 @@ AuthManager::~AuthManager() {
 		__userOfflineOperation->AddEventListener(null);
 	}
 
-	SAFE_DELETE(__userOnlineOperation);
-	SAFE_DELETE(__userOfflineOperation);
 }
 
 void AuthManager::SaveAccessData(Tizen::Base::String &token, Tizen::Base::String &user_id, Tizen::Base::String &expires_in) {

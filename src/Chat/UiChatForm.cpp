@@ -166,6 +166,9 @@ UiChatForm::SetMessages(LinkedList *messages) {
 
 LinkedList *
 UiChatForm::GetMessages() {
+	if (!__pMessages) {
+		__pMessages = new LinkedList();
+	}
 	return __pMessages;
 }
 
@@ -195,8 +198,12 @@ UiChatForm::OnSceneActivatedN(const Tizen::Ui::Scenes::SceneId& previousSceneId,
 			MDialog *dialog = MDialogDao::getInstance().GetDialogN(__userId);
 
 			if (!dialog) {
-				MUser *user = MUserDao::getInstance().GetUserN(__userId);
-				dialog = MDialog::CreateFromUserN(user);
+				if (pArgs->GetCount() > 1) {
+					dialog = static_cast< MDialog* > (pArgs->GetAt(1));
+				} else {
+					MUser *user = MUserDao::getInstance().GetUserN(__userId);
+					dialog = MDialog::CreateFromUserN(user);
+				}
 			}
 
 			this->__pDialog = dialog;
@@ -642,12 +649,18 @@ UiChatForm::OnUserEventReceivedN(RequestId requestId, Tizen::Base::Collection::I
 		int userId = pUserId->ToInt();
 
 		if (userId == __userId) {
+
 			MMessage *pMessage = static_cast<MMessage *>(pArgs->GetAt(1));
 
 			if (!this->IsAlreadyAdded(pMessage)) {
 				this->GetMessages()->Add(pMessage);
 				this->__pListView->RefreshList(this->GetMessages()->GetCount() - 1, LIST_REFRESH_TYPE_ITEM_ADD);
 				this->ScrollToFirstMessage();
+
+				if (!this->__pListView->IsVisible() && this->GetMessages()->GetCount() > 0) {
+					this->__pListView->SetShowState(true);
+					this->Invalidate(true);
+				}
 			}
 		}
 
@@ -755,9 +768,11 @@ UiChatForm::IsAlreadyAdded(MMessage *message) {
 	}
 
 	for (int index = this->GetMessages()->GetCount()-1; index >= limit; index--) {
+		AppLog("-----------------------");
 		MMessage *existingMessage = static_cast<MMessage*>(this->GetMessages()->GetAt(index));
 
 		if (existingMessage->GetMid() == message->GetMid()) {
+			AppLog("----------------------- %d %d", existingMessage->GetMid(), message->GetMid());
 			result = true;
 			break;
 		}
@@ -1302,16 +1317,9 @@ UiChatForm::NotifyUserTyping() {
 	}
 
 	HashMap *params = new HashMap();
-	String uidString;
-
-	if (__userId < isChatValue) {
-		uidString.Format(25, L"%d", __userId);
-	} else {
-		uidString = AuthManager::getInstance().UserId()->GetPointer();
-	}
 
 	params->Construct();
-	params->Add(new String(L"user_id"), new String(uidString));
+	params->Add(new String(L"user_id"), new String(AuthManager::getInstance().UserId()->GetPointer()));
 	params->Add(new String(L"type"), new String(L"typing"));
 	params->Add(new String(L"access_token"), AuthManager::getInstance().AccessToken());
 

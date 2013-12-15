@@ -22,7 +22,9 @@ using namespace Tizen::Graphics;
 static int baseListItemOffset = 150;
 
 UiUserListItem::UiUserListItem() {
-
+	__pUser = null;
+	__pUserName = null;
+	__pUserNameText = null;
 }
 
 UiUserListItem::~UiUserListItem() {
@@ -39,6 +41,10 @@ UiUserListItem::~UiUserListItem() {
 
 void
 UiUserListItem::SetUser(MUser *pUser) {
+	if (!pUser) {
+		return;
+	}
+
 	__pUser = pUser;
 
 	__pUserName = null;
@@ -127,6 +133,10 @@ UiUserListItem::OnDraw (Tizen::Graphics::Canvas &canvas, const Tizen::Graphics::
 
 	canvas.DrawBitmap(Rectangle(80 - 108/2, rect.height/2 - 108/2, 108, 108), *pRounder);
 
+
+	if (!__pUser) {
+		return true;
+	}
 
 /************************* TITLE **********************/
 

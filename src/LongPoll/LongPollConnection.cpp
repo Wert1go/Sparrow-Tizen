@@ -273,7 +273,9 @@ LongPollConnection::OnSuccessN(RestResponse *result) {
 					break;
 				case LP_MESSAGE_ADD_FULL: {
 
+					AppLog("LP_MESSAGE_ADD_FULL: %d || %d", pObject->GetMessage()->GetMid(), lastMid);
 					if (lastMid != -1 && lastMid == pObject->GetMessage()->GetMid()) {
+						AppLog("++++++LP_MESSAGE_ADD_FULL: %d || %d", pObject->GetMessage()->GetMid(), lastMid);
 						pObject->GetMessage()->SetText(pLastText);
 						pObject->GetMessage()->__title = pLastTitle;
 					}

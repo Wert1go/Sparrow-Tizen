@@ -24,6 +24,8 @@ extern const wchar_t* IDS_OFFLINE;
 extern const wchar_t* IDS_ONLINE;
 extern const wchar_t* IDS_PRINTING;
 extern const wchar_t* IDS_SEARCH;
+extern const wchar_t* IDS_SEARCH_DIALOGS;
+extern const wchar_t* IDS_SEARCH_MESSAGES;
 extern const wchar_t* IDS_START_SCREEN_DESCR;
 extern const wchar_t* IDS_STRING1;
 extern const wchar_t* IDS_STRING2;

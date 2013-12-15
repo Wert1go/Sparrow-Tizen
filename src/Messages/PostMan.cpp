@@ -413,6 +413,9 @@ PostMan::OnSuccessN(MAttachment *attachment, int uid) {
 
 void
 PostMan::OnErrorN(Error *error, MAttachment *attachment, int uid) {
+
+	AppLog("OnErrorN++++++++++++++++++");
+
 	if(__pAttachmentListener) {
 		__pAttachmentListener->OnErrorN(error, attachment, uid);
 	}

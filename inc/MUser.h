@@ -39,6 +39,8 @@ public:
 
 	String *__pBigPhoto;
 
+	int __chat;
+
 private:
 
 

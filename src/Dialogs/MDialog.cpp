@@ -23,6 +23,8 @@ MDialog::MDialog() {
 	__miniPhoto = null;
     __title = null;
 	__text = null;
+	__pUser = null;
+	__pType = null;
 }
 
 MDialog::~MDialog() {
@@ -372,6 +374,134 @@ MDialog::CreateFromJsonN(
 }
 
 MDialog *
+MDialog::CreateSearchDialogFromJsonN(const Tizen::Web::Json::JsonObject &pObject) {
+	MDialog *dialog = new (std::nothrow) MDialog();
+
+	//common
+	JsonString* pKeyId = new JsonString(L"id");
+
+	//user
+	JsonString* pKeyFirstName = new JsonString(L"first_name");
+	JsonString* pKeyLastName = new JsonString(L"last_name");
+	JsonString* pKeyMiniPhoto = new JsonString(L"photo_50");
+	JsonString* pKeyPhoto = new JsonString(L"photo_100");
+	JsonString* pKeyOnline = new JsonString(L"online");
+
+	JsonString* pKeyUserCount = new JsonString(L"users");
+	JsonString* pKeyAdminId = new JsonString(L"admin_id");
+
+	//
+	JsonString* pKeyTitle = new JsonString(L"title");
+	JsonString* pKeyType = new JsonString(L"type");
+
+	IJsonValue* pValType = null;
+	pObject.GetValue(pKeyType, pValType);
+	JsonString *pTypeString = static_cast< JsonString* >(pValType);
+	String *pType = new String(pTypeString->GetPointer());
+
+	IJsonValue* pValUserId = null;
+	pObject.GetValue(pKeyId, pValUserId);
+	JsonNumber *userId = static_cast<JsonNumber *>(pValUserId);
+
+	int id = userId->ToInt();
+
+	if (pType->Equals(L"chat", false)) {
+		IJsonValue* pValUsers = null;
+		IJsonValue* pValAdminId = null;
+
+		IJsonValue* pValTitle = null;
+		pObject.GetValue(pKeyTitle, pValTitle);
+		pObject.GetValue(pKeyUserCount, pValUsers);
+		pObject.GetValue(pKeyAdminId, pValAdminId);
+
+		if (pValUsers) {
+			String uids(L"");
+
+			JsonArray *pArrayObject = static_cast<JsonArray *>(pValUsers);
+
+			for (int index = 0; index < pArrayObject->GetCount(); index ++) {
+				IJsonValue *pValUserId;
+				pArrayObject->GetAt(index, pValUserId);
+				JsonNumber *userId = static_cast<JsonNumber *>(pValUserId);
+
+				String id;
+				id.Format(10, L"%d", userId->ToInt());
+				uids.Append(id.GetPointer());
+
+				if (index != pArrayObject->GetCount() - 1) {
+					uids.Append(L",");
+				}
+			}
+
+			dialog->SetChatUids(new String(uids));
+		}
+
+		JsonString *title = static_cast< JsonString* >(pValTitle);
+		String *pTitle = new String(title->GetPointer());
+
+		dialog->SetChatId(id);
+		dialog->SetUid(id + isChatValue);
+		dialog->SetTitle(pTitle);
+		dialog->SetFirstName(pTitle);
+		dialog->SetLastName(new String(L""));
+	} else {
+	//user
+
+		IJsonValue* pValFirstName = null;
+		IJsonValue* pValLastName = null;
+		IJsonValue* pValMiniPhoto = null;
+		IJsonValue* pValPhoto = null;
+		IJsonValue* pValOnline = null;
+
+	//user
+
+		pObject.GetValue(pKeyFirstName, pValFirstName);
+		pObject.GetValue(pKeyLastName, pValLastName);
+		pObject.GetValue(pKeyMiniPhoto, pValMiniPhoto);
+		pObject.GetValue(pKeyPhoto, pValPhoto);
+		pObject.GetValue(pKeyOnline, pValOnline);
+
+		JsonString *firstName = static_cast< JsonString* >(pValFirstName);
+		JsonString *lastName = static_cast< JsonString* >(pValLastName);
+		JsonString *miniPhoto = static_cast< JsonString* >(pValMiniPhoto);
+		JsonString *photo = static_cast< JsonString* >(pValPhoto);
+		JsonNumber *isOnline = static_cast< JsonNumber* >(pValOnline);
+
+		String *pFirstName = new String(firstName->GetPointer());
+		String *pLastName = new String(lastName->GetPointer());
+		String *pMiniPhoto = new String(miniPhoto->GetPointer());
+		String *pPhoto = new String(photo->GetPointer());
+
+		dialog->SetFirstName(pFirstName);
+		dialog->SetLastName(pLastName);
+		dialog->SetMiniPhoto(pMiniPhoto);
+		dialog->SetPhoto(pPhoto);
+		dialog->SetIsOnline(isOnline->ToInt());
+
+		dialog->SetUid(id);
+	}
+
+	dialog->__pType = pType;
+
+	delete pKeyId;
+
+	delete pKeyFirstName;
+	delete pKeyLastName;
+	delete pKeyMiniPhoto;
+	delete pKeyPhoto;
+	delete pKeyOnline;
+
+	delete pKeyTitle;
+
+	delete pKeyAdminId;
+	delete pKeyUserCount;
+	delete pKeyType;
+
+	return dialog;
+
+}
+
+MDialog *
 MDialog::CreateFromUserN(MUser *pUser) {
 	MDialog *dialog = new MDialog();
 	dialog->SetFirstName(pUser->GetFirstName());
@@ -382,4 +512,23 @@ MDialog::CreateFromUserN(MUser *pUser) {
 	dialog->SetUid(pUser->GetUid());
 
 	return dialog;
+}
+
+
+MUser *
+MDialog::GetUser() {
+	if (!__pUser) {
+		MUser *pUser = new MUser();
+		pUser->SetFirstName(this->GetFirstName());
+		pUser->SetLastName(this->GetLastName());
+		pUser->SetIsOnline(this->GetIsOnline());
+
+		pUser->SetMiniPhoto(this->GetMiniPhoto());
+		pUser->SetPhoto(this->GetPhoto());
+		pUser->SetUid(this->GetUid());
+
+		__pUser = pUser;
+	}
+
+	return __pUser;
 }

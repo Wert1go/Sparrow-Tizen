@@ -50,6 +50,9 @@ static const long SET_USER_OFFLINE = 100999123;
 
 static const long GET_UNREAD_COUNT = 100999124;
 
+static const long SEARCH_DIALOGS = 100999125;
+static const long SEARCH_MESSAGES = 100999126;
+
 extern const wchar_t* USER_FILEDS;
 
 #include <FNet.h>

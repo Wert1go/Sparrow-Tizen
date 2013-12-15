@@ -387,5 +387,9 @@ Util::ClearText(String *pText) {
 		pText->Replace(L"&amp;", L"&");
 		pText->Replace(L"&lt;", L"<");
 		pText->Replace(L"&gt;", L">");
+		pText->Replace(L"&#33;", L"!");
+		pText->Replace(L"&#036;", L"$");
+
+
 	}
 }
