@@ -566,20 +566,15 @@ UiChatForm::OnSuccessN(RestResponse *result) {
 			__pMessagesRequestOperation = null;
 		}
 
-
 		MMessage *serverMessage = null;
 		MMessage *localMessage = null;
 
 		if (response->GetMessages()->GetCount() > 0) {
-			serverMessage = static_cast<MMessage *>(response->GetMessages()->GetAt(0));
+			serverMessage = static_cast<MMessage *>(response->GetMessages()->GetAt(response->GetMessages()->GetCount() - 1));
 		}
 
 		if(this->GetMessages() && this->GetMessages()->GetCount() > 0) {
-			localMessage = static_cast<MMessage *>(this->GetMessages()->GetAt(this->GetMessages()->GetCount() - 1));
-		}
-
-		if (serverMessage && localMessage) {
-			AppLog("serverMid %d :: localMid %d", serverMessage->GetMid(), localMessage->GetMid());
+			localMessage = static_cast<MMessage *>(this->GetMessages()->GetAt(0));
 		}
 
 		needUpdate = (!localMessage || (serverMessage->GetMid() != localMessage->GetMid()));
