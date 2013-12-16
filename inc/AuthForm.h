@@ -10,7 +10,10 @@
 
 #include <FUi.h>
 
-class AuthForm: public Tizen::Ui::Controls::Form, public Tizen::Ui::IActionEventListener {
+class AuthForm
+	: public Tizen::Ui::Controls::Form
+	, public Tizen::Ui::IActionEventListener {
+
 public:
 	AuthForm();
 	virtual ~AuthForm();

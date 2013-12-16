@@ -46,6 +46,8 @@ public:
 	LinkedList *SearchUsers(String *searchText);
 
 	DbStatement * CreateSaveStatment();
+	DbStatement * CreateSaveContactStatment();
+
 	DbStatement * BindUserToSQLStatement(MUser *user, DbStatement *statement);
 
 	MUser * LoadUserFromDBN(DbEnumerator* pEnum);

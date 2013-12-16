@@ -9,10 +9,12 @@
 #define USER_H_
 
 #include <FBase.h>
+#include <FSocial.h>
 #include "Bean.h"
 
 using namespace Tizen::Base;
 using namespace Tizen::Base::Collection;
+using namespace Tizen::Social;
 
 #define OWNER 	23
 #define FRIEND	24
@@ -28,6 +30,8 @@ public:
 
 	static MUser* CreateFromJsonN(const Tizen::Web::Json::JsonObject &jsonObject);
 	static MUser* CreateFromJsonLPN(const Tizen::Web::Json::JsonObject &jsonObject);
+	static MUser * CreateFromPerson(Tizen::Social::Person *pPerson);
+
 	static String* TableDescription();
 
 	String *__firstName;
@@ -41,9 +45,11 @@ public:
 
 	int __chat;
 
+	String *__pContactName;
+	String *__pContactPhone;
+	String *__pContactPhoto;
+
 private:
-
-
 	String *__phoneNumber;
 	String *__photo;
 	String *__miniPhoto;
@@ -52,8 +58,6 @@ private:
 	int __type;
 
 	int __isOnline;
-
-
 
 public:
 	String * GetFirstName();
@@ -64,8 +68,6 @@ public:
 	long GetLastSeen();
 	int GetIsOnline();
 	int GetType();
-
-
 
 	void SetFirstName(String *firstName);
 	void SetLastName(String *lastName);

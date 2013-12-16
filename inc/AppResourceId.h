@@ -31,6 +31,8 @@ extern const wchar_t* IDS_STRING1;
 extern const wchar_t* IDS_STRING2;
 extern const wchar_t* IDS_STRING3;
 extern const wchar_t* IDS_STRING4;
+extern const wchar_t* IDS_SYNC_CONTACTS;
+extern const wchar_t* IDS_SYNC_CONTACTS_DESCR;
 extern const wchar_t* IDS_TIME_YESTERDAY;
 extern const wchar_t* IDS_USERS_IMPORTANT;
 extern const wchar_t* IDS_WRITE_MESSAGE;

@@ -18,6 +18,7 @@ extern const wchar_t* SCENE_NEW_MESSAGE;
 extern const wchar_t* SCENE_MAIN_MESSAGES_TAB;
 extern const wchar_t* SCENE_MAIN_USERS_TAB;
 extern const wchar_t* SCENE_MAIN_SEARCH_TAB;
+extern const wchar_t* SCENE_MAIN_CONTACTS_TAB;
 extern const wchar_t* SCENE_SELECT_USER;
 extern const wchar_t* SCENE_CREATE_CONV;
 extern const wchar_t* SCENE_PROFILE;

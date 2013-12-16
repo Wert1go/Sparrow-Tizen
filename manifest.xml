@@ -7,21 +7,20 @@
         <Feature Name="http://tizen.org/feature/platform.core.cpu.arch.armv7">true</Feature>
         <Feature Name="http://tizen.org/feature/platform.core.fpu.arch.vfpv3">true</Feature>
         <Feature Name="http://tizen.org/feature/screen.size.normal">true</Feature>
-        
     </Requirements>
     <Apps>
         <ApiVersion>2.2</ApiVersion>
         <Privileges>
+       		<Privilege>http://tizen.org/privilege/contact.read</Privilege>
+            <Privilege>http://tizen.org/privilege/contact.write</Privilege>
             <Privilege>http://tizen.org/privilege/web.service</Privilege>
+            <Privilege>http://tizen.org/privilege/application.launch</Privilege>
             <Privilege>http://tizen.org/privilege/http</Privilege>
             <Privilege>http://tizen.org/privilege/notification</Privilege>
-            
-            <Privilege>http://tizen.org/privilege/account.write</Privilege>
-            <Privilege>http://tizen.org/privilege/application.launch</Privilege>
         </Privileges>
         <UiApp LaunchingHistoryVisible="True" Main="True" MenuIconVisible="True" Name="Sparrow">
             <UiScalability BaseScreenSize="Normal" CoordinateSystem="Logical" LogicalCoordinate="720"/>
-            <UiTheme SystemTheme="White"/>
+            <UiTheme SystemTheme="Black"/>
             <DisplayNames>
                 <DisplayName Locale="eng-GB">Sparrow</DisplayName>
             </DisplayNames>
@@ -29,6 +28,7 @@
                 <Icon Section="MainMenu">mainmenu.png</Icon>
             </Icons>
             <LaunchConditions/>
+            
         </UiApp>
     </Apps>
 </Manifest>

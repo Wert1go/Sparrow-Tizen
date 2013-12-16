@@ -6,7 +6,9 @@
  */
 
 #include "MUser.h"
+#include <FSocial.h>
 
+using namespace Tizen::Social;
 using namespace Tizen::Base;
 using namespace Tizen::Web::Json;
 
@@ -17,6 +19,10 @@ MUser::MUser() {
 	__pBigPhoto = null;
 	__lastSeen = 0;
 	__chat = 0;
+
+	__pContactName = null;
+	__pContactPhone = null;
+	__pContactPhoto = null;
 }
 
 MUser::~MUser() {
@@ -119,6 +125,8 @@ MUser::CreateFromJsonN(const Tizen::Web::Json::JsonObject &pUserObject) {
 	JsonString* pKeyTime = new JsonString(L"time");
 	JsonString* pKeyIsFriend = new JsonString(L"is_friend");
 
+	JsonString* pKeyPhone = new JsonString(L"phone");
+
 	IJsonValue* pValFirstName = null;
 	IJsonValue* pValLastName = null;
 	IJsonValue* pValId = null;
@@ -192,6 +200,15 @@ MUser::CreateFromJsonN(const Tizen::Web::Json::JsonObject &pUserObject) {
 		user->SetLastSeen(time->ToLong());
 	}
 
+	IJsonValue* pValPhone = null;
+	pUserObject.GetValue(pKeyPhone, pValPhone);
+	if (pValPhone) {
+		JsonString *phone = static_cast< JsonString* >(pValPhone);
+		if (phone) {
+			user->__pContactPhone = new String(phone->GetPointer());
+		}
+	}
+
 	delete pKeyFirstName;
 	delete pKeyLastName;
 	delete pKeyId;
@@ -202,6 +219,7 @@ MUser::CreateFromJsonN(const Tizen::Web::Json::JsonObject &pUserObject) {
 	delete pKeyTime;
 	delete pKeyIsFriend;
 	delete pKeyBigPhoto;
+	delete pKeyPhone;
 
 	return user;
 }
@@ -294,12 +312,50 @@ MUser::CreateFromJsonLPN(const Tizen::Web::Json::JsonObject &pUserObject) {
 	return user;
 }
 
+MUser *
+MUser::CreateFromPerson(Tizen::Social::Person *pPerson) {
+	MUser *pUser = new MUser();
+
+	String personName = pPerson->GetDisplayName();
+	PhoneNumber phone = pPerson->GetPrimaryPhoneNumber();
+	String phoneString = phone.GetPhoneNumber();
+
+	AppLog("%S :: %S", personName.GetPointer(), phoneString.GetPointer());
+
+	pUser->SetFirstName(new String(L""));
+	pUser->SetLastName(new String(L""));
+	pUser->SetPhoto(new String(L""));
+	pUser->SetMiniPhoto(new String(L""));
+
+	pUser->__pContactName = new String(personName.GetPointer());
+	pUser->__pContactPhone = new String(phoneString.GetPointer());
+
+	return pUser;
+}
+
 String*
 MUser::TableDescription() {
 
 	String *sql = new String();
 
-	sql->Append(L"CREATE TABLE IF NOT EXISTS users (_id INTEGER PRIMARY KEY, uid INTEGER UNIQUE, last_name TEXT, first_name TEXT, photo TEXT, mini_photo TEXT, is_online INTEGER, last_seen INTEGER, is_friend  INTEGER, is_contact INTEGER, is_pending INTEGER, big_photo TEXT)");
+	sql->Append(L"CREATE TABLE IF NOT EXISTS users ("
+			"_id INTEGER PRIMARY KEY,"
+			" uid INTEGER UNIQUE,"
+			" last_name TEXT,"
+			" first_name TEXT,"
+			" photo TEXT,"
+			" mini_photo TEXT,"
+			" is_online INTEGER,"
+			" last_seen INTEGER,"
+			" is_friend  INTEGER,"
+			" is_contact INTEGER,"
+			" is_pending INTEGER,"
+			" big_photo TEXT, "
+
+			" contact_name TEXT, "
+			" contact_phone TEXT, "
+			" contact_photo TEXT "
+			")");
 
 	return sql;
 }

@@ -81,7 +81,7 @@ RestRequestOperation::Init(String *_uri, long operationCode, String *method, Has
 		uri.Append(L"&v=5.3");
 	}
 
-//	AppLogDebug("uri = %S", uri.GetPointer());
+	AppLogDebug("uri = %S", uri.GetPointer());
 
 	delete pMapEnum;
 	delete params;

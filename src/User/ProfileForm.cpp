@@ -73,7 +73,7 @@ ProfileForm::OnInitializing(void) {
 
 	this->SetBackgroundColor(Color(8, 8, 8, 255));
 
-	buttonWidth = (rect.width * 84)/100;
+	buttonWidth = (rect.width * 90)/100;
 
 	Header *pHeader = this->GetHeader();
 	pHeader->SetColor(Color(65, 97, 137, 255));
@@ -86,18 +86,17 @@ ProfileForm::OnInitializing(void) {
 
 	Color *textNormalColor = new (std::nothrow) Color(255, 255, 255, 255);
 	Color *textSelectedColor = new (std::nothrow) Color(0, 0, 0, 255);
-	Color *buttonNormalColor = new (std::nothrow) Color(52, 87, 119, 255);
-	Color *buttonSelectedColor = new (std::nothrow) Color(255, 255, 255, 255);
+
 
 	__pAddButton = new (std::nothrow) Button();
-	__pAddButton->Construct(Rectangle(rect.width/2 - buttonWidth/2, yOffset, buttonWidth, 80));
+	__pAddButton->Construct(Rectangle(rect.width/2 - buttonWidth/2, yOffset, buttonWidth, 100));
 	__pAddButton->SetText(L"Добавить в друзья");
 	__pAddButton->SetActionId(1);
 	__pAddButton->AddActionEventListener(*this);
 	__pAddButton->SetTextColor(*textNormalColor);
 	__pAddButton->SetHighlightedTextColor(*textSelectedColor);
-	__pAddButton->SetColor(BUTTON_STATUS_NORMAL, *buttonNormalColor);
-	__pAddButton->SetColor(BUTTON_STATUS_PRESSED, *buttonSelectedColor);
+	__pAddButton->SetColor(BUTTON_STATUS_NORMAL, Color(65, 97, 137, 255));
+	__pAddButton->SetColor(BUTTON_STATUS_PRESSED, Color(65, 97, 137, 255));
 
 	AddControl(__pAddButton);
 

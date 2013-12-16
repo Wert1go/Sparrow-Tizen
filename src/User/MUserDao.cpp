@@ -26,7 +26,26 @@ MUserDao::CreateSaveStatment() {
 	DbStatement *compiledSaveStatment = null;
 
 	String statement;
-	statement.Append(L"INSERT OR REPLACE INTO users (uid, last_name, first_name, photo, mini_photo, is_online, last_seen, is_friend, is_contact, is_pending, big_photo) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
+	statement.Append(L"INSERT OR REPLACE INTO users ("
+			"uid, "
+			"last_name, "
+			"first_name, "
+			"photo, "
+			"mini_photo, "
+			"is_online, "
+			"last_seen, "
+			"is_friend, "
+			"is_contact, "
+			"is_pending, "
+			"big_photo, "
+			"contact_name, "
+			"contact_phone, "
+			"contact_photo "
+			") VALUES ("
+			"?, ?, ?, ?, ?, "
+			"?, ?, ?, ?, ?, "
+			"?, ?, ?, ?"
+			")");
 
 	compiledSaveStatment = MDatabaseManager::getInstance().GetDatabase()->CreateStatementN(statement);
 
@@ -91,7 +110,23 @@ MUserDao::GetUserN(int uid) {
 	String sql;
 	MUser *pUser = null;
 
-	sql.Append(L"SELECT uid, last_name, first_name, photo, mini_photo, is_online, last_seen, is_friend, is_contact, is_pending, big_photo FROM users WHERE uid = ?");
+	sql.Append(L"SELECT "
+			"uid, "
+			"last_name, "
+			"first_name, "
+			"photo, "
+			"mini_photo, "
+			"is_online, "
+			"last_seen, "
+			"is_friend, "
+			"is_contact, "
+			"is_pending, "
+			"big_photo, "
+			"contact_name, "
+			"contact_phone, "
+			"contact_photo "
+			"FROM users "
+			"WHERE uid = ?");
 
 	DbStatement *compiledSaveStatment = MDatabaseManager::getInstance().GetDatabase()->CreateStatementN(sql);
 	compiledSaveStatment->BindInt(0, uid);
@@ -129,7 +164,23 @@ MUserDao::GetFriendsN(bool onlineOnly) {
 
 	MUser *pUser = null;
 
-	sql.Append(L"SELECT uid, last_name, first_name, photo, mini_photo, is_online, last_seen, is_friend, is_contact, is_pending, big_photo FROM users WHERE is_friend = ?");
+	sql.Append(L"SELECT "
+			"uid, "
+			"last_name, "
+			"first_name, "
+			"photo, "
+			"mini_photo, "
+			"is_online, "
+			"last_seen, "
+			"is_friend, "
+			"is_contact, "
+			"is_pending, "
+			"big_photo, "
+			"contact_name, "
+			"contact_phone, "
+			"contact_photo "
+			"FROM users "
+			"WHERE is_friend = ?");
 
 	if (onlineOnly) {
 		sql.Append(L" AND is_online = ?");
@@ -160,6 +211,52 @@ MUserDao::GetFriendsN(bool onlineOnly) {
 	return pUsers;
 }
 
+LinkedList *
+MUserDao::GetContactsN() {
+	DbEnumerator* pEnum = null;
+	String sql;
+	LinkedList *pUsers = new LinkedList();
+
+	MUser *pUser = null;
+
+	sql.Append(L"SELECT "
+			"uid, "
+			"last_name, "
+			"first_name, "
+			"photo, "
+			"mini_photo, "
+			"is_online, "
+			"last_seen, "
+			"is_friend, "
+			"is_contact, "
+			"is_pending, "
+			"big_photo, "
+			"contact_name, "
+			"contact_phone, "
+			"contact_photo "
+			"FROM users "
+			"WHERE is_contact = ?");
+
+	DbStatement *compiledSaveStatment = MDatabaseManager::getInstance().GetDatabase()->CreateStatementN(sql);
+	compiledSaveStatment->BindInt(0, 1);
+
+	pEnum = MDatabaseManager::getInstance().GetDatabase()->ExecuteStatementN(*compiledSaveStatment);
+
+	if (!pEnum) {
+		return pUsers;
+	}
+
+	while (pEnum->MoveNext() == E_SUCCESS)
+	{
+		pUser = LoadUserFromDBN(pEnum);
+		pUsers->Add(pUser);
+	}
+
+	delete compiledSaveStatment;
+	delete pEnum;
+
+	return pUsers;
+}
 
 LinkedList *
 MUserDao::GetUsersN(String * uids) {
@@ -173,7 +270,23 @@ MUserDao::GetUsersN(String * uids) {
 
 	MUser *pUser = null;
 
-	sql.Append(L"SELECT uid, last_name, first_name, photo, mini_photo, is_online, last_seen, is_friend, is_contact, is_pending, big_photo FROM users WHERE uid IN ");
+	sql.Append(L"SELECT "
+			"uid, "
+			"last_name, "
+			"first_name, "
+			"photo, "
+			"mini_photo, "
+			"is_online, "
+			"last_seen, "
+			"is_friend, "
+			"is_contact, "
+			"is_pending, "
+			"big_photo, "
+			"contact_name, "
+			"contact_phone, "
+			"contact_photo "
+			"FROM users "
+			"WHERE uid IN ");
 	sql.Append(L"(");
 	sql.Append(uids->GetPointer());
 	sql.Append(L")");
@@ -206,7 +319,23 @@ MUserDao::SearchUsers(String *searchText) {
 
 	MUser *pUser = null;
 
-	sql.Append(L"SELECT uid, last_name, first_name, photo, mini_photo, is_online, last_seen, is_friend, is_contact, is_pending, big_photo FROM users WHERE first_name LIKE '%");
+	sql.Append(L"SELECT "
+			"uid, "
+			"last_name, "
+			"first_name, "
+			"photo, "
+			"mini_photo, "
+			"is_online, "
+			"last_seen, "
+			"is_friend, "
+			"is_contact, "
+			"is_pending, "
+			"big_photo, "
+			"contact_name, "
+			"contact_phone, "
+			"contact_photo"
+			"FROM users "
+			"WHERE first_name LIKE '%");
 	sql.Append(searchText->GetPointer());
 	sql.Append(L"%' OR last_name LIKE '%");
 	sql.Append(searchText->GetPointer());
@@ -234,11 +363,6 @@ MUserDao::SearchUsers(String *searchText) {
 }
 
 LinkedList *
-MUserDao::GetContactsN() {
-	return null;
-}
-
-LinkedList *
 MUserDao::GetPendingUsersN() {
 	return null;
 }
@@ -247,6 +371,8 @@ MUserDao::GetPendingUsersN() {
 
 DbStatement *
 MUserDao::BindUserToSQLStatement(MUser *user, DbStatement *statement) {
+
+	String string(L"");
 
 	statement->BindInt(0, user->GetUid());
 	statement->BindString(1, user->GetLastName()->GetPointer());
@@ -258,11 +384,29 @@ MUserDao::BindUserToSQLStatement(MUser *user, DbStatement *statement) {
 	statement->BindInt(7, user->__isFriend);
 	statement->BindInt(8, user->__isContact);
 	statement->BindInt(9, user->__isPending);
+
 	if (user->__pBigPhoto) {
 		statement->BindString(10, user->__pBigPhoto->GetPointer());
 	} else {
-		String string(L"");
 		statement->BindString(10, string);
+	}
+
+	if (user->__pContactName) {
+		statement->BindString(11, user->__pContactName->GetPointer());
+	} else {
+		statement->BindString(11, string);
+	}
+
+	if (user->__pContactPhone) {
+		statement->BindString(12, user->__pContactPhone->GetPointer());
+	} else {
+		statement->BindString(12, string);
+	}
+
+	if (user->__pContactPhoto) {
+		statement->BindString(13, user->__pContactPhoto->GetPointer());
+	} else {
+		statement->BindString(13, string);
 	}
 
 	return statement;
@@ -285,6 +429,9 @@ MUserDao::LoadUserFromDBN(DbEnumerator* pEnum) {
 	int isPending;
 
 	user->__pBigPhoto = new String(L"");
+	user->__pContactName = new String(L"");
+	user->__pContactPhone = new String(L"");
+	user->__pContactPhoto = new String(L"");
 
 	pEnum->GetIntAt(0, uid);
 	pEnum->GetStringAt(1, *lastName);
@@ -297,6 +444,9 @@ MUserDao::LoadUserFromDBN(DbEnumerator* pEnum) {
 	pEnum->GetIntAt(8, isContact);
 	pEnum->GetIntAt(9, isPending);
 	pEnum->GetStringAt(10, *user->__pBigPhoto);
+	pEnum->GetStringAt(11, *user->__pContactName);
+	pEnum->GetStringAt(12, *user->__pContactPhone);
+	pEnum->GetStringAt(13, *user->__pContactPhoto);
 
 	user->SetUid(uid);
 	user->SetFirstName(firstName);

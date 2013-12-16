@@ -13,6 +13,7 @@
 extern const wchar_t* PANEL_DIALOGS;
 extern const wchar_t* PANEL_USERS;
 extern const wchar_t* PANEL_SEARCH;
+extern const wchar_t* PANEL_CONTACTS;
 
 class PanelFactory
 	: public Tizen::Ui::Scenes::IPanelFactory

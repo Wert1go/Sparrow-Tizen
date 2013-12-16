@@ -33,6 +33,7 @@ using namespace Tizen::Base::Collection;
 
 UiUsersPanel::UiUsersPanel() {
 	__pUserRequestOperation = null;
+	__mode = -1;
 	this->InitData();
 }
 
@@ -119,13 +120,16 @@ UiUsersPanel::OnTerminating(void) {
 void
 UiUsersPanel::OnSceneActivatedN(const Tizen::Ui::Scenes::SceneId& previousSceneId,
 									   const Tizen::Ui::Scenes::SceneId& currentSceneId, Tizen::Base::Collection::IList* pArgs) {
-	this->__pUsersList = MUserDao::getInstance().GetFriendsN();
+	if (__mode == -1) {
+		this->__pUsersList = MUserDao::getInstance().GetFriendsN();
 
-	if (this->__pListView) {
-		this->__pListView->UpdateList();
+		if (this->__pListView) {
+			this->__pListView->UpdateList();
+		}
+
+		RequestUsers();
 	}
 
-	RequestUsers();
 }
 
 void
@@ -242,6 +246,8 @@ UiUsersPanel::OnActionPerformed(const Tizen::Ui::Control& source, int actionId) 
 
 void
 UiUsersPanel::SetCurrentDisplayMode(int mode) {
+	__mode = mode;
+
 	if (mode == 2) {
 		//do nothing
 	} else if (mode == 1) {

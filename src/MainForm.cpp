@@ -200,18 +200,62 @@ MainForm::OnActionPerformed(const Tizen::Ui::Control& source, int actionId)
 		AppAssert(pSceneManager);
 		pSceneManager->GoForward(ForwardSceneTransition(SCENE_SETTINGS, SCENE_TRANSITION_ANIMATION_TYPE_LEFT));
 		break;
-	case ID_USERS_FRIENDS:
-		if (pUserPanel) {
-			pUserPanel->SetCurrentDisplayMode(0);
-		}
+	case ID_USERS_FRIENDS: {
+//		if (pUserPanel) {
+//			pUserPanel->SetCurrentDisplayMode(0);
+//		} else {
+			this->SetFocus();
+			pSceneManager = SceneManager::GetInstance();
+			AppAssert(pSceneManager);
+			pSceneManager->GoForward(ForwardSceneTransition(SCENE_MAIN_USERS_TAB, SCENE_TRANSITION_ANIMATION_TYPE_NONE,
+						SCENE_HISTORY_OPTION_NO_HISTORY));
+			this->SetActionBarsVisible(FORM_ACTION_BAR_FOOTER, true);
 
+			Tizen::Ui::Controls::Frame* pFrame = Tizen::App::UiApp::GetInstance()->GetAppFrame()->GetFrame();
+			pUserPanel = static_cast< UiUsersPanel* >(pFrame->GetControl("UiUsersPanel", true));
+
+			if (pUserPanel) {
+				pUserPanel->SetCurrentDisplayMode(0);
+			}
+
+			if (pUserPanel) {
+				AppLog("KKKKKKKKKKKKKKKKKKKKKK KKKKKKKKKKKKKKKKK KKKKKKKKKKKKKK KKKKKKKKK");
+			}
+//		}
+	}
 		break;
-	case ID_USERS_FRIENDS_ONLINE:
-		if (pUserPanel) {
-			pUserPanel->SetCurrentDisplayMode(1);
-		}
+	case ID_USERS_FRIENDS_ONLINE: {
+//		if (pUserPanel) {
+//			pUserPanel->SetCurrentDisplayMode(1);
+//		} else {
+			this->SetFocus();
+			pSceneManager = SceneManager::GetInstance();
+			AppAssert(pSceneManager);
+			pSceneManager->GoForward(ForwardSceneTransition(SCENE_MAIN_USERS_TAB, SCENE_TRANSITION_ANIMATION_TYPE_NONE,
+						SCENE_HISTORY_OPTION_NO_HISTORY));
+			this->SetActionBarsVisible(FORM_ACTION_BAR_FOOTER, true);
+
+			Tizen::Ui::Controls::Frame* pFrame = Tizen::App::UiApp::GetInstance()->GetAppFrame()->GetFrame();
+			pUserPanel = static_cast< UiUsersPanel* >(pFrame->GetControl("UiUsersPanel", true));
+
+			if (pUserPanel) {
+				pUserPanel->SetCurrentDisplayMode(1);
+			}
+
+			if (pUserPanel) {
+				AppLog("KKKKKKKKKKKKKKKKKKKKKK KKKKKKKKKKKKKKKKK KKKKKKKKKKKKKK KKKKKKKKK");
+			}
+//		}
+	}
 		break;
-	case ID_USERS_CONTACTS:
+	case ID_USERS_CONTACTS: {
+		this->SetFocus();
+		pSceneManager = SceneManager::GetInstance();
+		AppAssert(pSceneManager);
+		pSceneManager->GoForward(ForwardSceneTransition(SCENE_MAIN_CONTACTS_TAB, SCENE_TRANSITION_ANIMATION_TYPE_NONE,
+					SCENE_HISTORY_OPTION_NO_HISTORY));
+		this->SetActionBarsVisible(FORM_ACTION_BAR_FOOTER, true);
+	}
 		break;
 	case ID_SEARCH_DIALOGS: {
 		Tizen::Ui::Controls::Frame* pFrame = Tizen::App::UiApp::GetInstance()->GetAppFrame()->GetFrame();

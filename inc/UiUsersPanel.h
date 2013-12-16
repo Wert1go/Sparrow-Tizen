@@ -63,6 +63,7 @@ private:
 
     virtual void OnActionPerformed(const Tizen::Ui::Control& source, int actionId);
     virtual void RequestUiUpdate(int code, IList *pArgs);
+    int __mode;
 
 private:
 	RestRequestOperation *__pUserRequestOperation;
