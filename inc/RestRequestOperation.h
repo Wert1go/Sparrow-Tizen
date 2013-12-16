@@ -55,6 +55,9 @@ static const long SEARCH_MESSAGES = 100999126;
 
 static const long IMPORT_CONTACTS = 100999127;
 
+static const long DECLINE_FRIEND = 100999128;
+static const long DELETE_FRIEND = 100999129;
+
 extern const wchar_t* USER_FILEDS;
 
 #include <FNet.h>

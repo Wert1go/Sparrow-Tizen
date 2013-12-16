@@ -65,6 +65,8 @@ private:
 	Tizen::Ui::Controls::TextBox *__pAddLabel;
 
 	RestRequestOperation *__pAddToFriendsOperation;
+	RestRequestOperation *__pDeclineFriendOperation;
+	RestRequestOperation *__pDeleteFriendOperation;
 };
 
 #endif /* PROFILEFORM_H_ */

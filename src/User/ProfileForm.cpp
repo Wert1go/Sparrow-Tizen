@@ -34,6 +34,8 @@
 #include "RestResponse.h"
 #include "Error.h"
 
+#include "AppResourceId.h"
+
 using namespace Tizen::App;
 using namespace Tizen::Base;
 using namespace Tizen::Base::Utility;
@@ -54,7 +56,11 @@ const int imageBottomOffset = 100;
 ProfileForm::ProfileForm() {
 	__pUser = null;
 	__pUserAvatar = null;
+
 	__pAddToFriendsOperation = null;
+	__pDeclineFriendOperation = null;
+	__pDeleteFriendOperation = null;
+
 	Form::Construct(FORM_STYLE_HEADER);
 	SetFormBackEventListener(this);
 }
@@ -90,7 +96,6 @@ ProfileForm::OnInitializing(void) {
 
 	__pAddButton = new (std::nothrow) Button();
 	__pAddButton->Construct(Rectangle(rect.width/2 - buttonWidth/2, yOffset, buttonWidth, 100));
-	__pAddButton->SetText(L"Добавить в друзья");
 	__pAddButton->SetActionId(1);
 	__pAddButton->AddActionEventListener(*this);
 	__pAddButton->SetTextColor(*textNormalColor);
@@ -100,17 +105,16 @@ ProfileForm::OnInitializing(void) {
 
 	AddControl(__pAddButton);
 
-//	__pRemoveButton = new (std::nothrow) Button();
-//	__pRemoveButton->Construct(Rectangle(rect.width/2 - buttonWidth/2, rect.height - 80, buttonWidth, 80));
-//	__pRemoveButton->SetText(L"Удалить из друзей");
-//	__pRemoveButton->SetActionId(2);
-//	__pRemoveButton->AddActionEventListener(*this);
-//	__pRemoveButton->SetTextColor(*textNormalColor);
-//	__pRemoveButton->SetHighlightedTextColor(*textSelectedColor);
-//	__pRemoveButton->SetColor(BUTTON_STATUS_NORMAL, *buttonNormalColor);
-//	__pRemoveButton->SetColor(BUTTON_STATUS_PRESSED, *buttonSelectedColor);
+	__pRemoveButton = new (std::nothrow) Button();
+	__pRemoveButton->Construct(Rectangle(0, rect.height - 100, rect.width, 100));
+	__pRemoveButton->SetActionId(2);
+	__pRemoveButton->AddActionEventListener(*this);
+	__pRemoveButton->SetTextColor(*textNormalColor);
+	__pRemoveButton->SetHighlightedTextColor(*textSelectedColor);
+	__pRemoveButton->SetColor(BUTTON_STATUS_NORMAL, Color(23, 30, 38, 255));
+	__pRemoveButton->SetColor(BUTTON_STATUS_PRESSED, Color(23, 30, 38, 255));
 
-//	AddControl(__pRemoveButton);
+	AddControl(__pRemoveButton);
 
 	Image image;
 	image.Construct();
@@ -182,7 +186,18 @@ ProfileForm::UpdateScreenForUser() {
 //		__pRemoveButton->SetShowState(false);
 //	}
 
+	if (this->__pUser) {
+		if ((this->__pUser->__isFriend != 1 && this->__pUser->__isContact == 1) || this->__pUser->__isFriend != 1) {
+			this->__pRemoveButton->SetShowState(false);
+		} else {
+			this->__pRemoveButton->SetShowState(true);
+		}
+
+		this->Invalidate(true);
+	}
+
 	ImageCache::getInstance().LoadImageForTarget(this->__pUser->__pBigPhoto, this);
+	this->Invalidate(true);
 }
 
 void
@@ -211,6 +226,45 @@ ProfileForm::OnActionPerformed(const Tizen::Ui::Control& source, int actionId) {
 			__pAddToFriendsOperation->SetResponseDescriptor(descriptor);
 			RestClient::getInstance().PerformOperation(__pAddToFriendsOperation);
 		}
+	} else if (actionId == 2) {
+		if (this->__pUser && this->__pUser->__isPending == 1) {
+			HashMap *params = new HashMap();
+			params->Construct();
+
+			params->Add(new String(L"access_token"), AuthManager::getInstance().AccessToken());
+
+			String uid;
+			uid.Format(10, L"%d", this->__pUser->GetUid());
+
+			params->Add(new String(L"user_id"), new String(uid));
+
+			if (!__pDeclineFriendOperation) {
+				__pDeclineFriendOperation = new RestRequestOperation(DECLINE_FRIEND, new String(L"friends.delete"), params);
+				__pDeclineFriendOperation->AddEventListener(this);
+				RMessageSendDescriptor *descriptor = new RMessageSendDescriptor();
+				__pDeclineFriendOperation->SetResponseDescriptor(descriptor);
+				RestClient::getInstance().PerformOperation(__pDeclineFriendOperation);
+			}
+
+		} else {
+			HashMap *params = new HashMap();
+			params->Construct();
+
+			params->Add(new String(L"access_token"), AuthManager::getInstance().AccessToken());
+
+			String uid;
+			uid.Format(10, L"%d", this->__pUser->GetUid());
+
+			params->Add(new String(L"user_id"), new String(uid));
+
+			if (!__pDeleteFriendOperation) {
+				__pDeleteFriendOperation = new RestRequestOperation(DELETE_FRIEND, new String(L"friends.delete"), params);
+				__pDeleteFriendOperation->AddEventListener(this);
+				RMessageSendDescriptor *descriptor = new RMessageSendDescriptor();
+				__pDeleteFriendOperation->SetResponseDescriptor(descriptor);
+				RestClient::getInstance().PerformOperation(__pDeleteFriendOperation);
+			}
+		}
 	}
 }
 
@@ -231,6 +285,35 @@ ProfileForm::OnSuccessN(RestResponse *result) {
 
 		this->SendUserEvent(ADD_TO_FRIEND_REQUEST, pArgs);
 		Tizen::App::App::GetInstance()->SendUserEvent(ADD_TO_FRIEND_REQUEST, 0);
+	} else if (result->GetOperationCode() == DECLINE_FRIEND) {
+		if (__pDeclineFriendOperation) {
+			__pDeclineFriendOperation->AddEventListener(null);
+			__pDeclineFriendOperation = null;
+		}
+
+		RMessageSendResponse *response = static_cast<RMessageSendResponse *>(result);
+
+		LinkedList *pArgs = new LinkedList();
+
+		pArgs->Add(new Integer(response->__mid));
+
+		this->SendUserEvent(DECLINE_FRIEND, pArgs);
+		Tizen::App::App::GetInstance()->SendUserEvent(DECLINE_FRIEND, 0);
+
+	} else if (result->GetOperationCode() == DELETE_FRIEND) {
+		if (__pDeleteFriendOperation) {
+			__pDeleteFriendOperation->AddEventListener(null);
+			__pDeleteFriendOperation = null;
+		}
+
+		RMessageSendResponse *response = static_cast<RMessageSendResponse *>(result);
+
+		LinkedList *pArgs = new LinkedList();
+
+		pArgs->Add(new Integer(response->__mid));
+
+		this->SendUserEvent(DELETE_FRIEND, pArgs);
+		Tizen::App::App::GetInstance()->SendUserEvent(DELETE_FRIEND, 0);
 	}
 
 }
@@ -239,6 +322,16 @@ ProfileForm::OnErrorN(Error *error) {
 	if (__pAddToFriendsOperation) {
 		__pAddToFriendsOperation->AddEventListener(null);
 		__pAddToFriendsOperation = null;
+	}
+
+	if (__pDeleteFriendOperation) {
+		__pDeleteFriendOperation->AddEventListener(null);
+		__pDeleteFriendOperation = null;
+	}
+
+	if (__pDeclineFriendOperation) {
+		__pDeclineFriendOperation->AddEventListener(null);
+		__pDeclineFriendOperation = null;
 	}
 }
 
@@ -274,6 +367,27 @@ ProfileForm::OnUserEventReceivedN(RequestId requestId, Tizen::Base::Collection::
 				this->__pAddLabel->SetText(L"Заявка уже была отправлена");
 			}
 		}
+	} else if (requestId == DECLINE_FRIEND) {
+		if (pArgs->GetCount() > 0) {
+			Integer *code = static_cast<Integer *>(pArgs->GetAt(0));
+			if (code->ToInt() == 0) {
+
+						}
+			SceneManager* pSceneManager = SceneManager::GetInstance();
+			AppAssert(pSceneManager);
+			pSceneManager->GoBackward(BackwardSceneTransition(SCENE_TRANSITION_ANIMATION_TYPE_RIGHT));
+		}
+	} else if (requestId == DELETE_FRIEND) {
+		if (pArgs->GetCount() > 0) {
+			Integer *code = static_cast<Integer *>(pArgs->GetAt(0));
+			if (code->ToInt() == 0) {
+
+			}
+
+			SceneManager* pSceneManager = SceneManager::GetInstance();
+			AppAssert(pSceneManager);
+			pSceneManager->GoBackward(BackwardSceneTransition(SCENE_TRANSITION_ANIMATION_TYPE_RIGHT));
+		}
 	}
 }
 
@@ -291,6 +405,22 @@ ProfileForm::OnDraw() {
 		Rectangle rect = Rectangle(bounds.width/2 - imageSize/2, imageOffset * 2, imageSize, imageSize);
 		r = pCanvas->DrawBitmap(rect, *__pUserAvatar);
 	}
+
+	String addString;
+	Application::GetInstance()->GetAppResource()->GetString(IDS_ADD_FRIEND, addString);
+	__pAddButton->SetText(addString);
+
+	if (this->__pUser && this->__pUser->__isPending == 1) {
+		String declineString;
+		Application::GetInstance()->GetAppResource()->GetString(IDS_DECLINE_FRIEND, declineString);
+		__pRemoveButton->SetText(declineString);
+	} else {
+		String deleteString;
+		Application::GetInstance()->GetAppResource()->GetString(IDS_REMOVE_FRIEND, deleteString);
+		__pRemoveButton->SetText(deleteString);
+	}
+
+//	__pAddLabel->SetText(L"Заявка отправлена!");
 
 	delete pCanvas;
 

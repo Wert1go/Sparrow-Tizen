@@ -1,5 +1,6 @@
 #include "AppResourceId.h"
 
+const wchar_t* IDS_ADD_FRIEND = L"IDS_ADD_FRIEND";
 const wchar_t* IDS_ATTACH = L"IDS_ATTACH";
 const wchar_t* IDS_ATTACH_AUDIO = L"IDS_ATTACH_AUDIO";
 const wchar_t* IDS_ATTACH_DOC = L"IDS_ATTACH_DOC";
@@ -9,6 +10,7 @@ const wchar_t* IDS_ATTACH_VIDEO = L"IDS_ATTACH_VIDEO";
 const wchar_t* IDS_BUTTON_ = L"IDS_BUTTON_";
 const wchar_t* IDS_BUTTON_LOGIN = L"IDS_BUTTON_LOGIN";
 const wchar_t* IDS_BUTTON_REG = L"IDS_BUTTON_REG";
+const wchar_t* IDS_DECLINE_FRIEND = L"IDS_DECLINE_FRIEND";
 const wchar_t* IDS_MAIN_FORM_CONTACTS = L"IDS_MAIN_FORM_CONTACTS";
 const wchar_t* IDS_MAIN_FORM_FRIENDS = L"IDS_MAIN_FORM_FRIENDS";
 const wchar_t* IDS_MAIN_FORM_FRIENDS_ONLINE = L"IDS_MAIN_FORM_FRIENDS_ONLINE";
@@ -22,6 +24,7 @@ const wchar_t* IDS_MEMBER_SUFFIX_2 = L"IDS_MEMBER_SUFFIX_2";
 const wchar_t* IDS_OFFLINE = L"IDS_OFFLINE";
 const wchar_t* IDS_ONLINE = L"IDS_ONLINE";
 const wchar_t* IDS_PRINTING = L"IDS_PRINTING";
+const wchar_t* IDS_REMOVE_FRIEND = L"IDS_REMOVE_FRIEND";
 const wchar_t* IDS_SEARCH = L"IDS_SEARCH";
 const wchar_t* IDS_SEARCH_DIALOGS = L"IDS_SEARCH_DIALOGS";
 const wchar_t* IDS_SEARCH_MESSAGES = L"IDS_SEARCH_MESSAGES";

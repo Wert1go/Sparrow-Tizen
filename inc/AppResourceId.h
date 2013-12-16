@@ -1,6 +1,7 @@
 #ifndef _APP_RESOURCE_ID_H_
 #define _APP_RESOURCE_ID_H_
 
+extern const wchar_t* IDS_ADD_FRIEND;
 extern const wchar_t* IDS_ATTACH;
 extern const wchar_t* IDS_ATTACH_AUDIO;
 extern const wchar_t* IDS_ATTACH_DOC;
@@ -10,6 +11,7 @@ extern const wchar_t* IDS_ATTACH_VIDEO;
 extern const wchar_t* IDS_BUTTON_;
 extern const wchar_t* IDS_BUTTON_LOGIN;
 extern const wchar_t* IDS_BUTTON_REG;
+extern const wchar_t* IDS_DECLINE_FRIEND;
 extern const wchar_t* IDS_MAIN_FORM_CONTACTS;
 extern const wchar_t* IDS_MAIN_FORM_FRIENDS;
 extern const wchar_t* IDS_MAIN_FORM_FRIENDS_ONLINE;
@@ -23,6 +25,7 @@ extern const wchar_t* IDS_MEMBER_SUFFIX_2;
 extern const wchar_t* IDS_OFFLINE;
 extern const wchar_t* IDS_ONLINE;
 extern const wchar_t* IDS_PRINTING;
+extern const wchar_t* IDS_REMOVE_FRIEND;
 extern const wchar_t* IDS_SEARCH;
 extern const wchar_t* IDS_SEARCH_DIALOGS;
 extern const wchar_t* IDS_SEARCH_MESSAGES;
