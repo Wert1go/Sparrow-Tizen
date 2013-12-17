@@ -248,13 +248,21 @@ MMessageDao::CreateSaveStatement() {
 DbStatement *
 MMessageDao::BindMessageToSQLStatement(MMessage *message, DbStatement *statement) {
 
+	String string(L"");
+
 	statement->BindInt(0, message->GetMid());
 	statement->BindInt(1, message->GetUid());
 	statement->BindInt(2, message->GetFromUid());
 	statement->BindInt64(3, message->GetDate());
 	statement->BindInt(4, message->GetOut());
 	statement->BindInt(5, message->GetReadState());
-	statement->BindString(6, message->GetText()->GetPointer());
+
+	if (message->GetText()) {
+		statement->BindString(6, message->GetText()->GetPointer());
+	} else {
+		statement->BindString(6, string);
+	}
+
 	statement->BindInt(7, message->GetDelivered());
 	return statement;
 }

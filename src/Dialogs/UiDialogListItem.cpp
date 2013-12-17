@@ -7,6 +7,9 @@
 
 #include "UiDialogListItem.h"
 
+#include <FApp.h>
+#include "AppResourceId.h"
+
 #include <FUi.h>
 #include <FGraphics.h>
 #include "MDialog.h"
@@ -14,6 +17,8 @@
 
 #include "Resources.h"
 
+using namespace Tizen::App;
+using namespace Tizen::Base;
 using namespace Tizen::Ui::Controls;
 using namespace Tizen::Graphics;
 
@@ -287,7 +292,6 @@ UiDialogListItem::SetDialog(MDialog *pDialog) {
 
 	pUsetNameText = new TextElement();
 
-	AppLog("fdfdf");
 	String *titleText;
 	if (this->GetDialog()->GetUid() < isChatValue) {
 		String *fullName = new String();
@@ -298,7 +302,6 @@ UiDialogListItem::SetDialog(MDialog *pDialog) {
 	} else {
 		titleText = this->GetDialog()->GetTitle();
 	}
-	AppLog("+++++fdfdf");
 	r = pUsetNameText->Construct(titleText->GetPointer());
 
 	Color *userNameColor = new Color(250, 250, 250, 255);
@@ -380,8 +383,24 @@ UiDialogListItem::SetDialog(MDialog *pDialog) {
 
 	String *dialogText = this->__pDialog->GetText();
 
-	if (dialogText->GetLength() == 0) {
-		dialogText = new String(L" ");
+	if (!dialogText || (dialogText && dialogText->GetLength() == 0)) {
+		String msgString(L" ");
+
+		if (this->__pDialog->__attachmentCount > 0) {
+			if (this->__pDialog->__attachmentCount == 1) {
+				Application::GetInstance()->GetAppResource()->GetString(IDS_NOTIFY_ATTACHMENT, msgString);
+			} else {
+				Application::GetInstance()->GetAppResource()->GetString(IDS_NOTIFY_ATTACHMENTS, msgString);
+			}
+		} else if (this->__pDialog->__fwdCount > 0) {
+			if (this->__pDialog->__fwdCount == 1) {
+				Application::GetInstance()->GetAppResource()->GetString(IDS_NOTIFY_FWD, msgString);
+			} else {
+				Application::GetInstance()->GetAppResource()->GetString(IDS_NOTIFY_FWDS, msgString);
+			}
+		}
+
+		dialogText = new String(msgString);
 	}
 
 	r = pDialogText->Construct(dialogText->GetPointer());

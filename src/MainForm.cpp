@@ -57,10 +57,12 @@ MainForm::MainForm() {
 
 	__isSearchMode = false;
 	__searchModeCode = SEARCH_DIALOG_MODE;
-
+	__lastSelectedIndex = 0;
 	__normalIndex = 0;
 	__searchIndex = 0;
 	__footerIndex = 0;
+
+	__unreadCount = 0;
 
 	SetFormBackEventListener(this);
 	__pGetUnreadCountOperation = null;
@@ -168,6 +170,7 @@ MainForm::OnActionPerformed(const Tizen::Ui::Control& source, int actionId)
 	switch(actionId)
 	{
 	case ID_MESSAGES: {
+		__lastSelectedIndex = 0;
 		this->SetActionBarsVisible(FORM_ACTION_BAR_FOOTER, false);
 		pSceneManager = SceneManager::GetInstance();
 		AppAssert(pSceneManager);
@@ -176,6 +179,7 @@ MainForm::OnActionPerformed(const Tizen::Ui::Control& source, int actionId)
 	}
 		break;
 	case ID_CONTACTS: {
+		__lastSelectedIndex = 1;
 		this->SetFocus();
 		pSceneManager = SceneManager::GetInstance();
 		AppAssert(pSceneManager);
@@ -184,7 +188,8 @@ MainForm::OnActionPerformed(const Tizen::Ui::Control& source, int actionId)
 		this->SetActionBarsVisible(FORM_ACTION_BAR_FOOTER, true);
 	}
 		break;
-	case ID_SEARCH:
+	case ID_SEARCH: {
+		__lastSelectedIndex = 2;
 		this->SetFocus();
 		this->SetActionBarsVisible(FORM_ACTION_BAR_FOOTER, false);
 
@@ -192,60 +197,46 @@ MainForm::OnActionPerformed(const Tizen::Ui::Control& source, int actionId)
 		AppAssert(pSceneManager);
 		pSceneManager->GoForward(ForwardSceneTransition(SCENE_MAIN_SEARCH_TAB, SCENE_TRANSITION_ANIMATION_TYPE_NONE,
 					SCENE_HISTORY_OPTION_NO_HISTORY));
-
+	}
 		break;
-	case ID_SETTINGS:
+	case ID_SETTINGS: {
 		this->SetFocus();
 		pSceneManager = SceneManager::GetInstance();
 		AppAssert(pSceneManager);
 		pSceneManager->GoForward(ForwardSceneTransition(SCENE_SETTINGS, SCENE_TRANSITION_ANIMATION_TYPE_LEFT));
+		this->GetHeader()->SetItemSelected(__lastSelectedIndex);
+	}
 		break;
 	case ID_USERS_FRIENDS: {
-//		if (pUserPanel) {
-//			pUserPanel->SetCurrentDisplayMode(0);
-//		} else {
-			this->SetFocus();
-			pSceneManager = SceneManager::GetInstance();
-			AppAssert(pSceneManager);
-			pSceneManager->GoForward(ForwardSceneTransition(SCENE_MAIN_USERS_TAB, SCENE_TRANSITION_ANIMATION_TYPE_NONE,
-						SCENE_HISTORY_OPTION_NO_HISTORY));
-			this->SetActionBarsVisible(FORM_ACTION_BAR_FOOTER, true);
+		this->SetFocus();
+		pSceneManager = SceneManager::GetInstance();
+		AppAssert(pSceneManager);
+		pSceneManager->GoForward(ForwardSceneTransition(SCENE_MAIN_USERS_TAB, SCENE_TRANSITION_ANIMATION_TYPE_NONE,
+					SCENE_HISTORY_OPTION_NO_HISTORY));
+		this->SetActionBarsVisible(FORM_ACTION_BAR_FOOTER, true);
 
-			Tizen::Ui::Controls::Frame* pFrame = Tizen::App::UiApp::GetInstance()->GetAppFrame()->GetFrame();
-			pUserPanel = static_cast< UiUsersPanel* >(pFrame->GetControl("UiUsersPanel", true));
+		Tizen::Ui::Controls::Frame* pFrame = Tizen::App::UiApp::GetInstance()->GetAppFrame()->GetFrame();
+		pUserPanel = static_cast< UiUsersPanel* >(pFrame->GetControl("UiUsersPanel", true));
 
-			if (pUserPanel) {
-				pUserPanel->SetCurrentDisplayMode(0);
-			}
-
-			if (pUserPanel) {
-				AppLog("KKKKKKKKKKKKKKKKKKKKKK KKKKKKKKKKKKKKKKK KKKKKKKKKKKKKK KKKKKKKKK");
-			}
-//		}
+		if (pUserPanel) {
+			pUserPanel->SetCurrentDisplayMode(0);
+		}
 	}
 		break;
 	case ID_USERS_FRIENDS_ONLINE: {
-//		if (pUserPanel) {
-//			pUserPanel->SetCurrentDisplayMode(1);
-//		} else {
-			this->SetFocus();
-			pSceneManager = SceneManager::GetInstance();
-			AppAssert(pSceneManager);
-			pSceneManager->GoForward(ForwardSceneTransition(SCENE_MAIN_USERS_TAB, SCENE_TRANSITION_ANIMATION_TYPE_NONE,
-						SCENE_HISTORY_OPTION_NO_HISTORY));
-			this->SetActionBarsVisible(FORM_ACTION_BAR_FOOTER, true);
+		this->SetFocus();
+		pSceneManager = SceneManager::GetInstance();
+		AppAssert(pSceneManager);
+		pSceneManager->GoForward(ForwardSceneTransition(SCENE_MAIN_USERS_TAB, SCENE_TRANSITION_ANIMATION_TYPE_NONE,
+					SCENE_HISTORY_OPTION_NO_HISTORY));
+		this->SetActionBarsVisible(FORM_ACTION_BAR_FOOTER, true);
 
-			Tizen::Ui::Controls::Frame* pFrame = Tizen::App::UiApp::GetInstance()->GetAppFrame()->GetFrame();
-			pUserPanel = static_cast< UiUsersPanel* >(pFrame->GetControl("UiUsersPanel", true));
+		Tizen::Ui::Controls::Frame* pFrame = Tizen::App::UiApp::GetInstance()->GetAppFrame()->GetFrame();
+		pUserPanel = static_cast< UiUsersPanel* >(pFrame->GetControl("UiUsersPanel", true));
 
-			if (pUserPanel) {
-				pUserPanel->SetCurrentDisplayMode(1);
-			}
-
-			if (pUserPanel) {
-				AppLog("KKKKKKKKKKKKKKKKKKKKKK KKKKKKKKKKKKKKKKK KKKKKKKKKKKKKK KKKKKKKKK");
-			}
-//		}
+		if (pUserPanel) {
+			pUserPanel->SetCurrentDisplayMode(1);
+		}
 	}
 		break;
 	case ID_USERS_CONTACTS: {
@@ -318,13 +309,18 @@ MainForm::OnErrorN(Error *error) {
 void
 MainForm::UpdateUnreadCount(int unreadCount) {
 
-	int count = MMessageDao::getInstance().GetUnreadCount();
+	int count = 0;
 
-	if (unreadCount != -1 && count != unreadCount) {
-		count = unreadCount;
+	if (unreadCount == -1) {
+		this->RequestUnreadCount();
+		return;
 	}
 
+	count = unreadCount;
+
 	AppLogDebug("!UpdateUnreadCount %d", count);
+	__unreadCount = count;
+
 	if (count > 0) {
 		__pHeader->SetItemNumberedBadgeIcon(0, 0);
 		__pHeader->SetItemNumberedBadgeIcon(0, count);
@@ -388,18 +384,14 @@ MainForm::RecreateItems() {
 		this->__searchIndex = 2;
 
 	} else {
-		AppLog("fffffffffffffffffffffff ----------");
 		if (this->__searchIndex != 0) {
-			AppLog("fffffffffffffffffffffff ----------============");
 			this->__searchIndex = 0;
 			this->__normalIndex =  0;
 			this->__footerIndex = 0;
 		} else {
-			AppLog("fffffffffffffffffffffff ----------++++++++++");
 			this->__normalIndex =  pHeader->GetSelectedItemIndex();
 			this->__footerIndex = pFooter->GetSelectedItemIndex();
 		}
-
 
 		headerIndex = this->__normalIndex;
 		footerIndex = this->__footerIndex;
@@ -436,6 +428,8 @@ MainForm::RecreateItems() {
 		Application::GetInstance()->GetAppResource()->GetString(IDS_MAIN_FORM_MSG, messageString);
 		this->messageItem->SetText(messageString);
 		pHeader->AddItem(*headerMessageItem);
+
+		pHeader->SetItemNumberedBadgeIcon(0, this->__unreadCount);
 
 		Image contactsIcon;
 		r = contactsIcon.Construct();
@@ -512,8 +506,6 @@ MainForm::RecreateItems() {
 	this->footerContactsItem->SetText(importContactsString);
 
 	pFooter->AddItem(*contactsItem);
-
-	AppLog("headerIndex %d footerIndex %d", headerIndex, footerIndex);
 
 	pHeader->SetItemSelected(headerIndex);
 	pFooter->SetItemSelected(footerIndex);

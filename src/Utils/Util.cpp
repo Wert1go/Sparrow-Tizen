@@ -170,7 +170,7 @@ Util::CalculateDimensionForMessage(MMessage *message, bool fwd, int nesting) {
 		message->cut = imageCut;
 	}
 
-	if (text->GetLength() != 0) {
+	if (text && text->GetLength() != 0) {
 		EnrichedText* pTimeLabel = null;
 		TextElement* pTImeText = null;
 
@@ -401,3 +401,5 @@ Util::ClearText(String *pText) {
 
 	}
 }
+
+

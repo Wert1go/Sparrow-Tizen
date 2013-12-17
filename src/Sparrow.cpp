@@ -109,9 +109,12 @@ SparrowApp::OnForeground(void)
 
 	try {
 		AuthManager::getInstance().SetUserOnline();
+
 	} catch(...) {
 
 	}
+
+
 }
 
 void
@@ -185,6 +188,7 @@ void
 SparrowApp::Logout() {
 	try {
 		AuthManager::getInstance().SetUserOffline();
+		LongPollConnection::getInstance().ClearMessages();
 	} catch(...) {
 
 	}

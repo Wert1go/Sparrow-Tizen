@@ -38,6 +38,7 @@
 #include "MUser.h"
 #include "MMessage.h"
 
+#include "AppResourceId.h"
 #include "ImageCache.h"
 
 using namespace Tizen::App;
@@ -508,25 +509,64 @@ LongPollConnection::ShowNotification(MMessage *pMessage, MUser *pUser) {
 		fullName->Append(L" ");
 		fullName->Append(pUser->GetLastName()->GetPointer());
 		title = fullName;
-		title->Append(L" пишет...");
+		String msgString;
+		Application::GetInstance()->GetAppResource()->GetString(IDS_NOTIFY_MSG, msgString);
+		title->Append(L" ");
+		title->Append(msgString);
 	}
 
 	if (!title) {
-		title = new String("New message");
+		if (pMessage->__title) {
+			title = new String(pMessage->__title->GetPointer());
+		} else {
+			String msgString;
+			Application::GetInstance()->GetAppResource()->GetString(IDS_NOTIFY_NEW_MSG, msgString);
+			title = new String(msgString);
+		}
 	}
 
 	NotificationRequest request;
-	request.SetAlertText(pMessage->GetText()->GetPointer());
+
+	if (pMessage->GetText() && pMessage->GetText()->GetLength() > 0) {
+		request.SetAlertText(pMessage->GetText()->GetPointer());
+	} else {
+		String msgString(L"");
+
+		if (pMessage->__pAttachments && pMessage->__pAttachments->GetCount() > 0) {
+			if (pMessage->__pAttachments->GetCount() == 1) {
+				Application::GetInstance()->GetAppResource()->GetString(IDS_NOTIFY_ATTACHMENT, msgString);
+			} else {
+				Application::GetInstance()->GetAppResource()->GetString(IDS_NOTIFY_ATTACHMENTS, msgString);
+			}
+		} else if (pMessage->__pGeo) {
+			Application::GetInstance()->GetAppResource()->GetString(IDS_NOTIFY_ATTACHMENT, msgString);
+		} else if (pMessage->__pFwd && pMessage->__pFwd->GetCount() > 0) {
+			if (pMessage->__pFwd->GetCount() == 1) {
+				Application::GetInstance()->GetAppResource()->GetString(IDS_NOTIFY_FWD, msgString);
+			} else {
+				Application::GetInstance()->GetAppResource()->GetString(IDS_NOTIFY_FWDS, msgString);
+			}
+		}
+
+		request.SetAlertText(msgString.GetPointer());
+	}
+
 	request.SetTitleText(title->GetPointer());
 
 	if (pUser) {
 		String uid;
 		uid.Format(20, L"%d", pUser->GetUid());
 		request.SetAppMessage(uid);
+	} else {
+		String uid;
+		uid.Format(20, L"%d", pMessage->GetChatId() + isChatValue);
+		request.SetAppMessage(uid);
 	}
 
 	request.SetNotificationStyle(NOTIFICATION_STYLE_NORMAL);
-	AppLog("ShowNotification ---");
+
+	AppLog("ShowNotification: %S", request.GetAppMessage().GetPointer());
+
 	//Добавить проверку на отсутствие иконки!
 	if (pUser && pUser->GetPhoto() && pUser->GetPhoto()->GetLength() > 1) {
 		AppLog("%S", pUser->GetPhoto()->GetPointer());
@@ -536,4 +576,12 @@ LongPollConnection::ShowNotification(MMessage *pMessage, MUser *pUser) {
 
 	r = __pNotificationManager->Notify(request);
 	AppLog("ShowNotification+++++");
+}
+
+void
+LongPollConnection::ClearMessages() {
+	if (__pNotificationManager) {
+		__pNotificationManager->RemoveNotification();
+	}
+
 }

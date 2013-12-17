@@ -66,6 +66,8 @@ UiChatForm::UiChatForm() {
 
 	__pPrintingTimer = null;
 	__isUserPrinting = false;
+	this->__isEditMode = false;
+	__pSelectedMessages = new LinkedList();
 }
 
 UiChatForm::~UiChatForm() {
@@ -113,6 +115,9 @@ UiChatForm::OnInitializing(void)
 	__pChatPanel->Initialize();
 	__pChatPanel->SetBounds(Rectangle(0, 0, clientRect.width, 100));
 	AddControl(__pChatPanel);
+
+	__pChatPanel->__pGroupButton->AddActionEventListener(*this);
+	__pChatPanel->__pEditButton->AddActionEventListener(*this);
 
 	__pListView = new ListView();
 	__pListView->Construct(Rectangle(0, 100, clientRect.width, clientRect.height - editAreaHeight - 100), true, SCROLL_STYLE_FADE_OUT);
@@ -190,7 +195,6 @@ UiChatForm::OnFormBackRequested(Tizen::Ui::Controls::Form& source) {
 	pSceneManager->GoBackward(BackwardSceneTransition(SCENE_TRANSITION_ANIMATION_TYPE_RIGHT));
 }
 
-
 void
 UiChatForm::OnSceneActivatedN(const Tizen::Ui::Scenes::SceneId& previousSceneId,
 								   const Tizen::Ui::Scenes::SceneId& currentSceneId, Tizen::Base::Collection::IList* pArgs) {
@@ -209,7 +213,9 @@ UiChatForm::OnSceneActivatedN(const Tizen::Ui::Scenes::SceneId& previousSceneId,
 					dialog = static_cast< MDialog* > (pArgs->GetAt(1));
 				} else {
 					MUser *user = MUserDao::getInstance().GetUserN(__userId);
-					dialog = MDialog::CreateFromUserN(user);
+					if (user) {
+						dialog = MDialog::CreateFromUserN(user);
+					}
 				}
 			}
 
@@ -384,7 +390,6 @@ UiChatForm::OnListViewItemStateChanged(Tizen::Ui::Controls::ListView &listView, 
 
 		int pointer = 0;
 
-
 		MAttachment *attach = this->FindAttachment(message, pointer, elementId);
 
 		if (attach) {
@@ -419,16 +424,40 @@ UiChatForm::OnListViewItemStateChanged(Tizen::Ui::Controls::ListView &listView, 
 				paramsList->Add(attach);
 				pSceneManager->GoForward(ForwardSceneTransition(SCENE_VIDEO_VIEWER, SCENE_TRANSITION_ANIMATION_TYPE_LEFT), paramsList);
 			}
+		} else {
+			if (!this->__isEditMode) {
+				this->SetEditMode(true);
+			}
+
+			if (!this->__pSelectedMessages->Contains(message)) {
+				__pSelectedMessages->Add(message);
+			} else {
+				__pSelectedMessages->Remove(*message);
+			}
+
 		}
 	}
+}
+
+void
+UiChatForm::SetEditMode(bool mode) {
+
+	this->__isEditMode = mode;
+
+	this->__pChatPanel->SetEditMode(mode);
+	this->__pListView->UpdateList();
+
+	if (mode) {
+
+	} else {
+		__pSelectedMessages->RemoveAll();
+	}
+
 }
 
 MAttachment *
 UiChatForm::FindAttachment(MMessage *pMessage, int &pointer, int elementId) {
 	MAttachment *attach = null;
-
-
-
 
 	if (pMessage->__pAttachments) {
 		for (int i = 0; i < pMessage->__pAttachments->GetCount(); i++, pointer++) {
@@ -486,7 +515,14 @@ Tizen::Ui::Controls::ListItemBase*
 UiChatForm::CreateItem(int index, int itemWidth) {
 
 	UiChatCustomItem *pItem = new UiChatCustomItem();
-    ListAnnexStyle style = LIST_ANNEX_STYLE_NORMAL;
+    ListAnnexStyle style;
+
+    if (this->__pChatPanel->GetEditMode()) {
+    	style = LIST_ANNEX_STYLE_MARK;
+    } else {
+    	style = LIST_ANNEX_STYLE_NORMAL;
+    }
+
     MMessage *message = static_cast<MMessage *>(this->GetMessages()->GetAt(index));
     Dimension dmns = Util::CalculateDimensionForMessage(message);
 
@@ -498,13 +534,15 @@ UiChatForm::CreateItem(int index, int itemWidth) {
     	height = 136;
     	dmns.height = height;
     }
+    int width = pItem->GetAnnexWidth(style);
+    AppLog("width: %d", width);
 
     pItem->Construct(Dimension(itemWidth, height), style);
 
     pItem->SetBubbleDimension(dmns);
     pItem->SetMessage(message);
 
-    pItem->SetDimension(new Dimension(itemWidth, height));
+    pItem->SetDimension(new Dimension(itemWidth - width, height));
     pItem->SetDialog(this->__pDialog);
     pItem->AddRefreshListener(this);
     pItem->SetIndex(index);
@@ -961,6 +999,11 @@ UiChatForm::OnActionPerformed(const Tizen::Ui::Control& source, int actionId) {
 	} else if (actionId == 46) {
 		__pAttachmentPopup->ShowPopup();
 		__pAttachmentPopup->__pPopupHandler = this;
+	} else if (actionId == 10034) {
+		//переход на экран группы
+	} else if (actionId == 10037) {
+		//отмена
+		this->SetEditMode(false);
 	}
 }
 

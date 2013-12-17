@@ -8,13 +8,13 @@
 #ifndef UICHAPPANEL_H_
 #define UICHAPPANEL_H_
 
-#include <FUiCtrlPanel.h>
+#include <FUi.h>
 #include "IImageLoadingListener.h"
 
 using namespace Tizen::Base;
 using namespace Tizen::Media;
 using namespace Tizen::Graphics;
-
+using namespace Tizen::Ui::Controls;
 using namespace Tizen::Base::Runtime;
 
 class MDialog;
@@ -34,8 +34,19 @@ public:
 	bool Initialize(void);
 
 	void SetUserPrinting(int userId);
+
+	void SetEditMode(bool mode);
+	bool GetEditMode();
+
+	Button *__pGroupButton;
+	Button *__pEditButton;
+
+
+
 	//void SetChat();
 private:
+	bool __isEditMode;
+
 	virtual result OnDraw(void);
 	virtual void OnImageLoadedN(Bitmap *result, Integer *code);
 	virtual void OnErrorN(Error *error);
@@ -45,6 +56,7 @@ private:
 
 private:
 	bool __IsOinline;
+
 
 	MDialog *__pDialog;
 

@@ -5,6 +5,7 @@
 <string_table Bversion="2.0.0.201311071819" Dversion="20120315">
     <text id="IDS_ATTACH_MAP">Location</text>
     <text id="IDS_MAIN_FORM_CONTACTS">Contacts</text>
+    <text id="IDS_NOTIFY_ATTACHMENTS">[Attachments]</text>
     <text id="IDS_MEMBER_SUFFIX_2">s</text>
     <text id="IDS_INVITE_STRING">For fast, free and convenient messaging with friends and contacts http://vk.com</text>
     <text id="IDS_SYNC_CONTACTS_DESCR">Sync your phone contacts\n with your VK friends list </text>
@@ -12,6 +13,8 @@
     <text id="IDS_START_SCREEN_DESCR">You can message your friends for free</text>
     <text id="IDS_DECLINE_FRIEND">Decline request</text>
     <text id="IDS_SEARCH_DIALOGS">Conversations</text>
+    <text id="IDS_NOTIFY_FWDS">[Forwarded messages]</text>
+    <text id="IDS_NOTIFY_FWD">[Forwarded message]</text>
     <text id="IDS_MEMBER">participant</text>
     <text id="IDS_PRINTING">printing message...</text>
     <text id="IDS_MAIN_FORM_I_CONTACTS">Contacts</text>
@@ -20,18 +23,22 @@
     <text id="IDS_REMOVE_FRIEND">Delete friend</text>
     <text id="IDS_CONTACT_CALL">Call</text>
     <text id="IDS_ATTACH_PHOTO">Photo</text>
+    <text id="IDS_EDIT">Edit</text>
     <text id="IDS_BUTTON_REG">Register</text>
     <text id="IDS_OFFLINE">Offline</text>
     <text id="IDS_SEARCH_MESSAGES">Messages</text>
+    <text id="IDS_CANCEL">Cancel</text>
     <text id="IDS_MAIN_FORM_FRIENDS">All friends</text>
     <text id="IDS_ADD_FRIEND">Add friend</text>
     <text id="IDS_ATTACH_DOC">Document</text>
     <text id="IDS_CONTACT_SEND_INVITE">Send invitation</text>
     <text id="IDS_MAIN_FORM_MSG">Messages</text>
     <text id="IDS_MAIN_FORM_SETTINGS">Settings</text>
+    <text id="IDS_NOTIFY_MSG">write:</text>
     <text id="IDS_ATTACH_AUDIO">Audio</text>
     <text id="IDS_ATTACH">Attach</text>
     <text id="IDS_CONTACT_SEND_MESSAGE">Send a message </text>
+    <text id="IDS_NOTIFY_ATTACHMENT">[Attachment]</text>
     <text id="IDS_ONLINE">Online</text>
     <text id="IDS_TIME_YESTERDAY">yesterday</text>
     <text id="IDS_SYNC_CONTACTS">Sync contacts </text>
@@ -40,5 +47,6 @@
     <text id="IDS_BUTTON_LOGIN">Login</text>
     <text id="IDS_MAIN_FORM_FRIENDS_ONLINE">Online</text>
     <text id="IDS_USERS_IMPORTANT">Important</text>
+    <text id="IDS_NOTIFY_NEW_MSG">New message</text>
     <text id="IDS_WRITE_MESSAGE">Write a message</text>
 </string_table>

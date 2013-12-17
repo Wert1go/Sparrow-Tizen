@@ -56,6 +56,8 @@ public:
 	void RunTimer();
 	bool PendingRestart();
 
+	void ClearMessages();
+
 	//сохранение TS
 	//получение TS
 

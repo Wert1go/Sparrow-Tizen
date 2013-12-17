@@ -71,6 +71,8 @@ public:
 	virtual void OnListViewItemStateChanged(Tizen::Ui::Controls::ListView &listView, int index, int elementId, Tizen::Ui::Controls::ListItemStatus status);
 	virtual void OnListViewItemSwept(Tizen::Ui::Controls::ListView &listView, int index, Tizen::Ui::Controls::SweepDirection direction);
 
+	LinkedList *__pSelectedMessages;
+
 	// IListViewItemProvider
 	virtual Tizen::Ui::Controls::ListItemBase* CreateItem(int index, int itemWidth);
 	virtual bool DeleteItem(int index, Tizen::Ui::Controls::ListItemBase* pItem, int itemWidth);
@@ -120,8 +122,6 @@ public:
 
 	void RequestMessagesForUser(int userId);
 
-
-
 	//RefreshableListView
 	virtual void RequestUpdateForIndex(int index, int elementId);
 	virtual void RequestImageUpdateForIndex(int index, int section, int elementId);
@@ -161,6 +161,9 @@ public:
 	virtual void OnAppControlCompleteResponseReceived(const AppId& appId, const Tizen::Base::String& operationId, AppCtrlResult appControlResult, const Tizen::Base::Collection::IMap* pExtraData);
 
 	MAttachment *FindAttachment(MMessage *pMessage, int &pointer, int elementId);
+
+	bool __isEditMode;
+	void SetEditMode(bool mode);
 
 private:
 	static const int ID_CONTEXT_ITEM_1 = 103;

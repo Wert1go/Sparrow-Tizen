@@ -50,8 +50,13 @@ private:
 	LinkedList *__pUsers;
 	MUser *__pUser;
 
+
+
 public:
 	String *__pType;
+
+	int __attachmentCount;
+	int __fwdCount;
 
 	//Getters
 	String * GetFirstName();

@@ -71,6 +71,9 @@ private:
 	int __searchIndex;
 
 	int __footerIndex;
+	int __lastSelectedIndex;
+
+	int __unreadCount;
 
 };
 

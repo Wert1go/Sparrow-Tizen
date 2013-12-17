@@ -45,7 +45,7 @@ UiAttachmentListPopup::OnInitializing(void) {
 	this->SetTitleText(titleString);
 
 	this->SetColor(Color(52, 87, 119, 255));
-	this->SetTitleTextColor(Color(0, 0, 0, 255));
+	this->SetTitleTextColor(Color(250, 250, 250, 255));
 
 	Rectangle clientRect;
 	clientRect = this->GetClientAreaBounds();

@@ -103,7 +103,7 @@ BaseUserController::CreateGroupItem(int groupIndex, int itemWidth)
     text.Append(title->GetPointer());
     text.ToUpperCase();
     CustomGroupItem* pItem = new CustomGroupItem();
-    pItem->Construct(Dimension(itemWidth, 40));
+    pItem->Construct(Dimension(itemWidth, 76.0f));
     pItem->SetElement(text, null);
     pItem->SetTextColor(Color(60, 110, 156, 255));
     pItem->SetTextSize(32);

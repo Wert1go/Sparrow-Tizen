@@ -137,7 +137,10 @@ MDialogDao::GetDialogN(int did) {
 	MDialog *pDialog = null;
 
 	sql.Append(L"SELECT "
-			"identifier, uid, last_name, first_name, photo, mini_photo, is_online, date, out, read_state, title, text, chat_id , chat_uids "
+			"identifier, uid, last_name, first_name, photo, mini_photo,"
+			" is_online, date, out, read_state, title, text, chat_id , chat_uids,"
+			" attachment_count,"
+			" fwd_count "
 			"FROM dialogs "
 			"WHERE uid = ?");
 
@@ -168,7 +171,10 @@ MDialogDao::GetDialogsWithOffsetN(int offset) {
 	LinkedList *pDialogs = null;
 
 	sql.Append(L"SELECT "
-			"identifier, uid, last_name, first_name, photo, mini_photo, is_online, date, out, read_state, title, text, chat_id , chat_uids "
+			"identifier, uid, last_name, first_name, photo, mini_photo, is_online,"
+			" date, out, read_state, title, text, chat_id , chat_uids,"
+			" attachment_count,"
+			" fwd_count "
 			"FROM dialogs "
 			"ORDER BY date DESC LIMIT 500 OFFSET 0");
 
@@ -203,9 +209,12 @@ MDialogDao::CreateSaveStatement() {
 	String statement;
 
 	statement.Append(L"INSERT OR REPLACE INTO dialogs ("
-			"identifier, uid, last_name, first_name, photo, mini_photo, is_online, date, out, read_state, title, text, chat_id, chat_uids"
+			"identifier, uid, last_name, first_name, photo, mini_photo, is_online,"
+			" date, out, read_state, title, text, chat_id, chat_uids,"
+			" attachment_count,"
+			" fwd_count "
 			") VALUES ("
-			"?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?"
+			"?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?"
 			")");
 
 	compiledSaveStatment = MDatabaseManager::getInstance().GetDatabase()->CreateStatementN(statement);
@@ -270,6 +279,9 @@ MDialogDao::BindDialogToSQLStatement(MDialog *dialog, DbStatement *statement) {
 		statement->BindString(13, string->GetPointer());
 	}
 
+	statement->BindInt(14, dialog->__attachmentCount);
+	statement->BindInt(15, dialog->__fwdCount);
+
 	return statement;
 }
 
@@ -306,6 +318,9 @@ MDialogDao::LoadDialogFromDBN(DbEnumerator* pEnum) {
 	pEnum->GetStringAt(11, *text);
 	pEnum->GetIntAt(12, chatId);
 	pEnum->GetStringAt(13, *chatUids);
+
+	pEnum->GetIntAt(14, dialog->__attachmentCount);
+	pEnum->GetIntAt(15, dialog->__fwdCount);
 
 	dialog->SetIdentifier(identifier);
 	dialog->SetUid(uid);

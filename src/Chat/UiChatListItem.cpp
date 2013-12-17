@@ -316,7 +316,7 @@ UiChatListItem::Initalize() {
 
 	String *text = this->GetMessage()->GetText();
 
-	if (text->GetLength() != 0) {
+	if (text && text->GetLength() != 0) {
 		EnrichedText* pMessageLabel = null;
 		TextElement* pMessageText = null;
 
@@ -393,7 +393,7 @@ UiChatListItem::Initalize() {
 
 	text = Util::formatDateN(this->GetMessage()->GetDate());
 
-	if (text->GetLength() == 0) {
+	if (!text || (text && text->GetLength() == 0)) {
 		text = new String(L" ");
 	}
 

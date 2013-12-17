@@ -29,10 +29,13 @@ UiChapPanel::UiChapPanel() {
 	__pOnlineIcon = Resources::getInstance().GetOnlineIndicator();
 	__pDialog = null;
 	__IsOinline = false;
+	__isEditMode = false;
 	__ChatIcon = null;
 	__pPrintingTimer = null;
 	this->__isUserPrinting = false;
 	__pPrintingMessage = null;
+
+
 }
 
 UiChapPanel::~UiChapPanel() {
@@ -52,6 +55,46 @@ bool
 UiChapPanel::Initialize(void) {
 	result r = Construct(Rectangle(0, 0, 10, 10));
 	TryReturn(!IsFailed(r), false, "%s", GetErrorMessage(r));
+
+	__pEditButton = new (std::nothrow) Button();
+	__pEditButton->Construct(Rectangle(10, 10, 100, 70));
+
+	__pEditButton->SetActionId(10037);
+	__pEditButton->SetTextColor(Color(255, 255, 255, 255));
+	__pEditButton->SetHighlightedTextColor(Color(127, 127, 127, 127));
+	__pEditButton->SetPressedTextColor(Color(127, 127, 127, 127));
+	__pEditButton->SetTextHorizontalAlignment(ALIGNMENT_RIGHT);
+
+
+	Image buttonImage;
+	buttonImage.Construct();
+	String filepath = App::GetInstance()->GetAppResourcePath() + L"empty_bg.png";
+	Bitmap *pBackgroundBitmap = buttonImage.DecodeN(filepath, BITMAP_PIXEL_FORMAT_ARGB8888);
+
+	__pEditButton->SetNormalBackgroundBitmap(*pBackgroundBitmap);
+	__pEditButton->SetHighlightedBackgroundBitmap(*pBackgroundBitmap);
+	__pEditButton->SetPressedBackgroundBitmap(*pBackgroundBitmap);
+
+	AddControl(__pEditButton);
+
+	__pEditButton->SetShowState(false);
+
+	__pGroupButton = new (std::nothrow) Button();
+	__pGroupButton->Construct(Rectangle(10, 10, 100, 70));
+
+	__pGroupButton->SetActionId(10034);
+	__pGroupButton->SetTextColor(Color(255, 255, 255, 255));
+	__pGroupButton->SetHighlightedTextColor(Color(127, 127, 127, 127));
+	__pGroupButton->SetPressedTextColor(Color(127, 127, 127, 127));
+	__pGroupButton->SetTextHorizontalAlignment(ALIGNMENT_RIGHT);
+
+	__pGroupButton->SetNormalBackgroundBitmap(*pBackgroundBitmap);
+	__pGroupButton->SetHighlightedBackgroundBitmap(*pBackgroundBitmap);
+	__pGroupButton->SetPressedBackgroundBitmap(*pBackgroundBitmap);
+
+	AddControl(__pGroupButton);
+	__pGroupButton->SetShowState(false);
+
 	return true;
 }
 
@@ -85,6 +128,26 @@ UiChapPanel::SetDialog(MDialog *dialog) {
 		__IsOinline = __pDialog->GetIsOnline() == 1;
 		ImageCache::getInstance().LoadImageForTarget(__pDialog->GetPhoto(), this);
 	}
+
+	if (__pDialog && __pDialog->GetChatId() != 0) {
+		__pGroupButton->SetShowState(true);
+
+		__pGroupButton->SetTextSize(40);
+		String count;
+		if ( __pDialog->GetUsers()) {
+			count.Format(10, L"%d", __pDialog->GetUsers()->GetCount() + 1);
+		} else {
+			count = L"0";
+		}
+		__pGroupButton->SetText(count);
+
+		__pGroupButton->SetBounds(Rectangle(this->GetBounds().width - 150, 0, 120, this->GetBounds().height));
+		this->__pGroupButton->SetNormalBitmap(Point(10, 100/2 - 72/2), *Resources::getInstance().LoadBitmapNamed(L"header_icon_group.png"));
+	} else {
+		__pEditButton->SetTextSize(28);
+		this->__pEditButton->SetBounds(Rectangle(this->GetBounds().width - 150, 0, 140, this->GetBounds().height));
+	}
+
 	this->RequestRedraw();
 }
 
@@ -294,6 +357,13 @@ UiChapPanel::OnDraw() {
 
 	}
 
+
+	if (this->__isEditMode) {
+		String descrString;
+		Application::GetInstance()->GetAppResource()->GetString(IDS_CANCEL, descrString);
+		__pEditButton->SetText(descrString);
+	}
+
 	delete pCanvas;
 
 	return r;
@@ -361,4 +431,28 @@ UiChapPanel::OnTimerExpired (Timer &timer) {
 
 	delete this->__pPrintingTimer;
 	this->__pPrintingTimer = null;
+}
+
+void
+UiChapPanel::SetEditMode(bool mode) {
+	this->__isEditMode = mode;
+
+	if (mode) {
+		if (this->__pGroupButton->GetShowState()) {
+			this->__pGroupButton->SetShowState(false);
+		}
+		this->__pEditButton->SetShowState(true);
+	} else {
+		this->__pEditButton->SetShowState(false);
+		if (this->__pDialog && this->__pDialog->GetChatId() != 0) {
+			this->__pGroupButton->SetShowState(false);
+		}
+	}
+
+	this->Invalidate(true);
+}
+
+bool
+UiChapPanel::GetEditMode() {
+	return this->__isEditMode;
 }

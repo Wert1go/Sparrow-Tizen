@@ -30,6 +30,8 @@ MDialog::MDialog() {
 
 	__pUser = null;
 	__pType = null;
+	__attachmentCount = 0;
+	__fwdCount = 0;
 }
 
 MDialog::~MDialog() {
@@ -53,7 +55,25 @@ MDialog::~MDialog() {
 String*
 MDialog::TableDescription() {
 	String *sql = new String();
-	sql->Append(L"CREATE TABLE IF NOT EXISTS dialogs (_id INTEGER PRIMARY KEY, identifier INTEGER, uid INTEGER UNIQUE, last_name TEXT, first_name TEXT, photo TEXT, mini_photo TEXT, is_online INTEGER, date INTEGER, out INTEGER, read_state INTEGER, title TEXT, text TEXT, chat_id INTEGER, chat_uids TEXT)");
+	sql->Append(L"CREATE TABLE IF NOT EXISTS dialogs ("
+			"_id INTEGER PRIMARY KEY,"
+			" identifier INTEGER,"
+			" uid INTEGER UNIQUE,"
+			" last_name TEXT,"
+			" first_name TEXT,"
+			" photo TEXT,"
+			" mini_photo TEXT,"
+			" is_online INTEGER,"
+			" date INTEGER,"
+			" out INTEGER,"
+			" read_state INTEGER,"
+			" title TEXT,"
+			" text TEXT,"
+			" chat_id INTEGER,"
+			" chat_uids TEXT, "
+			" attachment_count INTEGER,"
+			" fwd_count INTEGER "
+			")");
 	return sql;
 }
 
@@ -368,6 +388,46 @@ MDialog::CreateFromJsonN(
 	dialog->SetReadState(readState->ToInt());
 	dialog->SetTitle(pTitle);
 	dialog->SetText(pText);
+
+	JsonString *pKeyAttachments = new JsonString(L"attachments");
+	IJsonValue* pValAttachments = null;
+
+	pMessageObject.GetValue(pKeyAttachments, pValAttachments);
+
+	if (pValAttachments) {
+		JsonArray *pAttachments = static_cast<JsonArray *>(pValAttachments);
+		if (pAttachments && pAttachments->GetCount() > 0) {
+			dialog->__attachmentCount = pAttachments->GetCount();
+		}
+	}
+
+	JsonString* pKeyGeo = new JsonString(L"geo");
+	IJsonValue* pValGeo = null;
+
+	pMessageObject.GetValue(pKeyGeo, pValGeo);
+
+	if (pValGeo) {
+		JsonObject *pGaoObject = static_cast<JsonObject*>(pValGeo);
+		if (pGaoObject) {
+			dialog->__attachmentCount += 1;
+		}
+	}
+
+	JsonString* pKeyFwdMessages = new JsonString(L"fwd_messages");
+	IJsonValue* pValFwds = null;
+
+	pMessageObject.GetValue(pKeyFwdMessages, pValFwds);
+
+	if (pValFwds) {
+		JsonArray *pFwds = static_cast<JsonArray *>(pValFwds);
+		if (pFwds && pFwds->GetCount() > 0) {
+			dialog->__fwdCount = pFwds->GetCount();
+		}
+	}
+
+	delete pKeyGeo;
+	delete pKeyFwdMessages;
+	delete pKeyAttachments;
 
 	delete pKeyId;
 
