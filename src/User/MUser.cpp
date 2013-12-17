@@ -344,7 +344,7 @@ MUser::CreateFromPerson(Tizen::Social::Person *pPerson) {
 	pUser->SetLastName(new String(L""));
 	pUser->SetPhoto(new String(L""));
 	pUser->SetMiniPhoto(new String(L""));
-
+	pUser->__isContact = 1;
 	pUser->__pContactName = new String(personName.GetPointer());
 	pUser->__pContactPhone = new String(phoneString.GetPointer());
 
@@ -385,7 +385,7 @@ MUser::TableContactsDescription() {
 
 	sql->Append(L"CREATE TABLE IF NOT EXISTS contacts ("
 			"_id INTEGER PRIMARY KEY,"
-			" uid INTEGER UNIQUE,"
+			" uid INTEGER,"
 			" last_name TEXT,"
 			" first_name TEXT,"
 			" photo TEXT,"

@@ -11,12 +11,13 @@
     <Apps>
         <ApiVersion>2.2</ApiVersion>
         <Privileges>
-       		<Privilege>http://tizen.org/privilege/contact.read</Privilege>
-            <Privilege>http://tizen.org/privilege/contact.write</Privilege>
             <Privilege>http://tizen.org/privilege/web.service</Privilege>
-            <Privilege>http://tizen.org/privilege/application.launch</Privilege>
             <Privilege>http://tizen.org/privilege/http</Privilege>
+            <Privilege>http://tizen.org/privilege/application.launch</Privilege>
             <Privilege>http://tizen.org/privilege/notification</Privilege>
+            <Privilege>http://tizen.org/privilege/contact.write</Privilege>
+            <Privilege>http://tizen.org/privilege/messaging.write</Privilege>
+            <Privilege>http://tizen.org/privilege/contact.read</Privilege>
         </Privileges>
         <UiApp LaunchingHistoryVisible="True" Main="True" MenuIconVisible="True" Name="Sparrow">
             <UiScalability BaseScreenSize="Normal" CoordinateSystem="Logical" LogicalCoordinate="720"/>
@@ -28,7 +29,6 @@
                 <Icon Section="MainMenu">mainmenu.png</Icon>
             </Icons>
             <LaunchConditions/>
-            
         </UiApp>
     </Apps>
 </Manifest>

@@ -6,7 +6,7 @@
  */
 
 #include "ProfileForm.h"
-
+#include <FMessaging.h>
 #include "MUser.h"
 #include "RestRequestOperation.h"
 #include "ImageCache.h"
@@ -33,6 +33,9 @@
 #include "RestClient.h"
 #include "RestResponse.h"
 #include "Error.h"
+#include "Resources.h"
+
+#include "SceneRegister.h"
 
 #include "AppResourceId.h"
 
@@ -45,6 +48,7 @@ using namespace Tizen::Io;
 using namespace Tizen::Ui::Controls;
 using namespace Tizen::Ui::Scenes;
 using namespace Tizen::Graphics;
+using namespace Tizen::Messaging;
 
 using namespace Tizen::Io;
 using namespace Tizen::Media;
@@ -93,7 +97,6 @@ ProfileForm::OnInitializing(void) {
 	Color *textNormalColor = new (std::nothrow) Color(255, 255, 255, 255);
 	Color *textSelectedColor = new (std::nothrow) Color(0, 0, 0, 255);
 
-
 	__pAddButton = new (std::nothrow) Button();
 	__pAddButton->Construct(Rectangle(rect.width/2 - buttonWidth/2, yOffset, buttonWidth, 100));
 	__pAddButton->SetActionId(1);
@@ -104,6 +107,25 @@ ProfileForm::OnInitializing(void) {
 	__pAddButton->SetColor(BUTTON_STATUS_PRESSED, Color(65, 97, 137, 255));
 
 	AddControl(__pAddButton);
+
+	__pCallButton = new (std::nothrow) Button();
+	__pCallButton->Construct(
+			Rectangle(
+					rect.width/2 - buttonWidth/2,
+					__pAddButton->GetBounds().y + __pAddButton->GetBounds().height + 20,
+					buttonWidth,
+					100)
+			);
+
+	__pCallButton->SetActionId(3);
+	__pCallButton->AddActionEventListener(*this);
+	__pCallButton->SetTextColor(*textNormalColor);
+	__pCallButton->SetHighlightedTextColor(*textSelectedColor);
+	__pCallButton->SetColor(BUTTON_STATUS_NORMAL, Color(65, 97, 137, 255));
+	__pCallButton->SetColor(BUTTON_STATUS_PRESSED, Color(65, 97, 137, 255));
+	__pCallButton->SetShowState(false);
+
+	AddControl(__pCallButton);
 
 	__pRemoveButton = new (std::nothrow) Button();
 	__pRemoveButton->Construct(Rectangle(0, rect.height - 100, rect.width, 100));
@@ -125,17 +147,29 @@ ProfileForm::OnInitializing(void) {
 	Color *labelTextColor = new (std::nothrow) Color(86, 86, 93, 255);
 
 	__pAddLabel = new (std::nothrow) TextBox();
-	__pAddLabel->Construct(Rectangle(rect.width/2 - buttonWidth/2, yOffset, buttonWidth, 80), TEXT_BOX_BORDER_NONE);
-	__pAddLabel->SetText(L"Заявка отправлена!");
+	__pAddLabel->Construct(
+			Rectangle(
+				rect.width/2 - buttonWidth/2,
+				__pCallButton->GetBounds().y + __pCallButton->GetBounds().height + 20,
+				buttonWidth,
+				180)
+
+			, TEXT_BOX_BORDER_NONE);
+
 	__pAddLabel->SetTextAlignment(ALIGNMENT_CENTER);
 	__pAddLabel->SetTextColor(TEXT_BOX_TEXT_COLOR_NORMAL, *labelTextColor);
+	__pAddLabel->SetTextColor(TEXT_BOX_TEXT_COLOR_DISABLED, *labelTextColor);
 	__pAddLabel->SetTextSize(36);
-	__pAddLabel->SetFocusable(false);
 	__pAddLabel->SetShowState(false);
 
 	__pAddLabel->SetBackgroundBitmap(TEXT_BOX_STATUS_NORMAL, *pBackgroundBitmap);
 	__pAddLabel->SetBackgroundBitmap(TEXT_BOX_STATUS_HIGHLIGHTED, *pBackgroundBitmap);
 	__pAddLabel->SetBackgroundBitmap(TEXT_BOX_STATUS_DISABLED, *pBackgroundBitmap);
+
+	__pAddLabel->SetFocusable(false);
+	__pAddLabel->SetEnabled(false);
+	__pAddLabel->SetDragEnabled(false);
+	__pAddLabel->SetDropEnabled(false);
 
 	AddControl(__pAddLabel);
 
@@ -164,7 +198,12 @@ ProfileForm::OnSceneActivatedN(const Tizen::Ui::Scenes::SceneId& previousSceneId
 								   const Tizen::Ui::Scenes::SceneId& currentSceneId, Tizen::Base::Collection::IList* pArgs) {
 
 	if (pArgs->GetCount() > 0) {
+		if (dynamic_cast<MUser*>(pArgs->GetAt(0)) == 0) {
+			return;
+		}
+
 		MUser *user = static_cast< MUser* > (pArgs->GetAt(0));
+
 		this->__pUser = user;
 		this->UpdateScreenForUser();
 	}
@@ -173,30 +212,56 @@ ProfileForm::OnSceneActivatedN(const Tizen::Ui::Scenes::SceneId& previousSceneId
 void
 ProfileForm::UpdateScreenForUser() {
 	String *fullName = new String();
-	fullName->Append(this->__pUser->GetFirstName()->GetPointer());
-	fullName->Append(L" ");
-	fullName->Append(this->__pUser->GetLastName()->GetPointer());
+
+	if (this->__pUser->__isContact == 1) {
+		fullName->Append(this->__pUser->__pContactName->GetPointer());
+	} else {
+		fullName->Append(this->__pUser->GetFirstName()->GetPointer());
+		fullName->Append(L" ");
+		fullName->Append(this->__pUser->GetLastName()->GetPointer());
+	}
 
 	Header *pHeader = this->GetHeader();
 	pHeader->SetTitleText(fullName->GetPointer());
 
-//	if (this->__pUser->__isFriend == 1) {
-//		__pRemoveButton->SetShowState(true);
-//	} else {
-//		__pRemoveButton->SetShowState(false);
-//	}
-
 	if (this->__pUser) {
+
+		if (this->__pUser->__isFriend == 1) {
+			if(this->__pUser->__isContact == 1 && this->__pUser->__pContactPhone && this->__pUser->__pContactPhone->GetLength() > 3) {
+				this->__pCallButton->SetShowState(true);
+			} else {
+				this->__pCallButton->SetShowState(false);
+			}
+		} else {
+			if(this->__pUser->__isContact == 1 && this->__pUser->__pContactPhone && this->__pUser->__pContactPhone->GetLength() > 3) {
+				this->__pCallButton->SetShowState(true);
+			} else {
+				this->__pCallButton->SetShowState(false);
+			}
+		}
+
 		if ((this->__pUser->__isFriend != 1 && this->__pUser->__isContact == 1) || this->__pUser->__isFriend != 1) {
 			this->__pRemoveButton->SetShowState(false);
 		} else {
 			this->__pRemoveButton->SetShowState(true);
 		}
 
+		if(this->__pUser->__isFriend == 0 && this->__pUser->__isContact == 1) {
+			this->__pAddLabel->SetShowState(true);
+		} else {
+			this->__pAddLabel->SetShowState(false);
+		}
+
 		this->Invalidate(true);
 	}
 
-	ImageCache::getInstance().LoadImageForTarget(this->__pUser->__pBigPhoto, this);
+	if (this->__pUser->__pBigPhoto && this->__pUser->__pBigPhoto->GetLength() > 4) {
+		ImageCache::getInstance().LoadImageForTarget(this->__pUser->__pBigPhoto, this);
+	} else {
+		if (!this->__pUserAvatar) {
+			this->__pUserAvatar = Resources::getInstance().LoadBitmapNamed(L"no_photo_user.png");
+		}
+	}
 	this->Invalidate(true);
 }
 
@@ -209,23 +274,43 @@ ProfileForm::OnSceneDeactivated(const Tizen::Ui::Scenes::SceneId& currentSceneId
 void
 ProfileForm::OnActionPerformed(const Tizen::Ui::Control& source, int actionId) {
 	if (actionId == 1) {
-		HashMap *params = new HashMap();
-		params->Construct();
 
-		params->Add(new String(L"access_token"), AuthManager::getInstance().AccessToken());
+		if (this->__pUser->__isFriend == 1) {
+			SceneManager* pSceneManager = SceneManager::GetInstance();
+			AppAssert(pSceneManager);
 
-		String uid;
-		uid.Format(10, L"%d", this->__pUser->GetUid());
+			ArrayList *paramsList = new (std::nothrow) ArrayList();
+			paramsList->Construct();
 
-		params->Add(new String(L"user_id"), new String(uid));
 
-		if (!__pAddToFriendsOperation) {
-			__pAddToFriendsOperation = new RestRequestOperation(ADD_TO_FRIEND_REQUEST, new String(L"friends.add"), params);
-			__pAddToFriendsOperation->AddEventListener(this);
-			RMessageSendDescriptor *descriptor = new RMessageSendDescriptor();
-			__pAddToFriendsOperation->SetResponseDescriptor(descriptor);
-			RestClient::getInstance().PerformOperation(__pAddToFriendsOperation);
+			paramsList->Add(new Integer(this->__pUser->GetUid()));
+
+			pSceneManager->GoForward(ForwardSceneTransition(SCENE_CHAT, SCENE_TRANSITION_ANIMATION_TYPE_LEFT), paramsList);
+		} else {
+			if(this->__pUser->__isContact == 1) {
+				SendInvite();
+			} else {
+				HashMap *params = new HashMap();
+				params->Construct();
+
+				params->Add(new String(L"access_token"), AuthManager::getInstance().AccessToken());
+
+				String uid;
+				uid.Format(10, L"%d", this->__pUser->GetUid());
+
+				params->Add(new String(L"user_id"), new String(uid));
+
+				if (!__pAddToFriendsOperation) {
+					__pAddToFriendsOperation = new RestRequestOperation(ADD_TO_FRIEND_REQUEST, new String(L"friends.add"), params);
+					__pAddToFriendsOperation->AddEventListener(this);
+					RMessageSendDescriptor *descriptor = new RMessageSendDescriptor();
+					__pAddToFriendsOperation->SetResponseDescriptor(descriptor);
+					RestClient::getInstance().PerformOperation(__pAddToFriendsOperation);
+				}
+			}
 		}
+
+
 	} else if (actionId == 2) {
 		if (this->__pUser && this->__pUser->__isPending == 1) {
 			HashMap *params = new HashMap();
@@ -265,6 +350,12 @@ ProfileForm::OnActionPerformed(const Tizen::Ui::Control& source, int actionId) {
 				RestClient::getInstance().PerformOperation(__pDeleteFriendOperation);
 			}
 		}
+	} else if (actionId == 3) {
+
+		if (this->__pUser->__isContact == 1) {
+			Call();
+		}
+		//позвонить
 	}
 }
 
@@ -407,8 +498,32 @@ ProfileForm::OnDraw() {
 	}
 
 	String addString;
-	Application::GetInstance()->GetAppResource()->GetString(IDS_ADD_FRIEND, addString);
+
+	if (this->__pUser->__isFriend == 1) {
+		Application::GetInstance()->GetAppResource()->GetString(IDS_CONTACT_SEND_MESSAGE, addString);
+	} else {
+		if (this->__pUser->__isContact == 1) {
+			Application::GetInstance()->GetAppResource()->GetString(IDS_CONTACT_SEND_INVITE, addString);
+		} else {
+			Application::GetInstance()->GetAppResource()->GetString(IDS_ADD_FRIEND, addString);
+		}
+	}
+
 	__pAddButton->SetText(addString);
+
+	if (this->__pUser->__isContact == 1) {
+		String callString;
+		Application::GetInstance()->GetAppResource()->GetString(IDS_CONTACT_CALL, callString);
+		if (this->__pUser->__pContactPhone) {
+			callString.Append(L" ");
+			callString.Append(this->__pUser->__pContactPhone->GetPointer());
+			__pCallButton->SetText(callString);
+		} else {
+			__pCallButton->SetShowState(false);
+		}
+
+	}
+
 
 	if (this->__pUser && this->__pUser->__isPending == 1) {
 		String declineString;
@@ -422,7 +537,63 @@ ProfileForm::OnDraw() {
 
 //	__pAddLabel->SetText(L"Заявка отправлена!");
 
+	if(this->__pUser->__isFriend == 0 && this->__pUser->__isContact == 1) {
+		String deleteString;
+		Application::GetInstance()->GetAppResource()->GetString(IDS_CONTACT_NOT_REGISTRED, deleteString);
+		__pAddLabel->SetText(deleteString);
+	}
+
 	delete pCanvas;
 
 	return r;
+}
+
+void
+ProfileForm::SendInvite() {
+	if (!this->__pUser->__pContactPhone) {
+		return;
+	}
+
+	result r;
+
+	Tizen::Messaging::SmsManager smsManager;
+	smsManager.Construct(*this);
+	SmsMessage smsMessage;
+	String deleteString;
+	Application::GetInstance()->GetAppResource()->GetString(IDS_INVITE_STRING, deleteString);
+	r = smsMessage.SetText(deleteString);
+
+	RecipientList recipients;
+
+	r = recipients.Add(RECIPIENT_TYPE_TO, this->__pUser->__pContactPhone->GetPointer());
+
+	r = smsManager.Send(smsMessage, recipients, true);
+}
+
+void
+ProfileForm::OnSmsMessageSent(result r) {
+
+}
+
+void
+ProfileForm::Call() {
+	if (!this->__pUser->__pContactPhone) {
+		return;
+	}
+
+	String uri = L"tel:";
+	uri.Append(this->__pUser->__pContactPhone->GetPointer());
+
+	HashMap extraData;
+	extraData.Construct();
+	String typeKey = L"http://tizen.org/appcontrol/data/call/type";
+	String typeVal = L"voice";
+	extraData.Add(&typeKey, &typeVal);
+
+	AppControl* pAc = AppManager::FindAppControlN(L"tizen.call",
+										 L"http://tizen.org/appcontrol/operation/call");
+	if (pAc) {
+		pAc->Start(&uri, null, &extraData, null);
+		delete pAc;
+	}
 }

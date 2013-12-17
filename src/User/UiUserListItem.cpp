@@ -208,24 +208,23 @@ UiUserListItem::OnDraw (Tizen::Graphics::Canvas &canvas, const Tizen::Graphics::
 
 /************************* TITLE **********************/
 
-
 	if (this->__pContactName) {
-		float textPosition =  rect.height/2 - (rect.height/2)/2 -  (float)__pUserName->GetSize().height/2;
-		float textPosition1 =  rect.height/2 + (rect.height/2)/2 -  (float)__pUserName->GetSize().height/2;
+		if (this->__pUser->__isFriend) {
+			float textPosition =  rect.height/2 - (rect.height/2)/2 -  (float)__pUserName->GetSize().height/2;
+			float textPosition1 =  rect.height/2 + (rect.height/2)/2 -  (float)__pUserName->GetSize().height/2;
 
-		canvas.DrawText(FloatPoint(baseListItemOffset, textPosition + shift), *__pContactName);
+			canvas.DrawText(FloatPoint(baseListItemOffset, textPosition + shift), *__pContactName);
 
-		canvas.DrawText(FloatPoint(baseListItemOffset, textPosition1 + shift), *__pUserName);
-
-
+			canvas.DrawText(FloatPoint(baseListItemOffset, textPosition1 + shift), *__pUserName);
+		} else {
+			float textPosition =  rect.height/2 -  (float)__pUserName->GetSize().height/2;
+			canvas.DrawText(FloatPoint(baseListItemOffset, textPosition + shift), *__pContactName);
+		}
 	} else {
 		float textPosition =  rect.height/2 -  (float)__pUserName->GetSize().height/2;
 
 		canvas.DrawText(FloatPoint(baseListItemOffset, textPosition + shift), *__pUserName);
 	}
-
-
-
 
 /*********************** ONLINE STATUS ***********************/
 

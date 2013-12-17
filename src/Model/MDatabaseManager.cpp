@@ -86,6 +86,26 @@ MDatabaseManager::Clear() {
 	String *sqlAttachment = new String(L"DELETE FROM attachments");
 	r = __database->ExecuteSql(sqlAttachment->GetPointer(), true);
 	delete sqlAttachment;
+
+	String *sqlContacts = new String(L"DELETE FROM contacts");
+	r = __database->ExecuteSql(sqlContacts->GetPointer(), true);
+	delete sqlContacts;
+
+	String *sqlRel1 = new String(L"DELETE FROM m_to_a_relations");
+	r = __database->ExecuteSql(sqlRel1->GetPointer(), true);
+	delete sqlRel1;
+
+	String *sqlRel2 = new String(L"DELETE FROM m_to_fm_relations");
+	r = __database->ExecuteSql(sqlRel2->GetPointer(), true);
+	delete sqlRel2;
+
+	String *sqlFwd = new String(L"DELETE FROM fwd_messages");
+	r = __database->ExecuteSql(sqlFwd->GetPointer(), true);
+	delete sqlFwd;
+
+	String *sqlGeo = new String(L"DELETE FROM geo");
+	r = __database->ExecuteSql(sqlGeo->GetPointer(), true);
+	delete sqlGeo;
 }
 
 MDatabaseManager::~MDatabaseManager() {

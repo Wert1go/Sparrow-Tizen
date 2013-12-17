@@ -305,7 +305,7 @@ UiContactsPanel::SyncContacts() {
 		MUser *pUser = static_cast<MUser *>(this->__pContactsList->GetAt(i));
 
 		if (pUser->__pContactPhone && pUser->__pContactPhone->GetLength() > 0) {
-			if (i != 0 && i != this->__pContactsList->GetCount() - 1) {
+			if (i != 0) {
 				phonesString.Append(L",");
 			}
 			phonesString.Append(pUser->__pContactPhone->GetPointer());
@@ -343,7 +343,9 @@ UiContactsPanel::OnSuccessN(RestResponse *result) {
 			for (int i = 0; i < response->GetUsers()->GetCount(); i++) {
 				MUser *pRemoteUser = static_cast<MUser *>(response->GetUsers()->GetAt(i));
 				for (int j = 0; j < this->__pContactsList->GetCount(); j++) {
-					MUser *pLocalUser = static_cast<MUser *>(this->__pContactsList->GetAt(i));
+					MUser *pLocalUser = static_cast<MUser *>(this->__pContactsList->GetAt(j));
+
+					AppLog("this->__pContactsList: %S", pLocalUser->__pContactPhone->GetPointer());
 
 					if ((pRemoteUser->__pContactPhone && pLocalUser->__pContactPhone) &&
 							pRemoteUser->__pContactPhone->Equals(pLocalUser->__pContactPhone->GetPointer(), false))  {
@@ -363,10 +365,12 @@ UiContactsPanel::OnSuccessN(RestResponse *result) {
 						pLocalUser->SetLastSeen(pRemoteUser->GetLastSeen());
 						pLocalUser->SetType(pRemoteUser->GetType());
 						pLocalUser->SetIsOnline(pRemoteUser->GetIsOnline());
-
+						AppLog("-----------+++++++++++++-------");
 						break;
 					}
 				}
+
+				AppLog("------------------");
 			}
 		}
 
@@ -377,9 +381,14 @@ UiContactsPanel::OnSuccessN(RestResponse *result) {
 		}
 
 		__pUsersList->AddItems(*this->__pContactsList);
-		this->RequestUiUpdate(result->GetOperationCode(), 0);
+
+		AppLog("__pUsersList %d", __pUsersList->GetCount());
 
 		MUserDao::getInstance().Save(__pUsersList, true);
+
+		this->RequestUiUpdate(result->GetOperationCode(), 0);
+
+
 	}
 
 }

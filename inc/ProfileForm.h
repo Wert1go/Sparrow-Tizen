@@ -10,6 +10,7 @@
 
 #include <FUi.h>
 #include <FBase.h>
+#include <FMessaging.h>
 #include "IRestRequestListener.h"
 
 
@@ -22,6 +23,7 @@ class RestRequestOperation;
 
 using namespace Tizen::Ui::Controls;
 using namespace Tizen::Graphics;
+using namespace Tizen::Messaging;
 
 class ProfileForm
  : public Tizen::Ui::Controls::Form
@@ -30,6 +32,7 @@ class ProfileForm
  , public IRestRequestListener
  , public Tizen::Ui::IActionEventListener
  , public IImageLoadingListener
+ , public Tizen::Messaging::ISmsListener
    {
 public:
 	ProfileForm();
@@ -57,10 +60,18 @@ public:
 
 	void UpdateScreenForUser();
 
+	void Call();
+	void SendInvite();
+
+	virtual void OnSmsMessageSent(result r);
+
 private:
 	MUser *__pUser;
 	Bitmap *__pUserAvatar;
 	Button *__pAddButton;
+
+	Button *__pCallButton;
+
 	Button *__pRemoveButton;
 	Tizen::Ui::Controls::TextBox *__pAddLabel;
 
