@@ -11,6 +11,8 @@
 #include <FGraphics.h>
 #include "Resources.h"
 
+#include "Helper.h"
+
 using namespace Tizen::Ui::Controls;
 using namespace Tizen::Graphics;
 
@@ -21,9 +23,15 @@ UiImageView::UiImageView() {
 }
 
 UiImageView::~UiImageView() {
-	if (__pBitmapImage) {
-		delete __pBitmapImage;
-	}
+
+	SAFE_DELETE(__pBitmapImage);
+}
+
+void
+UiImageView::SetBitmap(Bitmap *pBitmapImage) {
+	SAFE_DELETE(__pBitmapImage);
+
+	__pBitmapImage = pBitmapImage;
 }
 
 bool

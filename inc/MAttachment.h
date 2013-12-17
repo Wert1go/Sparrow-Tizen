@@ -79,13 +79,13 @@ public:
 	//audio, doc
 	String *__pUrl;
 
-	String *__text;
-
 	//doc
 	int __size;
 	String *__pExt;
 
 	int __nesting;
+
+	String *__text;
 
 public:
 	static MAttachment* CreateFromJsonN(const Tizen::Web::Json::JsonObject &jsonObject);
@@ -99,10 +99,9 @@ public:
 	static MAttachment* CreateFromJsonLPN(const Tizen::Web::Json::JsonObject &jsonObject);
 	static String* TableDescription();
 
-	MUser *__pUser;
-
 	Point __absolutePosition;
 
+	MUser *__pUser;
 	MGeo *__pGeo;
 
 	LinkedList *__pAttachments;

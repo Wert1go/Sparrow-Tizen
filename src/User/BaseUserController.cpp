@@ -159,6 +159,7 @@ BaseUserController::DeleteGroupItem(int groupIndex, GroupItem* pItem, int itemWi
 void
 BaseUserController::SplitUsersToSections() {
 	AppAssert(__pUsersList);
+
 	__pSectionItemsList->RemoveAll();
 	__pSectionTitlesList->RemoveAll();
 
@@ -274,5 +275,29 @@ BaseUserController::RequestUpdateForIndex(int index, int elementId) {
 ListAnnexStyle
 BaseUserController::GetCurrentAnnexStyle() {
 	return LIST_ANNEX_STYLE_NORMAL;
+}
+
+void
+BaseUserController::SetUserList(LinkedList *pList) {
+	if(this->__pUsersList) {
+		__pSectionItemsList->RemoveAll();
+		__pSectionTitlesList->RemoveAll();
+
+		this->__pUsersList->RemoveAll(true);
+		delete this->__pUsersList;
+		this->__pUsersList = null;
+	}
+	this->__pUsersList = pList;
+
+	AppLog("55555555555555555f");
+}
+
+LinkedList*
+BaseUserController::GetUsersList() {
+	if (!this->__pUsersList) {
+		this->__pUsersList = new LinkedList();
+	}
+
+	return this->__pUsersList;
 }
 

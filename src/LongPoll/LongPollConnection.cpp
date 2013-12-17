@@ -526,10 +526,14 @@ LongPollConnection::ShowNotification(MMessage *pMessage, MUser *pUser) {
 	}
 
 	request.SetNotificationStyle(NOTIFICATION_STYLE_NORMAL);
+	AppLog("ShowNotification ---");
 	//Добавить проверку на отсутствие иконки!
-	if (pUser) {
-		request.SetIconFilePath(ImageCache::getInstance().PathForUrl(pUser->GetPhoto()));
+	if (pUser && pUser->GetPhoto() && pUser->GetPhoto()->GetLength() > 1) {
+		AppLog("%S", pUser->GetPhoto()->GetPointer());
+
+		request.SetIconFilePath(ImageCache::getInstance().PathForUrl(new String(pUser->GetPhoto()->GetPointer())));
 	}
 
 	r = __pNotificationManager->Notify(request);
+	AppLog("ShowNotification+++++");
 }

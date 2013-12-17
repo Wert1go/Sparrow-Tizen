@@ -62,6 +62,7 @@ private:
 	static const int ID_USER_MESSAGE = 105;
 
 	UiChatListItem* __pChatListItem;
+
 	MMessage *__pMessage;
 	MDialog *__pDialog;
 

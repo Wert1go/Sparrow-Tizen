@@ -17,6 +17,8 @@
 #include "Util.h"
 #include "MMessage.h"
 
+#include "Helper.h"
+
 using namespace Tizen::Ui::Controls;
 using namespace Tizen::Graphics;
 
@@ -39,22 +41,11 @@ UiAttachmentView::UiAttachmentView() {
 }
 
 UiAttachmentView::~UiAttachmentView() {
-//	AppLog("UiAttachmentView::~UiAttachmentView");
-	if (__pBitmapImage) {
-		delete __pBitmapImage;
-	}
-
-	if (__pTitleText) {
-		delete __pTitleText;
-	}
-
-	if (__pDurationText) {
-		delete __pDurationText;
-	}
-
-	if (__pTextText) {
-		delete __pTextText;
-	}
+	AppLog("UiAttachmentView::~UiAttachmentView");
+	SAFE_DELETE(__pBitmapImage);
+	SAFE_DELETE(__pTitleText);
+	SAFE_DELETE(__pDurationText);
+	SAFE_DELETE(__pTextText);
 
 	if (__pTitleLabel) {
 		__pTitleLabel->RemoveAll(true);
@@ -70,6 +61,13 @@ UiAttachmentView::~UiAttachmentView() {
 		__pTextLabel->RemoveAll(true);
 		delete __pTextLabel;
 	}
+}
+
+void
+UiAttachmentView::SetBitmap(Bitmap *pBitmapImage) {
+	SAFE_DELETE(__pBitmapImage);
+
+	__pBitmapImage = pBitmapImage;
 }
 
 bool

@@ -57,6 +57,7 @@ private:
 	float __textOffset;
 	float __triangleWidth;
 	float __triangleHeight;
+
 	MDialog *__pDialog;
 	MUser *__pUser;
 

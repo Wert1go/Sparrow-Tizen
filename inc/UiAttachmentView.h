@@ -30,6 +30,7 @@ public:
 
 	virtual bool OnDraw (Tizen::Graphics::Canvas &canvas, const Tizen::Graphics::Rectangle &rect, Tizen::Ui::Controls::ListItemDrawingStatus status);
 
+	void SetBitmap(Bitmap *pBitmap);
 public:
 	Bitmap *__pBitmapImage;
 	MAttachment *__pAttachment;

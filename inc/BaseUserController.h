@@ -53,6 +53,9 @@ public:
 
 	ListAnnexStyle GetCurrentAnnexStyle();
 
+	LinkedList * GetUsersList();
+	void SetUserList(LinkedList *pList);
+
 public:
 	Tizen::Ui::Controls::GroupedListView* __pListView;
 	Tizen::Ui::Controls::ListContextItem* __pItemContext;

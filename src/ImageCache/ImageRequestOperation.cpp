@@ -70,6 +70,7 @@ ImageRequestOperation::~ImageRequestOperation() {
 	if (__pByteBuffer) {
 		delete __pByteBuffer;
 	}
+
 }
 
 void ImageRequestOperation::perform() {
@@ -150,11 +151,13 @@ void
 ImageRequestOperation::OnTransactionAborted(HttpSession& httpSession, HttpTransaction& httpTransaction, result r)
 {
 //	AppLog("ImageRequestOperation::OnTransactionAborted(%s)", GetErrorMessage(r));
+	__pHttpTransaction = null;
+	delete &httpTransaction;
+
 	if (__pRequestOwner) {
 		__pRequestOwner->OnCompliteN(this);
 	}
-	__pHttpTransaction = null;
-	delete &httpTransaction;
+
 }
 
 void

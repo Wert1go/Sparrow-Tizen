@@ -36,7 +36,9 @@ SearchUserPanel::SearchUserPanel() {
 	__pUsersSuggest = new LinkedList();
 	__pUsersRequests = new LinkedList();
 	__pUsersSearchResults = new LinkedList();
+
 	__pListUpdateTimer = null;
+
 	__pUserRequestsOperation = null;
 	__pUserSuggestOperation = null;
 	__pUserSearchOperation = null;
@@ -127,7 +129,8 @@ SearchUserPanel::OnSceneActivatedN(const Tizen::Ui::Scenes::SceneId& previousSce
 void
 SearchUserPanel::OnSceneDeactivated(const Tizen::Ui::Scenes::SceneId& currentSceneId,
 										const Tizen::Ui::Scenes::SceneId& nextSceneId) {
-
+	this->__pSearchBar->HideKeypad();
+	this->SetFocus();
 }
 
 void
@@ -209,7 +212,9 @@ SearchUserPanel::OnSuccessN(RestResponse *response) {
 		}
 
 		UserRestResponse *userResponse = static_cast<UserRestResponse *>(response);
-		this->__pUsersSuggest->RemoveAll();
+		__pSectionItemsList->RemoveAll();
+		__pSectionTitlesList->RemoveAll();
+		this->__pUsersSuggest->RemoveAll(true);
 
 		for (int i = 0; i < userResponse->GetUsers()->GetCount(); i++) {
 			MUser *user = static_cast<MUser *>(userResponse->GetUsers()->GetAt(i));
@@ -225,7 +230,9 @@ SearchUserPanel::OnSuccessN(RestResponse *response) {
 		}
 
 		UserRestResponse *userResponse = static_cast<UserRestResponse *>(response);
-		this->__pUsersRequests->RemoveAll();
+		__pSectionItemsList->RemoveAll();
+		__pSectionTitlesList->RemoveAll();
+		this->__pUsersRequests->RemoveAll(true);
 		this->__pUsersRequests->AddItems(*userResponse->GetUsers());
 
 
@@ -237,7 +244,9 @@ SearchUserPanel::OnSuccessN(RestResponse *response) {
 		}
 
 		UserRestResponse *userResponse = static_cast<UserRestResponse *>(response);
-		this->__pUsersSearchResults->RemoveAll();
+		__pSectionItemsList->RemoveAll();
+		__pSectionTitlesList->RemoveAll();
+		this->__pUsersSearchResults->RemoveAll(true);
 		this->__pUsersSearchResults->AddItems(*userResponse->GetUsers());
 
 

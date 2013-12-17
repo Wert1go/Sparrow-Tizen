@@ -7,6 +7,7 @@
 
 #include "MUser.h"
 #include <FSocial.h>
+#include "Helper.h"
 
 using namespace Tizen::Social;
 using namespace Tizen::Base;
@@ -16,18 +17,35 @@ MUser::MUser() {
 	__isFriend = 0;
 	__isContact = 0;
 	__isPending = 0;
-	__pBigPhoto = null;
+
 	__lastSeen = 0;
 	__chat = 0;
+
+	__firstName = null;
+	__lastName = null;
+	__pBigPhoto = null;
 
 	__pContactName = null;
 	__pContactPhone = null;
 	__pContactPhoto = null;
+
+	__phoneNumber = null;
+	__photo = null;
+	__miniPhoto = null;
 }
 
 MUser::~MUser() {
-	delete __firstName;
-	delete __lastName;
+	SAFE_DELETE(__firstName);
+	SAFE_DELETE(__lastName);
+	SAFE_DELETE(__pBigPhoto);
+
+	SAFE_DELETE(__pContactName);
+	SAFE_DELETE(__pContactPhone);
+	SAFE_DELETE(__pContactPhoto);
+
+	SAFE_DELETE(__phoneNumber);
+	SAFE_DELETE(__photo);
+	SAFE_DELETE(__miniPhoto);
 }
 
 /***************** GETTERS ******************/
@@ -339,6 +357,33 @@ MUser::TableDescription() {
 	String *sql = new String();
 
 	sql->Append(L"CREATE TABLE IF NOT EXISTS users ("
+			"_id INTEGER PRIMARY KEY,"
+			" uid INTEGER UNIQUE,"
+			" last_name TEXT,"
+			" first_name TEXT,"
+			" photo TEXT,"
+			" mini_photo TEXT,"
+			" is_online INTEGER,"
+			" last_seen INTEGER,"
+			" is_friend  INTEGER,"
+			" is_contact INTEGER,"
+			" is_pending INTEGER,"
+			" big_photo TEXT, "
+
+			" contact_name TEXT, "
+			" contact_phone TEXT, "
+			" contact_photo TEXT "
+			")");
+
+	return sql;
+}
+
+String*
+MUser::TableContactsDescription() {
+
+	String *sql = new String();
+
+	sql->Append(L"CREATE TABLE IF NOT EXISTS contacts ("
 			"_id INTEGER PRIMARY KEY,"
 			" uid INTEGER UNIQUE,"
 			" last_name TEXT,"

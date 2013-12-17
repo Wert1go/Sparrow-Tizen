@@ -199,7 +199,6 @@ UiDialogCustomItem::Init() {
 
 		this->AddElement(Rectangle(80 - size/2, rect.height/2 - size/2, size, size), 0, *pImageView);
 
-
 		this->__pImageViews->Add(pImageView);
 
 		__pUserListItem = new UiUserListItem();
@@ -251,8 +250,7 @@ UiDialogCustomItem::OnImageLoadedN(Bitmap *result, Integer *code) {
 	if (__pImageViews && index < this->__pImageViews->GetCount()) {
 
 		UiImageView *imageView = static_cast<UiImageView *>(this->__pImageViews->GetAt(index));
-
-		imageView->__pBitmapImage = result;
+		imageView->SetBitmap(result);
 
 		if (__pRefreshListener) {
 			if (__section != -1) {

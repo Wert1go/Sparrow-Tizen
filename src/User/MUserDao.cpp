@@ -52,13 +52,49 @@ MUserDao::CreateSaveStatment() {
 	return compiledSaveStatment;
 }
 
+DbStatement *
+MUserDao::CreateSaveContactStatment() {
+	DbStatement *compiledSaveStatment = null;
+
+	String statement;
+	statement.Append(L"INSERT OR REPLACE INTO contacts ("
+			"uid, "
+			"last_name, "
+			"first_name, "
+			"photo, "
+			"mini_photo, "
+			"is_online, "
+			"last_seen, "
+			"is_friend, "
+			"is_contact, "
+			"is_pending, "
+			"big_photo, "
+			"contact_name, "
+			"contact_phone, "
+			"contact_photo "
+			") VALUES ("
+			"?, ?, ?, ?, ?, "
+			"?, ?, ?, ?, ?, "
+			"?, ?, ?, ?"
+			")");
+
+	compiledSaveStatment = MDatabaseManager::getInstance().GetDatabase()->CreateStatementN(statement);
+
+	return compiledSaveStatment;
+}
+
 void MUserDao::Save(MUser *user, bool isFriend) {
 
 	DbStatement *compiledSaveStatment;
 	DbEnumerator* pEnum = null;
 
+	if (isFriend) {
+		compiledSaveStatment = CreateSaveContactStatment();
+	} else {
 		compiledSaveStatment = CreateSaveStatment();
-		compiledSaveStatment = BindUserToSQLStatement(user, compiledSaveStatment);
+	}
+
+	compiledSaveStatment = BindUserToSQLStatement(user, compiledSaveStatment);
 
 	pEnum = MDatabaseManager::getInstance().GetDatabase()->ExecuteStatementN(*compiledSaveStatment);
 
@@ -70,7 +106,11 @@ void MUserDao::Save(IList *users, bool isFriends) {
 
 	DbStatement *compiledSaveStatment;
 
-	compiledSaveStatment = CreateSaveStatment();
+	if (isFriends) {
+		compiledSaveStatment = CreateSaveContactStatment();
+	} else {
+		compiledSaveStatment = CreateSaveStatment();
+	}
 
 	DbEnumerator* pEnum = null;
 
@@ -90,6 +130,7 @@ void MUserDao::Save(IList *users, bool isFriends) {
 	MDatabaseManager::getInstance().GetDatabase()->CommitTransaction();
 
 	delete pUserEnum;
+	delete compiledSaveStatment;
 }
 
 MUser *
@@ -234,7 +275,7 @@ MUserDao::GetContactsN() {
 			"contact_name, "
 			"contact_phone, "
 			"contact_photo "
-			"FROM users "
+			"FROM contacts "
 			"WHERE is_contact = ?");
 
 	DbStatement *compiledSaveStatment = MDatabaseManager::getInstance().GetDatabase()->CreateStatementN(sql);
@@ -333,7 +374,7 @@ MUserDao::SearchUsers(String *searchText) {
 			"big_photo, "
 			"contact_name, "
 			"contact_phone, "
-			"contact_photo"
+			"contact_photo "
 			"FROM users "
 			"WHERE first_name LIKE '%");
 	sql.Append(searchText->GetPointer());
@@ -361,6 +402,60 @@ MUserDao::SearchUsers(String *searchText) {
 
 	return pUsers;
 }
+
+LinkedList *
+MUserDao::SearchContacts(String *searchText) {
+	DbEnumerator* pEnum = null;
+	String sql;
+	LinkedList *pUsers = new LinkedList();
+
+	MUser *pUser = null;
+
+	sql.Append(L"SELECT "
+			"uid, "
+			"last_name, "
+			"first_name, "
+			"photo, "
+			"mini_photo, "
+			"is_online, "
+			"last_seen, "
+			"is_friend, "
+			"is_contact, "
+			"is_pending, "
+			"big_photo, "
+			"contact_name, "
+			"contact_phone, "
+			"contact_photo "
+			"FROM contacts "
+			"WHERE first_name LIKE '%");
+	sql.Append(searchText->GetPointer());
+	sql.Append(L"%' OR last_name LIKE '%");
+	sql.Append(searchText->GetPointer());
+	sql.Append(L"%' OR contact_name LIKE '%");
+	sql.Append(searchText->GetPointer());
+	sql.Append(L"%'");
+
+	DbStatement *compiledSaveStatment = MDatabaseManager::getInstance().GetDatabase()->CreateStatementN(sql);
+	pEnum = MDatabaseManager::getInstance().GetDatabase()->ExecuteStatementN(*compiledSaveStatment);
+	result r = GetLastResult();
+	AppLog(GetErrorMessage(r));
+
+	if (!pEnum) {
+		return pUsers;
+	}
+
+	while (pEnum->MoveNext() == E_SUCCESS)
+	{
+		pUser = LoadUserFromDBN(pEnum);
+		pUsers->Add(pUser);
+	}
+
+	delete compiledSaveStatment;
+	delete pEnum;
+
+	return pUsers;
+}
+
 
 LinkedList *
 MUserDao::GetPendingUsersN() {

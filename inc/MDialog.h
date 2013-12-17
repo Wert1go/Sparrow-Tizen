@@ -32,6 +32,7 @@ private:
 	String *__lastName;
 	String *__photo;
 	String *__miniPhoto;
+
 	int __uid;
 	int __isOnline;
 
@@ -90,7 +91,6 @@ public:
 
 	void SetChatId(int id);
 	void SetChatUids(String *uids);
-	//void SetChatUids(int[] uids);
 
 	MUser * GetUser();
 

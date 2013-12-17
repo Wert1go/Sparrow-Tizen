@@ -41,6 +41,8 @@ UiChatListItem::UiChatListItem() {
 UiChatListItem::~UiChatListItem() {
 	__textOffset = 0;
 
+	__pImageDrawer = null;
+
 	if (__pMessageText) {
 		delete __pMessageText;
 		__pMessageText = null;
@@ -424,6 +426,7 @@ UiChatListItem::Initalize() {
 				height - 136/2 - timeSize.height/2);
 	}
 
+	delete text;
 	__pTimeLabel = pTimeLabel;
 	__pTimeText = pTImeText;
 	__timeDrawPoint = datePoint;

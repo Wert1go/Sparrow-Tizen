@@ -292,18 +292,11 @@ MMessageDao::LoadMessageFromDBN(DbEnumerator* pEnum) {
 	message->SetText(text);
 	message->SetDelivered(delivered);
 
+	message->__pFwd = this->GetFwdMessages(mid);
 	message->__pAttachments = MAttachmentDao::getInstance().GetAttachments(mid);
-	if (message->__pAttachments && message->__pAttachments->GetCount()) {
-		AppLog("coun %d", message->__pAttachments->GetCount());
-	}
-
 	message->__pGeo = this->GetGeo(mid);
 
-	if (message->__pGeo) {
-		AppLog("%S", message->__pGeo->__pPlaceTitle->GetPointer());
-	}
 
-	message->__pFwd = this->GetFwdMessages(mid);
 
 	return message;
 }
@@ -439,20 +432,10 @@ MMessageDao::LoadFwdMessageFromDBN(DbEnumerator* pEnum) {
 	message->__owner = owner;
 
 	message->__pType = new String(L"fwd");
-
-	message->__pAttachments = MAttachmentDao::getInstance().GetAttachments(message->GetMid(), true);
-	if (message->__pAttachments && message->__pAttachments->GetCount()) {
-	}
-
-	message->__pGeo = this->GetGeo(message->GetMid());
-
-	if (message->__pGeo) {
-		AppLog("%S", message->__pGeo->__pPlaceTitle->GetPointer());
-	}
-
 	message->__pUser = MUserDao::getInstance().GetUserN(message->GetUid());
-
 	message->__pFwd = this->GetFwdMessages(message->GetMid());
+	message->__pAttachments = MAttachmentDao::getInstance().GetAttachments(message->GetMid(), true);
+	message->__pGeo = this->GetGeo(message->GetMid());
 
 	return message;
 }

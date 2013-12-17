@@ -32,6 +32,9 @@ private:
 	EnrichedText* __pUserName;
 	TextElement* __pUserNameText;
 
+	EnrichedText* __pContactName;
+	TextElement* __pContactText;
+
 };
 
 #endif /* UIUSERLISTITEM_H_ */

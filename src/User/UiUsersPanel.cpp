@@ -114,14 +114,23 @@ UiUsersPanel::OnInitializing(void) {
 
 result
 UiUsersPanel::OnTerminating(void) {
+	if (this->__pUsersList) {
+		this->__pUsersList->RemoveAll(true);
+		delete this->__pUsersList;
+		this->__pUsersList = null;
+	}
+	AppLog("2+++++++11111111111111111");
 	return E_SUCCESS;
 }
 
 void
 UiUsersPanel::OnSceneActivatedN(const Tizen::Ui::Scenes::SceneId& previousSceneId,
 									   const Tizen::Ui::Scenes::SceneId& currentSceneId, Tizen::Base::Collection::IList* pArgs) {
+	AppLog("UiUsersPanel UiUsersPanel +++++++");
 	if (__mode == -1) {
-		this->__pUsersList = MUserDao::getInstance().GetFriendsN();
+		AppLog("+++++++11111111111111111");
+		this->SetUserList(MUserDao::getInstance().GetFriendsN());
+		SplitUsersToSections();
 
 		if (this->__pListView) {
 			this->__pListView->UpdateList();
@@ -166,7 +175,7 @@ UiUsersPanel::OnSuccessN(RestResponse *response) {
 		}
 
 		UserRestResponse *userResponse = static_cast<UserRestResponse *>(response);
-		this->__pUsersList = userResponse->GetUsers();
+		this->SetUserList(userResponse->GetUsers());
 	}
 
 	this->RequestUiUpdate(response->GetOperationCode(), 0);
@@ -190,7 +199,6 @@ UiUsersPanel::OnUserEventReceivedN(RequestId requestId, Tizen::Base::Collection:
 	} else {
 		SplitUsersToSections();
 		try {
-
 			this->__pListView->UpdateList();
 		} catch (...) {
 
@@ -230,9 +238,9 @@ UiUsersPanel::OnTextValueChanged(const Tizen::Ui::Control& source) {
 	String string = this->__pSearchBar->GetText();
 
 	if (string.GetLength() == 0) {
-		this->__pUsersList = MUserDao::getInstance().GetFriendsN();
+		this->SetUserList(MUserDao::getInstance().GetFriendsN());
 	} else {
-		this->__pUsersList = MUserDao::getInstance().SearchUsers(new String(string.GetPointer()));
+		this->SetUserList(MUserDao::getInstance().SearchUsers(new String(string.GetPointer())));
 	}
 
 	SplitUsersToSections();
@@ -251,9 +259,9 @@ UiUsersPanel::SetCurrentDisplayMode(int mode) {
 	if (mode == 2) {
 		//do nothing
 	} else if (mode == 1) {
-		this->__pUsersList = MUserDao::getInstance().GetFriendsN(true);
+		this->SetUserList(MUserDao::getInstance().GetFriendsN(true));
 	} else {
-		this->__pUsersList = MUserDao::getInstance().GetFriendsN();
+		this->SetUserList(MUserDao::getInstance().GetFriendsN());
 	}
 
 	SplitUsersToSections();

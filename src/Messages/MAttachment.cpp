@@ -10,6 +10,10 @@
 using namespace Tizen::Base;
 using namespace Tizen::Web::Json;
 
+#include "Helper.h"
+#include "MUser.h"
+#include "MGeo.h"
+
 const wchar_t* PHOTO = L"photo";
 const wchar_t* AUDIO = L"audio";
 const wchar_t* VIDEO = L"video";
@@ -18,80 +22,75 @@ const wchar_t* POINT = L"point";
 const wchar_t* FWD = L"fwd";
 
 MAttachment::MAttachment() {
-	__pType = null;
-	__pAccessKey = null;
-	__pPhoto130 = null;
-	__pPhoto604 = null;
 	__id = 0;
 	__album_id = 0;
 
-	__pVideoPhoto320 = null;
-	__pTitle = null;
 	__duration = 0;
 	__views = 0;
-	__pDescription = null;
-	__pArtist = null;
-	__pUrl = null;
 	__size = 0;
-	__pExt = null;
 
 	//utils
-	__pFilePath = null;
+
 	__tempId = 0;
 	ratio = 0;
 	cut = 0;
 	__nesting = 0;
 	imageSize = FloatPoint(0,0);
 
-	this->__pUser = null;
-	__text = new String(L"");
+	__pType = null;
+	__pAccessKey = null;
+	__pPhoto130 = null;
+	__pPhoto604 = null;
+
+	__pVideoPhoto320 = null;
+	__pTitle = null;
+
+	__pDescription = null;
+	__pArtist = null;
+	__pUrl = null;
+
+	__pExt = null;
+
+	__pFilePath = null;
+
+	__pUser = null;
+	__text = null;
+	__pAttachments = null;
 	__pGeo = null;
+	__pFwd = null;
+	__text = null;
+
 }
 
 MAttachment::~MAttachment() {
-	if (__pType) {
-		delete __pType;
-		__pType = null;
+	SAFE_DELETE(__pType);
+	SAFE_DELETE(__pAccessKey);
+	SAFE_DELETE(__pPhoto130);
+	SAFE_DELETE(__pPhoto604);
+	SAFE_DELETE(__pVideoPhoto320);
+	SAFE_DELETE(__pTitle);
+	SAFE_DELETE(__pDescription);
+	SAFE_DELETE(__pArtist);
+	SAFE_DELETE(__pUrl);
+	SAFE_DELETE(__pExt);
+
+	SAFE_DELETE(__text);
+
+	SAFE_DELETE(__pUser);
+
+	if (__pFwd) {
+		__pFwd->RemoveAll(true);
+		delete __pFwd;
+		__pFwd = null;
 	}
 
-	if (__pAccessKey) {
-		delete __pAccessKey;
-		__pAccessKey = null;
+	if (__pAttachments) {
+		__pAttachments->RemoveAll(true);
+		delete __pAttachments;
+		__pAttachments = null;
 	}
-
-	if (__pPhoto130) {
-		delete __pPhoto130;
-		__pPhoto130 = null;
-	}
-
-	if (__pPhoto604) {
-		delete __pPhoto604;
-		__pPhoto604 = null;
-	}
-
-	if (__pVideoPhoto320) {
-		delete __pVideoPhoto320;
-	}
-
-	if (__pTitle) {
-		delete __pTitle;
-	}
-
-	if (__pDescription) {
-		delete __pDescription;
-	}
-
-	if (__pArtist) {
-		delete __pArtist;
-	}
-
-	if (__pUrl) {
-		delete __pUrl;
-	}
-
-	if (__pExt) {
-		delete __pExt;
-	}
+//
+//	SAFE_DELETE(__pGeo);
 }
 
 MAttachment*

@@ -34,9 +34,11 @@ UiChatCustomItem::UiChatCustomItem() {
 UiChatCustomItem::~UiChatCustomItem() {
 
 //	AppLog("UiChatCustomItem::~UiChatCustomItem");
+	__pRefreshListener = null;
 	ImageCache::getInstance().CancelLoadingForTarget(this);
 
 	this->RemoveAllElements();
+
 	delete __pImageViews;
 	__pImageViews = null;
 
@@ -53,6 +55,7 @@ UiChatCustomItem::~UiChatCustomItem() {
 		delete __pUrtToIndexMap;
 	}
 
+	__pDrawedAttachments->RemoveAll();
 	delete __pDrawedAttachments;
 }
 
@@ -180,7 +183,7 @@ UiChatCustomItem::OnImageLoadedN(Bitmap *result, Integer *code) {
 
 			UiImageView *imageView = static_cast<UiImageView *>(this->__pImageViews->GetAt(index));
 
-			imageView->__pBitmapImage = result;
+			imageView->SetBitmap(result);
 			index += 1000;
 
 			if (__pRefreshListener) {
@@ -194,9 +197,9 @@ UiChatCustomItem::OnImageLoadedN(Bitmap *result, Integer *code) {
 	} else {
 		if (index < this->__pAttachmentViews->GetCount() && __pRefreshListener) {
 
-			UiImageView *imageView = static_cast<UiImageView *>(this->__pAttachmentViews->GetAt(index));
+			UiAttachmentView *imageView = static_cast<UiAttachmentView *>(this->__pAttachmentViews->GetAt(index));
 
-			imageView->__pBitmapImage = result;
+			imageView->SetBitmap(result);
 
 			if (__pRefreshListener) {
 				if (__section != -1) {

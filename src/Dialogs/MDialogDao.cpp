@@ -31,24 +31,32 @@ MDialogDao::Save(MMessage *message, MUser *user) {
 	MDialog *tempDialog = new MDialog();
 	tempDialog->SetUid(message->GetUid());
 	tempDialog->SetIsOnline(user->GetIsOnline());
-	tempDialog->SetText(message->GetText());
+	if (message->GetText()) {
+		tempDialog->SetText(new String(message->GetText()->GetPointer()));
+	}
 	tempDialog->SetReadState(message->GetReadState());
-	tempDialog->SetFirstName(user->GetFirstName());
-	tempDialog->SetLastName(user->GetLastName());
-	tempDialog->SetPhoto(user->GetPhoto());
-	tempDialog->SetMiniPhoto(user->GetMiniPhoto());
+	if (user->GetFirstName()) {
+		tempDialog->SetFirstName(new String(user->GetFirstName()->GetPointer()));
+	}
+	if (user->GetLastName()) {
+		tempDialog->SetLastName(new String(user->GetLastName()->GetPointer()));
+	}
+	if (user->GetPhoto()) {
+		tempDialog->SetPhoto(new String(user->GetPhoto()->GetPointer()));
+	}
+	if (user->GetMiniPhoto()) {
+		tempDialog->SetMiniPhoto(new String(user->GetMiniPhoto()->GetPointer()));
+	}
 	tempDialog->SetIdentifier(message->GetMid());
 	tempDialog->SetOut(message->GetOut());
 	tempDialog->SetDate(message->GetDate());
-	tempDialog->SetTitle(new String(L""));
-
 
 	if (message->uids) {
 		tempDialog->SetChatUids(new String(message->uids->GetPointer()));
 	}
 
 	if (message->__title) {
-		tempDialog->SetTitle(message->__title);
+		tempDialog->SetTitle(new String(message->__title->GetPointer()));
 	}
 
 	if (message->GetChatId() != 0) {

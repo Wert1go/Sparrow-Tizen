@@ -31,6 +31,10 @@ MDatabaseManager::MDatabaseManager() {
 	r = __database->ExecuteSql(sqlUser->GetPointer(), true);
 	delete sqlUser;
 
+	String *sqlContact = MUser::TableContactsDescription();
+	r = __database->ExecuteSql(sqlContact->GetPointer(), true);
+	delete sqlContact;
+
 	String *sqlDialog = MDialog::TableDescription();
 	r = __database->ExecuteSql(sqlDialog->GetPointer(), true);
 	delete sqlDialog;

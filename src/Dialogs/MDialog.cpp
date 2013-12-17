@@ -7,6 +7,7 @@
 
 #include "MDialog.h"
 #include "MUser.h"
+#include "Helper.h"
 
 using namespace Tizen::Base;
 using namespace Tizen::Web::Json;
@@ -14,21 +15,39 @@ using namespace Tizen::Web::Json;
 const int isChatValue = 2000000000;
 
 MDialog::MDialog() {
+	__chatId = 0;
+
 	__pUsers = null;
 	chatUids = null;
-	__chatId = 0;
+
 	__firstName = null;
 	__lastName = null;
 	__photo = null;
 	__miniPhoto = null;
+
     __title = null;
 	__text = null;
+
 	__pUser = null;
 	__pType = null;
 }
 
 MDialog::~MDialog() {
-	// TODO Auto-generated destructor stub
+	SAFE_DELETE(chatUids);
+	SAFE_DELETE(__firstName);
+	SAFE_DELETE(__lastName);
+	SAFE_DELETE(__photo);
+	SAFE_DELETE(__miniPhoto);
+	SAFE_DELETE(__title);
+	SAFE_DELETE(__text);
+	SAFE_DELETE(__pUser);
+	SAFE_DELETE(__pType);
+
+//	if (__pUsers) {
+//		__pUsers->RemoveAll(true);
+//		delete __pUsers;
+//		__pUsers = null;
+//	}
 }
 
 String*
@@ -441,8 +460,12 @@ MDialog::CreateSearchDialogFromJsonN(const Tizen::Web::Json::JsonObject &pObject
 
 		dialog->SetChatId(id);
 		dialog->SetUid(id + isChatValue);
-		dialog->SetTitle(pTitle);
-		dialog->SetFirstName(pTitle);
+		if (pTitle) {
+			dialog->SetTitle(new String(pTitle->GetPointer()));
+		}
+		if (pTitle) {
+			dialog->SetFirstName(pTitle);
+		}
 		dialog->SetLastName(new String(L""));
 	} else {
 	//user
@@ -504,12 +527,24 @@ MDialog::CreateSearchDialogFromJsonN(const Tizen::Web::Json::JsonObject &pObject
 MDialog *
 MDialog::CreateFromUserN(MUser *pUser) {
 	MDialog *dialog = new MDialog();
-	dialog->SetFirstName(pUser->GetFirstName());
-	dialog->SetLastName(pUser->GetLastName());
 	dialog->SetIsOnline(pUser->GetIsOnline());
-	dialog->SetMiniPhoto(pUser->GetMiniPhoto());
-	dialog->SetPhoto(pUser->GetPhoto());
 	dialog->SetUid(pUser->GetUid());
+
+	if (pUser->GetFirstName()) {
+		dialog->SetFirstName(new String(pUser->GetFirstName()->GetPointer()));
+	}
+
+	if (pUser->GetLastName()) {
+		dialog->SetLastName(new String(pUser->GetLastName()->GetPointer()));
+	}
+
+	if (pUser->GetMiniPhoto()) {
+		dialog->SetMiniPhoto(new String(pUser->GetMiniPhoto()->GetPointer()));
+	}
+
+	if (pUser->GetPhoto()) {
+		dialog->SetPhoto(new String(pUser->GetPhoto()->GetPointer()));
+	}
 
 	return dialog;
 }
@@ -519,12 +554,24 @@ MUser *
 MDialog::GetUser() {
 	if (!__pUser) {
 		MUser *pUser = new MUser();
-		pUser->SetFirstName(this->GetFirstName());
-		pUser->SetLastName(this->GetLastName());
+		if (this->GetFirstName()) {
+			pUser->SetFirstName(new String(this->GetFirstName()->GetPointer()));
+		}
+
+		if (this->GetLastName()) {
+			pUser->SetLastName(new String(this->GetLastName()->GetPointer()));
+		}
+
 		pUser->SetIsOnline(this->GetIsOnline());
 
-		pUser->SetMiniPhoto(this->GetMiniPhoto());
-		pUser->SetPhoto(this->GetPhoto());
+		if (this->GetMiniPhoto()) {
+			pUser->SetMiniPhoto(new String(this->GetMiniPhoto()->GetPointer()));
+		}
+
+		if (this->GetPhoto()) {
+			pUser->SetPhoto(new String(this->GetPhoto()->GetPointer()));
+		}
+
 		pUser->SetUid(this->GetUid());
 
 		__pUser = pUser;

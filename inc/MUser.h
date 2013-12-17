@@ -33,15 +33,15 @@ public:
 	static MUser * CreateFromPerson(Tizen::Social::Person *pPerson);
 
 	static String* TableDescription();
+	static String* TableContactsDescription();
 
 	String *__firstName;
 	String *__lastName;
+	String *__pBigPhoto;
 
 	int __isFriend;
 	int __isContact;
 	int __isPending;
-
-	String *__pBigPhoto;
 
 	int __chat;
 
@@ -53,6 +53,7 @@ private:
 	String *__phoneNumber;
 	String *__photo;
 	String *__miniPhoto;
+
 	int __uid;
 	long __lastSeen;
 	int __type;
@@ -77,8 +78,6 @@ public:
 	void SetLastSeen(long lastSeen);
 	void SetIsOnline(int isOnline);
 	void SetType(int type);
-
-
 
 };
 

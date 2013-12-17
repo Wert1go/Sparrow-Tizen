@@ -123,6 +123,8 @@ Util::formatDateN(long date) {
 		 String cutomizedPattern = L"HH:mm";
 		 pTimeFormatter->ApplyPattern(cutomizedPattern);
 		 pTimeFormatter->Format(after, *stringDate);
+
+		 delete pTimeFormatter;
 	 } else if (delta > 0 && delta < 2) {
 		 String titleString;
 		 Application::GetInstance()->GetAppResource()->GetString(IDS_TIME_YESTERDAY, titleString);
@@ -132,6 +134,8 @@ Util::formatDateN(long date) {
 		 String cutomizedPattern = L"dd.MM";
 		 pTimeFormatter->ApplyPattern(cutomizedPattern);
 		 pTimeFormatter->Format(after, *stringDate);
+
+		 delete pTimeFormatter;
 	 }
 
 	return stringDate;
@@ -200,6 +204,10 @@ Util::CalculateDimensionForMessage(MMessage *message, bool fwd, int nesting) {
 		} else {
 			resultSize = normalSize;
 		}
+
+		delete pTImeText;
+		pTimeLabel->RemoveAll(true);
+		delete pTimeLabel;
 
 	} else {
 		resultSize = Dimension(0, 0);

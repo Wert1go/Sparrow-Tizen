@@ -26,6 +26,7 @@ public:
 
 public:
 	Bitmap *__pBitmapImage;
+	void SetBitmap(Bitmap *pBitmapImage);
 	int __id; //0 - nothing /1 - user /2 - chat
 
 };

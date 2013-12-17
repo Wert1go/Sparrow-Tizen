@@ -10,12 +10,15 @@
 #include "MAttachment.h"
 #include "MGeo.h"
 #include "Util.h"
+#include "Helper.h"
 
 using namespace Tizen::Base;
 using namespace Tizen::Base::Utility;
 using namespace Tizen::Web::Json;
 
 MMessage::MMessage() {
+
+
 	uids = null;
 	__text = null;
 	__title = null;
@@ -25,11 +28,51 @@ MMessage::MMessage() {
 	__pGeo = null;
 	__owner = 0;
 	__pUser = null;
+
+
+	__id = 0;
+	__album_id = 0;
+
+	__duration = 0;
+	__views = 0;
+	__size = 0;
+
+	//utils
+
+	__tempId = 0;
+	ratio = 0;
+	cut = 0;
+	__nesting = 0;
+	imageSize = FloatPoint(0,0);
+
+	__pType = null;
+	__pAccessKey = null;
+	__pPhoto130 = null;
+	__pPhoto604 = null;
+
+	__pVideoPhoto320 = null;
+	__pTitle = null;
+
+	__pDescription = null;
+	__pArtist = null;
+	__pUrl = null;
+
+	__pExt = null;
+
+	__pFilePath = null;
+
+	__pUser = null;
+	__text = new String(L"");
+	__pAttachments = null;
+	__pGeo = null;
+	__pFwd = null;
+	__text = null;
 //	__text = new String(L"");
 }
 
 MMessage::~MMessage() {
-	// TODO Auto-generated destructor stub
+	SAFE_DELETE(uids);
+	SAFE_DELETE(__title);
 }
 
 String*
@@ -198,8 +241,6 @@ MMessage::CreateFromJsonN(const Tizen::Web::Json::JsonObject &pObject, bool fwd)
 	JsonString* pKeyUserCount = new JsonString(L"user_count");
 	JsonString* pKeyUsersCount = new JsonString(L"users_count");
 	JsonString* pKeyAdminId = new JsonString(L"admin_id");
-
-
 
 	IJsonValue* pValMessageId = null;
 	IJsonValue* pValFromId = null;

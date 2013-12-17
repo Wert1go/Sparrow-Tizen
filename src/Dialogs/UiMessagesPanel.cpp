@@ -45,9 +45,12 @@ UiMessagesPanel::UiMessagesPanel() {
 	__pDialogsList = null;
 	__pSearchDialogsList = null;
 	__pSearchMessagesList = null;
+
 	__pDialogRequestOperation = null;
+
 	__pSearchDialogRequestOperation = null;
 	__pSearchMessageRequestOperation = null;
+
 	__pListUpdateTimer = null;
 	this->__pListView = null;
 	__isSearchMode = false;
@@ -168,6 +171,12 @@ UiMessagesPanel::OnTerminating() {
 	if (__pDialogRequestOperation) {
 		__pDialogRequestOperation->AddEventListener(null);
 	}
+
+	if (this->__pListUpdateTimer) {
+		this->__pListUpdateTimer->Cancel();
+		delete this->__pListUpdateTimer;
+		this->__pListUpdateTimer = null;
+	}
 	return r;
 }
 
@@ -176,11 +185,12 @@ UiMessagesPanel::OnSceneActivatedN(const Tizen::Ui::Scenes::SceneId& previousSce
 									   const Tizen::Ui::Scenes::SceneId& currentSceneId, Tizen::Base::Collection::IList* pArgs) {
 
 	this->SetDialogsList(MDialogDao::getInstance().GetDialogsWithOffsetN(0));
+
 	if (this->__pListView) {
 		this->__pListView->UpdateList();
 	}
-	SendRequest();
 
+	SendRequest();
 	UpdateUnreadCount();
 }
 
@@ -292,8 +302,11 @@ UiMessagesPanel::CreateItem(int index, int itemWidth)
 
     if (this->SearchModeIsActive()) {
     	if (this->__searchModeCode == SEARCH_DIALOG_MODE) {
+    		AppLog("Create");
     		dialog = static_cast<MDialog *>(this->GetSearchDialogsList()->GetAt(index));
+    		AppLog("Create 1");
     		pItem->SetUser(dialog->GetUser());
+    		AppLog("Create 2");
 
     	} else {
     		dialog = static_cast<MDialog *>(this->GetSearchMessagesList()->GetAt(index));
@@ -395,6 +408,13 @@ UiMessagesPanel::OnUserEventReceivedN(RequestId requestId, Tizen::Base::Collecti
 		delete msgId;
 	} else if (requestId == UPDATE_SEARCH_MESSAGES || requestId == UPDATE_SEARCH_DIALOGS) {
 		if (this->SearchModeIsActive()) {
+			if (requestId == UPDATE_SEARCH_DIALOGS) {
+				LinkedList *list = static_cast<LinkedList *>(pArgs->GetAt(0));
+				AppLog("list: %d", list->GetCount());
+				this->SetSearchDialogsList(list);
+				AppLog("+list: %d", list->GetCount());
+			}
+
 			this->__pListView->UpdateList();
 		}
 	}
@@ -452,6 +472,7 @@ void
 UiMessagesPanel::SetDialogsList(LinkedList *list) {
 
 	if (this->__pDialogsList) {
+		__pDialogsList->RemoveAll(true);
 		delete this->__pDialogsList;
 		__pDialogsList = null;
 	}
@@ -472,6 +493,7 @@ void
 UiMessagesPanel::SetSearchDialogsList(LinkedList *list){
 
 	if (this->__pSearchDialogsList) {
+		__pSearchDialogsList->RemoveAll(true);
 		delete this->__pSearchDialogsList;
 		__pSearchDialogsList = null;
 	}
@@ -492,6 +514,7 @@ void
 UiMessagesPanel::SetSearchMessagesList(LinkedList *list){
 
 	if (this->__pSearchMessagesList) {
+		__pSearchMessagesList->RemoveAll(true);
 		delete this->__pSearchMessagesList;
 		__pSearchMessagesList = null;
 	}
@@ -544,8 +567,10 @@ UiMessagesPanel::OnSuccessN(RestResponse *result) {
 		RDialogResponse *response = static_cast<RDialogResponse *>(result);
 
 		if (this->SearchModeIsActive() && this->__searchModeCode == SEARCH_DIALOG_MODE) {
-			this->SetSearchDialogsList(response->GetDialogs());
-			this->SendUserEvent(UPDATE_SEARCH_DIALOGS, 0);
+			LinkedList *params = new LinkedList();
+			params->Add(response->GetDialogs());
+//			this->SetSearchDialogsList(response->GetDialogs());
+			this->SendUserEvent(UPDATE_SEARCH_DIALOGS, params);
 			Tizen::App::App::GetInstance()->SendUserEvent(UPDATE_SEARCH_DIALOGS, 0);
 		}
 	}
@@ -587,12 +612,12 @@ UiMessagesPanel::SendRequest(int offset) {
 			"var uids = [];"
 			"var j;"
 			"while (i < c.length) {"
-			"	i=i+1;"
 			" 	if (parseInt(c[i]) != 0) {"
 			"		j = API.messages.getChatUsers({\"chat_id\" : c[i]}); "
 			"		uids = uids + [{\"chat_id\" : c[i], \"uids\" : j}]; "
 			"		l = l + j;"
 			" 	}"
+			"	i=i+1;"
 			"};"
 			"var b = API.users.get({\"user_ids\": l, \"fields\": \"photo_100,photo_50,online,is_friend,photo_200\"});"
 			"return {\"chat_uids\" : uids, \"users\": b, \"messages\": a};";
@@ -811,12 +836,12 @@ UiMessagesPanel::SearchMessages(String searchText) {
 			"var uids = [];"
 			"var j;"
 			"while (i < c.length) {"
-			"	i=i+1;"
 			" 	if (parseInt(c[i]) != 0) {"
 			"		j = API.messages.getChatUsers({\"chat_id\" : c[i]}); "
 			"		uids = uids + [{\"chat_id\" : c[i], \"uids\" : j}]; "
 			"		l = l + j;"
 			" 	}"
+			"	i=i+1;"
 			"};"
 			"var b = API.users.get({\"user_ids\": l, \"fields\": \"photo_100,photo_50,online,is_friend,photo_200\"});"
 			"return {\"chat_uids\" : uids, \"users\": b, \"messages\": a};";

@@ -153,12 +153,19 @@ UiChatForm::OnTerminating() {
 		this->__pPrintingTimer = null;
 	}
 
+	if (__pMessages) {
+		__pMessages->RemoveAll(true);
+		delete __pMessages;
+		__pMessages = null;
+	}
+
 	return r;
 }
 
 void
 UiChatForm::SetMessages(LinkedList *messages) {
 	if (__pMessages) {
+		__pMessages->RemoveAll();
 		delete __pMessages;
 	}
 	__pMessages = messages;

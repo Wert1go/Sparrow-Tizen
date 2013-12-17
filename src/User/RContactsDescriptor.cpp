@@ -1,44 +1,37 @@
 /*
- * RFriendsDescriptor.cpp
+ * RContactsDescriptor.cpp
  *
- *  Created on: Nov 21, 2013
+ *  Created on: Dec 17, 2013
  *      Author: developer
  */
 
-#include "RFriendsDescriptor.h"
+#include "RContactsDescriptor.h"
 
 #include "UserRestResponse.h"
 #include "MUserDao.h"
 
-RFriendsDescriptor::RFriendsDescriptor() {
-	__isPresisterActive = true;
+RContactsDescriptor::RContactsDescriptor() {
+	// TODO Auto-generated constructor stub
+
 }
 
-RFriendsDescriptor::~RFriendsDescriptor() {
+RContactsDescriptor::~RContactsDescriptor() {
 	// TODO Auto-generated destructor stub
 }
 
 RestResponse *
-RFriendsDescriptor::performObjectMappingN(JsonObject* pObject) {
+RContactsDescriptor::performObjectMappingN(JsonObject* pObject) {
 
 	UserRestResponse *response = new UserRestResponse();
 
 	JsonString* pKeyResponse = new JsonString(L"response");
-	IJsonValue* pValResponseObject = null;
-	pObject->GetValue(pKeyResponse, pValResponseObject);
+	IJsonValue* pValUsersArray = null;
+	pObject->GetValue(pKeyResponse, pValUsersArray);
 
 	if (!this->IsAuthorized(pObject)) {
 		response->SetError(new Error());
 		return response;
 	}
-
-	JsonObject *pResponseObject = static_cast< JsonObject* >(pValResponseObject);
-
-	JsonString* pKeyUsers = new JsonString(L"items");
-	IJsonValue* pValUsersArray = null;
-
-	pResponseObject->GetValue(pKeyUsers, pValUsersArray);
-
 	JsonArray *pArray = static_cast< JsonArray* >(pValUsersArray);
 
 	LinkedList *users = new LinkedList();
@@ -51,21 +44,18 @@ RFriendsDescriptor::performObjectMappingN(JsonObject* pObject) {
 		JsonObject* pUserObject = static_cast< JsonObject* >(pUserObjectValue);
 
 		MUser *user = MUser::CreateFromJsonN(*pUserObject);
+
+		if (index == 0) {
+			response->SetUser(user);
+		}
+
 		users->Add(user);
 	}
 	response->SetUsers(users);
-	AppLog("End mapping");
-	if (__isPresisterActive) {
-		MUserDao::getInstance().Save(users);
-	}
+
+	MUserDao::getInstance().Save(users);
 
 	delete pKeyResponse;
-	delete pKeyUsers;
 
 	return response;
-}
-
-void
-RFriendsDescriptor::SetPersisterActive(bool state) {
-	__isPresisterActive = state;
 }

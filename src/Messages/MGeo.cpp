@@ -6,6 +6,7 @@
  */
 
 #include "MGeo.h"
+#include "Helper.h"
 
 using namespace Tizen::Base;
 using namespace Tizen::Base::Utility;
@@ -23,33 +24,60 @@ MGeo::MGeo() {
 	__pPlaceTitle = null;
 	__pPlaceCountry = null;
 	__pPlaceCity = null;
+
+	/**************************************/
+	__text = null;
+	__pAttachments = null;
+	__pFwd = null;
+	__pGeo = null;
+	__pUser = null;
+
+
+	__id = 0;
+	__album_id = 0;
+
+	__duration = 0;
+	__views = 0;
+	__size = 0;
+
+	//utils
+
+	__tempId = 0;
+	ratio = 0;
+	cut = 0;
+	__nesting = 0;
+	imageSize = FloatPoint(0,0);
+
+	__pType = null;
+	__pAccessKey = null;
+	__pPhoto130 = null;
+	__pPhoto604 = null;
+
+	__pVideoPhoto320 = null;
+	__pTitle = null;
+
+	__pDescription = null;
+	__pArtist = null;
+	__pUrl = null;
+
+	__pExt = null;
+
+	__pFilePath = null;
+
+	__pUser = null;
+	__pAttachments = null;
+	__pGeo = null;
+	__pFwd = null;
+	__text = null;
 }
 
 MGeo::~MGeo() {
-	if (__pType) {
-		delete __pType;
-		__pType = null;
-	}
-
-	if (__pCoordinates) {
-		delete __pCoordinates;
-		__pType = null;
-	}
-
-	if (__pPlaceTitle) {
-		delete __pPlaceTitle;
-		__pPlaceTitle = null;
-	}
-
-	if (__pPlaceCountry) {
-		delete __pPlaceCountry;
-		__pPlaceCountry = null;
-	}
-
-	if (__pPlaceCity) {
-		delete __pPlaceCity;
-		__pPlaceCity = null;
-	}
+	SAFE_DELETE(__pType);
+	SAFE_DELETE(__pCoordinates);
+	SAFE_DELETE(__pPlaceTitle);
+	SAFE_DELETE(__pPlaceCountry);
+	SAFE_DELETE(__pPlaceCity);
+	SAFE_DELETE(__pUrl);
 }
 
 MGeo*

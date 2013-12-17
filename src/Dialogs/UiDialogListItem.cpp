@@ -59,7 +59,7 @@ UiDialogListItem::~UiDialogListItem() {
 bool
 UiDialogListItem::OnDraw (Tizen::Graphics::Canvas &canvas, const Tizen::Graphics::Rectangle &rect, Tizen::Ui::Controls::ListItemDrawingStatus status) {
 
-	int height = rect.height;
+//	int height = rect.height;
 
 /******************** TIME LABEL ************************/
 
@@ -240,6 +240,7 @@ UiDialogListItem::SetDialog(MDialog *pDialog) {
 
 	r = pTImeText->Construct(text->GetPointer());
 
+
 	GetErrorMessage(r);
 	Color *timeColor = new Color(109, 110, 117, 255);
 	pTImeText->SetTextColor(*timeColor);
@@ -262,7 +263,7 @@ UiDialogListItem::SetDialog(MDialog *pDialog) {
 	this->__pTimeText = pTImeText;
 
 	drawTimePoint = Point(xTimePosition, yTimePosition);
-
+//	delete text;
 	/************************* TITLE **********************/
 
 	EnrichedText* pUserName = null;
@@ -286,6 +287,7 @@ UiDialogListItem::SetDialog(MDialog *pDialog) {
 
 	pUsetNameText = new TextElement();
 
+	AppLog("fdfdf");
 	String *titleText;
 	if (this->GetDialog()->GetUid() < isChatValue) {
 		String *fullName = new String();
@@ -296,7 +298,7 @@ UiDialogListItem::SetDialog(MDialog *pDialog) {
 	} else {
 		titleText = this->GetDialog()->GetTitle();
 	}
-
+	AppLog("+++++fdfdf");
 	r = pUsetNameText->Construct(titleText->GetPointer());
 
 	Color *userNameColor = new Color(250, 250, 250, 255);
@@ -329,6 +331,8 @@ UiDialogListItem::SetDialog(MDialog *pDialog) {
 	if (this->GetDialog()->GetUid() > isChatValue) {
 		titleOffset += leftOffset;
 	}
+
+//	delete titleText;
 
 	this->__pUserName = pUserName;
 	this->__pUserNameText = pUsetNameText;

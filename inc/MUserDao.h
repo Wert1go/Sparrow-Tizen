@@ -31,8 +31,8 @@ private:
 	void operator = (MUserDao const&);
 
 public:
-	void Save(MUser *user, bool isFriend = true);
-	void Save(IList *users, bool isFriends = true);
+	void Save(MUser *user, bool isFriend = false);
+	void Save(IList *users, bool isFriends = false);
 
 	MUser *GetCurrentUserN();
 	MUser *GetUserN(int uid);
@@ -44,6 +44,7 @@ public:
 	LinkedList *GetPendingUsersN();
 
 	LinkedList *SearchUsers(String *searchText);
+	LinkedList *SearchContacts(String *searchText);
 
 	DbStatement * CreateSaveStatment();
 	DbStatement * CreateSaveContactStatment();
