@@ -404,3 +404,50 @@ MUser::TableContactsDescription() {
 
 	return sql;
 }
+
+MUser *
+MUser::CreateFromUser(MUser *pUser) {
+	MUser *pNewUser = new MUser();
+
+	if (pUser->GetFirstName()) {
+		pNewUser->SetFirstName(new String(pUser->GetFirstName()->GetPointer()));
+	} else {
+		pNewUser->SetFirstName(new String(L""));
+	}
+
+	if (pUser->GetLastName()) {
+		pNewUser->SetLastName(new String(pUser->GetLastName()->GetPointer()));
+	} else {
+		pNewUser->SetLastName(new String(L""));
+	}
+
+	if (pUser->__pBigPhoto) {
+		pNewUser->__pBigPhoto = new String(pUser->__pBigPhoto->GetPointer());
+	} else {
+		pNewUser->__pBigPhoto = new String(L"");
+	}
+
+	pNewUser->__isFriend = pUser->__isFriend;
+	pNewUser->__isPending = pUser->__isPending;
+
+	pNewUser->__chat = pUser->__chat;
+
+	if (pUser->GetPhoto()) {
+		pNewUser->SetPhoto(new String(pUser->GetPhoto()->GetPointer()));
+	} else {
+		pNewUser->SetPhoto(new String(L""));
+	}
+
+	if (pUser->GetMiniPhoto()) {
+		pNewUser->SetMiniPhoto(new String(pUser->GetMiniPhoto()->GetPointer()));
+	} else {
+		pNewUser->SetMiniPhoto(new String(L""));
+	}
+
+	pNewUser->SetUid(pUser->GetUid());
+	pNewUser->SetLastSeen(pUser->GetLastSeen());
+	pNewUser->SetType(pUser->GetType());
+	pNewUser->SetIsOnline(pUser->GetIsOnline());
+
+	return pNewUser;
+}

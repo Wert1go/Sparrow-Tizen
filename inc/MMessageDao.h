@@ -62,6 +62,8 @@ public:
 	void markAsReaded(int userId, int chatId);
 	int firstUnreadMessage(int userId, int chatId);
 	int GetUnreadCount();
+
+	void DeleteMessages(LinkedList *pMessages);
 };
 
 #endif /* MMESSAGEDAO_H_ */

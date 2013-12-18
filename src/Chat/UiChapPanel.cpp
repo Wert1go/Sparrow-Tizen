@@ -140,7 +140,7 @@ UiChapPanel::SetDialog(MDialog *dialog) {
 			count = L"0";
 		}
 		__pGroupButton->SetText(count);
-
+		this->__pEditButton->SetBounds(Rectangle(this->GetBounds().width - 150, 0, 140, this->GetBounds().height));
 		__pGroupButton->SetBounds(Rectangle(this->GetBounds().width - 150, 0, 120, this->GetBounds().height));
 		this->__pGroupButton->SetNormalBitmap(Point(10, 100/2 - 72/2), *Resources::getInstance().LoadBitmapNamed(L"header_icon_group.png"));
 	} else {

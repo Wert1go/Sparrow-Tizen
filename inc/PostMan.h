@@ -58,7 +58,11 @@ public:
 
 	LinkedList *GetAttachmentsForUid(int uid);
 
+	void SetFwdMessages(LinkedList *pMessages);
+	String *GetFwdMessages();
+
 private:
+	String *__pFwdMessages;
 	Mutex __mutex;
 	HashMapT<Integer*, IMessageDeliveryListener*> *__pUidToListenerMap;
 	HashMapT<Integer*, PostMessageOperation*> *__pUidToOperationMap;

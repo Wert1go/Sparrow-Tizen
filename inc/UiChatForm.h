@@ -118,8 +118,10 @@ public:
 	bool IsAlreadyAdded(MMessage *message) ;
 	void SendMessage();
 
-	//
+	virtual result OnDraw(void);
 
+	void DeleteMesages();
+	//
 	void RequestMessagesForUser(int userId);
 
 	//RefreshableListView
@@ -172,6 +174,7 @@ private:
 	RestRequestOperation *__pMessagesRequestOperation;
 	RestRequestOperation *__pMarkAsReadRequestOperation;
 	RestRequestOperation *__pNotifyUserPrintingOperation;
+	RestRequestOperation *__pDeleteMessagesOperation;
 
 	LinkedList *__pMessages;
 	ListView *__pListView;

@@ -66,6 +66,10 @@ MMessageDescriptor::performObjectMappingN(JsonObject* pObject) {
 
 	if (pValUsersArray) {
 		pUsersArray = static_cast<JsonArray*>(pValUsersArray);
+
+		if (dynamic_cast<JsonArray*>(pValUsersArray) == 0) {
+			pUsersArray = null;
+		}
 	}
 
 	LinkedList *pUsers = new LinkedList();
@@ -113,7 +117,7 @@ MMessageDescriptor::LoadUsers(IList * pFwdMessages, IList *pUsers) {
 			for(int k = 0; k < pUsers->GetCount(); k++) {
 				MUser *pUser = static_cast<MUser *>(pUsers->GetAt(k));
 				if (pFwd->GetUid() == pUser->GetUid()) {
-					pFwd->__pUser = pUser;
+					pFwd->__pUser = MUser::CreateFromUser(pUser);;
 					break;
 				}
 			}

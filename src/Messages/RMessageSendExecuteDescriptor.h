@@ -10,6 +10,8 @@
 
 #include "ResponseDescriptor.h"
 
+using namespace Tizen::Base::Collection;
+
 class RMessageSendExecuteDescriptor
 : public ResponseDescriptor {
 public:
@@ -17,6 +19,8 @@ public:
 	virtual ~RMessageSendExecuteDescriptor();
 
 	virtual RestResponse *performObjectMappingN(JsonObject* pObject);
+
+	void LoadUsers(IList * pFwdMessages, IList *pUsers);
 };
 
 #endif /* RMESSAGESENDEXECUTEDESCRIPTOR_H_ */

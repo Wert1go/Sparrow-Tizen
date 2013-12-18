@@ -32,6 +32,7 @@ PostMan::PostMan() {
 	__pUidToAttachmentOperationsMap->Construct(100, 0.75);
 
 	__pAttachmentListener = null;
+	__pFwdMessages = null;
 
 }
 
@@ -183,9 +184,7 @@ PostMan::SendMessageFromUserWithListener(MMessage *pMessage, int userId, IMessag
 
 		if (key) {
 			this->__pUidToAttachmentsMap->GetValue(key, attachmentList);
-
 			this->__pUidToAttachmentOperationsMap->GetValue(key, attachmentOperationList);
-
 			if (attachmentOperationList && attachmentOperationList->GetCount() > 0) {
 				readyToRun = false;
 			}
@@ -426,4 +425,39 @@ PostMan::OnProgressChanged(MAttachment *attachment, int progress, int uid) {
 	if(__pAttachmentListener) {
 		__pAttachmentListener->OnProgressChanged(attachment, progress, uid);
 	}
+}
+
+
+void
+PostMan::SetFwdMessages(LinkedList *pMessages) {
+
+	if (this->__pFwdMessages) {
+		delete this->__pFwdMessages;
+		this->__pFwdMessages = null;
+	}
+
+	if (!pMessages) {
+		return;
+	}
+
+	String ids(L"");
+
+	for (int i = 0; i < pMessages->GetCount(); i ++) {
+		MMessage *message = static_cast<MMessage *>(pMessages->GetAt(i));
+		String midString;
+		midString.Format(10, L"%d", message->GetMid());
+
+		if (i != 0) {
+			ids.Append(L",");
+		}
+
+		ids.Append(midString);
+	}
+
+	this->__pFwdMessages = new String(ids);
+}
+
+String *
+PostMan::GetFwdMessages() {
+	return this->__pFwdMessages;
 }

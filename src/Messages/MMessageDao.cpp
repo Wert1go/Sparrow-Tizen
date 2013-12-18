@@ -739,3 +739,33 @@ MMessageDao::SaveGeo(MGeo *geo) {
 	delete pEnum;
 }
 
+
+void
+MMessageDao::DeleteMessages(LinkedList *pMessages) {
+	String ids(L"");
+
+	for (int i = 0; i < pMessages->GetCount(); i ++) {
+		MMessage *message = static_cast<MMessage *>(pMessages->GetAt(i));
+
+		String midString;
+		midString.Format(10, L"%d", message->GetMid());
+
+		if (i != 0) {
+			ids.Append(L",");
+		}
+
+		ids.Append(midString);
+	}
+
+	String sql(L"DELETE FROM messages WHERE mid IN (");
+	sql.Append(ids);
+	sql.Append(");");
+
+	AppLog("%S", sql.GetPointer());
+
+	result r;
+	r = MDatabaseManager::getInstance().GetDatabase()->ExecuteSql(sql, true);
+
+	AppLog(GetErrorMessage(r));
+
+}

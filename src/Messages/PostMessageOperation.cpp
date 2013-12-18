@@ -64,6 +64,7 @@ PostMessageOperation::OnSuccessN(RestResponse *result) {
 				this->__pMessage->SetDate(response->__pMessage->GetDate());
 			}
 
+			this->__pMessage->__pFwd = response->__pMessage->__pFwd;
 			MMessageDao::getInstance().Save(__pMessage);
 
 			if (__pDeliveryListener) {
@@ -143,11 +144,27 @@ PostMessageOperation::SendMessage() {
 			AppLog("ATTACHMENT COUNT: %d :: %S", __pMessage->__pAttachments->GetCount(), attachmentString->GetPointer());
 		}
 
+		if (__pMessage->__pFwdString) {
+			sendMessageRequest.Append(",");
+			sendMessageRequest.Append("\"forward_messages\" : \"");
+			sendMessageRequest.Append(__pMessage->__pFwdString->GetPointer());
+			sendMessageRequest.Append("\"");
+		}
 
 		sendMessageRequest.Append(L"});");
 		sendMessageRequest.Append(L"var m = API.messages.getById({\"message_ids\" : a});");
 		sendMessageRequest.Append(L"var result = m.items[0];");
-		sendMessageRequest.Append(L"return {\"message_id\" : a, \"message\" : result};");
+		sendMessageRequest.Append(L"var l = result.fwd_messages;");
+		sendMessageRequest.Append(L"var uids = [];");
+		sendMessageRequest.Append(L"var fwd = l@.user_id;");
+		sendMessageRequest.Append(L"uids = uids + fwd;");
+		sendMessageRequest.Append(L"var b = [];");
+
+		sendMessageRequest.Append(L"if (uids.length > 0) {");
+		sendMessageRequest.Append(L"b = API.users.get({\"user_ids\": uids, \"fields\": \"photo_100,photo_50,online,is_friend,photo_200\"});");
+		sendMessageRequest.Append(L"}");
+
+		sendMessageRequest.Append(L"return {\"message_id\" : a, \"message\" : result, \"users\": b};");
 
 		params->Add(new String(L"code"), new String(sendMessageRequest));
 		params->Add(new String(L"access_token"), AuthManager::getInstance().AccessToken());

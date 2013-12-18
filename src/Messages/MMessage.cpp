@@ -67,6 +67,7 @@ MMessage::MMessage() {
 	__pGeo = null;
 	__pFwd = null;
 	__text = null;
+	__pFwdString = null;
 //	__text = new String(L"");
 }
 

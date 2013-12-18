@@ -31,6 +31,7 @@ public:
 	static MUser* CreateFromJsonN(const Tizen::Web::Json::JsonObject &jsonObject);
 	static MUser* CreateFromJsonLPN(const Tizen::Web::Json::JsonObject &jsonObject);
 	static MUser * CreateFromPerson(Tizen::Social::Person *pPerson);
+	static MUser * CreateFromUser(MUser *pUser);
 
 	static String* TableDescription();
 	static String* TableContactsDescription();

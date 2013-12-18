@@ -29,6 +29,8 @@ extern const wchar_t* IDS_MAIN_FORM_SETTINGS;
 extern const wchar_t* IDS_MEMBER;
 extern const wchar_t* IDS_MEMBER_SUFFIX_1;
 extern const wchar_t* IDS_MEMBER_SUFFIX_2;
+extern const wchar_t* IDS_MSG_DELETE;
+extern const wchar_t* IDS_MSG_FWD;
 extern const wchar_t* IDS_NOTIFY_ATTACHMENT;
 extern const wchar_t* IDS_NOTIFY_ATTACHMENTS;
 extern const wchar_t* IDS_NOTIFY_FWD;

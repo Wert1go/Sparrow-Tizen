@@ -48,6 +48,8 @@ public:
 
 	int __owner;
 
+	String *__pFwdString;
+
 public:
 	static String* TableDescription();
 	static String* FwdTableDescription();

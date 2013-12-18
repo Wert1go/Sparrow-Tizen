@@ -32,6 +32,9 @@
 #include "Util.h"
 #include "UpdateUnit.h"
 #include "UiAttachmentListPopup.h"
+#include "RDeleteDescriptor.h"
+
+#include "AppResourceId.h"
 
 #include <iostream>
 #include <sys/time.h>
@@ -54,12 +57,13 @@ const int itemContentSize = 180;
 UiChatForm::UiChatForm() {
 	result r = E_SUCCESS;
 
-	r = Form::Construct(FORM_STYLE_NORMAL);
+	r = Form::Construct(FORM_STYLE_FOOTER);
 
 	SetFormBackEventListener(this);
 	__pMessagesRequestOperation = null;
 	__pMarkAsReadRequestOperation = null;
 	__pNotifyUserPrintingOperation = null;
+	this->__pDeleteMessagesOperation = null;
 
 	__pMessages = new LinkedList();
 	__pListView = null;
@@ -81,6 +85,10 @@ UiChatForm::~UiChatForm() {
 		__pMarkAsReadRequestOperation = null;
 	}
 
+	if (this->__pDeleteMessagesOperation) {
+		this->__pDeleteMessagesOperation->AddEventListener(null);
+		this->__pDeleteMessagesOperation = null;
+	}
 
 }
 
@@ -90,6 +98,33 @@ UiChatForm::OnInitializing(void)
 	AppLog("OnInitializing");
 	this->SetName(L"UiChatForm");
 	result r = E_SUCCESS;
+
+	Footer *pFooter = this->GetFooter();
+	pFooter->AddActionEventListener(*this);
+	pFooter->SetItemColor(FOOTER_ITEM_STATUS_NORMAL, Color(23, 30, 38, 255));
+	pFooter->SetItemColor(FOOTER_ITEM_STATUS_PRESSED, Color(23, 30, 38, 255));
+	pFooter->SetItemColor(FOOTER_ITEM_STATUS_SELECTED, Color(23, 30, 38, 255));
+	pFooter->SetItemColor(FOOTER_ITEM_STATUS_HIGHLIGHTED, Color(23, 30, 38, 255));
+
+	pFooter->SetItemTextColor(FOOTER_ITEM_STATUS_NORMAL, Color(255, 255, 255, 255));
+	pFooter->SetItemTextColor(FOOTER_ITEM_STATUS_SELECTED, Color(255, 255, 255, 255));
+
+	FooterItem *friendsItem = new FooterItem();
+	friendsItem->Construct(345);
+	String fwdString;
+	Application::GetInstance()->GetAppResource()->GetString(IDS_MSG_FWD, fwdString);
+	friendsItem->SetText(fwdString);
+	pFooter->AddItem(*friendsItem);
+
+	FooterItem *friendsOnlineItem = new FooterItem();
+	friendsOnlineItem->Construct(346);
+	String deleteString;
+	Application::GetInstance()->GetAppResource()->GetString(IDS_MSG_DELETE, deleteString);
+	friendsOnlineItem->SetText(deleteString);
+	pFooter->AddItem(*friendsOnlineItem);
+
+	this->SetActionBarsVisible(FORM_ACTION_BAR_FOOTER, false);
+
 	FloatRectangle clientRect;
 	clientRect = this->GetClientAreaBoundsF();
 
@@ -427,15 +462,27 @@ UiChatForm::OnListViewItemStateChanged(Tizen::Ui::Controls::ListView &listView, 
 		} else {
 			if (!this->__isEditMode) {
 				this->SetEditMode(true);
+				this->__pListView->SetItemChecked(index, true);
 			}
 
-			if (!this->__pSelectedMessages->Contains(message)) {
+			if (!this->__pSelectedMessages->Contains(*message)) {
 				__pSelectedMessages->Add(message);
 			} else {
 				__pSelectedMessages->Remove(*message);
 			}
 
+			this->RequestRedraw(true);
+
 		}
+	} else if (status == LIST_ITEM_STATUS_CHECKED || LIST_ITEM_STATUS_UNCHECKED) {
+		MMessage *message = static_cast<MMessage *>(this->GetMessages()->GetAt(index));
+		if (!this->__pSelectedMessages->Contains(*message)) {
+			__pSelectedMessages->Add(message);
+		} else {
+			__pSelectedMessages->Remove(*message);
+		}
+
+		this->RequestRedraw(true);
 	}
 }
 
@@ -448,10 +495,14 @@ UiChatForm::SetEditMode(bool mode) {
 	this->__pListView->UpdateList();
 
 	if (mode) {
-
+		this->__pPosterPanel->SetShowState(false);
+		this->SetActionBarsVisible(FORM_ACTION_BAR_FOOTER, true);
 	} else {
 		__pSelectedMessages->RemoveAll();
+		this->__pPosterPanel->SetShowState(true);
+		this->SetActionBarsVisible(FORM_ACTION_BAR_FOOTER, false);
 	}
+
 
 }
 
@@ -612,6 +663,16 @@ UiChatForm::OnSuccessN(RestResponse *result) {
 		__pNotifyUserPrintingOperation->AddEventListener(null);
 		__pNotifyUserPrintingOperation = null;
 		needUpdate = false;
+	} else if (result->GetOperationCode() == DELETE_MESSAGES) {
+		if (__pDeleteMessagesOperation) {
+			__pDeleteMessagesOperation->AddEventListener(null);
+			__pDeleteMessagesOperation = null;
+		}
+
+		AppLog("test");
+
+		MMessageDao::getInstance().DeleteMessages(this->__pSelectedMessages);
+
 	} else {
 		if (__pMessagesRequestOperation) {
 			__pMessagesRequestOperation->AddEventListener(null);
@@ -770,6 +831,23 @@ UiChatForm::OnUserEventReceivedN(RequestId requestId, Tizen::Base::Collection::I
 
 		delete userId;
 		delete chatId;
+	} else if (requestId == DELETE_MESSAGES) {
+
+		for (int i = 0; i < __pSelectedMessages->GetCount(); i++) {
+			int index;
+			this->GetMessages()->IndexOf(*__pSelectedMessages->GetAt(i), index);
+
+			if (index < this->GetItemCount()) {
+				this->__pListView->SetItemChecked(index, false);
+			}
+		}
+
+		for (int i = 0; i < this->__pSelectedMessages->GetCount(); i++) {
+			this->GetMessages()->Remove(*this->__pSelectedMessages->GetAt(i));
+		}
+
+		this->SetEditMode(false);
+		this->__pListView->UpdateList();
 	}
 
 	delete pArgs;
@@ -987,7 +1065,8 @@ UiChatForm::OnActionPerformed(const Tizen::Ui::Control& source, int actionId) {
 	if (actionId == 45) {
 
 		if ((__pPosterPanel->GetEditArea()->GetText().GetLength() != 0 && !__pPosterPanel->GetEditArea()->GetText().Equals(L"", true)) ||
-			PostMan::getInstance().GetAttachmentsForUid(__userId)->GetCount() > 0
+			PostMan::getInstance().GetAttachmentsForUid(__userId)->GetCount() > 0 ||
+			PostMan::getInstance().GetFwdMessages()
 		) {
 			this->SendMessage();
 
@@ -1004,6 +1083,15 @@ UiChatForm::OnActionPerformed(const Tizen::Ui::Control& source, int actionId) {
 	} else if (actionId == 10037) {
 		//отмена
 		this->SetEditMode(false);
+	} else if (actionId == 345) {
+		if (this->__pSelectedMessages->GetCount() > 0) {
+			PostMan::getInstance().SetFwdMessages(this->__pSelectedMessages);
+			this->OnFormBackRequested(*this);
+		}
+	} else if (actionId == 346) {
+		if (this->__pSelectedMessages->GetCount() > 0) {
+			this->DeleteMesages();
+		}
 	}
 }
 
@@ -1039,6 +1127,12 @@ UiChatForm::SendMessage() {
 	pMessage->SetOut(1);
 	pMessage->SetReadState(0);
 	pMessage->SetDelivered(0);
+
+	if (PostMan::getInstance().GetFwdMessages()) {
+		pMessage->__pFwdString = new String(PostMan::getInstance().GetFwdMessages()->GetPointer());
+		PostMan::getInstance().SetFwdMessages(null);
+	}
+
 	unsigned long int timestamp = time(NULL);
 
 	pMessage->SetDate(timestamp);
@@ -1383,4 +1477,80 @@ UiChatForm::NotifyUserTyping() {
 	this->__pPrintingTimer = new Timer();
 	this->__pPrintingTimer->Construct(*this);
 	this->__pPrintingTimer->Start(5000);
+}
+
+result
+UiChatForm::OnDraw() {
+
+	this->GetFooter()->RemoveAllItems();
+
+	FooterItem *friendsOnlineItem = new FooterItem();
+	friendsOnlineItem->Construct(346);
+	String deleteString;
+	Application::GetInstance()->GetAppResource()->GetString(IDS_MSG_DELETE, deleteString);
+
+	if (this->__pSelectedMessages && this->__pSelectedMessages->GetCount() > 0) {
+		String count;
+		count.Format(10, L"%d", this->__pSelectedMessages->GetCount());
+		deleteString.Append(L" (");
+		deleteString.Append(count);
+		deleteString.Append(L")");
+	}
+
+	friendsOnlineItem->SetText(deleteString);
+	this->GetFooter()->AddItem(*friendsOnlineItem);
+
+	FooterItem *friendsItem = new FooterItem();
+	friendsItem->Construct(345);
+	String fwdString;
+	Application::GetInstance()->GetAppResource()->GetString(IDS_MSG_FWD, fwdString);
+
+	if (this->__pSelectedMessages && this->__pSelectedMessages->GetCount() > 0) {
+		String count;
+		count.Format(10, L"%d", this->__pSelectedMessages->GetCount());
+		fwdString.Append(L" (");
+		fwdString.Append(count);
+		fwdString.Append(L")");
+	}
+
+	friendsItem->SetText(fwdString);
+	this->GetFooter()->AddItem(*friendsItem);
+
+	return E_SUCCESS;
+}
+
+void
+UiChatForm::DeleteMesages() {
+	if (this->__pSelectedMessages->GetCount() == 0) {
+		return;
+	}
+
+	HashMap *params = new HashMap();
+
+	params->Construct();
+	params->Add(new String(L"access_token"), AuthManager::getInstance().AccessToken());
+
+	String ids(L"");
+
+	for (int i = 0; i < this->__pSelectedMessages->GetCount(); i ++) {
+		MMessage *message = static_cast<MMessage *>(__pSelectedMessages->GetAt(i));
+		String midString;
+		midString.Format(10, L"%d", message->GetMid());
+
+		if (i != 0) {
+			ids.Append(L",");
+		}
+
+		ids.Append(midString);
+	}
+
+	params->Add(new String(L"message_ids"), new String(ids));
+
+	AppLog("testtttt");
+	if (!__pDeleteMessagesOperation) {
+		__pDeleteMessagesOperation = new RestRequestOperation(DELETE_MESSAGES, new String(L"messages.delete"), params);
+		__pDeleteMessagesOperation->AddEventListener(this);
+		__pDeleteMessagesOperation->SetResponseDescriptor(new RDeleteDescriptor());
+		RestClient::getInstance().PerformOperation(__pDeleteMessagesOperation);
+	}
 }
