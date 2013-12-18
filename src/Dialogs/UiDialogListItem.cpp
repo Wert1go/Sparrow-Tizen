@@ -154,7 +154,7 @@ UiDialogListItem::DrawRounders(Tizen::Graphics::Canvas &canvas, const Tizen::Gra
 			float itemSize = 55;
 			float centerX = 80;
 			float centerY = rect.height/2;
-			if (userCount == 4) {
+			if (userCount >= 4) {
 
 				switch(index) {
 				case 0:
