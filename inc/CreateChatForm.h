@@ -58,6 +58,8 @@ public:
 	virtual void RequestUiUpdate(int code, IList *pArgs);
 	virtual void OnFormBackRequested(Tizen::Ui::Controls::Form& source);
 
+	virtual result OnDraw(void);
+
 private:
 	SearchBar *__pSearchBar;
 	ListContextItem *__pItemContextCommon;

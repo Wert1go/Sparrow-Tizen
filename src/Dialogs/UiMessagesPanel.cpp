@@ -708,16 +708,6 @@ UiMessagesPanel::OnScrollEndReached(Tizen::Ui::Control& source, Tizen::Ui::Contr
 	}
 }
 
-result
-UiMessagesPanel::OnDraw() {
-
-	String importantString;
-	Application::GetInstance()->GetAppResource()->GetString(IDS_SEARCH, importantString);
-	__pSearchBar->SetGuideText(importantString);
-
-	return E_SUCCESS;
-}
-
 /****************************** SEARCH ***************************/
 
 void
@@ -881,4 +871,14 @@ UiMessagesPanel::OnTimerExpired (Timer &timer) {
 		delete this->__pListUpdateTimer;
 		this->__pListUpdateTimer = null;
 	}
+}
+
+result
+UiMessagesPanel::OnDraw() {
+
+	String importantString;
+	Application::GetInstance()->GetAppResource()->GetString(IDS_SEARCH, importantString);
+	__pSearchBar->SetGuideText(importantString);
+
+	return E_SUCCESS;
 }

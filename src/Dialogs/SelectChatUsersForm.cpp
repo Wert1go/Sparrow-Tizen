@@ -17,6 +17,8 @@
 #include "UiDialogCustomItem.h"
 #include "CustomGroupItem.h"
 
+#include "AppResourceId.h"
+
 using namespace Tizen::App;
 using namespace Tizen::Graphics;
 using namespace Tizen::Ui::Controls;
@@ -177,10 +179,21 @@ SelectChatUsersForm::OnFastScrollIndexSelected(Tizen::Ui::Control& source, Tizen
 void
 SelectChatUsersForm::OnActionPerformed(const Tizen::Ui::Control& source, int actionId) {
 
-	if (__pSelectedUsers && __pSelectedUsers->GetCount() > 0) {
+	if (__pSelectedUsers && __pSelectedUsers->GetCount() >= 2) {
 		SceneManager* pSceneManager = SceneManager::GetInstance();
 		AppAssert(pSceneManager);
 		pSceneManager->GoForward(ForwardSceneTransition(SCENE_CREATE_CONV, SCENE_TRANSITION_ANIMATION_TYPE_LEFT), __pSelectedUsers);
+	} else {
+		MessageBox* pMessageBox = new (std::nothrow) MessageBox();
+		String deleteString;
+		Application::GetInstance()->GetAppResource()->GetString(IDS_CREATE_CONVERSATION, deleteString);
+
+		pMessageBox->Construct(L"Sparrow", deleteString, MSGBOX_STYLE_OK, 5000);
+
+		int ModalResult;
+		pMessageBox->ShowAndWait(ModalResult);
+
+		delete pMessageBox;
 	}
 }
 
@@ -210,4 +223,24 @@ SelectChatUsersForm::OnGroupedListViewItemStateChanged(GroupedListView &listView
 ListAnnexStyle
 SelectChatUsersForm::GetCurrentAnnexStyle() {
 	return LIST_ANNEX_STYLE_MARK;
+}
+
+result
+SelectChatUsersForm::OnDraw(void) {
+
+	String titleText;
+	Application::GetInstance()->GetAppResource()->GetString(IDS_CONVERSATION_TITLE, titleText);
+	this->GetHeader()->SetTitleText(titleText);
+
+	this->GetHeader()->RemoveAllButtons();
+
+	String cancelText;
+	Application::GetInstance()->GetAppResource()->GetString(IDS_CONV_NEXT, cancelText);
+
+	ButtonItem *cancelButton = new ButtonItem();
+	cancelButton->Construct(BUTTON_ITEM_STYLE_TEXT, 23);
+	cancelButton->SetText(cancelText);
+	this->GetHeader()->SetButton(BUTTON_POSITION_RIGHT, *cancelButton);
+
+	return E_SUCCESS;
 }

@@ -49,6 +49,8 @@ public:
 
 	ListAnnexStyle GetCurrentAnnexStyle();
 
+	virtual result OnDraw(void);
+
 
 private:
 	LinkedList *__pSelectedUsers;

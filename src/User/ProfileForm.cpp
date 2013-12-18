@@ -197,7 +197,7 @@ void
 ProfileForm::OnSceneActivatedN(const Tizen::Ui::Scenes::SceneId& previousSceneId,
 								   const Tizen::Ui::Scenes::SceneId& currentSceneId, Tizen::Base::Collection::IList* pArgs) {
 
-	if (pArgs->GetCount() > 0) {
+	if (pArgs && pArgs->GetCount() > 0) {
 		if (dynamic_cast<MUser*>(pArgs->GetAt(0)) == 0) {
 			return;
 		}

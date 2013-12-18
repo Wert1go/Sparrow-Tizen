@@ -67,6 +67,8 @@ public:
 	virtual bool HasSectionFooter(int sectionIndex);
 	virtual float GetDefaultItemHeight(void);
 
+	Tizen::Ui::Controls::TextBox* pInfoLabel;
+
 	//ISectionTableViewItemEventListener
 
 	virtual void OnSectionTableViewItemStateChanged(Tizen::Ui::Controls::SectionTableView& tableView, int sectionIndex, int itemIndex, Tizen::Ui::Controls::TableViewItem* pItem, Tizen::Ui::Controls::TableViewItemStatus status);

@@ -27,6 +27,8 @@
 #include "MUserDao.h"
 #include "ImageCache.h"
 
+#include "AppResourceId.h"
+
 #include "ImageAttachmentOperation.h"
 
 using namespace Tizen::App;
@@ -43,7 +45,7 @@ using namespace Tizen::Net::Http;
 using namespace Tizen::Web::Json;
 
 const int imageOffset = 100;
-const int imageSize = 200;
+const int imageSize = 300;
 const int imageBottomOffset = 100;
 
 SettingsForm::SettingsForm() {
@@ -61,7 +63,6 @@ SettingsForm::SettingsForm() {
 	pHeader->SetStyle(HEADER_STYLE_TITLE);
 	pHeader->SetColor(*pHeaderBackgroundColor);
 	pHeader->SetTitleTextColor(*pHeaderTextColor);
-	pHeader->SetTitleText(L"Имя пользователя");
 
 	delete pHeaderBackgroundColor;
 	delete pHeaderTextColor;
@@ -73,16 +74,6 @@ SettingsForm::SettingsForm() {
 
 	String *uidString = AuthManager::getInstance().UserId();
 
-	int uid;
-	Integer::Parse(uidString->GetPointer(), uid);
-
-	MUser *user = MUserDao::getInstance().GetUserN(uid);
-	if (user) {
-		__user = user;
-		UpdateInterfaceForCurrentUser();
-	} else {
-		SendRequest();
-	}
 
 	Rectangle rect = GetBounds();
 
@@ -101,10 +92,10 @@ SettingsForm::SettingsForm() {
 
 	int buttonWidth = 0;
 
-	buttonWidth = (rect.width * 84)/100;
+	buttonWidth = rect.width;
 
 	__pExitButton = new (std::nothrow) Button();
-	__pExitButton->Construct(Rectangle(rect.width/2 - buttonWidth/2, rect.height - 80, buttonWidth, 80));
+	__pExitButton->Construct(Rectangle(rect.width/2 - buttonWidth/2, rect.height - 100, buttonWidth, 100));
 	__pExitButton->SetText(L"Выход");
 	__pExitButton->SetActionId(2);
 	__pExitButton->AddActionEventListener(*this);
@@ -114,6 +105,45 @@ SettingsForm::SettingsForm() {
 	__pExitButton->SetColor(BUTTON_STATUS_PRESSED, *buttonSelectedColor);
 
 	AddControl(__pExitButton);
+
+	Image image;
+	image.Construct();
+	String filepath = App::GetInstance()->GetAppResourcePath() + L"empty_bg.png";
+	Bitmap *pBackgroundBitmap = image.DecodeN(filepath, BITMAP_PIXEL_FORMAT_ARGB8888);
+
+
+	Color *labelTextColor = new (std::nothrow) Color(250, 250, 250, 255);
+
+	buttonWidth = (rect.width * 82)/100;
+
+	pInfoLabel = new (std::nothrow) TextBox();
+	pInfoLabel->Construct(Rectangle(rect.width/2 - buttonWidth/2, imageOffset * 2 + imageSize + 50, buttonWidth, 160), TEXT_BOX_BORDER_NONE);
+
+	pInfoLabel->SetTextAlignment(ALIGNMENT_CENTER);
+	pInfoLabel->SetTextColor(TEXT_BOX_TEXT_COLOR_NORMAL, *labelTextColor);
+	pInfoLabel->SetTextColor(TEXT_BOX_TEXT_COLOR_DISABLED, *labelTextColor);
+	pInfoLabel->SetTextSize(50);
+	pInfoLabel->SetFocusable(false);
+	pInfoLabel->SetEnabled(false);
+	pInfoLabel->SetDragEnabled(false);
+	pInfoLabel->SetDropEnabled(false);
+
+	pInfoLabel->SetBackgroundBitmap(TEXT_BOX_STATUS_NORMAL, *pBackgroundBitmap);
+	pInfoLabel->SetBackgroundBitmap(TEXT_BOX_STATUS_HIGHLIGHTED, *pBackgroundBitmap);
+	pInfoLabel->SetBackgroundBitmap(TEXT_BOX_STATUS_DISABLED, *pBackgroundBitmap);
+
+	AddControl(pInfoLabel);
+
+	int uid;
+	Integer::Parse(uidString->GetPointer(), uid);
+
+	MUser *user = MUserDao::getInstance().GetUserN(uid);
+	if (user) {
+		__user = user;
+		UpdateInterfaceForCurrentUser();
+	} else {
+		SendRequest();
+	}
 
 }
 
@@ -226,10 +256,13 @@ void SettingsForm::UpdateInterfaceForCurrentUser() {
 	title.Append(L" ");
 	title.Append(__user->GetLastName()->GetPointer());
 
+	if (__user->__pBigPhoto) {
+		ImageCache::getInstance().LoadImageForTarget(__user->__pBigPhoto, this);
+	} else {
+		ImageCache::getInstance().LoadImageForTarget(__user->GetPhoto(), this);
+	}
 
-	ImageCache::getInstance().LoadImageForTarget(__user->GetPhoto(), this);
-
-	this->GetHeader()->SetTitleText(title);
+	pInfoLabel->SetText(title);
 	Draw();
 }
 
@@ -253,6 +286,15 @@ result SettingsForm::OnDraw() {
 		Rectangle rect = Rectangle(bounds.width/2 - imageSize/2, imageOffset * 2, imageSize, imageSize);
 		r = pCanvas->DrawBitmap(rect, *__bitmap);
 	}
+
+
+	String importantString;
+	Application::GetInstance()->GetAppResource()->GetString(IDS_LOGOUT, importantString);
+	__pExitButton->SetText(importantString);
+
+	String titleString;
+	Application::GetInstance()->GetAppResource()->GetString(IDS_MAIN_FORM_SETTINGS, titleString);
+	this->GetHeader()->SetTitleText(titleString);
 
 	delete pCanvas;
 

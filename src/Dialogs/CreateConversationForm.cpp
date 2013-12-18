@@ -29,6 +29,8 @@
 #include "RestResponse.h"
 #include "Error.h"
 
+#include "AppResourceId.h"
+
 using namespace Tizen::App;
 using namespace Tizen::Graphics;
 using namespace Tizen::Ui::Controls;
@@ -365,4 +367,28 @@ CreateConversationForm::CreateChat() {
 		RestClient::getInstance().PerformOperation(__pChatCreateOperation);
 	}
 
+}
+
+result
+CreateConversationForm::OnDraw(void) {
+
+	String titleText;
+	Application::GetInstance()->GetAppResource()->GetString(IDS_CONVERSATION_TITLE, titleText);
+	this->GetHeader()->SetTitleText(titleText);
+
+	this->GetHeader()->RemoveAllButtons();
+
+	String cancelText;
+	Application::GetInstance()->GetAppResource()->GetString(IDS_DONE, cancelText);
+
+	ButtonItem *cancelButton = new ButtonItem();
+	cancelButton->Construct(BUTTON_ITEM_STYLE_TEXT, 23);
+	cancelButton->SetText(cancelText);
+	this->GetHeader()->SetButton(BUTTON_POSITION_RIGHT, *cancelButton);
+
+	String importantString;
+	Application::GetInstance()->GetAppResource()->GetString(IDS_ENTER_CONV_TITLE, importantString);
+	__pEditArea->SetGuideText(importantString);
+
+	return E_SUCCESS;
 }

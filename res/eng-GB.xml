@@ -4,6 +4,7 @@
 -->
 <string_table Bversion="2.0.0.201311071819" Dversion="20120315">
     <text id="IDS_ATTACH_MAP">Location</text>
+    <text id="IDS_CREATE_CONV_TEXT">Create conversation</text>
     <text id="IDS_MAIN_FORM_CONTACTS">Contacts</text>
     <text id="IDS_MEMBER_SUFFIX_2">s</text>
     <text id="IDS_NOTIFY_ATTACHMENTS">[Attachments]</text>
@@ -13,20 +14,28 @@
     <text id="IDS_MSG_FWD">Forward</text>
     <text id="IDS_START_SCREEN_DESCR">You can message your friends for free</text>
     <text id="IDS_DECLINE_FRIEND">Decline request</text>
+    <text id="IDS_NEW_MESSAGE">New message</text>
     <text id="IDS_CONV_LEAVE">Leave conversation</text>
+    <text id="IDS_GLOBAL_SEARCH">Global search</text>
     <text id="IDS_SEARCH_DIALOGS">Conversations</text>
     <text id="IDS_NOTIFY_FWD">[Forwarded message]</text>
     <text id="IDS_NOTIFY_FWDS">[Forwarded messages]</text>
     <text id="IDS_MEMBER">member</text>
+    <text id="IDS_ENTER_CONV_TITLE">Conversation title</text>
+    <text id="IDS_DONE">Done</text>
+    <text id="IDS_CREATE_CONVERSATION">To create a conversation you need to select at least two member</text>
     <text id="IDS_PRINTING">is typing... </text>
     <text id="IDS_MAIN_FORM_I_CONTACTS">Contacts</text>
     <text id="IDS_SEARCH">Search</text>
     <text id="IDS_ATTACH_VIDEO">Video</text>
     <text id="IDS_REMOVE_FRIEND">Delete friend</text>
+    <text id="IDS_PRO_FRIENDS">People you may know</text>
     <text id="IDS_ATTACH_PHOTO">Photo</text>
     <text id="IDS_CONTACT_CALL">Call</text>
     <text id="IDS_EDIT">Edit</text>
     <text id="IDS_BUTTON_REG">Register</text>
+    <text id="IDS_CONVERSATION_TITLE">Conversation</text>
+    <text id="IDS_CONV_NEXT">Next</text>
     <text id="IDS_LAST_SEEN_AT">at</text>
     <text id="IDS_MSG_DELETE">Delete</text>
     <text id="IDS_OFFLINE">Offline</text>
@@ -35,6 +44,7 @@
     <text id="IDS_LAST_SEEN">Last seen</text>
     <text id="IDS_MAP_FAILED">Failed to get information about the location</text>
     <text id="IDS_CANCEL">Cancel</text>
+    <text id="IDS_FRIEND_REQUEST">Friend requests</text>
     <text id="IDS_MAIN_FORM_FRIENDS">All friends</text>
     <text id="IDS_ADD_FRIEND">Add friend</text>
     <text id="IDS_ATTACH_DOC">Document</text>
@@ -45,6 +55,7 @@
     <text id="IDS_NOTIFY_MSG">write:</text>
     <text id="IDS_ATTACH">Attach</text>
     <text id="IDS_CONTACT_SEND_MESSAGE">Send a message </text>
+    <text id="IDS_LOGOUT">Logout</text>
     <text id="IDS_NOTIFY_ATTACHMENT">[Attachment]</text>
     <text id="IDS_TIME_YESTERDAY">yesterday</text>
     <text id="IDS_ONLINE">Online</text>

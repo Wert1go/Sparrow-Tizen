@@ -18,6 +18,8 @@
 #include "UiDialogCustomItem.h"
 #include "CustomGroupItem.h"
 
+#include "AppResourceId.h"
+
 using namespace Tizen::App;
 using namespace Tizen::Graphics;
 using namespace Tizen::Ui::Controls;
@@ -277,7 +279,8 @@ CreateChatForm::CreateItem(int groupIndex, int itemIndex, int itemWidth)
 
 		pItem->Construct(Dimension(itemWidth, height), style);
 
-		String createChat(L"Создать беседу");
+		String createChat;
+		Application::GetInstance()->GetAppResource()->GetString(IDS_CREATE_CONV_TEXT, createChat);
 
 		Bitmap *normalIcon = Resources::getInstance().LoadBitmapNamed(L"group_list_icon_add_normal.png");
 		Bitmap *selectedIcon = Resources::getInstance().LoadBitmapNamed(L"group_list_icon_add_press.png");
@@ -322,4 +325,28 @@ CreateChatForm::OnFormBackRequested(Tizen::Ui::Controls::Form& source) {
 	SceneManager* pSceneManager = SceneManager::GetInstance();
 	AppAssert(pSceneManager);
 	pSceneManager->GoBackward(BackwardSceneTransition(SCENE_TRANSITION_ANIMATION_TYPE_RIGHT));
+}
+
+result
+CreateChatForm::OnDraw(void) {
+
+	String titleText;
+	Application::GetInstance()->GetAppResource()->GetString(IDS_NEW_MESSAGE, titleText);
+	this->GetHeader()->SetTitleText(titleText);
+
+	this->GetHeader()->RemoveAllButtons();
+
+	String cancelText;
+	Application::GetInstance()->GetAppResource()->GetString(IDS_CANCEL, cancelText);
+
+	ButtonItem *cancelButton = new ButtonItem();
+	cancelButton->Construct(BUTTON_ITEM_STYLE_TEXT, 23);
+	cancelButton->SetText(cancelText);
+	this->GetHeader()->SetButton(BUTTON_POSITION_RIGHT, *cancelButton);
+
+	String importantString;
+	Application::GetInstance()->GetAppResource()->GetString(IDS_SEARCH, importantString);
+	__pSearchBar->SetGuideText(importantString);
+
+	return E_SUCCESS;
 }

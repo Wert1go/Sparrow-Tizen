@@ -360,20 +360,26 @@ SearchUserPanel::SplitUsersToSections() {
 	__pSectionTitlesList->RemoveAll();
 
 	if (this->__pUsersSearchResults->GetCount() > 0) {
-		__pSectionTitlesList->Add(new String(L"Глобальный поиск"));
+		String importantString;
+		Application::GetInstance()->GetAppResource()->GetString(IDS_GLOBAL_SEARCH, importantString);
+		__pSectionTitlesList->Add(new String(importantString));
 		LinkedList *users = new LinkedList();
 		users->AddItems(*this->__pUsersSearchResults);
 		__pSectionItemsList->Add(users);
 	} else {
 		if(this->__pUsersRequests->GetCount() > 0) {
-			__pSectionTitlesList->Add(new String(L"Заявки в друзья"));
+			String importantString;
+			Application::GetInstance()->GetAppResource()->GetString(IDS_FRIEND_REQUEST, importantString);
+			__pSectionTitlesList->Add(new String(importantString));
 			LinkedList *users = new LinkedList();
 			users->AddItems(*this->__pUsersRequests);
 			__pSectionItemsList->Add(users);
 		}
 
 		if(this->__pUsersSuggest->GetCount() > 0) {
-			__pSectionTitlesList->Add(new String(L"Возможные друзья"));
+			String importantString;
+			Application::GetInstance()->GetAppResource()->GetString(IDS_PRO_FRIENDS, importantString);
+			__pSectionTitlesList->Add(new String(importantString));
 			LinkedList *users = new LinkedList();
 			users->AddItems(*this->__pUsersSuggest);
 			__pSectionItemsList->Add(users);

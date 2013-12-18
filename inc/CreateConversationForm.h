@@ -64,6 +64,7 @@ public:
 	virtual void OnErrorN(Error *error);
 
 	void CreateChat();
+	virtual result OnDraw(void);
 private:
 	LinkedList *__pUsersList;
 	ListView *__pListView;
