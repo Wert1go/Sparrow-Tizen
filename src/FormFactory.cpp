@@ -76,6 +76,7 @@ FormFactory::CreateFormN(const Tizen::Base::String& formId, const Tizen::Ui::Sce
 	else if (formId == FORM_SETTINGS)
 	{
 		SettingsForm *pForm = new (std::nothrow) SettingsForm();
+		pSceneManager->AddSceneEventListener(sceneId, *pForm);
 		pNewForm = pForm;
 	}
 	else if (formId == FORM_CHAT)

@@ -48,6 +48,8 @@ public:
 	Bitmap *GetAudioPausePressedIcon();
 
 	Bitmap *GetUserAvatar();
+	void ResetAvatar();
+
 
 	Bitmap *GetNoUserAvatar();
 	Bitmap *GetNoGroupAvatar();

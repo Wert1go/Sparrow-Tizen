@@ -12,6 +12,7 @@
 #include "ImageCache.h"
 #include "UserDescriptor.h"
 #include "UserRestResponse.h"
+#include "RContactsDescriptor.h"
 #include "RMessageSendDescriptor.h"
 
 #include <FApp.h>
@@ -160,7 +161,7 @@ AuthManager::SendRequest() {
 	if (!__userRequestOperation) {
 		__userRequestOperation = new RestRequestOperation(GET_USER, new String(L"users.get"), params);
 		__userRequestOperation->AddEventListener(this);
-		__userRequestOperation->SetResponseDescriptor(new UserDescriptor());
+		__userRequestOperation->SetResponseDescriptor(new RContactsDescriptor());
 		RestClient::getInstance().PerformOperation(__userRequestOperation);
 	}
 }

@@ -8,6 +8,7 @@
 
 #include "Sparrow.h"
 #include "SparrowFrame.h"
+#include "Resources.h"
 
 #include "RestRequestOperation.h"
 #include "LongPollConnection.h"
@@ -193,6 +194,7 @@ SparrowApp::Logout() {
 
 	}
 
+	Resources::getInstance().ResetAvatar();
 	LongPollConnection::getInstance().Stop();
 	AuthManager::getInstance().Clear();
 	MDatabaseManager::getInstance().Clear();

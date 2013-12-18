@@ -244,8 +244,12 @@ BaseUserController::SplitUsersToSectionsByAlphabet() {
 
 		}
 
-		if (startIndex != -1 && endIndex != -1) {
-			__pUsersList->RemoveItems(startIndex, endIndex);
+		try {
+			if (startIndex != -1 && endIndex != -1) {
+				__pUsersList->RemoveItems(startIndex, endIndex);
+			}
+		} catch (...) {
+
 		}
 	}
 

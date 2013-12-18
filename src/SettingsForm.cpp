@@ -26,7 +26,7 @@
 
 #include "MUserDao.h"
 #include "ImageCache.h"
-
+#include "Resources.h"
 #include "AppResourceId.h"
 
 #include "ImageAttachmentOperation.h"
@@ -72,7 +72,7 @@ SettingsForm::SettingsForm() {
 
 	__bitmap = null;
 
-	String *uidString = AuthManager::getInstance().UserId();
+
 
 
 	Rectangle rect = GetBounds();
@@ -134,16 +134,7 @@ SettingsForm::SettingsForm() {
 
 	AddControl(pInfoLabel);
 
-	int uid;
-	Integer::Parse(uidString->GetPointer(), uid);
 
-	MUser *user = MUserDao::getInstance().GetUserN(uid);
-	if (user) {
-		__user = user;
-		UpdateInterfaceForCurrentUser();
-	} else {
-		SendRequest();
-	}
 
 }
 
@@ -161,6 +152,30 @@ SettingsForm::~SettingsForm() {
 
 	AppLogDebug("SettingsForm::~SettingsForm");
 	delete __bitmap;
+}
+
+void
+SettingsForm::OnSceneActivatedN(const Tizen::Ui::Scenes::SceneId& previousSceneId,
+									   const Tizen::Ui::Scenes::SceneId& currentSceneId, Tizen::Base::Collection::IList* pArgs) {
+	String *uidString = AuthManager::getInstance().UserId();
+
+	AppLog("uidString %S", uidString->GetPointer());
+
+	int uid;
+	Integer::Parse(uidString->GetPointer(), uid);
+
+	MUser *user = MUserDao::getInstance().GetUserN(uid);
+	if (user) {
+		__user = user;
+		UpdateInterfaceForCurrentUser();
+	} else {
+		SendRequest();
+	}
+}
+void
+SettingsForm::OnSceneDeactivated(const Tizen::Ui::Scenes::SceneId& currentSceneId,
+								const Tizen::Ui::Scenes::SceneId& nextSceneId) {
+
 }
 
 result
@@ -258,7 +273,7 @@ void SettingsForm::UpdateInterfaceForCurrentUser() {
 
 	if (__user->__pBigPhoto) {
 		ImageCache::getInstance().LoadImageForTarget(__user->__pBigPhoto, this);
-	} else {
+	} else if (__user->GetPhoto()) {
 		ImageCache::getInstance().LoadImageForTarget(__user->GetPhoto(), this);
 	}
 
@@ -285,6 +300,13 @@ result SettingsForm::OnDraw() {
 
 		Rectangle rect = Rectangle(bounds.width/2 - imageSize/2, imageOffset * 2, imageSize, imageSize);
 		r = pCanvas->DrawBitmap(rect, *__bitmap);
+	} else {
+
+		Rectangle bounds = GetBounds();
+
+		Rectangle rect = Rectangle(bounds.width/2 - imageSize/2, imageOffset * 2, imageSize, imageSize);
+		r = pCanvas->DrawBitmap(rect, *Resources::getInstance().GetNoUserAvatar());
+
 	}
 
 

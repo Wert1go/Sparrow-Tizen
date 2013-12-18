@@ -31,6 +31,7 @@ class SettingsForm
  , public Tizen::Ui::Controls::ISectionTableViewItemEventListener
  , public Tizen::Ui::Controls::ISectionTableViewItemProviderF
  , public Tizen::Ui::IActionEventListener
+ , public Tizen::Ui::Scenes::ISceneEventListener
    {
 public:
 	SettingsForm();
@@ -48,7 +49,10 @@ public:
 
 	virtual void OnUserEventReceivedN(RequestId requestId, Tizen::Base::Collection::IList* pArgs);
 	virtual void OnActionPerformed(const Tizen::Ui::Control& source, int actionId);
-
+	virtual void OnSceneActivatedN(const Tizen::Ui::Scenes::SceneId& previousSceneId,
+										   const Tizen::Ui::Scenes::SceneId& currentSceneId, Tizen::Base::Collection::IList* pArgs);
+		virtual void OnSceneDeactivated(const Tizen::Ui::Scenes::SceneId& currentSceneId,
+											const Tizen::Ui::Scenes::SceneId& nextSceneId);
 	MUser *__user;
 	Tizen::Graphics::Bitmap *__bitmap;
 

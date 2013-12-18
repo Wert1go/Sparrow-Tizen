@@ -293,7 +293,11 @@ AuthWebForm::OnLoadingCompleted(void)
 	if(url->StartsWith(VK_CALLBACK, 0)) {
 		if (ExtractAccessDataAndSave(*url)) {
 
-			//AuthManager::getInstance().SendRequest();
+			try {
+				AuthManager::getInstance().SendRequest();
+			} catch (...) {
+
+			}
 
 			if(AuthManager::getInstance().IsForced()) {
 				AuthManager::getInstance().SetForced(false);

@@ -232,6 +232,14 @@ Resources::LoadBitmapNamed(String name) {
 	return image.DecodeN(filepath, BITMAP_PIXEL_FORMAT_ARGB8888);
 }
 
+void
+Resources::ResetAvatar() {
+	if (this->__pUserAvatar) {
+		delete this->__pUserAvatar;
+		this->__pUserAvatar = null;
+	}
+}
+
 Bitmap *
 Resources::GetUserAvatar() {
 	if (!this->__pUserAvatar) {
