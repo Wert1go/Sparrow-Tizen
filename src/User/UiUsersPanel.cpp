@@ -128,15 +128,26 @@ UiUsersPanel::OnSceneActivatedN(const Tizen::Ui::Scenes::SceneId& previousSceneI
 									   const Tizen::Ui::Scenes::SceneId& currentSceneId, Tizen::Base::Collection::IList* pArgs) {
 	AppLog("UiUsersPanel UiUsersPanel +++++++");
 	if (__mode == -1) {
-		AppLog("+++++++11111111111111111");
-		this->SetUserList(MUserDao::getInstance().GetFriendsN());
-		SplitUsersToSections();
 
-		if (this->__pListView) {
+		if (this->__pSearchBar && this->__pSearchBar->GetText().GetLength() != 0) {
+			String string = this->__pSearchBar->GetText();
+
+			this->SetUserList(MUserDao::getInstance().SearchUsers(new String(string.GetPointer())));
+
+			SplitUsersToSections();
 			this->__pListView->UpdateList();
+		} else {
+			AppLog("+++++++11111111111111111");
+			this->SetUserList(MUserDao::getInstance().GetFriendsN());
+			SplitUsersToSections();
+
+			if (this->__pListView) {
+				this->__pListView->UpdateList();
+			}
+
+			RequestUsers();
 		}
 
-		RequestUsers();
 	}
 
 }
@@ -144,7 +155,7 @@ UiUsersPanel::OnSceneActivatedN(const Tizen::Ui::Scenes::SceneId& previousSceneI
 void
 UiUsersPanel::OnSceneDeactivated(const Tizen::Ui::Scenes::SceneId& currentSceneId,
 										const Tizen::Ui::Scenes::SceneId& nextSceneId) {
-
+	this->SetFocus();
 }
 
 void
