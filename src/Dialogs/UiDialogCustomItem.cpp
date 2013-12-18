@@ -187,6 +187,10 @@ UiDialogCustomItem::Init() {
 
 	} else {
 
+		if (!this->__pUser) {
+			return;
+		}
+
 		UiImageView *pImageView = new (std::nothrow) UiImageView();
 //		pImageView->__pBitmapImage = __pPlaceholder;
 

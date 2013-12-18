@@ -130,10 +130,19 @@ BaseUserController::CreateItem(int groupIndex, int itemIndex, int itemWidth)
 
 	pItem->AddRefreshListener(this);
 
-	LinkedList *sectionItems = static_cast<LinkedList*>(__pSectionItemsList->GetAt(groupIndex));
-	MUser *dialog = static_cast<MUser *>(sectionItems->GetAt(itemIndex));
+	LinkedList *sectionItems = null;
+	if (groupIndex < __pSectionItemsList->GetCount()) {
+		sectionItems = static_cast<LinkedList*>(__pSectionItemsList->GetAt(groupIndex));
+	}
+	MUser *dialog = null;
+	if (sectionItems && itemIndex < sectionItems->GetCount()) {
 
-	pItem->SetUser(dialog);
+		dialog = static_cast<MUser *>(sectionItems->GetAt(itemIndex));
+	}
+
+	if (dialog) {
+		pItem->SetUser(dialog);
+	}
 
 	pItem->Init();
 

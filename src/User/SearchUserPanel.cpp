@@ -122,8 +122,9 @@ SearchUserPanel::OnSceneActivatedN(const Tizen::Ui::Scenes::SceneId& previousSce
 									   const Tizen::Ui::Scenes::SceneId& currentSceneId, Tizen::Base::Collection::IList* pArgs) {
 
 	AppLog("OnSceneActivatedN");
-	GetUserRequests();
-	GetSuggests();
+	Timer *pTimer = new Timer();
+	pTimer->Construct(*this);
+	pTimer->Start(500);
 }
 
 void
@@ -283,20 +284,30 @@ SearchUserPanel::OnUserEventReceivedN(RequestId requestId, Tizen::Base::Collecti
 
 void
 SearchUserPanel::OnTimerExpired (Timer &timer) {
-	if (this->__pListUpdateTimer) {
-		if (searchTextHolder != NULL) {
-			AppLog("2OnTimerExpired %S", searchTextHolder.GetPointer());
-			if (searchTextHolder.GetLength() == 0) {
-				this->__pUsersSearchResults->RemoveAll();
-				SplitUsersToSections();
-			} else {
-				AppLog("1OnTimerExpired %S", searchTextHolder.GetPointer());
-				this->SearchUserWithString(searchTextHolder);
+
+	if (this->__pListUpdateTimer && timer.Equals(*this->__pListUpdateTimer)) {
+
+		if (this->__pListUpdateTimer) {
+			if (searchTextHolder != NULL) {
+				AppLog("2OnTimerExpired %S", searchTextHolder.GetPointer());
+				if (searchTextHolder.GetLength() == 0) {
+					this->__pUsersSearchResults->RemoveAll();
+					SplitUsersToSections();
+				} else {
+					AppLog("1OnTimerExpired %S", searchTextHolder.GetPointer());
+					this->SearchUserWithString(searchTextHolder);
+				}
 			}
+
+			delete this->__pListUpdateTimer;
+			this->__pListUpdateTimer = null;
 		}
 
-		delete this->__pListUpdateTimer;
-		this->__pListUpdateTimer = null;
+	} else {
+		GetUserRequests();
+		GetSuggests();
+
+		delete &timer;
 	}
 }
 
@@ -320,8 +331,7 @@ SearchUserPanel::OnTextValueChanged(const Tizen::Ui::Control& source) {
 
 		this->__pListUpdateTimer = new Timer();
 		this->__pListUpdateTimer->Construct(*this);
-		this->__pListUpdateTimer->Start(700);
-
+		this->__pListUpdateTimer->Start(500);
 		//
 	}
 }

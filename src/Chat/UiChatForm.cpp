@@ -1508,7 +1508,7 @@ UiChatForm::OnProgressChanged(MAttachment *attachment, int progress, int uid) {
 
 void
 UiChatForm::OnTimerExpired (Timer &timer) {
-	if (timer.Equals(*this->__pPrintingTimer)) {
+	if (this->__pPrintingTimer && timer.Equals(*this->__pPrintingTimer)) {
 		this->__isUserPrinting = false;
 		AppLog("tttt t trt ret t rt ret ret er er te er re");
 		delete this->__pPrintingTimer;
