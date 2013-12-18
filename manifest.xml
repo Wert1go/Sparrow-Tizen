@@ -18,6 +18,7 @@
             <Privilege>http://tizen.org/privilege/contact.write</Privilege>
             <Privilege>http://tizen.org/privilege/messaging.write</Privilege>
             <Privilege>http://tizen.org/privilege/contact.read</Privilege>
+             <Privilege>http://tizen.org/privilege/location</Privilege>
         </Privileges>
         <UiApp LaunchingHistoryVisible="True" Main="True" MenuIconVisible="True" Name="Sparrow">
             <UiScalability BaseScreenSize="Normal" CoordinateSystem="Logical" LogicalCoordinate="720"/>

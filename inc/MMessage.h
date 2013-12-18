@@ -48,6 +48,9 @@ public:
 
 	int __owner;
 
+	double __lat;
+	double __lon;
+
 	String *__pFwdString;
 
 public:

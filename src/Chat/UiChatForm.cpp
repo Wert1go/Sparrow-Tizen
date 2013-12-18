@@ -7,6 +7,7 @@
 
 #include "UiChatForm.h"
 
+#include <FLocations.h>
 #include "SceneRegister.h"
 #include "MMessageDescriptor.h"
 #include "RMessageSendDescriptor.h"
@@ -48,6 +49,7 @@ using namespace Tizen::Io;
 using namespace Tizen::Ui::Controls;
 using namespace Tizen::Ui::Scenes;
 using namespace Tizen::Graphics;
+using namespace Tizen::Locations;
 
 using namespace Tizen::Io;
 using namespace Tizen::Media;
@@ -238,8 +240,6 @@ UiChatForm::OnSceneActivatedN(const Tizen::Ui::Scenes::SceneId& previousSceneId,
 	if (pArgs && pArgs->GetCount() > 0) {
 		Integer *param = static_cast< Integer* > (pArgs->GetAt(0));
 
-		AppLog("+++++++++++++++++ %d", param->ToInt());
-
 		if (param->ToInt() == -1) {
 
 			Timer *pTimer = new Timer();
@@ -270,8 +270,6 @@ UiChatForm::OnSceneActivatedN(const Tizen::Ui::Scenes::SceneId& previousSceneId,
 			} else {
 				MUser *user = MUserDao::getInstance().GetUserN(__userId);
 				if (user) {
-					AppLog("user->GetLastSeen(): %d", user->GetLastSeen());
-
 					dialog->SetDate(user->GetLastSeen());
 				}
 			}
@@ -1131,6 +1129,8 @@ UiChatForm::DidSelectItemInPopup(int itemIndex, int popupId) {
 
 	if (itemIndex == 0) {
 		OpenGallery();
+	} else if (itemIndex == 4) {
+		AttachLoacation();
 	}
 }
 
@@ -1161,6 +1161,14 @@ UiChatForm::SendMessage() {
 	if (PostMan::getInstance().GetFwdMessages()) {
 		pMessage->__pFwdString = new String(PostMan::getInstance().GetFwdMessages()->GetPointer());
 		PostMan::getInstance().SetFwdMessages(null);
+	}
+
+	if (PostMan::getInstance().__lat != 0) {
+		pMessage->__lat = PostMan::getInstance().__lat;
+		pMessage->__lon = PostMan::getInstance().__lon;
+
+		PostMan::getInstance().__lat = 0;
+		PostMan::getInstance().__lon = 0;
 	}
 
 	unsigned long int timestamp = time(NULL);
@@ -1593,4 +1601,64 @@ UiChatForm::DeleteMesages() {
 		__pDeleteMessagesOperation->SetResponseDescriptor(new RDeleteDescriptor());
 		RestClient::getInstance().PerformOperation(__pDeleteMessagesOperation);
 	}
+}
+
+void
+UiChatForm::AttachLoacation() {
+	Location location = LocationProvider::GetLastKnownLocation();
+
+	result r = GetLastResult();
+
+	if (location.IsValid())
+	{
+	   // Get the timestamp of the last known location
+	   Tizen::Base::DateTime timestamp = location.GetTimestamp();
+
+	   // Get the coordinates of the last known location
+	   Coordinates coord = location.GetCoordinates();
+
+	   PostMan::getInstance().__lat = coord.GetLatitude();
+	   PostMan::getInstance().__lon = coord.GetLongitude();
+
+//	   AppLog("%g :: %g", coord.GetLatitude(), coord.GetLongitude());
+
+	   MessageBox* pMessageBox = new (std::nothrow) MessageBox();
+		String deleteString;
+		Application::GetInstance()->GetAppResource()->GetString(IDS_MAP_SUCCESS, deleteString);
+
+		pMessageBox->Construct(L"Sparrow", deleteString, MSGBOX_STYLE_OK, 5000);
+
+		int ModalResult;
+		pMessageBox->ShowAndWait(ModalResult);
+
+		delete pMessageBox;
+	}
+	else
+	{
+	   if (r == E_SYSTEM) {
+		    MessageBox* pMessageBox = new (std::nothrow) MessageBox();
+		    String deleteString;
+			Application::GetInstance()->GetAppResource()->GetString(IDS_MAP_FAILED, deleteString);
+
+		   	pMessageBox->Construct(L"Sparrow", deleteString, MSGBOX_STYLE_OK, 5000);
+
+		   	int ModalResult;
+		   	pMessageBox->ShowAndWait(ModalResult);
+
+		   	delete pMessageBox;
+	   } else if (r == E_USER_NOT_CONSENTED) {
+		   	MessageBox* pMessageBox = new (std::nothrow) MessageBox();
+		   	String deleteString;
+			Application::GetInstance()->GetAppResource()->GetString(IDS_MAP_OFF, deleteString);
+
+			pMessageBox->Construct(L"Sparrow", deleteString, MSGBOX_STYLE_OK, 5000);
+
+			int ModalResult;
+			pMessageBox->ShowAndWait(ModalResult);
+
+			delete pMessageBox;
+	   }
+	}
+
+
 }

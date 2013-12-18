@@ -61,6 +61,9 @@ public:
 	void SetFwdMessages(LinkedList *pMessages);
 	String *GetFwdMessages();
 
+	double __lat;
+	double __lon;
+
 private:
 	String *__pFwdMessages;
 	Mutex __mutex;

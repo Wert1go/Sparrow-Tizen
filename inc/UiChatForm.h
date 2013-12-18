@@ -167,6 +167,8 @@ public:
 	bool __isEditMode;
 	void SetEditMode(bool mode);
 
+	void AttachLoacation();
+
 private:
 	static const int ID_CONTEXT_ITEM_1 = 103;
 	static const int ID_CONTEXT_ITEM_2 = 104;

@@ -34,6 +34,9 @@ PostMan::PostMan() {
 	__pAttachmentListener = null;
 	__pFwdMessages = null;
 
+	__lat = 0;
+	__lon = 0;
+
 }
 
 PostMan::~PostMan() {

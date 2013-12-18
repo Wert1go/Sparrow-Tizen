@@ -63,7 +63,7 @@ PostMessageOperation::OnSuccessN(RestResponse *result) {
 			if (response->__pMessage) {
 				this->__pMessage->SetDate(response->__pMessage->GetDate());
 			}
-
+			this->__pMessage->__pGeo = response->__pMessage->__pGeo;
 			this->__pMessage->__pFwd = response->__pMessage->__pFwd;
 			MMessageDao::getInstance().Save(__pMessage);
 
@@ -149,6 +149,25 @@ PostMessageOperation::SendMessage() {
 			sendMessageRequest.Append("\"forward_messages\" : \"");
 			sendMessageRequest.Append(__pMessage->__pFwdString->GetPointer());
 			sendMessageRequest.Append("\"");
+		}
+
+		if (__pMessage->__lat != 0) {
+			sendMessageRequest.Append(",");
+			sendMessageRequest.Append("\"lat\" : ");
+
+			String latString;
+			latString.Format(20, L"%.14g", __pMessage->__lat);
+			latString.Replace(L",", L".");
+			sendMessageRequest.Append(latString);
+
+			sendMessageRequest.Append(",");
+			sendMessageRequest.Append("\"long\" : ");
+
+			String lonString;
+			lonString.Format(20, L"%.14g", __pMessage->__lon);
+			lonString.Replace(L",", L".");
+
+			sendMessageRequest.Append(lonString);
 		}
 
 		sendMessageRequest.Append(L"});");

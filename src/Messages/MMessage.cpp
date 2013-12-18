@@ -37,6 +37,9 @@ MMessage::MMessage() {
 	__views = 0;
 	__size = 0;
 
+	__lat = 0;
+	__lon = 0;
+
 	//utils
 
 	__tempId = 0;

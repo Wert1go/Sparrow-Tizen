@@ -30,8 +30,10 @@
     <text id="IDS_LAST_SEEN_AT">в</text>
     <text id="IDS_MSG_DELETE">Удалить</text>
     <text id="IDS_OFFLINE">Оффлайн</text>
+    <text id="IDS_MAP_SUCCESS">Прикреплено текущее местоположение</text>
     <text id="IDS_SEARCH_MESSAGES">Сообщения</text>
     <text id="IDS_LAST_SEEN">Был в сети</text>
+    <text id="IDS_MAP_FAILED">Не удалось получить информацию о местоположении</text>
     <text id="IDS_CANCEL">Отмена</text>
     <text id="IDS_MAIN_FORM_FRIENDS">Все друзья</text>
     <text id="IDS_ADD_FRIEND">Добавить в друзья</text>
@@ -48,6 +50,7 @@
     <text id="IDS_ONLINE">Онлайн</text>
     <text id="IDS_SYNC_CONTACTS">Синхронизировать контакты</text>
     <text id="IDS_MAIN_FORM_SEARCH">Поиск</text>
+    <text id="IDS_MAP_OFF">Определение местоположения отключено в настройках устройства</text>
     <text id="IDS_CONTACT_NOT_REGISTRED">Пользователь ещё не зарегистрирован. Вы можете отправить ему приглашение</text>
     <text id="IDS_BUTTON_LOGIN">Войти через VK</text>
     <text id="IDS_MAIN_FORM_FRIENDS_ONLINE">Онлайн</text>

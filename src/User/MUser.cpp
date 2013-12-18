@@ -210,7 +210,6 @@ MUser::CreateFromJsonN(const Tizen::Web::Json::JsonObject &pUserObject) {
 	if (isFriend) {
 		user->__isFriend = isFriend->ToInt();
 	} else {
-		AppLog("user->__isFriend = 0;");
 		user->__isFriend = 0;
 	}
 
@@ -226,8 +225,6 @@ MUser::CreateFromJsonN(const Tizen::Web::Json::JsonObject &pUserObject) {
 			user->__pContactPhone = new String(phone->GetPointer());
 		}
 	}
-
-	AppLog("LAST SEEN: %d", user->GetLastSeen());
 
 	delete pKeyFirstName;
 	delete pKeyLastName;

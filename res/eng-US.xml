@@ -30,8 +30,10 @@
     <text id="IDS_LAST_SEEN_AT">at</text>
     <text id="IDS_MSG_DELETE">Delete</text>
     <text id="IDS_OFFLINE">Offline</text>
+    <text id="IDS_MAP_SUCCESS">Attached current location</text>
     <text id="IDS_SEARCH_MESSAGES">Messages</text>
     <text id="IDS_LAST_SEEN">Last seen</text>
+    <text id="IDS_MAP_FAILED">Failed to get information about the location</text>
     <text id="IDS_CANCEL">Cancel</text>
     <text id="IDS_MAIN_FORM_FRIENDS">All friends</text>
     <text id="IDS_ADD_FRIEND">Add friend</text>
@@ -48,6 +50,7 @@
     <text id="IDS_ONLINE">Online</text>
     <text id="IDS_SYNC_CONTACTS">Sync contacts </text>
     <text id="IDS_MAIN_FORM_SEARCH">Search</text>
+    <text id="IDS_MAP_OFF">Positioning is disabled in the device settings</text>
     <text id="IDS_CONTACT_NOT_REGISTRED">User is not registred yet. You can send an invitation</text>
     <text id="IDS_BUTTON_LOGIN">Login</text>
     <text id="IDS_MAIN_FORM_FRIENDS_ONLINE">Online</text>
