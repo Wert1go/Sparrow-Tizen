@@ -64,6 +64,18 @@ MDialogDao::Save(MMessage *message, MUser *user) {
 		tempDialog->SetChatId(message->GetChatId());
 	}
 
+	if (message->__pAttachments && message->__pAttachments->GetCount() > 0) {
+		tempDialog->__attachmentCount = message->__pAttachments->GetCount();
+	}
+
+	if (message->__pGeo) {
+		tempDialog->__attachmentCount += 1;
+	}
+
+	if (message->__pFwd && message->__pFwd->GetCount() > 0) {
+		tempDialog->__fwdCount = message->__pFwd->GetCount();
+	}
+
 	this->Save(tempDialog);
 
 	delete tempDialog;

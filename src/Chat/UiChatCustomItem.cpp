@@ -119,7 +119,7 @@ UiChatCustomItem::DrawImageFromUrlInRect(String *imageUrl, Rectangle rect) {
 	int index = this->__pImageViews->GetCount();
 	index += 1000;
 
-	AppLog("DrawImageFromUrlInRect: %d", index);
+//	AppLog("DrawImageFromUrlInRect: %d", index);
 
 	UiImageView *pImageView = new (std::nothrow) UiImageView();
 
@@ -145,7 +145,7 @@ UiChatCustomItem::DrawAttachmentFromUrlInRect(String *imageUrl, Rectangle rect, 
 
 	int index = this->__pAttachmentViews->GetCount();
 
-	AppLog("index: %d - %S", index, attachment->__pType->GetPointer());
+//	AppLog("index: %d - %S", index, attachment->__pType->GetPointer());
 
 	UiAttachmentView *pImageView = new (std::nothrow) UiAttachmentView();
 	pImageView->__pImageDrawer = this;
@@ -174,7 +174,7 @@ void
 UiChatCustomItem::OnImageLoadedN(Bitmap *result, Integer *code) {
 	int index = code->ToInt();
 
-	AppLog("OnImageLoadedN:: %d", index);
+//	AppLog("OnImageLoadedN:: %d", index);
 
 	if (index >= 1000) {
 		index = index - 1000;

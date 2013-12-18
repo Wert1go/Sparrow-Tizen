@@ -1,4 +1,4 @@
-var a = API.messages.getHistory({"user_id" : 12121645});
+var a = API.messages.getHistory({"chat_id" : 90});
 
 var l = a.items@.fwd_messages;
 
@@ -7,10 +7,11 @@ var uids = [];
 var j;
 
 while (i < l.length) { 
-	i = i+ 1; 
+	
 
 	var fwd = l[i]@.user_id;
 	uids = uids + fwd; 
+	i = i+ 1; 
 };
 var b = [];
 if (uids.length > 0) {

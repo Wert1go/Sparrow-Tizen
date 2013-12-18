@@ -281,11 +281,11 @@ UiAttachmentView::OnDraw(
 
 void
 UiAttachmentView::SetAttachment(MAttachment *pAttachment) {
-	AppLog("++++++++++++++++++++++++++++++++++++++++++++++++ 1 : %f %f ", pAttachment->imageSize.x, pAttachment->imageSize.y);
+//	AppLog("++++++++++++++++++++++++++++++++++++++++++++++++ 1 : %f %f ", pAttachment->imageSize.x, pAttachment->imageSize.y);
 	if (pAttachment->__nesting >= 5) {
 		return;
 	}
-	AppLog("++++++++++++++++++++++++++++++++++++++++++++++++ 2");
+//	AppLog("++++++++++++++++++++++++++++++++++++++++++++++++ 2");
 	__pAttachment = pAttachment;
 //	AppLog("UiAttachmentView::SetAttachment %S", __pAttachment->__pType->GetPointer());
 
