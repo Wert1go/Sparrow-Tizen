@@ -299,12 +299,20 @@ UiDialogListItem::SetDialog(MDialog *pDialog) {
 	String *titleText;
 	if (this->GetDialog()->GetUid() < isChatValue) {
 		String *fullName = new String();
-		fullName->Append(this->GetDialog()->GetFirstName()->GetPointer());
+		if (this->GetDialog()->GetFirstName()) {
+			fullName->Append(this->GetDialog()->GetFirstName()->GetPointer());
+		}
 		fullName->Append(L" ");
-		fullName->Append(this->GetDialog()->GetLastName()->GetPointer());
+		if (this->GetDialog()->GetLastName()) {
+			fullName->Append(this->GetDialog()->GetLastName()->GetPointer());
+		}
 		titleText = fullName;
 	} else {
-		titleText = this->GetDialog()->GetTitle();
+		if (this->GetDialog()->GetTitle()) {
+			titleText = this->GetDialog()->GetTitle();
+		} else {
+			titleText = new String(L" ");
+		}
 	}
 	r = pUsetNameText->Construct(titleText->GetPointer());
 
