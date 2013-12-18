@@ -499,14 +499,14 @@ UiChatForm::OnListViewItemStateChanged(Tizen::Ui::Controls::ListView &listView, 
 				paramsList->Add(new String(imgUrl->GetPointer()));
 				pSceneManager->GoForward(ForwardSceneTransition(SCENE_IMAGE_VIEWER, SCENE_TRANSITION_ANIMATION_TYPE_LEFT), paramsList);
 			} else if (attach->__pType->Equals(VIDEO, false)) {
-				SceneManager* pSceneManager = SceneManager::GetInstance();
-				AppAssert(pSceneManager);
-
-				ArrayList *paramsList = new (std::nothrow) ArrayList();
-				paramsList->Construct();
-
-				paramsList->Add(attach);
-				pSceneManager->GoForward(ForwardSceneTransition(SCENE_VIDEO_VIEWER, SCENE_TRANSITION_ANIMATION_TYPE_LEFT), paramsList);
+//				SceneManager* pSceneManager = SceneManager::GetInstance();
+//				AppAssert(pSceneManager);
+//
+//				ArrayList *paramsList = new (std::nothrow) ArrayList();
+//				paramsList->Construct();
+//
+//				paramsList->Add(attach);
+//				pSceneManager->GoForward(ForwardSceneTransition(SCENE_VIDEO_VIEWER, SCENE_TRANSITION_ANIMATION_TYPE_LEFT), paramsList);
 			}
 		} else {
 			if (!this->__isEditMode) {
@@ -1664,21 +1664,21 @@ UiChatForm::AttachLoacation() {
 	}
 	else
 	{
-	   if (r == E_SYSTEM) {
-		    MessageBox* pMessageBox = new (std::nothrow) MessageBox();
-		    String deleteString;
-			Application::GetInstance()->GetAppResource()->GetString(IDS_MAP_FAILED, deleteString);
-
-		   	pMessageBox->Construct(L"Sparrow", deleteString, MSGBOX_STYLE_OK, 5000);
-
-		   	int ModalResult;
-		   	pMessageBox->ShowAndWait(ModalResult);
-
-		   	delete pMessageBox;
-	   } else if (r == E_USER_NOT_CONSENTED) {
+	  if (r == E_USER_NOT_CONSENTED) {
 		   	MessageBox* pMessageBox = new (std::nothrow) MessageBox();
 		   	String deleteString;
 			Application::GetInstance()->GetAppResource()->GetString(IDS_MAP_OFF, deleteString);
+
+			pMessageBox->Construct(L"Sparrow", deleteString, MSGBOX_STYLE_OK, 5000);
+
+			int ModalResult;
+			pMessageBox->ShowAndWait(ModalResult);
+
+			delete pMessageBox;
+	   } else {
+		   MessageBox* pMessageBox = new (std::nothrow) MessageBox();
+			String deleteString;
+			Application::GetInstance()->GetAppResource()->GetString(IDS_MAP_FAILED, deleteString);
 
 			pMessageBox->Construct(L"Sparrow", deleteString, MSGBOX_STYLE_OK, 5000);
 

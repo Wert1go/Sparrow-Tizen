@@ -65,9 +65,9 @@ MAttachment::MAttachment() {
 MAttachment::~MAttachment() {
 	SAFE_DELETE(__pType);
 	SAFE_DELETE(__pAccessKey);
-	SAFE_DELETE(__pPhoto130);
-	SAFE_DELETE(__pPhoto604);
-	SAFE_DELETE(__pVideoPhoto320);
+//	SAFE_DELETE(__pPhoto130);
+//	SAFE_DELETE(__pPhoto604);
+//	SAFE_DELETE(__pVideoPhoto320);
 	SAFE_DELETE(__pTitle);
 	SAFE_DELETE(__pDescription);
 	SAFE_DELETE(__pArtist);

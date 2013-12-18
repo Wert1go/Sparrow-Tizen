@@ -35,8 +35,8 @@ MUser::MUser() {
 }
 
 MUser::~MUser() {
-	SAFE_DELETE(__firstName);
-	SAFE_DELETE(__lastName);
+//	SAFE_DELETE(__firstName);
+//	SAFE_DELETE(__lastName);
 	SAFE_DELETE(__pBigPhoto);
 
 	SAFE_DELETE(__pContactName);
@@ -44,8 +44,8 @@ MUser::~MUser() {
 	SAFE_DELETE(__pContactPhoto);
 
 	SAFE_DELETE(__phoneNumber);
-	SAFE_DELETE(__photo);
-	SAFE_DELETE(__miniPhoto);
+//	SAFE_DELETE(__photo);
+//	SAFE_DELETE(__miniPhoto);
 }
 
 /***************** GETTERS ******************/

@@ -38,8 +38,8 @@ MDialog::~MDialog() {
 	SAFE_DELETE(chatUids);
 	SAFE_DELETE(__firstName);
 	SAFE_DELETE(__lastName);
-	SAFE_DELETE(__photo);
-	SAFE_DELETE(__miniPhoto);
+//	SAFE_DELETE(__photo);
+//	SAFE_DELETE(__miniPhoto);
 	SAFE_DELETE(__title);
 	SAFE_DELETE(__text);
 	SAFE_DELETE(__pUser);

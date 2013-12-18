@@ -271,9 +271,9 @@ UiAttachmentView::OnDraw(
 
 	}
 
-	if (status == LIST_ITEM_DRAWING_STATUS_PRESSED) {
-		canvas.FillRoundRectangle(Color(0, 0, 0, 80), rect, Dimension(8, 8));
-	}
+//	if (status == LIST_ITEM_DRAWING_STATUS_PRESSED) {
+//		canvas.FillRoundRectangle(Color(0, 0, 0, 80), rect, Dimension(8, 8));
+//	}
 
 //	AppLog("OnDraw::END");
 	return true;

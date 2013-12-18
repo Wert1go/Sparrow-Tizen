@@ -258,7 +258,7 @@ UiChatListItem::DrawBubble(Tizen::Graphics::Canvas& canvas, const Tizen::Graphic
 								height - offset*2);
 
 		normalColor = Color(76, 109, 150, 255);
-		selectedColor = Color(50, 255, 100, 255);
+		selectedColor = Color(50, 60, 100, 255);
 
 		triangleFirstPoint = Point(__leftOffset, rect.y + offset + 30);
 		triangleSecondPoint = Point(__leftOffset - triangleWidth, rect.y + offset + 30);
