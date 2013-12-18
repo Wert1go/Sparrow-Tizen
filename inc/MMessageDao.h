@@ -64,6 +64,7 @@ public:
 	int GetUnreadCount();
 
 	void DeleteMessages(LinkedList *pMessages);
+	void DeleteMessages(int dialogId);
 };
 
 #endif /* MMESSAGEDAO_H_ */

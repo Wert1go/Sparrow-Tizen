@@ -141,6 +141,73 @@ Util::formatDateN(long date) {
 	return stringDate;
 }
 
+String*
+Util::FormatLastSeenDateN(long date) {
+	String *stringDate = new String();
+
+	 DateTime today;
+	 Locale locale(LANGUAGE_RUS, COUNTRY_RU);
+	 SystemTime::GetCurrentTime(TIME_MODE_UTC, today);
+
+	 long int timestamp = time(NULL);
+	 long int delta = (long int)((timestamp - (long int)date)/(24 * 60 * 60));
+
+	//	 AppLog("formatDateN %ld || %ld :: %ld", delta, timestamp, date);
+
+	 LocaleManager localeManager;
+	 localeManager.Construct();
+
+	 DateTime after;
+	 after.AddSeconds(date);
+
+	 TimeZone timeZone = localeManager.GetSystemTimeZone();
+	 after = timeZone.UtcTimeToStandardTime(after);
+
+	 String timeZoneId = timeZone.GetId();
+
+	 if (delta < 1) {
+		 String *timeString = new String(L"");
+		 DateTimeFormatter* pTimeFormatter = DateTimeFormatter::CreateTimeFormatterN(locale, DATE_TIME_STYLE_DEFAULT);
+		 String cutomizedPattern = L"HH:mm";
+		 pTimeFormatter->ApplyPattern(cutomizedPattern);
+		 pTimeFormatter->Format(after, *timeString);
+
+		 String titleString;
+		 Application::GetInstance()->GetAppResource()->GetString(IDS_LAST_SEEN_AT, titleString);
+		 stringDate->Append(titleString);
+		 stringDate->Append(L" ");
+		 stringDate->Append(timeString->GetPointer());
+
+		 delete timeString;
+
+		 delete pTimeFormatter;
+	 } else if (delta > 0 && delta < 2) {
+		 String titleString;
+		 Application::GetInstance()->GetAppResource()->GetString(IDS_TIME_YESTERDAY, titleString);
+
+		 String *timeString = new String(L"");
+		 DateTimeFormatter* pTimeFormatter = DateTimeFormatter::CreateTimeFormatterN(locale, DATE_TIME_STYLE_DEFAULT);
+		 String cutomizedPattern = L"HH:mm";
+		 pTimeFormatter->ApplyPattern(cutomizedPattern);
+		 pTimeFormatter->Format(after, *timeString);
+
+		 stringDate->Append(titleString);
+		 stringDate->Append(L", ");
+		 stringDate->Append(timeString->GetPointer());
+		 delete timeString;
+
+	 } else {
+		 DateTimeFormatter* pTimeFormatter = DateTimeFormatter::CreateTimeFormatterN(locale, DATE_TIME_STYLE_DEFAULT);
+		 String cutomizedPattern = L"dd.MM, HH:mm";
+		 pTimeFormatter->ApplyPattern(cutomizedPattern);
+		 pTimeFormatter->Format(after, *stringDate);
+
+		 delete pTimeFormatter;
+	 }
+
+	return stringDate;
+}
+
 Dimension
 Util::CalculateDimensionForMessage(MMessage *message, bool fwd, int nesting) {
 

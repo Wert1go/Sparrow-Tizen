@@ -15,6 +15,7 @@
 #include "MDialog.h"
 #include "MUser.h"
 #include "AppResourceId.h"
+#include "Util.h"
 
 using namespace Tizen::App;
 using namespace Tizen::Base;
@@ -130,7 +131,9 @@ UiChapPanel::SetDialog(MDialog *dialog) {
 	}
 
 	if (__pDialog && __pDialog->GetChatId() != 0) {
-		__pGroupButton->SetShowState(true);
+		if (__pDialog->GetUsers() && __pDialog->GetUsers()->GetCount() > 1) {
+			__pGroupButton->SetShowState(true);
+		}
 
 		__pGroupButton->SetTextSize(40);
 		String count;
@@ -317,9 +320,27 @@ UiChapPanel::OnDraw() {
 						Application::GetInstance()->GetAppResource()->GetString(IDS_ONLINE, statusString);
 						dialogText = new String(statusString);
 					} else {
-						String statusString;
-						Application::GetInstance()->GetAppResource()->GetString(IDS_OFFLINE, statusString);
-						dialogText = new String(statusString);
+
+						if (this->__pDialog->GetDate() != 0) {
+							String statusString;
+							Application::GetInstance()->GetAppResource()->GetString(IDS_LAST_SEEN, statusString);
+
+							String *dateString = Util::FormatLastSeenDateN(this->__pDialog->GetDate());
+
+							if (dateString) {
+								statusString.Append(L" ");
+								statusString.Append(dateString->GetPointer());
+							}
+
+							delete dateString;
+
+							dialogText = new String(statusString);
+						} else {
+							String statusString;
+							Application::GetInstance()->GetAppResource()->GetString(IDS_OFFLINE, statusString);
+							dialogText = new String(statusString);
+						}
+
 					}
 				}
 			}
@@ -445,7 +466,9 @@ UiChapPanel::SetEditMode(bool mode) {
 	} else {
 		this->__pEditButton->SetShowState(false);
 		if (this->__pDialog && this->__pDialog->GetChatId() != 0) {
-			this->__pGroupButton->SetShowState(false);
+			if (__pDialog->GetUsers() && __pDialog->GetUsers()->GetCount() > 1) {
+				__pGroupButton->SetShowState(true);
+			}
 		}
 	}
 

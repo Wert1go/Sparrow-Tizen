@@ -49,6 +49,8 @@ public:
 
 	void UpdateDialogOnlineStatusById(int value, int userId);
 
+	void DeleteDialog(int uid);
+
 };
 
 #endif /* MDIALOGDAO_H_ */

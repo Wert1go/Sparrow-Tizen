@@ -95,7 +95,6 @@ UiDialogCustomItem::Init() {
 	this->__pDialogBG->SetDialog(this->__pDialog);
 
 	this->AddElement(rect, 45, *__pDialogBG);
-
 	if (this->__pDialog) {
 		__pDialogListItem = new UiDialogListItem();
 		__pDialogListItem->__pDimension = Dimension(this->__pDimension->width, this->__pDimension->height);

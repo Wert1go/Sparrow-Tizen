@@ -60,6 +60,8 @@ static const long DELETE_FRIEND = 100999129;
 
 static const long DELETE_MESSAGES = 100999130;
 
+static const long LEAVE_CONV = 100999131;
+
 extern const wchar_t* USER_FILEDS;
 
 #include <FNet.h>

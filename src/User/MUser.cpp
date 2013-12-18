@@ -227,6 +227,8 @@ MUser::CreateFromJsonN(const Tizen::Web::Json::JsonObject &pUserObject) {
 		}
 	}
 
+	AppLog("LAST SEEN: %d", user->GetLastSeen());
+
 	delete pKeyFirstName;
 	delete pKeyLastName;
 	delete pKeyId;

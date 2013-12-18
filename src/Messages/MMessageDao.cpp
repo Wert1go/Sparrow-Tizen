@@ -769,3 +769,19 @@ MMessageDao::DeleteMessages(LinkedList *pMessages) {
 	AppLog(GetErrorMessage(r));
 
 }
+
+void
+MMessageDao::DeleteMessages(int dialogId) {
+	String sql(L"DELETE FROM messages WHERE uid = ");
+	String uidString;
+	uidString.Format(11, L"%d", dialogId);
+	sql.Append(uidString);
+
+
+	AppLog("%S", sql.GetPointer());
+
+	result r;
+	r = MDatabaseManager::getInstance().GetDatabase()->ExecuteSql(sql, true);
+
+	AppLog(GetErrorMessage(r));
+}

@@ -13,6 +13,7 @@
     <text id="IDS_MSG_FWD">Переслать</text>
     <text id="IDS_START_SCREEN_DESCR">Вы сможете бесплатно обмениваться\nмгновенными сообщениями с друзьями</text>
     <text id="IDS_DECLINE_FRIEND">Отклонить заявку</text>
+    <text id="IDS_CONV_LEAVE">Покинуть беседу</text>
     <text id="IDS_SEARCH_DIALOGS">Диалоги</text>
     <text id="IDS_NOTIFY_FWD">[Пересланное сообщение]</text>
     <text id="IDS_NOTIFY_FWDS">[Пересланные сообщения]</text>
@@ -26,9 +27,11 @@
     <text id="IDS_CONTACT_CALL">Позвонить на</text>
     <text id="IDS_EDIT">Изменить</text>
     <text id="IDS_BUTTON_REG">Зарегистрироваться</text>
+    <text id="IDS_LAST_SEEN_AT">в</text>
     <text id="IDS_MSG_DELETE">Удалить</text>
     <text id="IDS_OFFLINE">Оффлайн</text>
     <text id="IDS_SEARCH_MESSAGES">Сообщения</text>
+    <text id="IDS_LAST_SEEN">Был в сети</text>
     <text id="IDS_CANCEL">Отмена</text>
     <text id="IDS_MAIN_FORM_FRIENDS">Все друзья</text>
     <text id="IDS_ADD_FRIEND">Добавить в друзья</text>

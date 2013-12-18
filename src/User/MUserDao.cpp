@@ -475,7 +475,7 @@ MUserDao::BindUserToSQLStatement(MUser *user, DbStatement *statement) {
 	statement->BindString(3, user->GetPhoto()->GetPointer());
 	statement->BindString(4, user->GetMiniPhoto()->GetPointer());
 	statement->BindInt(5, user->GetIsOnline());
-	statement->BindInt64(6, user->GetLastSeen());
+	statement->BindInt(6, user->GetLastSeen());
 	statement->BindInt(7, user->__isFriend);
 	statement->BindInt(8, user->__isContact);
 	statement->BindInt(9, user->__isPending);

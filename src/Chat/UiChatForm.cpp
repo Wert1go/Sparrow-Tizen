@@ -238,6 +238,17 @@ UiChatForm::OnSceneActivatedN(const Tizen::Ui::Scenes::SceneId& previousSceneId,
 	if (pArgs && pArgs->GetCount() > 0) {
 		Integer *param = static_cast< Integer* > (pArgs->GetAt(0));
 
+		AppLog("+++++++++++++++++ %d", param->ToInt());
+
+		if (param->ToInt() == -1) {
+
+			Timer *pTimer = new Timer();
+			pTimer->Construct(*this);
+			pTimer->Start(400);
+			this->OnFormBackRequested(*this);
+			return;
+		}
+
 		__userId = param->ToInt();
 
 		if (this->__pChatPanel) {
@@ -246,11 +257,22 @@ UiChatForm::OnSceneActivatedN(const Tizen::Ui::Scenes::SceneId& previousSceneId,
 			if (!dialog) {
 				if (pArgs->GetCount() > 1) {
 					dialog = static_cast< MDialog* > (pArgs->GetAt(1));
+					MUser *user = MUserDao::getInstance().GetUserN(__userId);
+					if (user) {
+						dialog->SetDate(user->GetLastSeen());
+					}
 				} else {
 					MUser *user = MUserDao::getInstance().GetUserN(__userId);
 					if (user) {
 						dialog = MDialog::CreateFromUserN(user);
 					}
+				}
+			} else {
+				MUser *user = MUserDao::getInstance().GetUserN(__userId);
+				if (user) {
+					AppLog("user->GetLastSeen(): %d", user->GetLastSeen());
+
+					dialog->SetDate(user->GetLastSeen());
 				}
 			}
 
@@ -586,7 +608,6 @@ UiChatForm::CreateItem(int index, int itemWidth) {
     	dmns.height = height;
     }
     int width = pItem->GetAnnexWidth(style);
-    AppLog("width: %d", width);
 
     pItem->Construct(Dimension(itemWidth, height), style);
 
@@ -908,7 +929,9 @@ UiChatForm::IsAlreadyAdded(MMessage *message) {
 
 void
 UiChatForm::OnTextValueChanged(const Tizen::Ui::Control& source) {
+	AppLog("!!!tttt t trt ret t rt ret ret er er te er re");
 	if (!__isUserPrinting) {
+		AppLog("1111tttt t trt ret t rt ret ret er er te er re");
 		this->NotifyUserTyping();
 	}
 }
@@ -1079,7 +1102,14 @@ UiChatForm::OnActionPerformed(const Tizen::Ui::Control& source, int actionId) {
 		__pAttachmentPopup->ShowPopup();
 		__pAttachmentPopup->__pPopupHandler = this;
 	} else if (actionId == 10034) {
-		//переход на экран группы
+		SceneManager* pSceneManager = SceneManager::GetInstance();
+		AppAssert(pSceneManager);
+
+		ArrayList *paramsList = new (std::nothrow) ArrayList();
+		paramsList->Construct();
+
+		paramsList->Add(this->__pDialog);
+		pSceneManager->GoForward(ForwardSceneTransition(SCENE_CHAT_EDIT, SCENE_TRANSITION_ANIMATION_TYPE_LEFT), paramsList);
 	} else if (actionId == 10037) {
 		//отмена
 		this->SetEditMode(false);
@@ -1441,10 +1471,15 @@ UiChatForm::OnProgressChanged(MAttachment *attachment, int progress, int uid) {
 
 void
 UiChatForm::OnTimerExpired (Timer &timer) {
-	this->__isUserPrinting = false;
-
-	delete this->__pPrintingTimer;
-	this->__pPrintingTimer = null;
+	if (timer.Equals(*this->__pPrintingTimer)) {
+		this->__isUserPrinting = false;
+		AppLog("tttt t trt ret t rt ret ret er er te er re");
+		delete this->__pPrintingTimer;
+		this->__pPrintingTimer = null;
+	} else {
+		delete &timer;
+		this->OnFormBackRequested(*this);
+	}
 }
 
 void
@@ -1463,7 +1498,12 @@ UiChatForm::NotifyUserTyping() {
 	HashMap *params = new HashMap();
 
 	params->Construct();
-	params->Add(new String(L"user_id"), new String(AuthManager::getInstance().UserId()->GetPointer()));
+	String uid;
+	uid.Format(10, L"%d", this->__userId);
+
+//	params->Add(new String(L"user_id"), new String(AuthManager::getInstance().UserId()->GetPointer()));
+	params->Add(new String(L"user_id"), new String(uid));
+
 	params->Add(new String(L"type"), new String(L"typing"));
 	params->Add(new String(L"access_token"), AuthManager::getInstance().AccessToken());
 

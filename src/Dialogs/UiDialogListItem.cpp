@@ -201,10 +201,14 @@ UiDialogListItem::DrawRounders(Tizen::Graphics::Canvas &canvas, const Tizen::Gra
 				default:
 					break;
 				}
+			} else if (userCount == 1) {
+				imageRect = Rectangle(80 - 108/2, rect.height/2 - 108/2, 108, 108);
 			}
 
 			canvas.DrawBitmap(imageRect, *bitmap);
 		}
+	} else {
+		canvas.DrawBitmap( Rectangle(80 - 108/2, rect.height/2 - 108/2, 108, 108), *bitmap);
 	}
 }
 

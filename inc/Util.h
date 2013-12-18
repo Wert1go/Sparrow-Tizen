@@ -33,6 +33,7 @@ public:
 	//НЕ работает с русскими символами
 	static String* MD5N(String *string);
 	static String* formatDateN(long date);
+	static String* FormatLastSeenDateN(long date);
 	static void LogE();
 
 	static void ClearText(String *pText);

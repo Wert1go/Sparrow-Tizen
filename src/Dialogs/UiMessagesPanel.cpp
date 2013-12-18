@@ -619,7 +619,7 @@ UiMessagesPanel::SendRequest(int offset) {
 			" 	}"
 			"	i=i+1;"
 			"};"
-			"var b = API.users.get({\"user_ids\": l, \"fields\": \"photo_100,photo_50,online,is_friend,photo_200\"});"
+			"var b = API.users.get({\"user_ids\": l, \"fields\": \"photo_100,photo_50,online,is_friend,photo_200,last_seen\"});"
 			"return {\"chat_uids\" : uids, \"users\": b, \"messages\": a};";
 
 	String request(L"");
@@ -790,7 +790,7 @@ UiMessagesPanel::SearchDialogs(String searchText) {
 			"	}"
 			"	i = i + 1;"
 			"};"
-			"var b = API.users.get({\"user_ids\": r, \"fields\": \"photo_100,photo_50,online,is_friend,photo_200\"});"
+			"var b = API.users.get({\"user_ids\": r, \"fields\": \"photo_100,photo_50,online,is_friend,photo_200,last_seen\"});"
 			"return {\"dialogs\" : a, \"users\": b};";
 
 	String request(L"");
@@ -843,7 +843,7 @@ UiMessagesPanel::SearchMessages(String searchText) {
 			" 	}"
 			"	i=i+1;"
 			"};"
-			"var b = API.users.get({\"user_ids\": l, \"fields\": \"photo_100,photo_50,online,is_friend,photo_200\"});"
+			"var b = API.users.get({\"user_ids\": l, \"fields\": \"photo_100,photo_50,online,is_friend,photo_200,last_seen\"});"
 			"return {\"chat_uids\" : uids, \"users\": b, \"messages\": a};";
 
 	String request(L"");

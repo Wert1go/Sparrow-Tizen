@@ -370,3 +370,19 @@ MDialogDao::UpdateDialogOnlineStatusById(int value, int userId) {
 	delete pEnum;
 	delete pStmt;
 }
+
+void
+MDialogDao::DeleteDialog(int uid) {
+	String sql(L"DELETE FROM dialogs WHERE uid = ");
+	String uidString;
+	uidString.Format(11, L"%d", uid);
+	sql.Append(uidString);
+
+
+	AppLog("%S", sql.GetPointer());
+
+	result r;
+	r = MDatabaseManager::getInstance().GetDatabase()->ExecuteSql(sql, true);
+
+	AppLog(GetErrorMessage(r));
+}
